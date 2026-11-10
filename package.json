@@ -1,0 +1,20 @@
+{
+  "name": "dittowork-gs",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Ditto — single-page GSAP prototype",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "gsap": "^3.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.6.3",
+    "vite": "^6.3.5"
+  }
+}

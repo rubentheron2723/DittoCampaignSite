@@ -1,0 +1,47 @@
+.contact-hero { min-height: 62svh; }
+.contact { background: linear-gradient(180deg, var(--paper-2), var(--paper)); padding: clamp(64px, 8vw, 120px) 0 clamp(96px, 12vw, 160px); }
+.contact__grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+.form { position: relative; padding: clamp(24px, 3vw, 40px); border-radius: 24px; background: var(--white); border: 1px solid var(--line-light); box-shadow: 0 30px 80px rgba(6, 49, 73, 0.1); }
+.form__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 24px; }
+.field { position: relative; display: grid; gap: 8px; }
+.field--full { grid-column: 1 / -1; }
+.field__label { font-size: 13px; font-weight: 500; letter-spacing: 0.02em; color: var(--ink-soft); transition: color 0.2s; }
+.field.is-focused .field__label { color: var(--blue-deep); }
+.field__input { width: 100%; padding: 12px 0; background: none; border: 0; border-bottom: 1px solid var(--line-light); font-size: 16px; color: var(--ink); outline: none; appearance: none; -webkit-appearance: none; border-radius: 0; }
+.field__input::placeholder { color: rgba(77, 89, 107, 0.55); }
+select.field__input { cursor: pointer; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f141d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0 center / 18px; padding-right: 28px; }
+select.field__input:invalid, select.field__input option[value=''] { color: rgba(77, 89, 107, 0.7); }
+.field.is-filled select.field__input { color: var(--ink); }
+textarea.field__input { resize: vertical; min-height: 96px; }
+.field__line { position: absolute; left: 0; right: 0; bottom: 22px; height: 2px; background: var(--blue); transform: scaleX(0); transform-origin: left; transition: transform 0.4s var(--ease-out); pointer-events: none; }
+.field:has(textarea) .field__line { bottom: 26px; }
+.field.is-focused .field__line { transform: scaleX(1); }
+.field.is-invalid .field__line { transform: scaleX(1); background: #c2782a; }
+.field__error { min-height: 14px; font-size: 12px; color: #c2782a; }
+.form__foot { margin-top: 32px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.form__note { font-size: 13px; color: var(--ink-soft); max-width: 44ch; }
+.form__submit { min-width: 170px; }
+.form__submit-sending { display: none; }
+.form.is-sending .form__submit-label { display: none; }
+.form.is-sending .form__submit-sending { display: inline; }
+.form.is-sending .form__submit { opacity: 0.8; }
+.form__success { display: none; position: absolute; inset: 0; place-content: center; justify-items: center; text-align: center; gap: 16px; padding: 40px; }
+.form__success-mark { width: 64px; margin-bottom: 12px; filter: drop-shadow(0 20px 40px rgba(0, 176, 255, 0.35)); }
+.form.is-sent { min-height: 520px; }
+
+.contact__aside { position: sticky; top: calc(var(--nav-h) + 24px); }
+.next { margin-top: 20px; display: grid; gap: 22px; }
+.next__step { display: grid; grid-template-columns: 40px 1fr; gap: 16px; align-items: start; }
+.next__dot { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--white); border: 1px solid var(--line-light); font-weight: 600; font-size: 14px; }
+.next__step h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.015em; }
+.next__step p { margin-top: 6px; font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
+.direct { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line-light); }
+.direct__email { display: inline-block; margin-top: 8px; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; border-bottom: 2px solid var(--blue); }
+.contact__footer { background: var(--black); color: var(--white); }
+.contact__footer .footer { margin-top: 0; }
+
+@media (max-width: 900px) {
+  .contact__grid { grid-template-columns: 1fr; }
+  .form__fields { grid-template-columns: 1fr; }
+  .contact__aside { position: static; }
+}

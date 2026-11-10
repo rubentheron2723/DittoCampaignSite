@@ -1,0 +1,236 @@
+import { acts, ai, hero, pricing, system, trust } from '../content/home';
+import { ctaAndFooter } from '../shared/chrome';
+import { esc, markSvg } from '../shared/mark';
+
+function heroSection() {
+  // A few "candidate cards" float in the hero and respond to the pointer.
+  const cards = [
+    { name: 'Senior Developer', meta: 'Match 96 · Cape Town', depth: 0.6 },
+    { name: 'Finance Manager', meta: 'Shortlisted · 3 interviews', depth: 1.1 },
+    { name: 'Operations Lead', meta: 'Offer accepted · Start 1 Nov', depth: 0.85 },
+  ];
+  return `
+  <section class="hero" id="top" data-theme="dark">
+    <div class="hero__bg" aria-hidden="true">
+      <svg class="hero__flow" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="flowStroke" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#00B0FF" stop-opacity="0" />
+            <stop offset="0.3" stop-color="#00B0FF" stop-opacity="0.9" />
+            <stop offset="0.7" stop-color="#ffffff" stop-opacity="0.9" />
+            <stop offset="1" stop-color="#00B0FF" stop-opacity="0" />
+          </linearGradient>
+          <filter id="glow" x="-300%" y="-300%" width="700%" height="700%">
+            <feGaussianBlur stdDeviation="6" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+        <path class="hero__flow-path hero__flow-path--ghost" d="M-100,620 C200,620 260,260 520,300 S820,640 1040,560 S1360,160 1720,240" />
+        <path class="hero__flow-path" id="hero-path" d="M-100,620 C200,620 260,260 520,300 S820,640 1040,560 S1360,160 1720,240" />
+        <circle class="hero__flow-dot" r="7" filter="url(#glow)" />
+        <circle class="hero__flow-dot hero__flow-dot--2" r="4" />
+      </svg>
+      <div class="hero__cards">
+        ${cards
+          .map(
+            (c, i) => `<div class="hcard hcard--${i + 1}" data-depth="${c.depth}" data-speed="${1 + i * 0.08}">
+              <span class="hcard__avatar">${c.name[0]}</span>
+              <span class="hcard__name">${esc(c.name)}</span>
+              <span class="hcard__meta">${esc(c.meta)}</span>
+            </div>`,
+          )
+          .join('')}
+      </div>
+      <div class="hero__mark">${markSvg('mark--hero')}</div>
+    </div>
+
+    <div class="hero__inner">
+      <p class="eyebrow hero__eyebrow">${esc(hero.eyebrow)}</p>
+      <h1 class="hero__title">
+        <span class="hero__line">${esc(hero.lineOne)}</span>
+        <span class="hero__line hero__line--accent">${esc(hero.lineTwo)}</span>
+      </h1>
+      <p class="hero__subhead">${esc(hero.subhead)}</p>
+      <p class="hero__support">${esc(hero.support)}</p>
+      <div class="hero__actions">
+        <a class="btn btn--light btn--lg" href="#cta" data-magnetic>${esc(hero.primary)}</a>
+        <a class="btn btn--outline btn--lg" href="#pricing" data-magnetic>${esc(hero.secondary)}</a>
+      </div>
+      <div class="hero__rotator" aria-live="polite">
+        ${hero.rotating.map((l) => `<span>${esc(l)}</span>`).join('')}
+      </div>
+    </div>
+    <div class="hero__cue" aria-hidden="true"><span></span><em>scroll</em></div>
+  </section>`;
+}
+
+function systemSection() {
+  return `
+  <section class="system" id="system" data-theme="light">
+    <div class="system__stage">
+      <div class="system__hub" aria-hidden="true">
+        <div class="system__orbit">
+          <span class="orbit__ring orbit__ring--1"></span>
+          <span class="orbit__ring orbit__ring--2"></span>
+          ${system.orbit.map((o, i) => `<span class="orbit__chip" data-i="${i}">${esc(o)}</span>`).join('')}
+        </div>
+        <div class="system__core">${markSvg('mark--system')}</div>
+      </div>
+      <div class="system__copy">
+        <h2 class="system__title">
+          <span class="system__line">${esc(system.lineOne)}</span>
+          <span class="system__line">${esc(system.lineTwo)}</span>
+        </h2>
+        <p class="system__lead">${esc(system.lead)}</p>
+      </div>
+    </div>
+  </section>`;
+}
+
+function flowSection() {
+  const panels = acts
+    .map(
+      (a) => `
+      <article class="panel panel--${a.id}" data-act="${a.id}">
+        <span class="panel__num" aria-hidden="true">${a.number}</span>
+        <div class="panel__body">
+          <p class="eyebrow panel__label">${esc(a.label)}</p>
+          <h3 class="panel__title">${esc(a.headline)}</h3>
+          <div class="panel__text">
+            ${a.paragraphs.map((p) => `<p>${esc(p)}</p>`).join('')}
+          </div>
+          <ul class="panel__chips">
+            ${a.chips.map((c) => `<li>${esc(c)}</li>`).join('')}
+          </ul>
+        </div>
+      </article>`,
+    )
+    .join('');
+
+  return `
+  <section class="flow" id="flow" data-theme="dark">
+    <div class="flow__pin">
+      <div class="flow__header">
+        <p class="eyebrow">Product</p>
+        <p class="flow__count"><b>01</b><span>/ 03</span></p>
+      </div>
+      <div class="flow__track">
+        <svg class="flow__line" viewBox="0 0 3000 600" preserveAspectRatio="none" aria-hidden="true">
+          <path class="flow__line-ghost" d="M0,470 C300,470 400,120 700,140 S1150,520 1450,470 S1900,90 2200,130 S2700,520 3000,420" />
+          <path class="flow__line-path" id="flow-path" d="M0,470 C300,470 400,120 700,140 S1150,520 1450,470 S1900,90 2200,130 S2700,520 3000,420" />
+          <g class="flow__node" data-node="0"><circle r="18" /><circle r="6" /></g>
+          <g class="flow__node" data-node="1"><circle r="18" /><circle r="6" /></g>
+          <g class="flow__node" data-node="2"><circle r="18" /><circle r="6" /></g>
+          <circle class="flow__traveller" cx="0" cy="470" r="9" />
+        </svg>
+        ${panels}
+      </div>
+    </div>
+  </section>`;
+}
+
+function trustSection() {
+  const ticker = [...trust.ticker, ...trust.ticker].map((t) => `<span>${esc(t)}</span>`).join('');
+  return `
+  <section class="trust" id="trust" data-theme="light">
+    <div class="trust__inner">
+      <h2 class="trust__title">${esc(trust.headline)}</h2>
+      <p class="trust__body">${esc(trust.body)}</p>
+      <div class="stats">
+        ${trust.stats
+          .map(
+            (s) => `<div class="stat">
+              <span class="stat__value" data-count="${s.value}" data-format="${s.format ?? 'int'}">${s.format === 'year' ? '2000' : '0'}</span>${
+                s.suffix ? `<span class="stat__suffix">${esc(s.suffix)}</span>` : ''
+              }
+              <span class="stat__label">${esc(s.label)}</span>
+            </div>`,
+          )
+          .join('')}
+      </div>
+    </div>
+    <div class="ticker" aria-hidden="true"><div class="ticker__row">${ticker}</div></div>
+  </section>`;
+}
+
+function aiSection() {
+  return `
+  <section class="ai" id="ai" data-theme="light">
+    <div class="ai__inner">
+      <div class="ai__head">
+        <p class="eyebrow">Practical AI</p>
+        <h2 class="ai__title">${esc(ai.title)}</h2>
+        <p class="ai__desc">${esc(ai.description)}</p>
+      </div>
+      <div class="ai__cards">
+        ${ai.cards
+          .map(
+            (c, i) => `<article class="aicard" data-tilt>
+              <span class="aicard__index">0${i + 1}</span>
+              <h3>${esc(c.title)}</h3>
+              <p>${esc(c.copy)}</p>
+              <span class="aicard__shine" aria-hidden="true"></span>
+            </article>`,
+          )
+          .join('')}
+      </div>
+      <div class="steps">
+        <svg class="steps__line" viewBox="0 0 1000 80" preserveAspectRatio="none" aria-hidden="true">
+          <path class="steps__ghost" d="M20,40 L980,40" />
+          <path class="steps__path" d="M20,40 L980,40" />
+        </svg>
+        <ol class="steps__list">
+          ${ai.flow
+            .map(
+              (f, i) => `<li class="step"><span class="step__dot"><b>${i + 1}</b></span><p>${esc(f)}</p></li>`,
+            )
+            .join('')}
+        </ol>
+      </div>
+      <p class="ai__note">${esc(ai.note)}</p>
+    </div>
+  </section>`;
+}
+
+function pricingSection() {
+  return `
+  <section class="pricing" id="pricing" data-theme="light">
+    <div class="pricing__inner">
+      <div class="pricing__head">
+        <p class="eyebrow">Pricing</p>
+        <h2 class="pricing__title">${esc(pricing.title)}</h2>
+        <p class="pricing__copy">${esc(pricing.copy)}</p>
+        <div class="toggle" role="tablist" aria-label="Billing period" id="billing-toggle">
+          <span class="toggle__pill" aria-hidden="true"></span>
+          <button type="button" role="tab" aria-selected="true" data-period="monthly">${esc(pricing.monthlyLabel)}</button>
+          <button type="button" role="tab" aria-selected="false" data-period="annual">${esc(pricing.annualLabel)} <em>${esc(pricing.annualNote)}</em></button>
+        </div>
+      </div>
+      <div class="tiers">
+        ${pricing.tiers
+          .map(
+            (t, i) => `<article class="tier ${i === 1 ? 'tier--featured' : ''}" data-monthly="${t.monthly}" data-annual="${t.annual}">
+              <p class="tier__users">${esc(t.users)} <span>active users</span></p>
+              <p class="tier__price"><span class="tier__currency">R</span><span class="tier__amount">${t.monthly.toFixed(2)}</span></p>
+              <p class="tier__per">${esc(pricing.perSeat)}</p>
+              <a class="btn ${i === 1 ? 'btn--solid' : 'btn--outline-dark'}" href="#cta" data-magnetic>Get started</a>
+            </article>`,
+          )
+          .join('')}
+      </div>
+    </div>
+  </section>`;
+}
+
+export function renderHome() {
+  const main = document.getElementById('main')!;
+  main.innerHTML = [
+    heroSection(),
+    systemSection(),
+    flowSection(),
+    trustSection(),
+    aiSection(),
+    pricingSection(),
+    ctaAndFooter(),
+  ].join('');
+}
