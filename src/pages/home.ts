@@ -28,8 +28,7 @@ boot({
     gsap.matchMedia().add({ desktop: '(min-width: 901px)', mobile: '(max-width: 900px)' }, (ctx) => {
       const { desktop } = ctx.conditions as { desktop: boolean };
       initFlow(desktop);
-      // Cleans up the system section's listeners when the breakpoint changes.
-      return initSystem();
+      initSystem();
     });
 
     const heroTl = initHero();
