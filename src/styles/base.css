@@ -185,8 +185,16 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 .footer__col { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; font-size: 20px; line-height: 24px; font-variation-settings: 'opsz' 14; }
 .footer__col:nth-child(5) { grid-column: 2; }
 .footer__title { margin: 0; color: rgba(254, 254, 254, 0.5); }
-.footer__col a { color: #fefefe; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color 0.2s; }
-.footer__col a:hover, .footer__col a:focus-visible { text-decoration-color: currentColor; }
+.footer__col a { color: #fefefe; }
+/* Hover wave: each character lifts and settles in turn. */
+.wave { display: inline-flex; }
+.wave span { display: inline-block; white-space: pre; }
+.footer__col a:hover .wave span, .footer__col a:focus-visible .wave span { animation: wave-lift 0.38s ease-in-out calc(var(--i) * 45ms) both; }
+@keyframes wave-lift { 0% { transform: translateY(0); } 40% { transform: translateY(-0.3em); } 100% { transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .footer__col a:hover .wave span, .footer__col a:focus-visible .wave span { animation: none; }
+  .footer__col a:hover, .footer__col a:focus-visible { opacity: 0.75; }
+}
 /* 1445.11 × 490.486 lettering on a 1440 frame, at least 116px below the links, cropped to its top 240px. */
 .footer__wordmark { position: relative; display: block; width: 100.355%; height: auto; margin-top: auto; margin-bottom: -17.395%; flex-shrink: 0; }
 

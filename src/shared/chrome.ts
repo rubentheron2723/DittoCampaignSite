@@ -75,13 +75,21 @@ export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: 
   ${footerHtml()}`;
 }
 
+/** Splits a label into per-character spans for the footer's hover wave (see .wave in base.css). */
+function waveText(label: string) {
+  const chars = Array.from(label)
+    .map((ch, i) => `<span style="--i:${i}">${esc(ch)}</span>`)
+    .join('');
+  return `<span class="wave" aria-hidden="true">${chars}</span>`;
+}
+
 /** Blue footer from the Figma design. The canvas runs the Moving blobs effect over the artwork (see footer-blobs.ts). */
 export function footerHtml() {
   const columns = footer.columns
     .map(
       (col) => `<div class="footer__col">
         <p class="footer__title">${esc(col.title)}</p>
-        ${col.links.map((l) => `<a href="${l.href}" ${l.href.startsWith('http') ? 'target="_blank" rel="noreferrer"' : ''}>${esc(l.label)}</a>`).join('')}
+        ${col.links.map((l) => `<a href="${l.href}" aria-label="${esc(l.label)}" ${l.href.startsWith('http') ? 'target="_blank" rel="noreferrer"' : ''}>${waveText(l.label)}</a>`).join('')}
       </div>`,
     )
     .join('');
