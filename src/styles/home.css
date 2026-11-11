@@ -62,43 +62,60 @@
 .hero__cue span { width: 1px; height: 48px; background: linear-gradient(180deg, var(--white), transparent); transform-origin: top; }
 .hero__cue em { font-style: normal; }
 
-/* ---------- SYSTEM (orbit converges into the mark) ---------- */
+/* ---------- SYSTEM (striped shape morphs into the mark, step by step) ---------- */
 .system { background: linear-gradient(180deg, var(--paper-2), var(--paper)); color: var(--ink); }
-.system__stage {
-  position: relative;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(36px, 5vw, 64px);
-  padding: calc(var(--nav-h) + 24px) var(--gutter) 48px;
-  overflow: clip;
+.system__head {
+  display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px clamp(24px, 4vw, 64px); align-items: end;
+  padding: clamp(96px, 12vw, 160px) var(--gutter) clamp(8px, 2vw, 24px);
 }
-.system__hub { position: relative; width: clamp(84px, 10vw, 140px); aspect-ratio: 624 / 727; margin-bottom: clamp(60px, 10vh, 110px); }
-.system__orbit { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
-.orbit__chip {
-  position: absolute;
-  left: 0; top: 0;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: var(--white);
-  border: 1px solid var(--line-light);
-  box-shadow: 0 14px 30px rgba(6, 49, 73, 0.12);
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-  will-change: transform;
-}
-.orbit__ring { position: absolute; left: 0; top: 0; border-radius: 50%; border: 1px dashed rgba(6, 49, 73, 0.2); translate: -50% -50%; }
-.orbit__ring--1 { width: min(72vw, 600px); aspect-ratio: 5 / 3; }
-.orbit__ring--2 { width: min(100vw, 860px); aspect-ratio: 5 / 3; border-style: solid; opacity: 0.5; }
-.system__core { position: relative; width: 100%; filter: drop-shadow(0 30px 60px rgba(0, 176, 255, 0.35)); will-change: transform; }
-.system__core .mark__r { fill: var(--ink); }
-.system__copy { position: relative; z-index: 2; text-align: center; max-width: 900px; }
-.system__title { font-size: clamp(30px, 5.4vw, 80px); line-height: 1; letter-spacing: -0.03em; font-weight: 600; text-wrap: balance; }
+.system__title { margin: 0; font-size: clamp(30px, 4.6vw, 72px); line-height: 1; letter-spacing: -0.03em; font-weight: 600; text-wrap: balance; }
 .system__line { display: block; }
-.system__lead { margin: 26px auto 0; max-width: 62ch; font-size: clamp(16px, 1.3vw, 20px); line-height: 1.6; color: var(--ink-soft); }
+.system__lead { margin: 0; max-width: 48ch; font-size: clamp(16px, 1.2vw, 19px); line-height: 1.6; color: var(--ink-soft); }
+
+/* Pinned stage: striped shape + wired labels on the left, the six steps on the right. */
+.system__stage {
+  height: 100svh; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: clamp(24px, 4vw, 64px);
+  padding: calc(var(--nav-h) + 16px) var(--gutter) 32px; overflow: clip;
+}
+.system__visual { position: relative; width: min(100%, 68svh); aspect-ratio: 1; justify-self: center; }
+.system__canvas, .system__wires { position: absolute; inset: 0; width: 100%; height: 100%; }
+.system__canvas { z-index: 1; }
+.system__wires { z-index: 2; overflow: visible; pointer-events: none; }
+.system__wire { stroke: var(--ink); stroke-opacity: 0.55; stroke-width: 1; stroke-dashoffset: var(--len, 0); transition: stroke-dashoffset 0.7s var(--ease-out), stroke 0.3s, stroke-opacity 0.3s; }
+.system__wire.is-on { stroke-dashoffset: 0; }
+.system__wire.is-current { stroke: var(--blue); stroke-opacity: 1; }
+.system__fallback { position: absolute; inset: 20% 24%; display: none; }
+.system__fallback .mark { width: 100%; height: 100%; }
+.system:not(.system--gl) .system__fallback { display: block; }
+
+.system__chip {
+  --tx: 0%;
+  position: absolute; z-index: 3; display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; border-radius: 999px; background: var(--ink); color: #eff5fb;
+  font-size: 12px; font-weight: 500; line-height: 1; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+  opacity: 0; transform: translate(var(--tx), -50%) scale(0.85);
+  transition: opacity 0.4s var(--ease-out), transform 0.5s var(--ease-out), background-color 0.3s, color 0.3s;
+}
+.system__chip i { width: 8px; height: 8px; border: 1.5px solid currentColor; border-radius: 2px; }
+.system__chip--left { --tx: -100%; flex-direction: row-reverse; transform-origin: right center; }
+.system__chip--right { transform-origin: left center; }
+.system__chip.is-on { opacity: 1; transform: translate(var(--tx), -50%) scale(1); }
+.system__chip.is-current { background: var(--blue); color: var(--ink); }
+
+.system__steps { list-style: none; margin: 0; padding: 0; }
+.system__step { display: grid; grid-template-columns: 28px 1fr; gap: 16px; padding: clamp(10px, 1.8svh, 18px) 0; border-top: 1px solid var(--line-light); color: rgba(15, 20, 29, 0.4); transition: color 0.3s; }
+.system__step:first-child { border-top: 0; }
+.system__step.is-active { color: var(--ink); }
+.system__num { width: 24px; height: 24px; margin-top: 0.35em; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: var(--white); color: var(--ink); transition: background-color 0.3s, color 0.3s; }
+.system__step.is-active .system__num { background: var(--ink); color: var(--white); }
+.system__name { margin: 0; font-size: clamp(20px, min(2.2vw, 3.6svh), 34px); font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
+.system__body { margin: 0; max-width: 46ch; max-height: 0; overflow: hidden; opacity: 0; font-size: 15px; line-height: 1.55; color: var(--ink-soft); transition: max-height 0.5s var(--ease-out), opacity 0.3s, margin-top 0.5s var(--ease-out); }
+.system__step.is-active .system__body { max-height: 8em; opacity: 1; margin-top: 10px; }
+
+/* Reduced motion: nothing pins; the finished state with every step open. */
+.system--static .system__stage { height: auto; padding-top: 32px; padding-bottom: clamp(64px, 10vw, 120px); }
+.system--static .system__step { color: var(--ink); }
+.system--static .system__body { max-height: none; opacity: 1; margin-top: 10px; }
 
 /* ---------- FLOW (pinned, horizontal) ---------- */
 .flow { position: relative; background: linear-gradient(180deg, #000 0%, #04253a 100%); color: var(--white); }
@@ -228,7 +245,15 @@
   .hcard--2 { right: 40%; top: 72%; display: none; }
   .hcard--3 { right: 6%; top: 76%; }
   .hero__mark { right: -30%; width: 120vw; opacity: 0.06; }
-  .orbit__chip { font-size: 12px; padding: 8px 12px; }
+  /* System: shape on top, only the active step below it. Labels centre on their anchors to stay on screen. */
+  .system__head { grid-template-columns: 1fr; padding-top: 96px; }
+  .system__stage { grid-template-columns: 1fr; grid-template-rows: auto auto; align-content: center; align-items: start; gap: 16px; padding-top: calc(var(--nav-h) + 8px); }
+  .system__visual { width: min(80vw, 48svh); }
+  .system__chip { --tx: -50%; font-size: 10px; padding: 7px 10px; gap: 7px; transform-origin: center; }
+  .system__chip--left { --tx: -50%; transform-origin: center; }
+  .system__step { display: none; }
+  .system__step.is-active { display: grid; border-top: 0; }
+  .system--static .system__step { display: grid; }
   /* Flow stacks vertically on small screens */
   .flow__pin { height: auto; overflow: visible; }
   .flow__header { position: sticky; top: var(--nav-h); padding: 16px 0; left: auto; right: auto; margin: 0 var(--gutter); }
