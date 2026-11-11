@@ -1,5 +1,6 @@
 :root {
   --ink: #0f141d;
+  --brand-ink: #171717;
   --ink-soft: #4d596b;
   --paper: #e7eff4;
   --paper-2: #ebf0f6;
@@ -109,9 +110,11 @@ svg { display: block; }
 .nav--on-light .btn--solid { background: #0a0f15; color: #eff5fb; }
 .nav:not(.nav--on-light) .btn--solid { background: var(--white); color: var(--black); }
 .nav__brand, .nav__links, .nav__actions { position: relative; z-index: 1; display: flex; align-items: center; }
-.nav__brand { gap: 10px; }
-.mark--nav { width: 22px; height: 26px; }
-.nav__wordmark { font-weight: 600; font-size: 20px; letter-spacing: -0.02em; }
+/* Brand wordmark: blue mark parts are fixed; the dark parts follow currentColor. */
+.wordmark { display: block; height: 100%; width: auto; overflow: visible; }
+.nav__brand { height: 26px; }
+.wordmark--nav { height: 26px; }
+.nav--on-light .nav__brand { color: var(--brand-ink); }
 .nav__links { gap: 4px; }
 .nav__links a { position: relative; padding: 9px 14px; border-radius: 999px; font-size: 14px; font-weight: 500; opacity: 0.78; transition: opacity 0.2s, background-color 0.2s; }
 .nav__links a:hover, .nav__links a.is-active { opacity: 1; background: rgba(255, 255, 255, 0.1); }
