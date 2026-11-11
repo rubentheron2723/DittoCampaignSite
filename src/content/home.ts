@@ -31,7 +31,15 @@ export const system = {
   lineTwo: 'Running inside one system.',
   lead:
     'Ditto unifies sourcing, communication, collaboration, AI automation, reporting, and revenue tracking into one structured operating system for recruitment.',
-  orbit: ['Sourcing', 'Communication', 'Collaboration', 'AI automation', 'Reporting', 'Revenue'],
+  /** One scroll step each. The striped shape morphs per step and ends as the Ditto mark. */
+  steps: [
+    { name: 'Sourcing', body: 'Agentic AI search, one-click job ads to every board and smart qualifiers turn your database into a working intelligence system.' },
+    { name: 'Communication', body: 'Email and calendars sync with Google and Microsoft, so every conversation sits on the right candidate and client.' },
+    { name: 'Collaboration', body: 'Custom pipelines, talent pools and branded CVs keep the whole team working from one structured workflow.' },
+    { name: 'AI automation', body: 'AI drafts outreach, summarises profiles and suggests matches, so recruiters focus on conversations and decisions.' },
+    { name: 'Reporting', body: 'Team targets, advertising ROI and pipeline activity, visible in one place as the work happens.' },
+    { name: 'Revenue', body: 'Placements connect straight to revenue and financial reporting, so leaders see how work turns into results.' },
+  ],
 };
 
 export type Act = {

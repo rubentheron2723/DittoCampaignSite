@@ -64,7 +64,9 @@ function initNavTheme() {
   ScrollTrigger.create({ start: 'top -60', end: 'max', onToggle: (self) => nav.classList.toggle('nav--solid', self.isActive) });
 
   const lightSections = qa('[data-theme="light"]');
-  const triggers: ScrollTrigger[] = lightSections.map((s) =>
+  // Declared before creating triggers: one can fire onToggle immediately (e.g. reloading mid-page).
+  let triggers: ScrollTrigger[] = [];
+  triggers = lightSections.map((s) =>
     ScrollTrigger.create({
       trigger: s,
       start: 'top 40px',

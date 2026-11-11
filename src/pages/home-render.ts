@@ -67,22 +67,32 @@ function heroSection() {
 function systemSection() {
   return `
   <section class="system" id="system" data-theme="light">
+    <header class="system__head">
+      <h2 class="system__title">
+        <span class="system__line">${esc(system.lineOne)}</span>
+        <span class="system__line">${esc(system.lineTwo)}</span>
+      </h2>
+      <p class="system__lead">${esc(system.lead)}</p>
+    </header>
     <div class="system__stage">
-      <div class="system__hub" aria-hidden="true">
-        <div class="system__orbit">
-          <span class="orbit__ring orbit__ring--1"></span>
-          <span class="orbit__ring orbit__ring--2"></span>
-          ${system.orbit.map((o, i) => `<span class="orbit__chip" data-i="${i}">${esc(o)}</span>`).join('')}
-        </div>
-        <div class="system__core">${markSvg('mark--system')}</div>
+      <div class="system__visual" aria-hidden="true">
+        <svg class="system__wires">
+          ${system.steps.map((_, i) => `<line class="system__wire" data-i="${i}" />`).join('')}
+        </svg>
+        <canvas class="system__canvas"></canvas>
+        <div class="system__fallback">${markSvg('mark--on-light')}</div>
+        ${system.steps.map((st, i) => `<span class="system__chip" data-i="${i}"><i></i>${esc(st.name)}</span>`).join('')}
       </div>
-      <div class="system__copy">
-        <h2 class="system__title">
-          <span class="system__line">${esc(system.lineOne)}</span>
-          <span class="system__line">${esc(system.lineTwo)}</span>
-        </h2>
-        <p class="system__lead">${esc(system.lead)}</p>
-      </div>
+      <ol class="system__steps">
+        ${system.steps
+          .map(
+            (st, i) => `<li class="system__step" data-i="${i}">
+            <span class="system__num">${i + 1}</span>
+            <div><h3 class="system__name">${esc(st.name)}</h3><p class="system__body">${esc(st.body)}</p></div>
+          </li>`,
+          )
+          .join('')}
+      </ol>
     </div>
   </section>`;
 }
