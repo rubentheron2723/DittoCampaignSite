@@ -1,5 +1,6 @@
 import { appUrl, finalCta, footer, nav, type PageId } from '../content/shared';
 import { esc, markSvg } from './mark';
+import { wordmarkSvg } from './wordmark';
 
 /** Fixed chrome shared by every page: curtain, nav, mobile menu, and (on home) the progress rail. */
 export function renderChrome(page: PageId) {
@@ -17,8 +18,7 @@ export function renderChrome(page: PageId) {
 
     <header class="nav" id="nav">
       <a class="nav__brand" href="/" aria-label="Ditto home">
-        ${markSvg('mark--nav')}
-        <span class="nav__wordmark">ditto</span>
+        ${wordmarkSvg('wordmark--nav', 'mark--nav')}
       </a>
       <nav class="nav__links" aria-label="Primary">${links}</nav>
       <div class="nav__actions">
