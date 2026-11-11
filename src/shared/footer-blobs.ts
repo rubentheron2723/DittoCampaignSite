@@ -41,6 +41,13 @@ const GRADIENT = {
 
 const MAX_DPR = 2;
 
+/** Pointer ripple slots, and how fast a ring spreads (shader units = footer heights per second). */
+const RIPPLES = 16;
+const RIPPLE_SPEED = 0.32;
+const RIPPLE_LIFE = 1.8;
+
+const DEFINES = `#define RIPPLES ${RIPPLES}\n`;
+
 const VERTEX = `#version 300 es
 out vec2 vUv;
 void main() {
@@ -65,12 +72,33 @@ uniform float uShadow;
 uniform float uMode;
 uniform vec2 uLoop;
 uniform vec2 uHue;
+uniform vec4 uRipples[RIPPLES];
+`;
+
+/**
+ * Pointer ripples. Each slot is a ring spreading out from where the pointer
+ * passed: xy is the centre in the shader's aspect-corrected space, z its age in
+ * seconds and w its strength (0 = empty). Returns a signed wave height.
+ */
+const RIPPLE = `
+float ripple(vec2 p) {
+  float sum = 0.0;
+  for (int i = 0; i < RIPPLES; i++) {
+    vec4 r = uRipples[i];
+    if (r.w <= 0.0) continue;
+    float x = length(p - r.xy) - r.z * ${RIPPLE_SPEED.toFixed(3)};
+    float envelope = exp(-x * x / 0.0035) * exp(-r.z * 2.2) * r.w;
+    sum += sin(x * 58.0) * envelope;
+  }
+  return sum;
+}
 `;
 
 const FIELD_FRAGMENT = `#version 300 es
-precision highp float;
+${DEFINES}precision highp float;
 precision highp int;
 ${UNIFORMS}
+${RIPPLE}
 in vec2 vUv;
 out vec4 outColor;
 
@@ -149,21 +177,24 @@ void main() {
   vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
   vec2 loopA = uLoop;
   vec2 loopB = vec2(-loopA.y, loopA.x);
-  float n = liquidField(p, loopA, loopB, uFrequency);
+  // Ripples nudge the field, so the blob edges near the pointer wobble with them.
+  const float rippleLift = 0.07;
+  float n = liquidField(p, loopA, loopB, uFrequency) + ripple(p) * rippleLift;
   const float e = 0.008;
   vec2 gradient = vec2(
-    liquidField(p + vec2(e, 0.0), loopA, loopB, uFrequency) - n,
-    liquidField(p + vec2(0.0, e), loopA, loopB, uFrequency) - n
+    liquidField(p + vec2(e, 0.0), loopA, loopB, uFrequency) + ripple(p + vec2(e, 0.0)) * rippleLift - n,
+    liquidField(p + vec2(0.0, e), loopA, loopB, uFrequency) + ripple(p + vec2(0.0, e)) * rippleLift - n
   ) / e;
   outColor = vec4(n, gradient, 1.0);
 }`;
 
 const COMPOSITE_FRAGMENT = `#version 300 es
-precision highp float;
+${DEFINES}precision highp float;
 precision highp int;
 ${UNIFORMS}
 uniform sampler2D uInput;
 uniform sampler2D uField;
+${RIPPLE}
 in vec2 vUv;
 out vec4 outColor;
 
@@ -255,7 +286,14 @@ vec4 sampleShaded(vec2 uvRaw) {
 }
 
 void main() {
-  vec2 uv = clamp(vUv, 0.0, 1.0);
+  // A faint lens over the whole surface: the ripple's slope bends what's
+  // underneath (gradient and logos alike) by a few pixels.
+  float aspect = uOutputSize.x / uOutputSize.y;
+  vec2 rp = (clamp(vUv, 0.0, 1.0) - 0.5) * vec2(aspect, 1.0);
+  float wave = ripple(rp);
+  const float re = 0.004;
+  vec2 slope = vec2(ripple(rp + vec2(re, 0.0)) - wave, ripple(rp + vec2(0.0, re)) - wave) / re;
+  vec2 uv = clamp(vUv + slope * 0.00009 / vec2(aspect, 1.0), 0.0, 1.0);
   vec4 field = sampleField(uv);
   vec2 metrics = fieldMetrics(field.r);
   float rim = metrics.x;
@@ -286,6 +324,8 @@ void main() {
   // gl_FragCoord is bottom-up; flip so the grain pattern matches top-down pixel rows.
   vec2 px = vec2(gl_FragCoord.x, uOutputSize.y - gl_FragCoord.y);
   float grain = (hashPixel(uvec2(floor(px / uRenderScale))) - 0.5) * 0.018;
+  // Crests catch a little light.
+  result.rgb += max(wave, 0.0) * 0.045 * result.a;
   outColor = vec4(clamp(result.rgb + grain * result.a, vec3(0.0), vec3(result.a)), result.a);
   // The input layer is fully opaque, so Figma's cast-shadow pass (which only
   // adds alpha behind transparent areas) has no visible effect and is skipped.
@@ -368,6 +408,12 @@ export function initFooterBlobs(reduce: boolean) {
   let height = 0;
   let dpr = 1;
 
+  // Ripple slots: centre (shader space), birth time (ms), strength.
+  const ripples = Array.from({ length: RIPPLES }, () => ({ x: 0, y: 0, born: 0, strength: 0 }));
+  const rippleData = new Float32Array(RIPPLES * 4);
+  let nextSlot = 0;
+  let last: { x: number; y: number; t: number } | null = null;
+
   const setUniforms = (program: WebGLProgram, loop: [number, number]) => {
     const loc = (n: string) => gl.getUniformLocation(program, n);
     gl.uniform1f(loc('uFrequency'), u.frequency);
@@ -383,6 +429,7 @@ export function initFooterBlobs(reduce: boolean) {
     gl.uniform1f(loc('uMode'), u.mode);
     gl.uniform2f(loc('uLoop'), loop[0], loop[1]);
     gl.uniform2f(loc('uHue'), u.hue[0], u.hue[1]);
+    gl.uniform4fv(loc('uRipples'), rippleData);
   };
 
   /** Draws the footer's artwork (gradient + logos) into the input layer, matching the live layout. */
@@ -444,6 +491,12 @@ export function initFooterBlobs(reduce: boolean) {
     const angle = phase * Math.PI * 2;
     const loop: [number, number] = [Math.cos(angle), Math.sin(angle)];
 
+    ripples.forEach((r, i) => {
+      const age = (now - r.born) / 1000;
+      if (r.strength > 0 && age > RIPPLE_LIFE) r.strength = 0;
+      rippleData.set([r.x, r.y, age, r.strength], i * 4);
+    });
+
     gl.bindVertexArray(vao);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, fieldFbo);
@@ -484,6 +537,31 @@ export function initFooterBlobs(reduce: boolean) {
     visible = entry.isIntersecting;
     if (visible) kick();
   }).observe(footer);
+
+  // Drop a ripple wherever the pointer travels; faster strokes ripple harder.
+  if (!reduce) {
+    const onMove = (e: PointerEvent) => {
+      const rect = footer.getBoundingClientRect();
+      if (!rect.height) return;
+      const x = ((e.clientX - rect.left) / rect.width - 0.5) * (rect.width / rect.height);
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      const t = performance.now();
+      if (last && e.type === 'pointermove') {
+        const dist = Math.hypot(x - last.x, y - last.y);
+        if (dist < 0.045 && t - last.t < 140) return;
+        if (dist < 0.004) return;
+        const speed = dist / Math.max((t - last.t) / 1000, 0.016);
+        ripples[nextSlot] = { x, y, born: t, strength: Math.min(1, 0.35 + speed * 0.25) };
+      } else {
+        ripples[nextSlot] = { x, y, born: t, strength: 0.6 };
+      }
+      nextSlot = (nextSlot + 1) % RIPPLES;
+      last = { x, y, t };
+    };
+    footer.addEventListener('pointermove', onMove, { passive: true });
+    footer.addEventListener('pointerdown', onMove, { passive: true });
+    footer.addEventListener('pointerleave', () => (last = null));
+  }
 
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
