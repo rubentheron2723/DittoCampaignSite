@@ -74,6 +74,20 @@ function initNavTheme() {
   );
   // Initial state (before any scroll event).
   nav.classList.toggle('nav--on-light', triggers.some((t) => t.isActive));
+
+  // Get out of the way once the footer is (nearly) fully in view. If the footer is taller than the
+  // space below the nav, hide it as soon as the footer reaches the nav instead.
+  const footer = q('.footer');
+  if (footer) {
+    ScrollTrigger.create({
+      trigger: footer,
+      start: () => (footer.offsetHeight > window.innerHeight - nav.offsetHeight ? `top ${nav.offsetHeight}px` : 'bottom-=40px bottom'),
+      invalidateOnRefresh: true,
+      // Enter/leave-back only: the trigger "leaves" at the very end of the page, where the nav must stay hidden.
+      onEnter: () => nav.classList.add('nav--hidden'),
+      onLeaveBack: () => nav.classList.remove('nav--hidden'),
+    });
+  }
 }
 
 /* ---------- Links: hash scroll + page transitions ---------- */
