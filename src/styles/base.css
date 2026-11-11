@@ -189,10 +189,11 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 /* Hover wave: each character lifts and settles in turn. */
 .wave { display: inline-flex; }
 .wave span { display: inline-block; white-space: pre; }
-.footer__col a:hover .wave span, .footer__col a:focus-visible .wave span { animation: wave-lift 0.38s ease-in-out calc(var(--i) * 45ms) both; }
+/* .is-waving is added on hover/focus and removed when the last character settles (see wave.ts). */
+.footer__col a.is-waving .wave span { animation: wave-lift 0.38s ease-in-out calc(var(--i) * 45ms) both; }
 @keyframes wave-lift { 0% { transform: translateY(0); } 40% { transform: translateY(-0.3em); } 100% { transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) {
-  .footer__col a:hover .wave span, .footer__col a:focus-visible .wave span { animation: none; }
+  .footer__col a.is-waving .wave span { animation: none; }
   .footer__col a:hover, .footer__col a:focus-visible { opacity: 0.75; }
 }
 /* 1445.11 × 490.486 lettering on a 1440 frame, at least 116px below the links, cropped to its top 240px. */
