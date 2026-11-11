@@ -62,43 +62,54 @@
 .hero__cue span { width: 1px; height: 48px; background: linear-gradient(180deg, var(--white), transparent); transform-origin: top; }
 .hero__cue em { font-style: normal; }
 
-/* ---------- SYSTEM (orbit converges into the mark) ---------- */
-.system { background: linear-gradient(180deg, var(--paper-2), var(--paper)); color: var(--ink); }
+/* ---------- SYSTEM (Ditto marks tumble through a blue glow) ---------- */
+/* Pinned stage: Ditto marks spin and flip through a blue glow, then the headline lands. */
+.system { position: relative; background: #000; color: var(--white); }
 .system__stage {
-  position: relative;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(36px, 5vw, 64px);
-  padding: calc(var(--nav-h) + 24px) var(--gutter) 48px;
-  overflow: clip;
+  position: relative; height: 100svh; overflow: hidden;
+  display: grid; place-items: center; padding: calc(var(--nav-h) + 24px) var(--gutter) 48px;
+  background: linear-gradient(180deg, #04253a 0%, #000 38%, #000 100%);
+  perspective: 1100px;
 }
-.system__hub { position: relative; width: clamp(84px, 10vw, 140px); aspect-ratio: 624 / 727; margin-bottom: clamp(60px, 10vh, 110px); }
-.system__orbit { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
-.orbit__chip {
-  position: absolute;
-  left: 0; top: 0;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: var(--white);
-  border: 1px solid var(--line-light);
-  box-shadow: 0 14px 30px rgba(6, 49, 73, 0.12);
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-  will-change: transform;
+.system__glow {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.35; will-change: opacity, transform;
+  background:
+    radial-gradient(70% 55% at 50% 100%, rgba(0, 176, 255, 0.95) 0%, rgba(16, 143, 249, 0.75) 30%, rgba(30, 110, 243, 0.35) 55%, rgba(0, 0, 0, 0) 80%),
+    radial-gradient(40% 30% at 70% 70%, rgba(1, 176, 255, 0.35) 0%, rgba(0, 0, 0, 0) 100%);
 }
-.orbit__ring { position: absolute; left: 0; top: 0; border-radius: 50%; border: 1px dashed rgba(6, 49, 73, 0.2); translate: -50% -50%; }
-.orbit__ring--1 { width: min(72vw, 600px); aspect-ratio: 5 / 3; }
-.orbit__ring--2 { width: min(100vw, 860px); aspect-ratio: 5 / 3; border-style: solid; opacity: 0.5; }
-.system__core { position: relative; width: 100%; filter: drop-shadow(0 30px 60px rgba(0, 176, 255, 0.35)); will-change: transform; }
-.system__core .mark__r { fill: var(--ink); }
+.system__waves { position: absolute; inset: -6% -2%; width: 104%; height: 112%; pointer-events: none; }
+.system__waves path { fill: none; stroke: rgba(255, 255, 255, 0.16); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.system__waves path:nth-child(even) { stroke: rgba(1, 176, 255, 0.35); }
+.system__defs { position: absolute; }
+
+.system__scene { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+.fly {
+  --size: clamp(120px, 16vw, 260px);
+  position: absolute; left: 50%; top: 50%; width: var(--size); aspect-ratio: 624 / 727;
+  margin: calc(var(--size) * -0.5826) 0 0 calc(var(--size) * -0.5);
+  transform-style: preserve-3d; will-change: transform, opacity; opacity: 0;
+}
+.fly[data-i="0"] { --size: clamp(200px, 28vw, 440px); }
+.fly[data-i="3"], .fly[data-i="5"] { --size: clamp(90px, 10vw, 170px); }
+.fly__face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.fly__face svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.fly__face--front { filter: drop-shadow(0 30px 50px rgba(0, 40, 90, 0.45)); }
+.fly__face--front .fly__l { fill: url(#fly-front); }
+.fly__face--front .fly__r { fill: #f4f8fb; }
+.fly__face--back { transform: rotateY(180deg); }
+.fly__face--back .fly__l { fill: #c9d4dc; }
+.fly__face--back .fly__r { fill: #e3e9ee; }
+
 .system__copy { position: relative; z-index: 2; text-align: center; max-width: 900px; }
-.system__title { font-size: clamp(30px, 5.4vw, 80px); line-height: 1; letter-spacing: -0.03em; font-weight: 600; text-wrap: balance; }
+.system__title { margin: 0; font-size: clamp(32px, 5.4vw, 80px); line-height: 1; letter-spacing: -0.03em; font-weight: 600; text-wrap: balance; }
 .system__line { display: block; }
-.system__lead { margin: 26px auto 0; max-width: 62ch; font-size: clamp(16px, 1.3vw, 20px); line-height: 1.6; color: var(--ink-soft); }
+.system__lead { margin: 24px auto 0; max-width: 58ch; font-size: clamp(16px, 1.3vw, 20px); line-height: 1.6; color: rgba(231, 239, 244, 0.85); }
+.system__tags { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 28px 0 0; padding: 0; }
+.system__tags li { padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.06); font-size: 13px; font-weight: 500; }
+
+/* Reduced motion: no pin or flight, marks rest around the headline. */
+.system--static .fly { opacity: 1; }
+.system--static .system__glow { opacity: 0.8; }
 
 /* ---------- FLOW (pinned, horizontal) ---------- */
 .flow { position: relative; background: linear-gradient(180deg, #000 0%, #04253a 100%); color: var(--white); }
@@ -228,7 +239,10 @@
   .hcard--2 { right: 40%; top: 72%; display: none; }
   .hcard--3 { right: 6%; top: 76%; }
   .hero__mark { right: -30%; width: 120vw; opacity: 0.06; }
-  .orbit__chip { font-size: 12px; padding: 8px 12px; }
+  .fly { --size: clamp(90px, 30vw, 160px); }
+  .fly[data-i="0"] { --size: clamp(160px, 52vw, 260px); }
+  .fly[data-i="3"], .fly[data-i="5"] { display: none; }
+  .system__tags li { font-size: 12px; padding: 7px 12px; }
   /* Flow stacks vertically on small screens */
   .flow__pin { height: auto; overflow: visible; }
   .flow__header { position: sticky; top: var(--nav-h); padding: 16px 0; left: auto; right: auto; margin: 0 var(--gutter); }
