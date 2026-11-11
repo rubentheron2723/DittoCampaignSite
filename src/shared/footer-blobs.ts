@@ -179,7 +179,7 @@ void main() {
   vec2 loopB = vec2(-loopA.y, loopA.x);
   // Ripples only nudge the noise field, so just the blob edges near the pointer
   // wobble; the gradient and logos between blobs stay still.
-  const float rippleLift = 0.03;
+  const float rippleLift = 0.015;
   float n = liquidField(p, loopA, loopB, uFrequency) + ripple(p) * rippleLift;
   const float e = 0.008;
   vec2 gradient = vec2(
