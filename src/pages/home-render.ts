@@ -1,6 +1,6 @@
 import { acts, ai, hero, pricing, system, trust } from '../content/home';
 import { ctaAndFooter } from '../shared/chrome';
-import { esc, markSvg } from '../shared/mark';
+import { esc, MARK_L, MARK_R, markSvg } from '../shared/mark';
 
 function heroSection() {
   // A few "candidate cards" float in the hero and respond to the pointer.
@@ -66,15 +66,30 @@ function heroSection() {
 
 function systemSection() {
   return `
-  <section class="system" id="system" data-theme="light">
+  <section class="system" id="system" data-theme="dark">
     <div class="system__stage">
-      <div class="system__hub" aria-hidden="true">
-        <div class="system__orbit">
-          <span class="orbit__ring orbit__ring--1"></span>
-          <span class="orbit__ring orbit__ring--2"></span>
-          ${system.orbit.map((o, i) => `<span class="orbit__chip" data-i="${i}">${esc(o)}</span>`).join('')}
-        </div>
-        <div class="system__core">${markSvg('mark--system')}</div>
+      <div class="system__glow" aria-hidden="true"></div>
+      <svg class="system__waves" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M-40 260 C 240 180, 520 330, 820 250 S 1300 170, 1480 230" />
+        <path d="M-40 420 C 300 520, 600 330, 900 420 S 1260 520, 1480 380" />
+        <path d="M-40 560 C 260 470, 560 640, 860 560 S 1240 440, 1480 600" />
+        <path d="M-40 700 C 320 800, 640 620, 960 720 S 1300 820, 1480 690" />
+        <path d="M-40 830 C 280 760, 600 900, 900 820 S 1280 740, 1480 860" />
+      </svg>
+      <svg class="system__defs" width="0" height="0" aria-hidden="true">
+        <defs>
+          <linearGradient id="fly-front" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#1e6ef3" />
+            <stop offset="0.55" stop-color="#108ff9" />
+            <stop offset="1" stop-color="#01b0ff" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="system__scene" aria-hidden="true">
+        ${Array.from({ length: 7 }, (_, i) => `<div class="fly" data-i="${i}">
+          <div class="fly__face fly__face--front">${flyMark()}</div>
+          <div class="fly__face fly__face--back">${flyMark()}</div>
+        </div>`).join('')}
       </div>
       <div class="system__copy">
         <h2 class="system__title">
@@ -82,9 +97,15 @@ function systemSection() {
           <span class="system__line">${esc(system.lineTwo)}</span>
         </h2>
         <p class="system__lead">${esc(system.lead)}</p>
+        <ul class="system__tags">${system.orbit.map((o) => `<li>${esc(o)}</li>`).join('')}</ul>
       </div>
     </div>
   </section>`;
+}
+
+/** One flying Ditto mark: both halves of the logomark, coloured per face in CSS. */
+function flyMark() {
+  return `<svg viewBox="0 0 624 727" focusable="false"><path class="fly__l" d="${MARK_L}" /><path class="fly__r" d="${MARK_R}" /></svg>`;
 }
 
 function flowSection() {
