@@ -3,6 +3,7 @@ import { initMagnetic, initTilt } from '../animations/magnetic';
 import type { PageId } from '../content/shared';
 import { renderChrome } from './chrome';
 import { coverAndGo, hideCurtain, playIntro, playReveal } from './curtain';
+import { initFooterBlobs } from './footer-blobs';
 
 export type BootContext = {
   reduce: boolean;
@@ -50,6 +51,7 @@ export async function boot({ page, render, init }: Options) {
   initLinks(ctx);
   initMagnetic();
   initTilt();
+  initFooterBlobs(reduce);
   // Nav theming last: its triggers depend on pinned sections' final positions.
   initNavTheme();
   ScrollTrigger.refresh();

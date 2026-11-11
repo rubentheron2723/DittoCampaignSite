@@ -1,6 +1,7 @@
 import { appUrl, finalCta, footer, nav, type PageId } from '../content/shared';
 import { esc, markSvg } from './mark';
 import { wordmarkSvg } from './wordmark';
+import { artSvg, FOOTER_LOGOMARK, FOOTER_WORDMARK } from './footer-art';
 
 /** Fixed chrome shared by every page: curtain, nav, mobile menu, and (on home) the progress rail. */
 export function renderChrome(page: PageId) {
@@ -70,22 +71,27 @@ export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: 
       <p class="cta__copy">${esc(c.copy)}</p>
       <a class="btn btn--light btn--xl" href="/contact" data-magnetic><span>${esc(c.button)}</span></a>
     </div>
-    ${footerHtml()}
-  </section>`;
+  </section>
+  ${footerHtml()}`;
 }
 
+/** Blue footer from the Figma design. The canvas runs the Moving blobs effect over the artwork (see footer-blobs.ts). */
 export function footerHtml() {
+  const columns = footer.columns
+    .map(
+      (col) => `<div class="footer__col">
+        <p class="footer__title">${esc(col.title)}</p>
+        ${col.links.map((l) => `<a href="${l.href}" ${l.href.startsWith('http') ? 'target="_blank" rel="noreferrer"' : ''}>${esc(l.label)}</a>`).join('')}
+      </div>`,
+    )
+    .join('');
   return `
     <footer class="footer">
-      <div class="footer__brand">${markSvg('mark--footer')}<span>ditto</span><p>${esc(footer.tagline)}</p></div>
-      ${footer.columns
-        .map(
-          (col) => `<div class="footer__col">
-            <p class="footer__title">${esc(col.title)}</p>
-            ${col.links.map((l) => `<a href="${l.href}" ${l.href.startsWith('http') ? 'target="_blank" rel="noreferrer"' : ''}>${esc(l.label)}</a>`).join('')}
-          </div>`,
-        )
-        .join('')}
-      <p class="footer__legal">${esc(footer.legal)}</p>
+      <canvas class="footer__fx" aria-hidden="true"></canvas>
+      <div class="footer__menu">
+        <a class="footer__logomark" href="/" aria-label="Ditto home">${artSvg(FOOTER_LOGOMARK, '')}</a>
+        ${columns}
+      </div>
+      ${artSvg(FOOTER_WORDMARK, 'footer__wordmark')}
     </footer>`;
 }

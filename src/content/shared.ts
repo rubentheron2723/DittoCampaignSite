@@ -10,14 +10,15 @@ export const nav: { id: PageId; label: string; href: string }[] = [
 
 export const appUrl = 'https://app.ditto.work';
 
+/** Footer columns, as laid out in the Figma footer (node 2314:88). */
 export const footer = {
-  tagline: 'Source. Engage. Place. One platform.',
   columns: [
-    { title: 'Product', links: [{ label: 'Product', href: '/product' }, { label: 'Pricing', href: '/pricing' }, { label: 'FAQ', href: '/faq' }] },
+    { title: 'Product', links: [{ label: 'Pricing', href: '/pricing' }, { label: 'FAQ', href: '/faq' }] },
     { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Contact', href: '/contact' }] },
     { title: 'Account', links: [{ label: 'Sign in', href: appUrl }, { label: 'Book a demo', href: '/contact' }] },
+    // TODO: replace with Ditto's real social profile URLs.
+    { title: 'Community', links: [{ label: 'Facebook', href: 'https://www.facebook.com/' }, { label: 'LinkedIn', href: 'https://www.linkedin.com/' }] },
   ],
-  legal: `© ${new Date().getFullYear()} Ditto. All rights reserved.`,
 };
 
 export const finalCta = {
