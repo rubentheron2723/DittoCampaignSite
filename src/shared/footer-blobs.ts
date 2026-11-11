@@ -177,8 +177,9 @@ void main() {
   vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
   vec2 loopA = uLoop;
   vec2 loopB = vec2(-loopA.y, loopA.x);
-  // Ripples nudge the field, so the blob edges near the pointer wobble with them.
-  const float rippleLift = 0.07;
+  // Ripples only nudge the noise field, so just the blob edges near the pointer
+  // wobble; the gradient and logos between blobs stay still.
+  const float rippleLift = 0.03;
   float n = liquidField(p, loopA, loopB, uFrequency) + ripple(p) * rippleLift;
   const float e = 0.008;
   vec2 gradient = vec2(
@@ -194,7 +195,6 @@ precision highp int;
 ${UNIFORMS}
 uniform sampler2D uInput;
 uniform sampler2D uField;
-${RIPPLE}
 in vec2 vUv;
 out vec4 outColor;
 
@@ -286,14 +286,7 @@ vec4 sampleShaded(vec2 uvRaw) {
 }
 
 void main() {
-  // A faint lens over the whole surface: the ripple's slope bends what's
-  // underneath (gradient and logos alike) by a few pixels.
-  float aspect = uOutputSize.x / uOutputSize.y;
-  vec2 rp = (clamp(vUv, 0.0, 1.0) - 0.5) * vec2(aspect, 1.0);
-  float wave = ripple(rp);
-  const float re = 0.004;
-  vec2 slope = vec2(ripple(rp + vec2(re, 0.0)) - wave, ripple(rp + vec2(0.0, re)) - wave) / re;
-  vec2 uv = clamp(vUv + slope * 0.00009 / vec2(aspect, 1.0), 0.0, 1.0);
+  vec2 uv = clamp(vUv, 0.0, 1.0);
   vec4 field = sampleField(uv);
   vec2 metrics = fieldMetrics(field.r);
   float rim = metrics.x;
@@ -324,8 +317,6 @@ void main() {
   // gl_FragCoord is bottom-up; flip so the grain pattern matches top-down pixel rows.
   vec2 px = vec2(gl_FragCoord.x, uOutputSize.y - gl_FragCoord.y);
   float grain = (hashPixel(uvec2(floor(px / uRenderScale))) - 0.5) * 0.018;
-  // Crests catch a little light.
-  result.rgb += max(wave, 0.0) * 0.045 * result.a;
   outColor = vec4(clamp(result.rgb + grain * result.a, vec3(0.0), vec3(result.a)), result.a);
   // The input layer is fully opaque, so Figma's cast-shadow pass (which only
   // adds alpha behind transparent areas) has no visible effect and is skipped.
@@ -551,9 +542,9 @@ export function initFooterBlobs(reduce: boolean) {
         if (dist < 0.045 && t - last.t < 140) return;
         if (dist < 0.004) return;
         const speed = dist / Math.max((t - last.t) / 1000, 0.016);
-        ripples[nextSlot] = { x, y, born: t, strength: Math.min(1, 0.35 + speed * 0.25) };
+        ripples[nextSlot] = { x, y, born: t, strength: Math.min(0.8, 0.3 + speed * 0.15) };
       } else {
-        ripples[nextSlot] = { x, y, born: t, strength: 0.6 };
+        ripples[nextSlot] = { x, y, born: t, strength: 0.45 };
       }
       nextSlot = (nextSlot + 1) % RIPPLES;
       last = { x, y, t };
