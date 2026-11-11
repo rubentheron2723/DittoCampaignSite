@@ -86,7 +86,7 @@ function render() {
     </div>
   </section>
 
-  <section class="contact__footer" data-theme="dark">${footerHtml()}</section>`;
+  ${footerHtml()}`;
 }
 
 /* ---------- Validation + submit ---------- */
