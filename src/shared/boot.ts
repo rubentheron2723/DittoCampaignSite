@@ -22,6 +22,13 @@ type Options = {
 
 export async function boot({ page, render, init }: Options) {
   const reduce = prefersReducedMotion();
+
+  // Always start from the top on load/reload. The browser (and ScrollTrigger) would otherwise
+  // restore the old scroll position before the pinned sections add their scroll length, landing
+  // somewhere between sections, while the intro curtain assumes the top of the page.
+  // Links to a #section still go there: the browser handles those, not restoration.
+  ScrollTrigger.clearScrollMemory('manual');
+  if (!window.location.hash) window.scrollTo(0, 0);
   renderChrome(page);
   render();
 
