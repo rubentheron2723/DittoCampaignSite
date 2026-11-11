@@ -16,8 +16,7 @@ export const footer = {
     { title: 'Product', links: [{ label: 'Pricing', href: '/pricing' }, { label: 'FAQ', href: '/faq' }] },
     { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Contact', href: '/contact' }] },
     { title: 'Account', links: [{ label: 'Sign in', href: appUrl }, { label: 'Book a demo', href: '/contact' }] },
-    // TODO: replace with Ditto's real social profile URLs.
-    { title: 'Community', links: [{ label: 'Facebook', href: 'https://www.facebook.com/' }, { label: 'LinkedIn', href: 'https://www.linkedin.com/' }] },
+    { title: 'Community', links: [{ label: 'Facebook', href: 'https://www.facebook.com/DittoHire/' }, { label: 'LinkedIn', href: 'https://www.linkedin.com/company/dittohire/' }] },
   ],
 };
 
