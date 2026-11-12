@@ -10,7 +10,11 @@
  * Without WebGL2 the section keeps its CSS sky gradient.
  */
 
-export type CloudParams = typeof SKY_ORIGINAL;
+type SkyTransform = { x: number; y: number; radius: number; angle: number };
+type Key<T> = { t: number; v: T };
+/** Keyframed motion from a Figma frame's timeline. Times in seconds; values in Figma's control units. */
+type CloudMotion = { duration: number; evolution: Key<number>[]; transform: Key<SkyTransform>[] };
+export type CloudParams = Omit<typeof SKY_ORIGINAL, 'transform'> & { transform: SkyTransform; motion?: CloudMotion };
 
 /** The first "footerpt1" frame: dense, billowy clouds. Used by the Source / Engage / Place intro. */
 export const SKY_ORIGINAL = {
@@ -42,7 +46,55 @@ export const SKY_CTA: CloudParams = {
   warpAmount: 12,
   warpScale: 12,
   stretch: 19,
+  // The frame's 9s timeline: the phase runs 0 → 42 while the view pans right and swings
+  // its zoom and angle out and back. Every keyframe uses cubic-bezier(0.5, 0, 0.5, 1).
+  motion: {
+    duration: 9,
+    evolution: [
+      { t: 0, v: 0 },
+      { t: 9, v: 42 },
+    ],
+    transform: [
+      { t: 0, v: { x: 29.5724, y: 44.37, radius: 102.2651, angle: -11.608 } },
+      { t: 8.1304, v: { x: 158.2253, y: 44.37, radius: 120, angle: -4 } },
+      { t: 9, v: { x: 160, y: 44.37, radius: 102.2651, angle: -11.608 } },
+    ],
+  },
 };
+
+/** CSS-style cubic-bezier easing with endpoints (0,0) and (1,1). */
+function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
+  const at = (a: number, b: number, s: number) => 3 * a * s * (1 - s) ** 2 + 3 * b * s * s * (1 - s) + s ** 3;
+  return (x: number) => {
+    let lo = 0;
+    let hi = 1;
+    for (let i = 0; i < 24; i++) {
+      const mid = (lo + hi) / 2;
+      if (at(x1, x2, mid) < x) lo = mid;
+      else hi = mid;
+    }
+    return at(y1, y2, (lo + hi) / 2);
+  };
+}
+const figmaEase = cubicBezier(0.5, 0, 0.5, 1);
+
+/** Value of a keyframe track at time `t`, eased between the surrounding keys. */
+function sampleTrack<T>(keys: Key<T>[], t: number, mix: (a: T, b: T, k: number) => T): T {
+  if (t <= keys[0].t) return keys[0].v;
+  for (let i = 1; i < keys.length; i++) {
+    const a = keys[i - 1];
+    const b = keys[i];
+    if (t <= b.t) return mix(a.v, b.v, figmaEase((t - a.t) / (b.t - a.t)));
+  }
+  return keys[keys.length - 1].v;
+}
+const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
+const lerpTransform = (a: SkyTransform, b: SkyTransform, k: number): SkyTransform => ({
+  x: lerp(a.x, b.x, k),
+  y: lerp(a.y, b.y, k),
+  radius: lerp(a.radius, b.radius, k),
+  angle: lerp(a.angle, b.angle, k),
+});
 
 /** How fast the clouds evolve, in shader phase units per second. */
 const DRIFT = 0.012;
@@ -293,8 +345,15 @@ export function initClouds(
   gl.uniform3fv(loc('uSky0'), p.sky[0].color);
   gl.uniform3fv(loc('uSky1'), p.sky[1].color);
   gl.uniform2f(loc('uSkyP'), p.sky[0].at, p.sky[1].at);
-  gl.uniform2f(loc('uGlobalPos'), -((p.transform.x - 50) / 100), -((p.transform.y - 50) / 100));
-  gl.uniform1f(loc('uGlobalZoom'), 0.2 + (1 - p.transform.radius / 100) * 2.8);
+  const posLoc = loc('uGlobalPos');
+  const zoomLoc = loc('uGlobalZoom');
+  const rotationLoc = loc('uCloudRotation');
+  const setTransform = (t: SkyTransform) => {
+    gl.uniform2f(posLoc, -((t.x - 50) / 100), -((t.y - 50) / 100));
+    gl.uniform1f(zoomLoc, 0.2 + (1 - t.radius / 100) * 2.8);
+    gl.uniform1f(rotationLoc, -t.angle);
+  };
+  setTransform(p.transform);
   gl.uniform1f(loc('uGlobalDetail'), 0.5 + (p.globalDetail / 100) * 0.8);
   gl.uniform1f(loc('uCoverage'), -0.2 + (p.coverage / 100) * 1.2);
   gl.uniform1f(loc('uDensity'), 1 + (p.density / 100) * 19);
@@ -303,7 +362,6 @@ export function initClouds(
   gl.uniform1f(loc('uWarpAmount'), (p.warpAmount / 100) * 3);
   gl.uniform1f(loc('uWarpScale'), 0.1 + (p.warpScale / 100) * 1.9);
   gl.uniform1f(loc('uStretch'), 1 + (p.stretch / 100) * 5);
-  gl.uniform1f(loc('uCloudRotation'), -p.transform.angle);
   const evolutionLoc = loc('uEvolution');
   const partLoc = loc('uPart');
   gl.uniform3f(loc('uFlat'), 0, 0.6902, 1); // #00B0FF
@@ -326,7 +384,16 @@ export function initClouds(
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.useProgram(program);
     gl.bindVertexArray(vao);
-    gl.uniform1f(evolutionLoc, baseEvolution + t * DRIFT);
+    if (p.motion) {
+      // Play the Figma timeline forward then back, so the loop never jumps.
+      const d = p.motion.duration;
+      const cycle = t % (2 * d);
+      const time = cycle < d ? cycle : 2 * d - cycle;
+      setTransform(sampleTrack(p.motion.transform, time, lerpTransform));
+      gl.uniform1f(evolutionLoc, -5 + (sampleTrack(p.motion.evolution, time, lerp) / 100) * 10);
+    } else {
+      gl.uniform1f(evolutionLoc, baseEvolution + t * DRIFT);
+    }
     gl.uniform2f(dimsLoc, canvas.width, canvas.height);
     gl.uniform1f(partLoc, part);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
