@@ -75,10 +75,11 @@ export async function boot({ page, render, init }: Options) {
 
 /* ---------- CTA join ---------- */
 /**
- * Starts the closing CTA's top fade in the exact colour the section above it
- * ends on, so there's no hard edge between them on any page. Light sections
- * hand over to the white haze; dark ones fade straight into the sky (and the
- * nav keeps its dark style there).
+ * Removes the edge between the closing CTA and the section above it.
+ * - Light sections: the section's own background now ends in the CTA's top
+ *   white (#FEFEFE), so it flows straight into the Figma white haze.
+ * - Dark sections: the CTA's top fade starts in the section's navy and fades
+ *   straight into the sky (and the nav keeps its dark style there).
  */
 function blendCtaIntoPrevious() {
   const cta = q('.cta');
@@ -91,10 +92,21 @@ function blendCtaIntoPrevious() {
   const [r, g, b, a = 1] = (colour.match(/[\d.]+/g) ?? []).map(Number);
   if (r === undefined || a === 0) return;
   const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  const dark = luminance < 0.5;
-  cta.style.setProperty('--cta-from', `rgb(${r}, ${g}, ${b})`);
-  cta.classList.add(dark ? 'cta--from-dark' : 'cta--from-light');
-  if (dark) cta.dataset.theme = 'dark';
+  if (luminance < 0.5) {
+    cta.style.setProperty('--cta-from', `rgb(${r}, ${g}, ${b})`);
+    cta.classList.add('cta--from-dark');
+    cta.dataset.theme = 'dark';
+    return;
+  }
+  // Swap the gradient's last stop (or the flat colour) for the CTA's white.
+  const white = 'rgb(254, 254, 254)';
+  if (colours?.length) {
+    const img = style.backgroundImage;
+    const at = img.lastIndexOf(colours[colours.length - 1]);
+    prev.style.backgroundImage = img.slice(0, at) + white + img.slice(at + colours[colours.length - 1].length);
+  } else {
+    prev.style.backgroundImage = `linear-gradient(${colour}, ${white})`;
+  }
 }
 
 /* ---------- Footer cover ---------- */
