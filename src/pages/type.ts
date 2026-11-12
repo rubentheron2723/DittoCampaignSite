@@ -67,8 +67,9 @@ function renderSpecimen() {
 type Control = { field: TypeField | 'opsz'; label: string; min: number; max: number; step: number; unit?: string };
 
 const CONTROLS: Control[] = [
-  { field: 'min', label: 'Size on phone', min: 8, max: 200, step: 1, unit: 'px' },
-  { field: 'max', label: 'Size on desktop', min: 8, max: 200, step: 1, unit: 'px' },
+  // Sizes are stored unitless (px are added in type.css), so these controls have no unit.
+  { field: 'min', label: 'Size on phone', min: 8, max: 200, step: 1 },
+  { field: 'max', label: 'Size on desktop', min: 8, max: 200, step: 1 },
   { field: 'wt', label: 'Weight', min: 100, max: 1000, step: 10 },
   { field: 'lh', label: 'Line height', min: 0.7, max: 2.2, step: 0.01 },
   { field: 'ls', label: 'Letter spacing', min: -0.12, max: 0.4, step: 0.005, unit: 'em' },
