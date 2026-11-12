@@ -1,6 +1,7 @@
 import { acts, ai, hero, pricing, system, trust } from '../content/home';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc, MARK_L, MARK_R, markSvg } from '../shared/mark';
+import { FLOW_ART } from '../shared/flow-art';
 
 function heroSection() {
   // A few "candidate cards" float in the hero and respond to the pointer.
@@ -108,21 +109,26 @@ function flyMark() {
   return `<svg viewBox="0 0 624 727" focusable="false"><path class="fly__l" d="${MARK_L}" /><path class="fly__r" d="${MARK_R}" /></svg>`;
 }
 
+/**
+ * Source → Engage → Place. Opens on the cloud sky with the three words; black
+ * spreads from the centre and pushes the clouds out, then the steps come in one
+ * at a time on alternating sides of a fixed centre line (see animations/flow.ts).
+ */
 function flowSection() {
-  const panels = acts
+  const steps = acts
     .map(
-      (a) => `
-      <article class="panel panel--${a.id}" data-act="${a.id}">
-        <span class="panel__num" aria-hidden="true">${a.number}</span>
-        <div class="panel__body">
-          <p class="eyebrow panel__label">${esc(a.label)}</p>
-          <h3 class="panel__title">${esc(a.headline)}</h3>
-          <div class="panel__text">
-            ${a.paragraphs.map((p) => `<p>${esc(p)}</p>`).join('')}
-          </div>
-          <ul class="panel__chips">
-            ${a.chips.map((c) => `<li>${esc(c)}</li>`).join('')}
-          </ul>
+      (a, i) => `
+      <article class="fstep fstep--${i % 2 ? 'left' : 'right'}" data-act="${a.id}">
+        <div class="fstep__card">
+          <header class="fstep__head"><span class="fstep__num">${a.number}</span><span class="fstep__label">${esc(a.label)}</span></header>
+          <div class="fstep__visual">${FLOW_ART[a.id]()}</div>
+          <footer class="fstep__foot"><span class="fstep__icon">${markSvg('mark--step')}</span><span>${esc(a.chips[0])}</span></footer>
+        </div>
+        <div class="fstep__copy">
+          <p class="eyebrow fstep__eyebrow">${a.number} · ${esc(a.label)}</p>
+          <h3 class="fstep__title">${esc(a.headline)}</h3>
+          <div class="fstep__text">${a.paragraphs.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
+          <ul class="fstep__chips">${a.chips.slice(1).map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
         </div>
       </article>`,
     )
@@ -131,20 +137,17 @@ function flowSection() {
   return `
   <section class="flow" id="flow" data-theme="dark">
     <div class="flow__pin">
-      <div class="flow__header">
-        <p class="eyebrow">Product</p>
-        <p class="flow__count"><b>01</b><span>/ 03</span></p>
+      <div class="flow__intro">
+        <canvas class="flow__sky" aria-hidden="true"></canvas>
+        <div class="flow__veil" aria-hidden="true"></div>
+        <div class="flow__intro-copy">
+          <p class="eyebrow">Product</p>
+          <h2 class="flow__title">${acts.map((a) => `<span>${esc(a.label)}.</span>`).join(' ')}</h2>
+        </div>
       </div>
-      <div class="flow__track">
-        <svg class="flow__line" viewBox="0 0 3000 600" preserveAspectRatio="none" aria-hidden="true">
-          <path class="flow__line-ghost" d="M0,470 C300,470 400,120 700,140 S1150,520 1450,470 S1900,90 2200,130 S2700,520 3000,420" />
-          <path class="flow__line-path" id="flow-path" d="M0,470 C300,470 400,120 700,140 S1150,520 1450,470 S1900,90 2200,130 S2700,520 3000,420" />
-          <g class="flow__node" data-node="0"><circle r="18" /><circle r="6" /></g>
-          <g class="flow__node" data-node="1"><circle r="18" /><circle r="6" /></g>
-          <g class="flow__node" data-node="2"><circle r="18" /><circle r="6" /></g>
-          <circle class="flow__traveller" cx="0" cy="470" r="9" />
-        </svg>
-        ${panels}
+      <div class="flow__stage">
+        <div class="flow__axis" aria-hidden="true"><i class="flow__marker"></i></div>
+        ${steps}
       </div>
     </div>
   </section>`;
