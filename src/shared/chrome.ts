@@ -61,7 +61,7 @@ export function renderChrome(page: PageId) {
 export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: string; button?: string; id?: string } = {}) {
   const c = { ...finalCta, ...opts };
   return `
-  <section class="cta" id="${opts.id ?? 'cta'}" data-theme="dark">
+  <section class="cta" id="${opts.id ?? 'cta'}" data-theme="light">
     <canvas class="cta__sky" aria-hidden="true"></canvas>
     <div class="cta__shade" aria-hidden="true"></div>
     <div class="cta__inner">
