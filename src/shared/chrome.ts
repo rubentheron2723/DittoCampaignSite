@@ -62,14 +62,15 @@ export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: 
   const c = { ...finalCta, ...opts };
   return `
   <section class="cta" id="${opts.id ?? 'cta'}" data-theme="dark">
-    <div class="cta__bg" aria-hidden="true">${markSvg('mark--cta')}</div>
+    <canvas class="cta__sky" aria-hidden="true"></canvas>
+    <div class="cta__shade" aria-hidden="true"></div>
     <div class="cta__inner">
       <h2 class="cta__title">
         <span class="cta__line">${esc(c.lineOne)}</span>
         <span class="cta__line">${esc(c.lineTwo)}</span>
       </h2>
       <p class="cta__copy">${esc(c.copy)}</p>
-      <a class="btn btn--light btn--xl" href="/contact" data-magnetic><span>${esc(c.button)}</span></a>
+      <a class="btn btn--glass" href="/contact" data-magnetic><span>${esc(c.button)}</span></a>
     </div>
   </section>
   ${footerHtml()}`;

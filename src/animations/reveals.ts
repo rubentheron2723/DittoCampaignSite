@@ -157,7 +157,7 @@ export function initCTA(animate: boolean) {
   const section = q('.cta')!;
   if (!animate) return;
 
-  const split = SplitText.create('.cta__line', { type: 'lines,chars', mask: 'lines', linesClass: 'split-line' });
+  const split = SplitText.create('.cta__line', { type: 'lines,words,chars', mask: 'lines', linesClass: 'split-line' });
   gsap.from(split.chars, {
     yPercent: 110,
     autoAlpha: 0,
@@ -167,11 +167,4 @@ export function initCTA(animate: boolean) {
     scrollTrigger: enter(section, 'top 70%'),
   });
   gsap.from('.cta__copy, .cta__inner .btn', { y: 30, autoAlpha: 0, stagger: 0.12, scrollTrigger: enter(section, 'top 60%') });
-
-  // Giant background mark slowly turns as the page scrolls out.
-  gsap.fromTo(
-    '.cta__bg',
-    { rotate: -12, scale: 0.9 },
-    { rotate: 8, scale: 1.05, ease: 'none', scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom bottom', scrub: true } },
-  );
 }

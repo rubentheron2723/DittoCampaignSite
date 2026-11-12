@@ -4,6 +4,7 @@ import type { PageId } from '../content/shared';
 import { renderChrome } from './chrome';
 import { coverAndGo, hideCurtain, playIntro, playReveal } from './curtain';
 import { initFooterBlobs } from './footer-blobs';
+import { initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
 
 export type BootContext = {
@@ -59,6 +60,7 @@ export async function boot({ page, render, init }: Options) {
   initLinks(ctx);
   initMagnetic();
   initTilt();
+  initCtaClouds(reduce);
   initFooterBlobs(reduce);
   initFooterWave();
   // Nav theming last: its triggers depend on pinned sections' final positions.
