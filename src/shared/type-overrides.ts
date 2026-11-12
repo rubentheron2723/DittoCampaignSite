@@ -41,7 +41,12 @@ export function loadTypeOverrides(): Record<string, string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : null;
-    return parsed && typeof parsed === 'object' ? parsed : {};
+    if (!parsed || typeof parsed !== 'object') return {};
+    // Sizes must be unitless: an earlier editor saved them as "56px", which breaks the size calc.
+    for (const name of Object.keys(parsed)) {
+      if (/-(min|max)$/.test(name)) parsed[name] = String(parseFloat(parsed[name]));
+    }
+    return parsed;
   } catch {
     return {};
   }
