@@ -109,47 +109,70 @@
 .system--static .system__glow { opacity: 0.8; }
 
 /* ---------- FLOW (pinned, horizontal) ---------- */
-.flow { position: relative; background: linear-gradient(180deg, #000 0%, #04253a 100%); color: var(--white); }
-.flow__pin { position: relative; height: 100svh; overflow: hidden; }
-.flow__header { position: absolute; z-index: 3; top: calc(var(--nav-h) + 16px); left: var(--gutter); right: var(--gutter); display: flex; justify-content: space-between; align-items: center; }
-.flow__count { font-size: 14px; letter-spacing: 0.1em; opacity: 0.8; }
-.flow__count b { font-size: 24px; font-weight: 500; margin-right: 6px; }
-.flow__track { position: relative; display: flex; height: 100%; width: 300vw; will-change: transform; }
-.flow__line { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-.flow__line-ghost { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-.flow__line-path { fill: none; stroke: var(--blue); stroke-width: 2.5; stroke-linecap: round; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 10px rgba(0, 176, 255, 0.7)); }
-.flow__node circle:first-child { fill: rgba(0, 176, 255, 0.14); stroke: rgba(0, 176, 255, 0.5); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.flow__node circle:last-child { fill: var(--white); }
-.flow__traveller { fill: var(--white); filter: drop-shadow(0 0 12px #fff); opacity: 0; }
-.panel {
-  position: relative;
-  z-index: 2;
-  flex: 0 0 100vw;
-  height: 100%;
-  display: grid;
-  align-content: center;
-  padding: calc(var(--nav-h) + 40px) var(--gutter) 80px;
+/* Source → Engage → Place (see animations/flow.ts). Stacked by default; .flow--pinned is the desktop
+   scroll-driven version: cloud intro, then steps on alternating sides of a fixed centre axis. */
+.flow { position: relative; background: #000; color: var(--white); }
+.flow__intro { position: relative; height: 100svh; overflow: hidden; display: grid; place-items: center; background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); }
+.flow__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); }
+.flow--sky .flow__sky { opacity: 1; }
+.flow__veil { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, #000 100%); pointer-events: none; }
+.flow__intro-copy { position: relative; z-index: 2; text-align: center; padding: 0 var(--gutter); }
+.flow__intro-copy .eyebrow { opacity: 0.9; }
+.flow__title { margin-top: 18px; font-size: var(--t-display-size); line-height: var(--t-display-lh); letter-spacing: var(--t-display-ls); font-weight: var(--t-display-wt); text-shadow: 0 6px 40px rgba(0, 30, 80, 0.25); }
+.flow__title span { display: inline-block; }
+.flow__axis { display: none; }
+
+.fstep { display: grid; gap: 40px; align-items: center; padding: clamp(72px, 10vw, 140px) var(--gutter); }
+.fstep__card { width: min(100%, 520px); background: #10151c; border: 1px solid rgba(255, 255, 255, 0.16); }
+.fstep__head { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+.fstep__num { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(255, 255, 255, 0.3); font-size: var(--t-label-size); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+.fstep__label { font-size: var(--t-label-size); font-weight: var(--t-label-wt); letter-spacing: 0.18em; text-transform: uppercase; }
+.fstep__visual { display: grid; place-items: center; aspect-ratio: 4 / 3; padding: 20px 28px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+.fstep__art { display: block; width: 100%; height: 100%; overflow: visible; }
+.fstep__foot { display: flex; align-items: center; gap: 14px; padding: 14px 20px; font-size: var(--t-small-size); color: rgba(231, 239, 244, 0.65); }
+.fstep__icon { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid rgba(255, 255, 255, 0.3); }
+.fstep__icon .mark { width: 16px; height: auto; }
+.mark--step .mark__l { fill: var(--blue); }
+.mark--step .mark__r { fill: var(--white); }
+.fstep__copy { max-width: 500px; }
+.fstep__eyebrow { color: var(--blue); opacity: 1; }
+.fstep__title { margin-top: 14px; font-size: var(--t-h2-size); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-ls); font-weight: var(--t-h2-wt); }
+.fstep__text { margin-top: 20px; display: grid; gap: 12px; font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); color: rgba(231, 239, 244, 0.78); }
+.fstep__text p:first-child { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); color: var(--white); }
+.fstep__chips { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; }
+.fstep__chips li { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line-dark); background: rgba(255, 255, 255, 0.06); }
+@media (min-width: 901px) {
+  .flow:not(.flow--pinned) .fstep { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; }
+  .flow:not(.flow--pinned) .fstep--left .fstep__card { justify-self: end; }
+  .flow:not(.flow--pinned) .fstep--right .fstep__card { order: 2; }
 }
-.panel__num {
-  position: absolute;
-  right: var(--gutter);
-  bottom: -2vw;
-  font-size: clamp(160px, 28vw, 440px);
-  line-height: 0.8;
-  font-weight: 700;
-  letter-spacing: -0.06em;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.14);
-  pointer-events: none;
-  user-select: none;
-}
-.panel__body { max-width: 720px; }
-.panel__label { color: var(--blue); opacity: 1; }
-.panel__title { font-size: var(--t-h1-size); line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); font-weight: var(--t-h1-wt); margin-top: 16px; }
-.panel__text { font-size: var(--t-lead-size); line-height: var(--t-lead-lh); letter-spacing: var(--t-lead-ls); font-weight: var(--t-lead-wt); margin-top: 28px; display: grid; gap: 14px; max-width: 58ch; color: rgba(231, 239, 244, 0.86); }
-.panel__text p:first-child { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); color: var(--white); }
-.panel__chips { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 10px; }
-.panel__chips li { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); padding: 9px 14px; border-radius: 999px; border: 1px solid var(--line-dark); background: rgba(255, 255, 255, 0.06); }
+
+/* Isometric step art (shared/flow-art.ts). Faces come last so their fill wins over the stroke classes. */
+.art-line { fill: none; stroke: rgba(255, 255, 255, 0.45); stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.art-line--soft { stroke: rgba(255, 255, 255, 0.16); }
+.art-faint { fill: none; stroke: rgba(255, 255, 255, 0.16); stroke-width: 1; stroke-dasharray: 3 4; vector-effect: non-scaling-stroke; }
+.art-faint--blue { stroke: rgba(0, 176, 255, 0.65); }
+.art-blue { fill: none; stroke: var(--blue); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.art-blue--thick { stroke-width: 3; }
+.art-face { fill: #10151c; }
+.art-face--blue { fill: #0b2a3d; }
+.art-dot { fill: var(--blue); }
+
+/* Pinned (desktop) */
+.flow--pinned .flow__pin { position: relative; height: 100vh; overflow: hidden; }
+.flow--pinned .flow__intro { position: absolute; inset: 0; height: auto; }
+/* Wider than the screen, with soft edges, so at full scale it covers everything. */
+.flow--pinned .flow__veil { left: -45%; right: -45%; background: linear-gradient(90deg, transparent 0%, #000 34%, #000 66%, transparent 100%); transform: scaleX(0); }
+.flow--pinned .flow__stage { position: absolute; inset: 0; }
+.flow--pinned .flow__axis { display: block; position: absolute; left: 50%; top: calc(50% + var(--nav-h) / 2); width: 4px; height: min(52vh, 420px); transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(255, 255, 255, 0.75) 1px, transparent 1.6px) 0 0 / 4px 17px repeat-y; }
+.flow__marker { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; background: var(--white); }
+.flow--pinned .fstep { position: absolute; inset: 0; grid-template-columns: minmax(0, 1fr) clamp(80px, 9vw, 160px) minmax(0, 1fr); gap: 0; padding: var(--nav-h) max(var(--gutter), 170px) 0; } /* clears the progress rail on the right */
+.flow--pinned .fstep__card, .flow--pinned .fstep__copy { grid-row: 1; }
+.flow--pinned .fstep--right .fstep__copy { grid-column: 1; justify-self: end; }
+.flow--pinned .fstep--right .fstep__card { grid-column: 3; }
+.flow--pinned .fstep--left .fstep__card { grid-column: 1; justify-self: end; }
+.flow--pinned .fstep--left .fstep__copy { grid-column: 3; }
+.flow--pinned .fstep__card { width: min(100%, 500px); }
 
 /* ---------- TRUST ---------- */
 .trust { background: var(--paper); color: var(--ink); padding: clamp(96px, 12vw, 180px) 0 0; overflow: clip; }
@@ -241,12 +264,6 @@
   .fly[data-i="3"], .fly[data-i="5"] { display: none; }
   .system__tags li { padding: 7px 12px; }
   /* Flow stacks vertically on small screens */
-  .flow__pin { height: auto; overflow: visible; }
-  .flow__header { position: sticky; top: var(--nav-h); padding: 16px 0; left: auto; right: auto; margin: 0 var(--gutter); }
-  .flow__track { flex-direction: column; width: 100%; }
-  .flow__line { display: none; }
-  .panel { flex-basis: auto; min-height: auto; padding: 72px var(--gutter) 96px; }
-  .panel__num { right: var(--gutter); bottom: 0; font-size: 160px; }
   .ai__cards, .steps__list, .tiers { grid-template-columns: 1fr; }
   .steps__line { display: none; }
 }

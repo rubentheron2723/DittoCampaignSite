@@ -226,8 +226,18 @@ function compile(gl: WebGL2RenderingContext) {
 export function initCtaClouds(reduce: boolean) {
   const section = document.querySelector<HTMLElement>('.cta');
   const canvas = section?.querySelector<HTMLCanvasElement>('.cta__sky');
-  if (!section || !canvas) return;
+  if (section && canvas) initClouds(section, canvas, 'cta--sky', reduce);
+}
 
+/**
+ * Runs the cloud sky in `canvas`, sized to the canvas's own box. `host` gets
+ * `readyClass` once the first frame is drawn (and loses it if WebGL is lost),
+ * so its CSS can keep a fallback until then.
+ */
+export function initClouds(host: HTMLElement, canvas: HTMLCanvasElement, readyClass: string, reduce: boolean) {
+  if (canvas.dataset.clouds) return; // already running (matchMedia can re-run section setup)
+  canvas.dataset.clouds = '1';
+  const section = host;
   const gl = canvas.getContext('webgl2', { alpha: false, antialias: false });
   if (!gl) return;
 
@@ -235,7 +245,7 @@ export function initCtaClouds(reduce: boolean) {
   try {
     program = compile(gl);
   } catch (err) {
-    console.warn('CTA clouds disabled:', err);
+    console.warn('Clouds disabled:', err);
     return;
   }
 
@@ -265,7 +275,7 @@ export function initCtaClouds(reduce: boolean) {
   const baseEvolution = -5 + (p.evolution / 100) * 10;
 
   const resize = () => {
-    const rect = section.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width * RENDER_SCALE));
     const h = Math.max(1, Math.round(rect.height * RENDER_SCALE));
     if (w === canvas.width && h === canvas.height) return;
@@ -300,18 +310,18 @@ export function initCtaClouds(reduce: boolean) {
     resize();
     render(performance.now());
     kick();
-  }).observe(section);
+  }).observe(canvas);
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     if (visible) kick();
-  }).observe(section);
+  }).observe(canvas);
 
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
-    section.classList.remove('cta--sky');
+    section.classList.remove(readyClass);
   });
 
   resize();
   render(performance.now());
-  section.classList.add('cta--sky');
+  section.classList.add(readyClass);
 }

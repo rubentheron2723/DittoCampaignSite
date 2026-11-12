@@ -21,14 +21,15 @@ boot({
     if (reduce) {
       initHero().progress(1);
       initSystem(false);
-      initFlow(window.innerWidth > 900);
+      initFlow(false, false);
       return;
     }
 
     gsap.matchMedia().add({ desktop: '(min-width: 901px)', mobile: '(max-width: 900px)' }, (ctx) => {
       const { desktop } = ctx.conditions as { desktop: boolean };
-      initFlow(desktop);
+      const cleanupFlow = initFlow(desktop);
       initSystem();
+      return cleanupFlow;
     });
 
     const heroTl = initHero();
