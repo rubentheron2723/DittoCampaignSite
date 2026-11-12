@@ -5,8 +5,9 @@ import { initClouds } from '../shared/cta-clouds';
  * Source → Engage → Place.
  *
  * Pinned (desktop): the section holds while it plays as one scrubbed timeline.
- *   0 → 1    The cloud sky with "Source. Engage. Place." The clouds part to the sides and
- *            the sky flattens to brand blue (#00B0FF), and the words lift off.
+ *   0 → 1    The cloud sky with "Source. Engage. Place." The clouds clear in a sweep from the
+ *            bottom-left corner to the top-right, the sky flattens to brand blue (#00B0FF),
+ *            and the words lift off.
  *   1 → 4    A dotted axis with a square marker sits in the centre. Each step's card and
  *            copy rise in on alternating sides, hold, then rise away for the next.
  * Stacked (phones, reduced motion): the sky opens the section and the steps
@@ -96,7 +97,7 @@ export function initFlow(pinned: boolean, animate = true) {
     },
   });
 
-  // Intro: the clouds part to the sides and the sky flattens to brand blue.
+  // Intro: the clouds clear from the bottom-left corner to the top-right and the sky flattens to brand blue.
   const parting = { amount: 0 };
   tl.fromTo(
     parting,
