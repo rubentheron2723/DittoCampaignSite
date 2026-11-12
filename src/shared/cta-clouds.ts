@@ -47,10 +47,11 @@ export const SKY_ORIGINAL = {
 /** The reworked "footerpt1" frame (node 2348:7299): thinner, wispier, more stretched clouds. Used by the closing CTA. */
 export const SKY_CTA: CloudParams = {
   ...SKY_ORIGINAL,
-  transform: { x: 29.5724, y: 44.37, radius: 78.422, angle: 8.4558 },
+  transform: { x: 29.5724, y: 44.37, radius: 67.8272, angle: 9.4504 },
   coverage: 22,
   density: 0,
-  brightness: 61,
+  brightness: 34,
+  globalDetail: 41,
   warpAmount: 12,
   warpScale: 12,
   stretch: 19,
@@ -65,10 +66,12 @@ export const SKY_CTA: CloudParams = {
       { t: 0, v: 0 },
       { t: 9, v: 42 },
     ],
+    // Keyframes from the original timeline, shifted by the later change to the frame's base
+    // transform (radius 78.42 → 67.83, angle 8.46° → 9.45°) so the clouds keep the new size.
     transform: [
-      { t: 0, v: { x: 29.5724, y: 44.37, radius: 102.2651, angle: -11.608 } },
-      { t: 8.1304, v: { x: 158.2253, y: 44.37, radius: 120, angle: -4 } },
-      { t: 9, v: { x: 160, y: 44.37, radius: 102.2651, angle: -11.608 } },
+      { t: 0, v: { x: 29.5724, y: 44.37, radius: 91.6703, angle: -10.6134 } },
+      { t: 8.1304, v: { x: 158.2253, y: 44.37, radius: 109.4052, angle: -3.0054 } },
+      { t: 9, v: { x: 160, y: 44.37, radius: 91.6703, angle: -10.6134 } },
     ],
   },
 };
