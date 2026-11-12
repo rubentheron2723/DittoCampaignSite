@@ -110,20 +110,21 @@
 
 /* ---------- FLOW (pinned, horizontal) ---------- */
 /* Source → Engage → Place (see animations/flow.ts). Stacked by default; .flow--pinned is the desktop
-   scroll-driven version: cloud intro, then steps on alternating sides of a fixed centre axis. */
-.flow { position: relative; background: #000; color: var(--white); }
+   scroll-driven version: the clouds part onto flat brand blue, then steps on alternating sides of a fixed centre axis. */
+.flow { position: relative; background: #00b0ff; color: var(--ink); }
 .flow__intro { position: relative; height: 100svh; overflow: hidden; display: grid; place-items: center; background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); }
 .flow__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); }
 .flow--sky .flow__sky { opacity: 1; }
-.flow__veil { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, #000 100%); pointer-events: none; }
-.flow__intro-copy { position: relative; z-index: 2; text-align: center; padding: 0 var(--gutter); }
+/* Stacked only: fades the sky into the flat blue below it. */
+.flow__veil { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, #00b0ff 100%); pointer-events: none; }
+.flow__intro-copy { position: relative; z-index: 2; text-align: center; padding: 0 var(--gutter); color: var(--white); }
 .flow__intro-copy .eyebrow { opacity: 0.9; }
 .flow__title { margin-top: 18px; font-size: var(--t-display-size); line-height: var(--t-display-lh); letter-spacing: var(--t-display-ls); font-weight: var(--t-display-wt); text-shadow: 0 6px 40px rgba(0, 30, 80, 0.25); }
 .flow__title span { display: inline-block; }
 .flow__axis { display: none; }
 
 .fstep { display: grid; gap: 40px; align-items: center; padding: clamp(72px, 10vw, 140px) var(--gutter); }
-.fstep__card { width: min(100%, 520px); background: #10151c; border: 1px solid rgba(255, 255, 255, 0.16); }
+.fstep__card { width: min(100%, 520px); background: #10151c; border: 1px solid rgba(255, 255, 255, 0.16); color: var(--white); box-shadow: 0 30px 80px rgba(0, 40, 80, 0.28); }
 .fstep__head { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
 .fstep__num { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(255, 255, 255, 0.3); font-size: var(--t-label-size); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
 .fstep__label { font-size: var(--t-label-size); font-weight: var(--t-label-wt); letter-spacing: 0.18em; text-transform: uppercase; }
@@ -135,12 +136,12 @@
 .mark--step .mark__l { fill: var(--blue); }
 .mark--step .mark__r { fill: var(--white); }
 .fstep__copy { max-width: 500px; }
-.fstep__eyebrow { color: var(--blue); opacity: 1; }
+.fstep__eyebrow { color: var(--navy); opacity: 1; }
 .fstep__title { margin-top: 14px; font-size: var(--t-h2-size); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-ls); font-weight: var(--t-h2-wt); }
-.fstep__text { margin-top: 20px; display: grid; gap: 12px; font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); color: rgba(231, 239, 244, 0.78); }
-.fstep__text p:first-child { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); color: var(--white); }
+.fstep__text { margin-top: 20px; display: grid; gap: 12px; font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); color: rgba(15, 20, 29, 0.78); }
+.fstep__text p:first-child { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); color: var(--ink); }
 .fstep__chips { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; }
-.fstep__chips li { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line-dark); background: rgba(255, 255, 255, 0.06); }
+.fstep__chips li { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); padding: 8px 13px; border-radius: 999px; border: 1px solid rgba(15, 20, 29, 0.2); background: rgba(255, 255, 255, 0.22); }
 @media (min-width: 901px) {
   .flow:not(.flow--pinned) .fstep { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; }
   .flow:not(.flow--pinned) .fstep--left .fstep__card { justify-self: end; }
@@ -161,11 +162,10 @@
 /* Pinned (desktop) */
 .flow--pinned .flow__pin { position: relative; height: 100vh; overflow: hidden; }
 .flow--pinned .flow__intro { position: absolute; inset: 0; height: auto; }
-/* Wider than the screen, with soft edges, so at full scale it covers everything. */
-.flow--pinned .flow__veil { left: -45%; right: -45%; background: linear-gradient(90deg, transparent 0%, #000 34%, #000 66%, transparent 100%); transform: scaleX(0); }
+.flow--pinned .flow__veil { display: none; }
 .flow--pinned .flow__stage { position: absolute; inset: 0; }
-.flow--pinned .flow__axis { display: block; position: absolute; left: 50%; top: calc(50% + var(--nav-h) / 2); width: 4px; height: min(52vh, 420px); transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(255, 255, 255, 0.75) 1px, transparent 1.6px) 0 0 / 4px 17px repeat-y; }
-.flow__marker { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; background: var(--white); }
+.flow--pinned .flow__axis { display: block; position: absolute; left: 50%; top: calc(50% + var(--nav-h) / 2); width: 4px; height: min(52vh, 420px); transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(15, 20, 29, 0.6) 1px, transparent 1.6px) 0 0 / 4px 17px repeat-y; }
+.flow__marker { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; background: var(--ink); }
 .flow--pinned .fstep { position: absolute; inset: 0; grid-template-columns: minmax(0, 1fr) clamp(80px, 9vw, 160px) minmax(0, 1fr); gap: 0; padding: var(--nav-h) max(var(--gutter), 170px) 0; } /* clears the progress rail on the right */
 .flow--pinned .fstep__card, .flow--pinned .fstep__copy { grid-row: 1; }
 .flow--pinned .fstep--right .fstep__copy { grid-column: 1; justify-self: end; }

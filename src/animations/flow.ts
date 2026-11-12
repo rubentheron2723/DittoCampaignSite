@@ -5,8 +5,8 @@ import { initClouds } from '../shared/cta-clouds';
  * Source → Engage → Place.
  *
  * Pinned (desktop): the section holds while it plays as one scrubbed timeline.
- *   0 → 1    The cloud sky with "Source. Engage. Place." Black spreads out from the
- *            centre, pushing the clouds to the edges and then away, and the words lift off.
+ *   0 → 1    The cloud sky with "Source. Engage. Place." The clouds part to the sides and
+ *            the sky flattens to brand blue (#00B0FF), and the words lift off.
  *   1 → 4    A dotted axis with a square marker sits in the centre. Each step's card and
  *            copy rise in on alternating sides, hold, then rise away for the next.
  * Stacked (phones, reduced motion): the sky opens the section and the steps
@@ -19,7 +19,6 @@ export function initFlow(pinned: boolean, animate = true) {
   const pin = q('.flow__pin', section)!;
   const intro = q('.flow__intro', section)!;
   const sky = q<HTMLCanvasElement>('.flow__sky', section)!;
-  const veil = q('.flow__veil', section)!;
   const introCopy = q('.flow__intro-copy', section)!;
   const words = qa('.flow__title span', section);
   const axis = q('.flow__axis', section)!;
@@ -29,7 +28,7 @@ export function initFlow(pinned: boolean, animate = true) {
   const railFill = q('.rail__fill', rail)!;
   const railItems = qa('.rail__items li', rail);
 
-  initClouds(section, sky, 'flow--sky', !animate);
+  const clouds = initClouds(section, sky, 'flow--sky', !animate);
 
   // Fit each illustration's viewBox to its drawing, so every card frames its art the same way.
   qa<SVGSVGElement>('.fstep__art', section).forEach((svg) => {
@@ -97,11 +96,17 @@ export function initFlow(pinned: boolean, animate = true) {
     },
   });
 
-  // Intro: black opens from the centre and the clouds are pushed out to the edges.
-  tl.fromTo(veil, { scaleX: 0 }, { scaleX: 1, duration: INTRO, ease: 'sine.inOut' }, 0)
+  // Intro: the clouds part to the sides and the sky flattens to brand blue.
+  const parting = { amount: 0 };
+  tl.fromTo(
+    parting,
+    { amount: 0 },
+    { amount: 1.3, duration: INTRO, ease: 'sine.inOut', onUpdate: () => clouds?.setPart(parting.amount) },
+    0,
+  )
     .to(words, { yPercent: -40, autoAlpha: 0, duration: 0.3, stagger: 0.05, ease: 'power2.in' }, INTRO * 0.6)
     .to(introCopy.querySelector('.eyebrow'), { autoAlpha: 0, duration: 0.2 }, INTRO * 0.6)
-    // Fully black now: hide the intro (its fallback gradient too) and stop the shader drawing.
+    // Flat blue now: hide the intro (its fallback gradient too) and stop the shader drawing.
     .set(intro, { autoAlpha: 0 }, INTRO + 0.02)
     .set(sky, { display: 'none' }, INTRO + 0.02)
     .to(axis, { autoAlpha: 1, scaleY: 1, duration: 0.25, ease: 'power2.out' }, INTRO - 0.1);

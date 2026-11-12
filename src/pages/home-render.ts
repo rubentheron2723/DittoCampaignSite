@@ -110,8 +110,8 @@ function flyMark() {
 }
 
 /**
- * Source → Engage → Place. Opens on the cloud sky with the three words; black
- * spreads from the centre and pushes the clouds out, then the steps come in one
+ * Source → Engage → Place. Opens on the cloud sky with the three words; the clouds
+ * part to the sides onto flat brand blue, then the steps come in one
  * at a time on alternating sides of a fixed centre line (see animations/flow.ts).
  */
 function flowSection() {
@@ -135,7 +135,7 @@ function flowSection() {
     .join('');
 
   return `
-  <section class="flow" id="flow" data-theme="dark">
+  <section class="flow" id="flow" data-theme="light">
     <div class="flow__pin">
       <div class="flow__intro">
         <canvas class="flow__sky" aria-hidden="true"></canvas>
