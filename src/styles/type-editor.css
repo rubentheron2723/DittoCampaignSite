@@ -1,0 +1,80 @@
+/* /type: the type system editor and its specimen sheet. The editor's own UI uses fixed sizes so
+   it never changes while you tune the tokens. */
+
+/* ---------- Specimen (inside the preview frame) ---------- */
+.specimen-body { background: var(--paper); color: var(--ink); }
+.specimen { padding: 56px var(--gutter) 120px; }
+.specimen__kicker { font: 500 12px/1 var(--t-family), sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 32px; }
+.specimen__row { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 32px; align-items: baseline; padding: 36px 0; border-top: 1px solid var(--line-light); }
+.specimen__row--dark { margin: 0 calc(var(--gutter) * -1); padding: 48px var(--gutter); background: var(--dark-grad); color: var(--white); border-top: 0; }
+.specimen__meta { display: grid; gap: 6px; font: 400 13px/1.4 var(--t-family), sans-serif; letter-spacing: 0; color: var(--ink-soft); }
+.specimen__row--dark .specimen__meta { color: rgba(231, 239, 244, 0.7); }
+.specimen__meta b { font-weight: 600; font-size: 15px; color: inherit; }
+.specimen__row:not(.specimen__row--dark) .specimen__meta b { color: var(--ink); }
+.specimen__size { font-variant-numeric: tabular-nums; }
+.specimen__sample { max-width: 22ch; text-wrap: balance; }
+.specimen__sample[style*='--t-body'], .specimen__sample[style*='--t-small'], .specimen__sample[style*='--t-lead'] { max-width: 60ch; }
+.specimen__sample--upper { text-transform: uppercase; max-width: none; }
+.specimen__sample--num { font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {
+  .specimen__row { grid-template-columns: 1fr; gap: 12px; }
+}
+
+/* ---------- Editor ---------- */
+.editor-body { background: #0b0f15; color: #e7eff4; font: 400 14px/1.4 'DM Sans', sans-serif; font-variation-settings: 'opsz' 14; overflow: hidden; }
+.editor { display: grid; grid-template-columns: 360px minmax(0, 1fr); height: 100vh; height: 100dvh; }
+.editor__panel { overflow-y: auto; border-right: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 40px; }
+.editor__head { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.editor__head h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.editor__head p { margin-top: 8px; font-size: 13px; line-height: 1.5; color: rgba(231, 239, 244, 0.6); }
+.editor__actions { display: flex; gap: 8px; margin-top: 16px; }
+.ebtn { height: 34px; padding: 0 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); font-size: 13px; font-weight: 500; }
+.ebtn:hover { background: rgba(255, 255, 255, 0.16); }
+.ebtn--primary { background: #00b0ff; color: #001019; }
+.ebtn--primary:hover { background: #33c0ff; }
+
+.role { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.role--global { padding-bottom: 14px; }
+.role__head { position: relative; display: grid; gap: 2px; padding: 14px 20px; cursor: pointer; list-style: none; }
+.role__head::-webkit-details-marker { display: none; }
+.role__head b { font-size: 14px; font-weight: 600; }
+.role__head span { font-size: 12px; color: rgba(231, 239, 244, 0.5); }
+.role[open] > .role__head { background: rgba(255, 255, 255, 0.03); }
+details.role > .role__head::after { content: '+'; position: absolute; right: 20px; top: 16px; font-size: 16px; color: rgba(231, 239, 244, 0.5); }
+details.role[open] > .role__head::after { content: '−'; }
+.role__dot { position: absolute; right: 44px; top: 21px; width: 7px; height: 7px; border-radius: 50%; background: #00b0ff; }
+.role__hint { padding: 0 20px; font-size: 12px; line-height: 1.5; color: rgba(231, 239, 244, 0.5); }
+.role__reset { margin: 4px 20px 16px; font-size: 12px; color: rgba(231, 239, 244, 0.6); text-decoration: underline; text-underline-offset: 3px; }
+
+.ctl { display: grid; grid-template-columns: 92px minmax(0, 1fr) 64px; align-items: center; gap: 10px; padding: 6px 20px; }
+.ctl__label { font-size: 12px; color: rgba(231, 239, 244, 0.7); }
+.ctl__range { width: 100%; accent-color: #00b0ff; }
+.ctl__num {
+  width: 100%; height: 28px; padding: 0 6px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04); font-size: 12px; font-variant-numeric: tabular-nums; text-align: right;
+}
+
+.editor__stage { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; }
+.stage__bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.seg-ctl { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); }
+.seg-ctl button { height: 30px; padding: 0 12px; border-radius: 999px; font-size: 13px; color: rgba(231, 239, 244, 0.7); }
+.seg-ctl button.is-on { background: #e7eff4; color: #0b0f15; }
+.stage__viewport { position: relative; overflow: hidden; background: #05080c; }
+.stage__viewport.is-phone { display: flex; justify-content: center; }
+.stage__frame { display: block; border: 0; transform-origin: top left; background: #fff; }
+.stage__viewport.is-phone .stage__frame { transform-origin: top center; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1); }
+
+.export { width: min(760px, 92vw); padding: 24px; border: 0; border-radius: 16px; background: #121821; color: #e7eff4; }
+.export::backdrop { background: rgba(0, 0, 0, 0.6); }
+.export h2 { font-size: 18px; font-weight: 600; }
+.export p { margin-top: 6px; font-size: 13px; color: rgba(231, 239, 244, 0.6); }
+.export code { font-size: 12px; }
+.export textarea {
+  width: 100%; height: 340px; margin-top: 16px; padding: 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0b0f15; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; resize: vertical;
+}
+
+@media (max-width: 900px) {
+  .editor { grid-template-columns: 1fr; grid-template-rows: 50vh 50vh; }
+  .editor__panel { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+}
