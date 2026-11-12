@@ -65,6 +65,9 @@ uniform float uWarpScale;
 uniform float uStretch;
 uniform float uCloudRotation;
 uniform vec2 uDims;
+// Parting (0 = none): clouds slide out to the sides and the sky flattens to uFlat.
+uniform float uPart;
+uniform vec3 uFlat;
 
 in vec2 vUv;
 out vec4 outColor;
@@ -167,6 +170,9 @@ void main() {
   vec2 p = vUv;
   float aspect = uDims.x / uDims.y;
   vec2 baseA = p * vec2(aspect, 1.0);
+  // Parting: sample from nearer the centre so the clouds appear to slide outward.
+  float side = p.x - 0.5;
+  baseA.x -= sign(side) * uPart * uPart * 0.45 * aspect;
   vec2 g = applyGlobal(baseA, aspect);
   vec2 gs = applyStretch(g, aspect, uStretch);
   vec2 cloudUV = applyLayer(gs, aspect, uCloudRotation);
@@ -197,12 +203,15 @@ void main() {
   float dLit = cloudDensity(cloudUV + sunDir * 0.15);
   float diffuse = clamp((fd - dLit) / (uDensity * 0.15 + 0.001), 0.0, 1.0);
 
-  vec3 sky = skyGradient(p.y);
+  vec3 sky = mix(skyGradient(p.y), uFlat, smoothstep(0.0, 0.7, uPart));
   float shading = clamp(uBrightness + uShadingVariation * c + 0.15 * diffuse, 0.0, 1.0);
   vec3 cloud = mix(uCloudShadowColor, uCloudColor, shading);
 
   // The sky is opaque, so Figma's alpha blend reduces to a straight mix.
   float blend = clamp(fd + c, 0.0, 1.0);
+  // Clear a widening gap down the middle as the clouds part.
+  float reach = abs(side) * 2.0;
+  blend *= smoothstep(uPart * 1.1 - 0.3, uPart * 1.1, reach);
   outColor = vec4(mix(sky, cloud, blend), 1.0);
 }`;
 
@@ -234,19 +243,22 @@ export function initCtaClouds(reduce: boolean) {
  * `readyClass` once the first frame is drawn (and loses it if WebGL is lost),
  * so its CSS can keep a fallback until then.
  */
-export function initClouds(host: HTMLElement, canvas: HTMLCanvasElement, readyClass: string, reduce: boolean) {
-  if (canvas.dataset.clouds) return; // already running (matchMedia can re-run section setup)
-  canvas.dataset.clouds = '1';
+export type Clouds = { setPart: (amount: number) => void };
+const running = new WeakMap<HTMLCanvasElement, Clouds>();
+
+export function initClouds(host: HTMLElement, canvas: HTMLCanvasElement, readyClass: string, reduce: boolean): Clouds | null {
+  const existing = running.get(canvas);
+  if (existing) return existing; // already running (matchMedia can re-run section setup)
   const section = host;
   const gl = canvas.getContext('webgl2', { alpha: false, antialias: false });
-  if (!gl) return;
+  if (!gl) return null;
 
   let program: WebGLProgram;
   try {
     program = compile(gl);
   } catch (err) {
     console.warn('Clouds disabled:', err);
-    return;
+    return null;
   }
 
   const p = PARAMS;
@@ -271,6 +283,9 @@ export function initClouds(host: HTMLElement, canvas: HTMLCanvasElement, readyCl
   gl.uniform1f(loc('uStretch'), 1 + (p.stretch / 100) * 5);
   gl.uniform1f(loc('uCloudRotation'), -p.transform.angle);
   const evolutionLoc = loc('uEvolution');
+  const partLoc = loc('uPart');
+  gl.uniform3f(loc('uFlat'), 0, 0.6902, 1); // #00B0FF
+  let part = 0;
   const dimsLoc = loc('uDims');
   const baseEvolution = -5 + (p.evolution / 100) * 10;
 
@@ -291,6 +306,7 @@ export function initClouds(host: HTMLElement, canvas: HTMLCanvasElement, readyCl
     gl.bindVertexArray(vao);
     gl.uniform1f(evolutionLoc, baseEvolution + t * DRIFT);
     gl.uniform2f(dimsLoc, canvas.width, canvas.height);
+    gl.uniform1f(partLoc, part);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   };
 
@@ -324,4 +340,15 @@ export function initClouds(host: HTMLElement, canvas: HTMLCanvasElement, readyCl
   resize();
   render(performance.now());
   section.classList.add(readyClass);
+
+  const clouds: Clouds = {
+    setPart(amount) {
+      if (amount === part) return;
+      part = amount;
+      // The draw loop picks this up while animating; draw now when it isn't running.
+      if (!raf) render(performance.now());
+    },
+  };
+  running.set(canvas, clouds);
+  return clouds;
 }
