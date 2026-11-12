@@ -1,6 +1,6 @@
-import { acts, ai, hero, pricing, system, trust } from '../content/home';
+import { acts, ai, hero, pricing, trust } from '../content/home';
 import { ctaAndFooter } from '../shared/chrome';
-import { esc, MARK_L, MARK_R, markSvg } from '../shared/mark';
+import { esc, markSvg } from '../shared/mark';
 import { FLOW_ART } from '../shared/flow-art';
 
 /**
@@ -31,50 +31,6 @@ function heroSection() {
       </div>
     </div>
   </section>`;
-}
-
-function systemSection() {
-  return `
-  <section class="system" id="system" data-theme="dark">
-    <div class="system__stage">
-      <div class="system__glow" aria-hidden="true"></div>
-      <svg class="system__waves" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M-40 260 C 240 180, 520 330, 820 250 S 1300 170, 1480 230" />
-        <path d="M-40 420 C 300 520, 600 330, 900 420 S 1260 520, 1480 380" />
-        <path d="M-40 560 C 260 470, 560 640, 860 560 S 1240 440, 1480 600" />
-        <path d="M-40 700 C 320 800, 640 620, 960 720 S 1300 820, 1480 690" />
-        <path d="M-40 830 C 280 760, 600 900, 900 820 S 1280 740, 1480 860" />
-      </svg>
-      <svg class="system__defs" width="0" height="0" aria-hidden="true">
-        <defs>
-          <linearGradient id="fly-front" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0" stop-color="#1e6ef3" />
-            <stop offset="0.55" stop-color="#108ff9" />
-            <stop offset="1" stop-color="#01b0ff" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <div class="system__scene" aria-hidden="true">
-        ${Array.from({ length: 7 }, (_, i) => `<div class="fly" data-i="${i}">
-          <div class="fly__face fly__face--front">${flyMark()}</div>
-          <div class="fly__face fly__face--back">${flyMark()}</div>
-        </div>`).join('')}
-      </div>
-      <div class="system__copy">
-        <h2 class="system__title">
-          <span class="system__line">${esc(system.lineOne)}</span>
-          <span class="system__line">${esc(system.lineTwo)}</span>
-        </h2>
-        <p class="system__lead">${esc(system.lead)}</p>
-        <ul class="system__tags">${system.orbit.map((o) => `<li>${esc(o)}</li>`).join('')}</ul>
-      </div>
-    </div>
-  </section>`;
-}
-
-/** One flying Ditto mark: both halves of the logomark, coloured per face in CSS. */
-function flyMark() {
-  return `<svg viewBox="0 0 624 727" focusable="false"><path class="fly__l" d="${MARK_L}" /><path class="fly__r" d="${MARK_R}" /></svg>`;
 }
 
 /**
@@ -145,27 +101,35 @@ function trustSection() {
   </section>`;
 }
 
+/**
+ * "Practical AI that recruiters can trust": the capability cards are paper
+ * sheets in WebGL (animations/ai.ts) on a pinned stage; the HTML cards below
+ * are the fallback and stay for screen readers.
+ */
 function aiSection() {
   return `
   <section class="ai" id="ai" data-theme="light">
-    <div class="ai__inner">
+    <div class="ai__stage">
+      <div class="ai__glow" aria-hidden="true"></div>
       <div class="ai__head">
         <p class="eyebrow">Practical AI</p>
         <h2 class="ai__title">${esc(ai.title)}</h2>
         <p class="ai__desc">${esc(ai.description)}</p>
       </div>
+      <canvas class="ai__canvas" aria-hidden="true"></canvas>
       <div class="ai__cards">
         ${ai.cards
           .map(
-            (c, i) => `<article class="aicard" data-tilt>
+            (c, i) => `<article class="aicard">
               <span class="aicard__index">0${i + 1}</span>
               <h3>${esc(c.title)}</h3>
               <p>${esc(c.copy)}</p>
-              <span class="aicard__shine" aria-hidden="true"></span>
             </article>`,
           )
           .join('')}
       </div>
+    </div>
+    <div class="ai__more">
       <div class="steps">
         <svg class="steps__line" viewBox="0 0 1000 80" preserveAspectRatio="none" aria-hidden="true">
           <path class="steps__ghost" d="M20,40 L980,40" />
@@ -218,10 +182,9 @@ export function renderHome() {
   const main = document.getElementById('main')!;
   main.innerHTML = [
     heroSection(),
-    systemSection(),
+    aiSection(),
     flowSection(),
     trustSection(),
-    aiSection(),
     pricingSection(),
     ctaAndFooter(),
   ].join('');
