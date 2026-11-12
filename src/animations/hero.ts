@@ -2,16 +2,16 @@ import { finePointer, gsap, prefersReducedMotion, q, SplitText } from './gsap';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 
 /** How strong the hero's bubbles are compared with the Figma effect (1 = as designed). */
-const BUBBLE_INTENSITY = 0.35;
+const BUBBLE_INTENSITY = 0.6;
 
 /**
  * "Looking up at the sky": as the pointer moves, the sky pans and tilts the other way, slowly, like
  * turning your head. Nearer layers move by smaller amounts at their own pace, so it reads as depth:
  * the glow drifts with the sky and the copy floats a few pixels toward the pointer.
  */
-const SKY_FOLLOW = { x: -10, y: -7, angle: -1.5, lag: 1.4 };
-const GLOW_SHIFT = { x: -36, y: -24 };
-const COPY_SHIFT = { x: 10, y: 6 };
+const SKY_FOLLOW = { x: -16, y: -11, angle: -2.5, lag: 1.9 };
+const GLOW_SHIFT = { x: -60, y: -40 };
+const COPY_SHIFT = { x: 18, y: 11 };
 
 /**
  * Starts the hero sky and builds the hero entrance timeline (paused; the page
@@ -34,11 +34,11 @@ export function initHero() {
   if (finePointer() && !reduce) {
     const glow = q('.hero__glow', hero)!;
     const copy = q('.hero__inner', hero)!;
-    const ease = { duration: 2.2, ease: 'power3.out' };
+    const ease = { duration: 3, ease: 'power2.out' };
     const glowX = gsap.quickTo(glow, 'x', ease);
     const glowY = gsap.quickTo(glow, 'y', ease);
-    const copyX = gsap.quickTo(copy, 'x', { duration: 1.6, ease: 'power3.out' });
-    const copyY = gsap.quickTo(copy, 'y', { duration: 1.6, ease: 'power3.out' });
+    const copyX = gsap.quickTo(copy, 'x', { duration: 2.4, ease: 'power2.out' });
+    const copyY = gsap.quickTo(copy, 'y', { duration: 2.4, ease: 'power2.out' });
     const aimAt = (nx: number, ny: number) => {
       glowX(nx * GLOW_SHIFT.x);
       glowY(ny * GLOW_SHIFT.y);
