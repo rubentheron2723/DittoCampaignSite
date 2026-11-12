@@ -1,8 +1,8 @@
 /**
- * The closing CTA's cloudy sky.
+ * Cloudy skies: the closing CTA and the Source / Engage / Place intro.
  *
- * A WebGL2 port of the Figma "Clouds" shader fill (version 3) on the
- * "footerpt1" frame, run with that frame's settings. Figma's runtime is
+ * A WebGL2 port of the Figma "Clouds" shader fill (version 3), run with the
+ * settings from the Figma frames (see the presets below). Figma's runtime is
  * WebGPU-only, so the WGSL is translated line for line to GLSL and the uniform
  * mapping mirrors Figma's render(). The clouds drift slowly by advancing the
  * shader's "Phase" (evolution) over time, starting from the frame's value.
@@ -10,7 +10,10 @@
  * Without WebGL2 the section keeps its CSS sky gradient.
  */
 
-const PARAMS = {
+export type CloudParams = typeof SKY_ORIGINAL;
+
+/** The first "footerpt1" frame: dense, billowy clouds. Used by the Source / Engage / Place intro. */
+export const SKY_ORIGINAL = {
   cloudColor: [0.929, 0.973, 1.0],
   cloudShadowColor: [0.1176, 0.4314, 0.9529],
   sky: [
@@ -27,6 +30,18 @@ const PARAMS = {
   warpScale: 1,
   stretch: 8,
   evolution: 13,
+};
+
+/** The reworked "footerpt1" frame (node 2348:7299): thinner, wispier, more stretched clouds. Used by the closing CTA. */
+export const SKY_CTA: CloudParams = {
+  ...SKY_ORIGINAL,
+  transform: { x: 29.5724, y: 44.37, radius: 78.422, angle: 8.4558 },
+  coverage: 22,
+  density: 0,
+  brightness: 61,
+  warpAmount: 12,
+  warpScale: 12,
+  stretch: 19,
 };
 
 /** How fast the clouds evolve, in shader phase units per second. */
@@ -236,7 +251,7 @@ function compile(gl: WebGL2RenderingContext) {
 export function initCtaClouds(reduce: boolean) {
   const section = document.querySelector<HTMLElement>('.cta');
   const canvas = section?.querySelector<HTMLCanvasElement>('.cta__sky');
-  if (section && canvas) initClouds(section, canvas, 'cta--sky', reduce);
+  if (section && canvas) initClouds(section, canvas, 'cta--sky', reduce, SKY_CTA);
 }
 
 /**
@@ -247,7 +262,13 @@ export function initCtaClouds(reduce: boolean) {
 export type Clouds = { setPart: (amount: number) => void };
 const running = new WeakMap<HTMLCanvasElement, Clouds>();
 
-export function initClouds(host: HTMLElement, canvas: HTMLCanvasElement, readyClass: string, reduce: boolean): Clouds | null {
+export function initClouds(
+  host: HTMLElement,
+  canvas: HTMLCanvasElement,
+  readyClass: string,
+  reduce: boolean,
+  params: CloudParams = SKY_ORIGINAL,
+): Clouds | null {
   const existing = running.get(canvas);
   if (existing) return existing; // already running (matchMedia can re-run section setup)
   const section = host;
@@ -262,7 +283,7 @@ export function initClouds(host: HTMLElement, canvas: HTMLCanvasElement, readyCl
     return null;
   }
 
-  const p = PARAMS;
+  const p = params;
   const loc = (n: string) => gl.getUniformLocation(program, n);
   const vao = gl.createVertexArray();
   gl.useProgram(program);
