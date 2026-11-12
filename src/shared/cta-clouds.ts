@@ -13,7 +13,15 @@
 type SkyTransform = { x: number; y: number; radius: number; angle: number };
 type Key<T> = { t: number; v: T };
 /** Keyframed motion from a Figma frame's timeline. Times in seconds; values in Figma's control units. */
-type CloudMotion = { duration: number; evolution: Key<number>[]; transform: Key<SkyTransform>[] };
+type CloudMotion = {
+  duration: number;
+  evolution: Key<number>[];
+  transform: Key<SkyTransform>[];
+  /** Playback speed relative to Figma (1 = as authored). */
+  speed: number;
+  /** How far the motion strays from its first keyframe (1 = as authored). */
+  amount: number;
+};
 export type CloudParams = Omit<typeof SKY_ORIGINAL, 'transform'> & { transform: SkyTransform; motion?: CloudMotion };
 
 /** The first "footerpt1" frame: dense, billowy clouds. Used by the Source / Engage / Place intro. */
@@ -50,6 +58,9 @@ export const SKY_CTA: CloudParams = {
   // its zoom and angle out and back. Every keyframe uses cubic-bezier(0.5, 0, 0.5, 1).
   motion: {
     duration: 9,
+    // Calmer than the Figma original on the site: a third of the speed and 60% of the travel.
+    speed: 1 / 3,
+    amount: 0.6,
     evolution: [
       { t: 0, v: 0 },
       { t: 9, v: 42 },
@@ -386,11 +397,12 @@ export function initClouds(
     gl.bindVertexArray(vao);
     if (p.motion) {
       // Play the Figma timeline forward then back, so the loop never jumps.
-      const d = p.motion.duration;
-      const cycle = t % (2 * d);
+      const { duration: d, speed, amount, transform: tTrack, evolution: eTrack } = p.motion;
+      const cycle = (t * speed) % (2 * d);
       const time = cycle < d ? cycle : 2 * d - cycle;
-      setTransform(sampleTrack(p.motion.transform, time, lerpTransform));
-      gl.uniform1f(evolutionLoc, -5 + (sampleTrack(p.motion.evolution, time, lerp) / 100) * 10);
+      // Scale each value's distance from the first keyframe by `amount`.
+      setTransform(lerpTransform(tTrack[0].v, sampleTrack(tTrack, time, lerpTransform), amount));
+      gl.uniform1f(evolutionLoc, -5 + (lerp(eTrack[0].v, sampleTrack(eTrack, time, lerp), amount) / 100) * 10);
     } else {
       gl.uniform1f(evolutionLoc, baseEvolution + t * DRIFT);
     }
