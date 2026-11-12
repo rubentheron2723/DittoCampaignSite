@@ -65,7 +65,8 @@ uniform float uWarpScale;
 uniform float uStretch;
 uniform float uCloudRotation;
 uniform vec2 uDims;
-// Parting (0 = none): clouds slide out to the sides and the sky flattens to uFlat.
+// Parting (0 = none): a clear sweep runs from the bottom-left corner to the top-right, pushing
+// the clouds ahead of it, and the sky flattens to uFlat.
 uniform float uPart;
 uniform vec3 uFlat;
 
@@ -170,9 +171,8 @@ void main() {
   vec2 p = vUv;
   float aspect = uDims.x / uDims.y;
   vec2 baseA = p * vec2(aspect, 1.0);
-  // Parting: sample from nearer the centre so the clouds appear to slide outward.
-  float side = p.x - 0.5;
-  baseA.x -= sign(side) * uPart * uPart * 0.45 * aspect;
+  // Parting: shift the sampling so the clouds drift toward the top-right, ahead of the sweep.
+  baseA -= vec2(aspect, -1.0) * (uPart * uPart * 0.18);
   vec2 g = applyGlobal(baseA, aspect);
   vec2 gs = applyStretch(g, aspect, uStretch);
   vec2 cloudUV = applyLayer(gs, aspect, uCloudRotation);
@@ -209,9 +209,10 @@ void main() {
 
   // The sky is opaque, so Figma's alpha blend reduces to a straight mix.
   float blend = clamp(fd + c, 0.0, 1.0);
-  // Clear a widening gap down the middle as the clouds part.
-  float reach = abs(side) * 2.0;
-  blend *= smoothstep(uPart * 1.1 - 0.3, uPart * 1.1, reach);
+  // Clear everything behind a diagonal front moving from bottom-left (0) to top-right (1).
+  float diag = (p.x + (1.0 - p.y)) * 0.5;
+  float front = uPart * 1.5 - 0.3;
+  blend *= smoothstep(front, front + 0.25, diag);
   outColor = vec4(mix(sky, cloud, blend), 1.0);
 }`;
 

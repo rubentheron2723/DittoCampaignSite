@@ -111,7 +111,7 @@ function flyMark() {
 
 /**
  * Source → Engage → Place. Opens on the cloud sky with the three words; the clouds
- * part to the sides onto flat brand blue, then the steps come in one
+ * clear from the bottom-left corner to the top-right onto flat brand blue, then the steps come in one
  * at a time on alternating sides of a fixed centre line (see animations/flow.ts).
  */
 function flowSection() {
