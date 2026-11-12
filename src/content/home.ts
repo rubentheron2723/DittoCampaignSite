@@ -11,19 +11,12 @@ export const nav = [
 ];
 
 export const hero = {
-  eyebrow: 'The Recruitment Operating System',
   lineOne: 'Recruitment.',
   lineTwo: 'Running at scale.',
   subhead: 'The operating system behind high-performing recruitment teams.',
-  support:
-    'Built to structure sourcing, engagement, and placements for teams operating at scale. One system. One flow.',
+  support: ['Built to structure sourcing, engagement, and placements for teams operating at scale.', 'One system. One flow.'],
   primary: 'Book a demo',
-  secondary: 'View pricing',
-  rotating: [
-    'The operating system for recruitment agencies.',
-    'The platform behind every high-performing recruiter.',
-    'People. Process. Performance.',
-  ],
+  secondary: 'View Pricing',
 };
 
 export const system = {

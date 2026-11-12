@@ -14,8 +14,21 @@ import { FOOTER_ART_FILL, FOOTER_LOGOMARK, FOOTER_WORDMARK, type FooterArt } fro
  * footer keeps its CSS gradient and inline SVG artwork.
  */
 
+export type BlobParams = {
+  mode: string;
+  region: string;
+  strength: number;
+  scale: number;
+  detail: number;
+  threshold: number;
+  softness: number;
+  shadow: number;
+  chromaticAberration: number;
+  speed: number;
+};
+
 /** Settings from the Figma footer's Moving blobs effect. */
-const PARAMS = {
+const PARAMS: BlobParams = {
   mode: 'Displacement',
   region: 'Edges Only',
   strength: 11,
@@ -195,6 +208,8 @@ precision highp int;
 ${UNIFORMS}
 uniform sampler2D uInput;
 uniform sampler2D uField;
+// 1 when the input is a framebuffer texture (bottom-up rows), 0 for an uploaded canvas.
+uniform float uFlipInput;
 in vec2 vUv;
 out vec4 outColor;
 
@@ -212,6 +227,7 @@ vec3 rotateHue(vec3 color, float cosine, float sine) {
 }
 
 vec4 sampleInput(vec2 uv) {
+  uv.y = mix(uv.y, 1.0 - uv.y, uFlipInput);
   vec2 halfPixel = 0.5 / vec2(textureSize(uInput, 0));
   return textureLod(uInput, clamp(uv, halfPixel, 1.0 - halfPixel), 0.0);
 }
@@ -323,7 +339,7 @@ void main() {
 }`;
 
 /** Turns the Figma control values into shader uniforms, exactly as Figma's render() does. */
-function deriveUniforms(p: typeof PARAMS) {
+function deriveUniforms(p: BlobParams) {
   const strength = Math.max(-1, Math.min(1, p.strength / 100));
   return {
     loopLength: 90 - (p.speed / 100) * 78,
@@ -562,4 +578,95 @@ export function initFooterBlobs(reduce: boolean) {
   resize();
   render(performance.now());
   footer.classList.add('footer--fx');
+}
+
+/**
+ * The Moving blobs effect as a reusable pass over any texture in an existing
+ * WebGL2 context (the hero runs it over its cloud sky). `intensity` scales the
+ * displacement, dispersion and rim shading to make the bubbles subtler than
+ * in Figma. Returns null if the context can't render the float field target.
+ */
+export function createBlobsPass(gl: WebGL2RenderingContext, params: BlobParams, intensity = 1) {
+  if (!(gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float'))) return null;
+  let fieldProgram: WebGLProgram;
+  let compositeProgram: WebGLProgram;
+  try {
+    fieldProgram = compile(gl, VERTEX, FIELD_FRAGMENT);
+    compositeProgram = compile(gl, VERTEX, COMPOSITE_FRAGMENT);
+  } catch (err) {
+    console.warn('Bubbles disabled:', err);
+    return null;
+  }
+  const u = deriveUniforms(params);
+  const vao = gl.createVertexArray();
+  const fieldTex = gl.createTexture()!;
+  const fieldFbo = gl.createFramebuffer()!;
+  const noRipples = new Float32Array(RIPPLES * 4);
+  let width = 1;
+  let height = 1;
+  const start = performance.now();
+
+  const setUniforms = (program: WebGLProgram, loop: [number, number]) => {
+    const loc = (n: string) => gl.getUniformLocation(program, n);
+    gl.uniform1f(loc('uFrequency'), u.frequency);
+    gl.uniform1f(loc('uThreshold'), u.threshold);
+    gl.uniform1f(loc('uSoftness'), u.softness);
+    gl.uniform1f(loc('uRenderScale'), 1);
+    gl.uniform1f(loc('uStrength'), u.strength * intensity);
+    gl.uniform1f(loc('uChromaticAberration'), u.chromaticAberration * intensity);
+    gl.uniform1f(loc('uDetail'), u.detail);
+    gl.uniform1f(loc('uEdgeOnly'), u.edgeOnly);
+    gl.uniform2f(loc('uOutputSize'), width, height);
+    gl.uniform1f(loc('uShadow'), u.shadow * intensity);
+    gl.uniform1f(loc('uMode'), u.mode);
+    gl.uniform2f(loc('uLoop'), loop[0], loop[1]);
+    gl.uniform2f(loc('uHue'), u.hue[0], u.hue[1]);
+    gl.uniform4fv(loc('uRipples'), noRipples);
+  };
+
+  return {
+    resize(w: number, h: number) {
+      width = w;
+      height = h;
+      gl.bindTexture(gl.TEXTURE_2D, fieldTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, Math.ceil(w / 2), Math.ceil(h / 2), 0, gl.RGBA, gl.HALF_FLOAT, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fieldFbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fieldTex, 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    },
+    /** Draws `input` (a framebuffer texture, so rows are bottom-up) through the effect to the screen. */
+    draw(input: WebGLTexture, now: number, still: boolean) {
+      let phase = 0.45;
+      if (!still && params.speed > 0) {
+        phase = (now - start) / 1000 / u.loopLength + 0.45;
+        phase -= Math.floor(phase);
+      }
+      const angle = phase * Math.PI * 2;
+      const loop: [number, number] = [Math.cos(angle), Math.sin(angle)];
+      gl.bindVertexArray(vao);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fieldFbo);
+      gl.viewport(0, 0, Math.ceil(width / 2), Math.ceil(height / 2));
+      gl.useProgram(fieldProgram);
+      setUniforms(fieldProgram, loop);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, width, height);
+      gl.useProgram(compositeProgram);
+      setUniforms(compositeProgram, loop);
+      gl.uniform1f(gl.getUniformLocation(compositeProgram, 'uFlipInput'), 1);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, input);
+      gl.uniform1i(gl.getUniformLocation(compositeProgram, 'uInput'), 0);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, fieldTex);
+      gl.uniform1i(gl.getUniformLocation(compositeProgram, 'uField'), 1);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.activeTexture(gl.TEXTURE0);
+    },
+  };
 }

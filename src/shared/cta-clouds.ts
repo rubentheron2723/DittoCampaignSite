@@ -10,6 +10,8 @@
  * Without WebGL2 the section keeps its CSS sky gradient.
  */
 
+import { createBlobsPass, type BlobParams } from './footer-blobs';
+
 type SkyTransform = { x: number; y: number; radius: number; angle: number };
 type Key<T> = { t: number; v: T };
 /** Keyframed motion from a Figma frame's timeline. Times in seconds; values in Figma's control units. */
@@ -21,6 +23,12 @@ type CloudMotion = {
   speed: number;
   /** How far the motion strays from its first keyframe (1 = as authored). */
   amount: number;
+  /**
+   * 'keyframes' plays the transform track as authored. 'base' keeps the frame's own static
+   * transform and applies only the track's movement relative to its first keyframe, so the
+   * sky looks like the Figma frame at rest.
+   */
+  anchor?: 'keyframes' | 'base';
 };
 export type CloudParams = Omit<typeof SKY_ORIGINAL, 'transform'> & { transform: SkyTransform; motion?: CloudMotion };
 
@@ -74,6 +82,53 @@ export const SKY_CTA: CloudParams = {
       { t: 9, v: { x: 160, y: 44.37, radius: 91.6703, angle: -10.6134 } },
     ],
   },
+};
+
+/**
+ * The hero frame (node 2354:146): fully stretched, heavily warped, dim streaks.
+ * Same Figma timeline as the CTA, played as calmly as the CTA, but anchored to the
+ * frame's own transform so the streaks look like the design.
+ */
+export const SKY_HERO: CloudParams = {
+  ...SKY_ORIGINAL,
+  transform: { x: 29.5724, y: 44.37, radius: 83.5277, angle: 9.8 },
+  coverage: 22,
+  density: 0,
+  brightness: 19,
+  globalDetail: 51,
+  shadingVariation: 70,
+  warpAmount: 100,
+  warpScale: 8,
+  stretch: 100,
+  motion: {
+    duration: 9,
+    speed: 1 / 3,
+    amount: 0.6,
+    anchor: 'base',
+    evolution: [
+      { t: 0, v: 0 },
+      { t: 9, v: 42 },
+    ],
+    transform: [
+      { t: 0, v: { x: 29.5724, y: 44.37, radius: 102.2651, angle: -11.608 } },
+      { t: 8.1304, v: { x: 158.2253, y: 44.37, radius: 120, angle: -4 } },
+      { t: 9, v: { x: 160, y: 44.37, radius: 102.2651, angle: -11.608 } },
+    ],
+  },
+};
+
+/** The hero's Moving blobs ("bubbles"): the footer's settings with a much lower threshold, so fewer rims. */
+export const HERO_BUBBLES: BlobParams = {
+  mode: 'Displacement',
+  region: 'Edges Only',
+  strength: 11,
+  scale: 300,
+  detail: 0,
+  threshold: 4.5,
+  softness: 0,
+  shadow: 9,
+  chromaticAberration: 59.1,
+  speed: 61.7,
 };
 
 /** CSS-style cubic-bezier easing with endpoints (0,0) and (1,1). */
@@ -326,6 +381,15 @@ export function initCtaClouds(reduce: boolean) {
  * so its CSS can keep a fallback until then.
  */
 export type Clouds = { setPart: (amount: number) => void };
+export type SkyOptions = {
+  /** Run the Moving blobs effect over the sky ("bubbles"); intensity < 1 makes them subtler than Figma. */
+  bubbles?: { params: BlobParams; intensity: number };
+  /** Let the clouds drift toward the pointer while it's over `host`. */
+  followPointer?: boolean;
+};
+
+/** How far the clouds lean toward the pointer at the edge of the section (Figma transform units). */
+const FOLLOW = { x: 14, y: 9, angle: 2.5 };
 const running = new WeakMap<HTMLCanvasElement, Clouds>();
 
 export function initClouds(
@@ -334,6 +398,7 @@ export function initClouds(
   readyClass: string,
   reduce: boolean,
   params: CloudParams = SKY_ORIGINAL,
+  opts: SkyOptions = {},
 ): Clouds | null {
   const existing = running.get(canvas);
   if (existing) return existing; // already running (matchMedia can re-run section setup)
@@ -362,10 +427,15 @@ export function initClouds(
   const posLoc = loc('uGlobalPos');
   const zoomLoc = loc('uGlobalZoom');
   const rotationLoc = loc('uCloudRotation');
+  // Pointer follow: `aim` is where the pointer is (-0.5..0.5 across the section), `lean` eases toward it.
+  const aim = { x: 0, y: 0 };
+  const lean = { x: 0, y: 0 };
   const setTransform = (t: SkyTransform) => {
-    gl.uniform2f(posLoc, -((t.x - 50) / 100), -((t.y - 50) / 100));
+    const x = t.x + lean.x * FOLLOW.x;
+    const y = t.y + lean.y * FOLLOW.y;
+    gl.uniform2f(posLoc, -((x - 50) / 100), -((y - 50) / 100));
     gl.uniform1f(zoomLoc, 0.2 + (1 - t.radius / 100) * 2.8);
-    gl.uniform1f(rotationLoc, -t.angle);
+    gl.uniform1f(rotationLoc, -(t.angle + lean.x * FOLLOW.angle));
   };
   setTransform(p.transform);
   gl.uniform1f(loc('uGlobalDetail'), 0.5 + (p.globalDetail / 100) * 0.8);
@@ -383,6 +453,11 @@ export function initClouds(
   const dimsLoc = loc('uDims');
   const baseEvolution = -5 + (p.evolution / 100) * 10;
 
+  // With bubbles, the sky renders into a texture that the blobs pass then distorts onto the screen.
+  const bubbles = opts.bubbles ? createBlobsPass(gl, opts.bubbles.params, opts.bubbles.intensity) : null;
+  const skyTex = bubbles ? gl.createTexture() : null;
+  const skyFbo = bubbles ? gl.createFramebuffer() : null;
+
   const resize = () => {
     const rect = canvas.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width * RENDER_SCALE));
@@ -390,11 +465,42 @@ export function initClouds(
     if (w === canvas.width && h === canvas.height) return;
     canvas.width = w;
     canvas.height = h;
+    if (bubbles && skyTex && skyFbo) {
+      gl.bindTexture(gl.TEXTURE_2D, skyTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, skyFbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, skyTex, 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      bubbles.resize(w, h);
+    }
   };
+
+  const follow = !!opts.followPointer && !reduce;
+  if (follow) {
+    host.addEventListener('pointermove', (e) => {
+      const r = host.getBoundingClientRect();
+      aim.x = (e.clientX - r.left) / r.width - 0.5;
+      aim.y = (e.clientY - r.top) / r.height - 0.5;
+    });
+    host.addEventListener('pointerleave', () => {
+      aim.x = 0;
+      aim.y = 0;
+    });
+  }
 
   const start = performance.now();
   const render = (now: number) => {
     const t = reduce ? 0 : (now - start) / 1000;
+    if (follow) {
+      // Ease toward the pointer so the sky drifts after it rather than snapping.
+      lean.x += (aim.x - lean.x) * 0.035;
+      lean.y += (aim.y - lean.y) * 0.035;
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, skyFbo);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.useProgram(program);
     gl.bindVertexArray(vao);
@@ -404,7 +510,18 @@ export function initClouds(
       const cycle = (t * speed) % (2 * d);
       const time = cycle < d ? cycle : 2 * d - cycle;
       // Scale each value's distance from the first keyframe by `amount`.
-      setTransform(lerpTransform(tTrack[0].v, sampleTrack(tTrack, time, lerpTransform), amount));
+      const moved = lerpTransform(tTrack[0].v, sampleTrack(tTrack, time, lerpTransform), amount);
+      if (p.motion.anchor === 'base') {
+        const k0 = tTrack[0].v;
+        setTransform({
+          x: p.transform.x + moved.x - k0.x,
+          y: p.transform.y + moved.y - k0.y,
+          radius: p.transform.radius + moved.radius - k0.radius,
+          angle: p.transform.angle + moved.angle - k0.angle,
+        });
+      } else {
+        setTransform(moved);
+      }
       gl.uniform1f(evolutionLoc, -5 + (lerp(eTrack[0].v, sampleTrack(eTrack, time, lerp), amount) / 100) * 10);
     } else {
       gl.uniform1f(evolutionLoc, baseEvolution + t * DRIFT);
@@ -412,6 +529,7 @@ export function initClouds(
     gl.uniform2f(dimsLoc, canvas.width, canvas.height);
     gl.uniform1f(partLoc, part);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (bubbles && skyTex) bubbles.draw(skyTex, now, reduce);
   };
 
   // Animate only while the section is on screen.
