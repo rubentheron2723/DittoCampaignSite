@@ -64,36 +64,6 @@ export function initTrust(animate: boolean) {
   }
 }
 
-/* ---------- AI ---------- */
-export function initAI(animate: boolean) {
-  const section = q('.ai')!;
-  const stepsPath = q<SVGPathElement>('.steps__path', section)!;
-  if (!animate) return;
-
-  const split = SplitText.create('.ai__title', { type: 'lines,words', mask: 'lines', linesClass: 'split-line' });
-  gsap.from(split.words, { yPercent: 110, autoAlpha: 0, duration: 1, ease: 'expo.out', stagger: 0.04, scrollTrigger: enter(section) });
-  gsap.from('.ai__desc', { y: 24, autoAlpha: 0, scrollTrigger: enter(section, 'top 70%') });
-
-  gsap.from('.aicard', {
-    y: 70,
-    autoAlpha: 0,
-    rotateX: 8,
-    duration: 1.1,
-    ease: 'expo.out',
-    stagger: 0.1,
-    scrollTrigger: enter(q('.ai__cards')!, 'top 78%'),
-  });
-
-  const steps = q('.steps', section)!;
-  gsap
-    .timeline({ scrollTrigger: { trigger: steps, start: 'top 80%', end: 'bottom 55%', scrub: 0.5 } })
-    .fromTo(stepsPath, { drawSVG: '0%' }, { drawSVG: '100%', ease: 'none' }, 0)
-    .from('.step__dot', { scale: 0, autoAlpha: 0, stagger: 0.3, ease: 'back.out(2)', duration: 0.3 }, 0)
-    .from('.step p', { y: 20, autoAlpha: 0, stagger: 0.3, duration: 0.3 }, 0.05);
-
-  gsap.from('.ai__note', { x: -20, autoAlpha: 0, scrollTrigger: enter(q('.ai__note')!, 'top 90%') });
-}
-
 /* ---------- Pricing ---------- */
 export function initPricing(animate: boolean) {
   const section = q('.pricing')!;

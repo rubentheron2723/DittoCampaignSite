@@ -19,14 +19,6 @@ export const hero = {
   secondary: 'View Pricing',
 };
 
-export const system = {
-  lineOne: 'Everything recruiters do.',
-  lineTwo: 'Running inside one system.',
-  lead:
-    'Ditto unifies sourcing, communication, collaboration, AI automation, reporting, and revenue tracking into one structured operating system for recruitment.',
-  orbit: ['Sourcing', 'Communication', 'Collaboration', 'AI automation', 'Reporting', 'Revenue'],
-};
-
 export type Act = {
   id: 'source' | 'engage' | 'place';
   number: string;
