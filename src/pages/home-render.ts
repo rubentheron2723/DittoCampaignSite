@@ -3,65 +3,33 @@ import { ctaAndFooter } from '../shared/chrome';
 import { esc, MARK_L, MARK_R, markSvg } from '../shared/mark';
 import { FLOW_ART } from '../shared/flow-art';
 
+/**
+ * The hero from the reworked Figma frame (node 2354:85): a stretched cloud sky
+ * (with subtle "bubbles" and a pull toward the pointer, see initHeroSky), a
+ * soft-light glow from the top, a white haze along the bottom, and the copy.
+ */
 function heroSection() {
-  // A few "candidate cards" float in the hero and respond to the pointer.
-  const cards = [
-    { name: 'Senior Developer', meta: 'Match 96 · Cape Town', depth: 0.6 },
-    { name: 'Finance Manager', meta: 'Shortlisted · 3 interviews', depth: 1.1 },
-    { name: 'Operations Lead', meta: 'Offer accepted · Start 1 Nov', depth: 0.85 },
-  ];
   return `
   <section class="hero" id="top" data-theme="dark">
     <div class="hero__bg" aria-hidden="true">
-      <svg class="hero__flow" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
-        <defs>
-          <linearGradient id="flowStroke" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#00B0FF" stop-opacity="0" />
-            <stop offset="0.3" stop-color="#00B0FF" stop-opacity="0.9" />
-            <stop offset="0.7" stop-color="#ffffff" stop-opacity="0.9" />
-            <stop offset="1" stop-color="#00B0FF" stop-opacity="0" />
-          </linearGradient>
-          <filter id="glow" x="-300%" y="-300%" width="700%" height="700%">
-            <feGaussianBlur stdDeviation="6" result="b" />
-            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-        </defs>
-        <path class="hero__flow-path hero__flow-path--ghost" d="M-100,620 C200,620 260,260 520,300 S820,640 1040,560 S1360,160 1720,240" />
-        <path class="hero__flow-path" id="hero-path" d="M-100,620 C200,620 260,260 520,300 S820,640 1040,560 S1360,160 1720,240" />
-        <circle class="hero__flow-dot" r="7" filter="url(#glow)" />
-        <circle class="hero__flow-dot hero__flow-dot--2" r="4" />
-      </svg>
-      <div class="hero__cards">
-        ${cards
-          .map(
-            (c, i) => `<div class="hcard hcard--${i + 1}" data-depth="${c.depth}" data-speed="${1 + i * 0.08}">
-              <span class="hcard__avatar">${c.name[0]}</span>
-              <span class="hcard__name">${esc(c.name)}</span>
-              <span class="hcard__meta">${esc(c.meta)}</span>
-            </div>`,
-          )
-          .join('')}
-      </div>
-      <div class="hero__mark">${markSvg('mark--hero')}</div>
+      <canvas class="hero__sky"></canvas>
+      <div class="hero__glow"></div>
+      <div class="hero__haze"></div>
     </div>
-
     <div class="hero__inner">
-      <p class="eyebrow hero__eyebrow">${esc(hero.eyebrow)}</p>
       <h1 class="hero__title">
         <span class="hero__line">${esc(hero.lineOne)}</span>
-        <span class="hero__line hero__line--accent">${esc(hero.lineTwo)}</span>
+        <span class="hero__line">${esc(hero.lineTwo)}</span>
       </h1>
-      <p class="hero__subhead">${esc(hero.subhead)}</p>
-      <p class="hero__support">${esc(hero.support)}</p>
-      <div class="hero__actions">
-        <a class="btn btn--light btn--lg" href="#cta" data-magnetic>${esc(hero.primary)}</a>
-        <a class="btn btn--outline btn--lg" href="#pricing" data-magnetic>${esc(hero.secondary)}</a>
+      <div class="hero__lower">
+        <p class="hero__subhead">${esc(hero.subhead)}</p>
+        <p class="hero__support">${hero.support.map(esc).join('<br />')}</p>
       </div>
-      <div class="hero__rotator" aria-live="polite">
-        ${hero.rotating.map((l) => `<span>${esc(l)}</span>`).join('')}
+      <div class="hero__actions">
+        <a class="btn btn--light btn--hero" href="#cta" data-magnetic>${esc(hero.primary)}</a>
+        <a class="btn btn--glass btn--hero" href="#pricing" data-magnetic>${esc(hero.secondary)}</a>
       </div>
     </div>
-    <div class="hero__cue" aria-hidden="true"><span></span><em>scroll</em></div>
   </section>`;
 }
 
