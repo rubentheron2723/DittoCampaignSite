@@ -86,7 +86,7 @@ export const SKY_CTA: CloudParams = {
 
 /**
  * The hero frame (node 2354:146): fully stretched, heavily warped, dim streaks.
- * Same Figma timeline as the CTA, played as calmly as the CTA, but anchored to the
+ * Same Figma timeline as the CTA, played slower still, and anchored to the
  * frame's own transform so the streaks look like the design.
  */
 export const SKY_HERO: CloudParams = {
@@ -102,8 +102,9 @@ export const SKY_HERO: CloudParams = {
   stretch: 100,
   motion: {
     duration: 9,
-    speed: 1 / 3,
-    amount: 0.6,
+    // Slower and gentler than the CTA: a sixth of Figma's speed (54s a pass) and half the travel.
+    speed: 1 / 6,
+    amount: 0.5,
     anchor: 'base',
     evolution: [
       { t: 0, v: 0 },
@@ -384,12 +385,14 @@ export type Clouds = { setPart: (amount: number) => void };
 export type SkyOptions = {
   /** Run the Moving blobs effect over the sky ("bubbles"); intensity < 1 makes them subtler than Figma. */
   bubbles?: { params: BlobParams; intensity: number };
-  /** Let the clouds drift toward the pointer while it's over `host`. */
-  followPointer?: boolean;
+  /**
+   * Let the sky respond to the pointer while it's over `host`: how far it pans (Figma transform
+   * units) and tilts (degrees) with the pointer at the section's edge. Negative values move it away
+   * from the pointer, like turning your head to look across the sky. `lag` is the easing time
+   * constant in seconds (higher = slower, smoother).
+   */
+  follow?: { x: number; y: number; angle: number; lag: number };
 };
-
-/** How far the clouds lean toward the pointer at the edge of the section (Figma transform units). */
-const FOLLOW = { x: 14, y: 9, angle: 2.5 };
 const running = new WeakMap<HTMLCanvasElement, Clouds>();
 
 export function initClouds(
@@ -430,12 +433,13 @@ export function initClouds(
   // Pointer follow: `aim` is where the pointer is (-0.5..0.5 across the section), `lean` eases toward it.
   const aim = { x: 0, y: 0 };
   const lean = { x: 0, y: 0 };
+  const reach = opts.follow ?? { x: 0, y: 0, angle: 0, lag: 1 };
   const setTransform = (t: SkyTransform) => {
-    const x = t.x + lean.x * FOLLOW.x;
-    const y = t.y + lean.y * FOLLOW.y;
+    const x = t.x + lean.x * reach.x;
+    const y = t.y + lean.y * reach.y;
     gl.uniform2f(posLoc, -((x - 50) / 100), -((y - 50) / 100));
     gl.uniform1f(zoomLoc, 0.2 + (1 - t.radius / 100) * 2.8);
-    gl.uniform1f(rotationLoc, -(t.angle + lean.x * FOLLOW.angle));
+    gl.uniform1f(rotationLoc, -(t.angle + lean.x * reach.angle));
   };
   setTransform(p.transform);
   gl.uniform1f(loc('uGlobalDetail'), 0.5 + (p.globalDetail / 100) * 0.8);
@@ -479,7 +483,7 @@ export function initClouds(
     }
   };
 
-  const follow = !!opts.followPointer && !reduce;
+  const follow = !!opts.follow && !reduce;
   if (follow) {
     host.addEventListener('pointermove', (e) => {
       const r = host.getBoundingClientRect();
@@ -493,13 +497,16 @@ export function initClouds(
   }
 
   const start = performance.now();
+  let last = start;
   const render = (now: number) => {
     const t = reduce ? 0 : (now - start) / 1000;
     if (follow) {
-      // Ease toward the pointer so the sky drifts after it rather than snapping.
-      lean.x += (aim.x - lean.x) * 0.035;
-      lean.y += (aim.y - lean.y) * 0.035;
+      // Ease toward the pointer with a time constant, so the drift is equally smooth at any frame rate.
+      const k = 1 - Math.exp(-Math.min(0.1, (now - last) / 1000) / reach.lag);
+      lean.x += (aim.x - lean.x) * k;
+      lean.y += (aim.y - lean.y) * k;
     }
+    last = now;
     gl.bindFramebuffer(gl.FRAMEBUFFER, skyFbo);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.useProgram(program);

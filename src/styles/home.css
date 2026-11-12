@@ -12,12 +12,12 @@
 .hero__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); }
 .hero--sky .hero__sky { opacity: 1; }
 .hero__glow {
-  position: absolute; inset: 0; opacity: 0.4; mix-blend-mode: soft-light;
+  position: absolute; inset: -6%; /* room to drift with the pointer */ opacity: 0.4; mix-blend-mode: soft-light;
   background: radial-gradient(134.57% 124.02% at 50% -24.02%, #1e6ef3 0%, #108ff9 25%, #01b0ff 50%, #11b5ff 53.125%, #21baff 56.25%, #41c4ff 62.5%, #60ceff 68.75%, #80d8ff 75%, #c0ebff 87.5%, #fff 100%);
 }
 .hero__haze { position: absolute; inset: 0; background: linear-gradient(-4.81deg, #fff 5.2916%, rgba(255, 255, 255, 0) 36.114%); }
 
-.hero__inner { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; gap: 20px; }
+.hero__inner { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; gap: clamp(24px, 2.778vw, 40px); }
 .hero__title { font-size: var(--t-hero-size); line-height: var(--t-hero-lh); letter-spacing: var(--t-hero-ls); font-weight: var(--t-hero-wt); }
 .hero__line { display: block; }
 .hero__lower { display: grid; gap: 12px; }
