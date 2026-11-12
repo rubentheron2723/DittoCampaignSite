@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
 
-const pages = ['index', 'product', 'pricing', 'about', 'faq', 'contact'];
+const pages = ['index', 'product', 'pricing', 'about', 'faq', 'contact', 'type'];
 
 /** Dev-only: serve /product as /product.html so links match the Vercel cleanUrls deploy. */
 function cleanUrls(): Plugin {

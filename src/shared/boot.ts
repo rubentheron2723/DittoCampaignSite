@@ -6,6 +6,7 @@ import { coverAndGo, hideCurtain, playIntro, playReveal } from './curtain';
 import { initFooterBlobs } from './footer-blobs';
 import { initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
+import { initTypePreview } from './type-overrides';
 
 export type BootContext = {
   reduce: boolean;
@@ -31,6 +32,7 @@ export async function boot({ page, render, init }: Options) {
   // Links to a #section still go there: the browser handles those, not restoration.
   ScrollTrigger.clearScrollMemory('manual');
   if (!window.location.hash) window.scrollTo(0, 0);
+  initTypePreview();
   renderChrome(page);
   render();
 

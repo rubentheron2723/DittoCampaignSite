@@ -5,9 +5,9 @@
 .form__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 24px; }
 .field { position: relative; display: grid; gap: 8px; }
 .field--full { grid-column: 1 / -1; }
-.field__label { font-size: 13px; font-weight: 500; letter-spacing: 0.02em; color: var(--ink-soft); transition: color 0.2s; }
+.field__label { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); color: var(--ink-soft); transition: color 0.2s; }
 .field.is-focused .field__label { color: var(--blue-deep); }
-.field__input { width: 100%; padding: 12px 0; background: none; border: 0; border-bottom: 1px solid var(--line-light); font-size: 16px; color: var(--ink); outline: none; appearance: none; -webkit-appearance: none; border-radius: 0; }
+.field__input { font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); width: 100%; padding: 12px 0; background: none; border: 0; border-bottom: 1px solid var(--line-light); color: var(--ink); outline: none; appearance: none; -webkit-appearance: none; border-radius: 0; }
 .field__input::placeholder { color: rgba(77, 89, 107, 0.55); }
 select.field__input { cursor: pointer; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f141d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0 center / 18px; padding-right: 28px; }
 select.field__input:invalid, select.field__input option[value=''] { color: rgba(77, 89, 107, 0.7); }
@@ -17,9 +17,9 @@ textarea.field__input { resize: vertical; min-height: 96px; }
 .field:has(textarea) .field__line { bottom: 26px; }
 .field.is-focused .field__line { transform: scaleX(1); }
 .field.is-invalid .field__line { transform: scaleX(1); background: #c2782a; }
-.field__error { min-height: 14px; font-size: 12px; color: #c2782a; }
+.field__error { font-size: var(--t-caption-size); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-ls); font-weight: var(--t-caption-wt); min-height: 14px; color: #c2782a; }
 .form__foot { margin-top: 32px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-.form__note { font-size: 13px; color: var(--ink-soft); max-width: 44ch; }
+.form__note { font-size: var(--t-small-size); line-height: var(--t-small-lh); letter-spacing: var(--t-small-ls); font-weight: var(--t-small-wt); color: var(--ink-soft); max-width: 44ch; }
 .form__submit { min-width: 170px; }
 .form__submit-sending { display: none; }
 .form.is-sending .form__submit-label { display: none; }
@@ -33,10 +33,10 @@ textarea.field__input { resize: vertical; min-height: 96px; }
 .next { margin-top: 20px; display: grid; gap: 22px; }
 .next__step { display: grid; grid-template-columns: 40px 1fr; gap: 16px; align-items: start; }
 .next__dot { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--white); border: 1px solid var(--line-light); font-weight: 600; font-size: 14px; }
-.next__step h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.015em; }
-.next__step p { margin-top: 6px; font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
+.next__step h3 { font-size: var(--t-h3-size); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-ls); font-weight: var(--t-h3-wt); }
+.next__step p { font-size: var(--t-small-size); line-height: var(--t-small-lh); letter-spacing: var(--t-small-ls); font-weight: var(--t-small-wt); margin-top: 6px; color: var(--ink-soft); }
 .direct { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line-light); }
-.direct__email { display: inline-block; margin-top: 8px; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; border-bottom: 2px solid var(--blue); }
+.direct__email { font-size: var(--t-h3-size); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-ls); font-weight: var(--t-h3-wt); display: inline-block; margin-top: 8px; border-bottom: 2px solid var(--blue); }
 
 @media (max-width: 900px) {
   .contact__grid { grid-template-columns: 1fr; }
