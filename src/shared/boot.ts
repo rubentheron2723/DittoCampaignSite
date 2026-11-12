@@ -62,11 +62,40 @@ export async function boot({ page, render, init }: Options) {
   initTilt();
   initCtaClouds(reduce);
   initFooterBlobs(reduce);
+  if (!reduce) initFooterCover();
   initFooterWave();
   // Nav theming last: its triggers depend on pinned sections' final positions.
   initNavTheme();
   ScrollTrigger.refresh();
   return ctx;
+}
+
+/* ---------- Footer cover ---------- */
+/**
+ * Once the closing CTA is fully on screen it holds still, and the footer
+ * scrolls up over it like a sheet. The sky drifts back, the copy sinks and the
+ * whole band dims as it's covered. pinSpacing is off, so the page's length and every other
+ * trigger's position stay exactly as they were.
+ */
+function initFooterCover() {
+  const cta = q('.cta');
+  const footer = q('.footer');
+  if (!cta || !footer || cta.nextElementSibling !== footer) return;
+
+  ScrollTrigger.create({
+    trigger: cta,
+    start: 'bottom bottom',
+    endTrigger: footer,
+    end: 'top top',
+    pin: true,
+    pinSpacing: false,
+    invalidateOnRefresh: true,
+  });
+
+  const cover = { trigger: footer, start: 'top bottom', end: 'top top', scrub: true, invalidateOnRefresh: true };
+  gsap.fromTo(q('.cta__sky', cta), { scale: 1 }, { scale: 1.12, ease: 'none', scrollTrigger: cover });
+  gsap.fromTo(q('.cta__inner', cta), { y: 0, autoAlpha: 1 }, { y: () => -window.innerHeight * 0.12, autoAlpha: 0.25, ease: 'none', scrollTrigger: cover });
+  gsap.fromTo(cta, { '--cover': 0 }, { '--cover': 0.5, ease: 'none', scrollTrigger: cover });
 }
 
 /* ---------- Nav theming ---------- */
