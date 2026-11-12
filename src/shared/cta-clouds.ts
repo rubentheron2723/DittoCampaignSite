@@ -102,8 +102,8 @@ export const SKY_HERO: CloudParams = {
   stretch: 100,
   motion: {
     duration: 9,
-    // Slower and gentler than the CTA: a sixth of Figma's speed (54s a pass) and half the travel.
-    speed: 1 / 6,
+    // Much slower and gentler than the CTA: a twelfth of Figma's speed (108s a pass) and half the travel.
+    speed: 1 / 12,
     amount: 0.5,
     anchor: 'base',
     evolution: [
