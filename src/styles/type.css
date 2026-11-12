@@ -16,7 +16,7 @@
   --t-family: 'DM Sans';
   --t-opsz: 16;
 
-  --t-hero-min: 56; --t-hero-max: 164; --t-hero-lh: 0.86; --t-hero-ls: -0.04em; --t-hero-wt: 700;
+  --t-hero-min: 56; --t-hero-max: 164; --t-hero-lh: 1.122; --t-hero-ls: -0.04em; --t-hero-wt: 700;
   --t-display-min: 44; --t-display-max: 120; --t-display-lh: 1.06; --t-display-ls: -.04em; --t-display-wt: 700;
   --t-h1-min: 44; --t-h1-max: 84; --t-h1-lh: 1; --t-h1-ls: -0.025em; --t-h1-wt: 600;
   --t-h2-min: 24; --t-h2-max: 40; --t-h2-lh: 1.05; --t-h2-ls: -0.04em; --t-h2-wt: 600;
