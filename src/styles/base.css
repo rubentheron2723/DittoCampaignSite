@@ -170,9 +170,8 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 .cta__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; }
 .cta--sky .cta__sky { opacity: 1; }
 .cta__shade { position: absolute; inset: 0; background: linear-gradient(180deg, #fefefe 0%, rgba(255, 255, 255, 0) 52.559%); pointer-events: none; }
-/* Seamless join (see blendCtaIntoPrevious in boot.ts): the top starts in the colour the section above ends on.
-   After a light section it eases into the white haze; after a dark one it fades straight into the sky. */
-.cta--from-light .cta__shade { background: linear-gradient(180deg, var(--cta-from) 0%, #fefefe 12%, rgba(255, 255, 255, 0) 52.559%); }
+/* Seamless join (see blendCtaIntoPrevious in boot.ts). Light sections above are made to end in #FEFEFE, so the
+   white haze needs no change; after a dark section the top starts in its navy and fades straight into the sky. */
 .cta--from-dark .cta__shade { background: linear-gradient(180deg, var(--cta-from) 0%, rgba(255, 255, 255, 0) 52.559%); }
 /* Darkens the band as the footer covers it (--cover is driven by initFooterCover in boot.ts). */
 .cta::after { content: ''; position: absolute; inset: 0; z-index: 2; background: #000; opacity: var(--cover, 0); pointer-events: none; }
