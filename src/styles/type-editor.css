@@ -22,8 +22,9 @@
 
 /* ---------- Editor ---------- */
 .editor-body { background: #0b0f15; color: #e7eff4; font: 400 14px/1.4 'DM Sans', sans-serif; font-variation-settings: 'opsz' 14; overflow: hidden; }
-.editor { display: grid; grid-template-columns: 360px minmax(0, 1fr); height: 100vh; height: 100dvh; }
-.editor__panel { overflow-y: auto; border-right: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 40px; }
+/* Fixed to the screen: the panel and the preview each scroll on their own. */
+.editor { display: grid; grid-template-columns: 360px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); height: 100vh; height: 100dvh; }
+.editor__panel { min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-right: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 40px; }
 .editor__head { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
 .editor__head h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
 .editor__head p { margin-top: 8px; font-size: 13px; line-height: 1.5; color: rgba(231, 239, 244, 0.6); }
@@ -54,7 +55,7 @@ details.role[open] > .role__head::after { content: '−'; }
   background: rgba(255, 255, 255, 0.04); font-size: 12px; font-variant-numeric: tabular-nums; text-align: right;
 }
 
-.editor__stage { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; }
+.editor__stage { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; }
 .stage__bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
 .seg-ctl { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); }
 .seg-ctl button { height: 30px; padding: 0 12px; border-radius: 999px; font-size: 13px; color: rgba(231, 239, 244, 0.7); }
@@ -75,6 +76,6 @@ details.role[open] > .role__head::after { content: '−'; }
 }
 
 @media (max-width: 900px) {
-  .editor { grid-template-columns: 1fr; grid-template-rows: 50vh 50vh; }
+  .editor { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
   .editor__panel { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
 }
