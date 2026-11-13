@@ -19,6 +19,15 @@ export const hero = {
   secondary: 'View Pricing',
 };
 
+/** Second section (Figma node 2364:777): the headline, and the angled marquee under it. */
+export const system = {
+  lineOne: 'Everything recruiters do.',
+  lineTwo: 'Running inside one system.',
+  body:
+    'Ditto unifies sourcing, communication, collaboration, AI automation, reporting, and revenue tracking into one structured operating system for recruitment.',
+  loop: 'Source. Engage. Place.',
+};
+
 export type Act = {
   id: 'source' | 'engage' | 'place';
   number: string;

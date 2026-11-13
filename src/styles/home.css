@@ -109,6 +109,38 @@
 .ticker__row span { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); display: inline-flex; align-items: center; gap: 28px; padding-right: 28px; color: var(--ink); }
 .ticker__row span::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
 
+/* ---------- SYSTEM ---------- */
+/* "Everything recruiters do." (Figma node 2364:777, 1440x1024): centred headline and copy, then the slanted
+   "Source. Engage. Place." line, which runs as a marquee along its own angle (animations/system.ts). */
+.system {
+  --system-angle: -11deg;
+  position: relative; background: #fdfdfd; color: var(--brand-ink); overflow: clip;
+  padding: clamp(72px, 8.333vw, 120px) var(--gutter) clamp(56px, 8.125vw, 117px);
+}
+.system__head { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; text-align: center; }
+/* 84/88 bold, -0.04em at 1440: the same headline style as the AI section's title. */
+.system__title { font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
+.system__line { display: block; }
+/* 23/27 regular, -0.01em at 1440; breaks after "and revenue". */
+.system__body {
+  font-size: clamp(16px, calc(16px + 7 * (100vw - 375px) / 1065), 23px);
+  line-height: 1.174; letter-spacing: -0.01em; font-weight: 400;
+  max-width: 960px; margin: clamp(20px, 2.778vw, 40px) auto 0;
+}
+/* The band the slanted line sits in, full bleed. Its height leaves room for the slant across the full width;
+   at 1440 the line's centre lands ~697px from the section's top, as in the frame. */
+.system__loop { position: relative; height: clamp(170px, 29.17vw, 420px); margin: clamp(40px, 6.667vw, 96px) calc(-1 * var(--gutter)) 0; }
+.system__tilt {
+  position: absolute; left: -20%; top: 50%; width: 140%;
+  transform: translateY(-50%) rotate(var(--system-angle));
+}
+.system__track { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
+.system__phrase {
+  /* 146 bold, -0.04em at 1440. */
+  font-size: clamp(60px, 10.14vw, 146px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700;
+  text-transform: uppercase; padding-right: 0.3em;
+}
+
 /* ---------- AI ---------- */
 /* "Practical AI that recruiters can trust" (Figma node 2364:692). The stage pins while the capability cards fly in as
    WebGL paper sheets (animations/ai.ts, shared/paper-cards.ts). Near-white, with a blue glow rising from below. */
