@@ -112,23 +112,28 @@
 .ticker__row span::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
 
 /* ---------- AI ---------- */
-/* "Practical AI that recruiters can trust". The stage pins while the capability cards fly in as WebGL paper sheets
-   (animations/ai.ts, shared/paper-cards.ts). It opens on white so it flows out of the hero's bottom haze. */
-.ai { position: relative; background: linear-gradient(180deg, #fff 0%, var(--paper) 55%); color: var(--ink); }
-.ai__stage { position: relative; min-height: 100vh; min-height: 100lvh; padding: calc(var(--nav-h) + clamp(32px, 6vw, 88px)) var(--gutter) clamp(64px, 8vw, 120px); overflow: clip; }
-.ai__glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 55% at 50% 105%, rgba(0, 176, 255, 0.28) 0%, rgba(0, 176, 255, 0) 70%); }
-.ai__head { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; }
-.ai__title { font-size: var(--t-h1-size); line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); font-weight: var(--t-h1-wt); margin-top: 14px; max-width: 14ch; }
-.ai__desc { font-size: var(--t-lead-size); line-height: var(--t-lead-lh); letter-spacing: var(--t-lead-ls); font-weight: var(--t-lead-wt); margin-top: 20px; max-width: 52ch; color: var(--ink-soft); }
+/* "Practical AI that recruiters can trust" (Figma node 2364:692). The stage pins while the capability cards fly in as
+   WebGL paper sheets (animations/ai.ts, shared/paper-cards.ts). Near-white, with a blue glow rising from below. */
+.ai { position: relative; background: #fdfdfd; color: #171717; --ai-pad: clamp(20px, 5.556vw, 80px); }
+.ai__stage { position: relative; min-height: 100vh; min-height: 100lvh; padding: clamp(calc(var(--nav-h) + 24px), 8.333vw, 120px) var(--ai-pad) clamp(64px, 8vw, 120px); overflow: clip; }
+.ai__glow { position: absolute; inset: 0; pointer-events: none; opacity: 0.3; background: radial-gradient(57% 52.5% at 50% 131.3%, #1e6ef3 0%, #108ff9 23.077%, #01b0ff 46.154%, rgba(1, 176, 255, 0) 100%); }
+.ai__head { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; }
+/* 84/88 bold, -0.04em at 1440 (the h1 size token, set tighter and bolder here as in the design). */
+.ai__title { font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; max-width: 10em; }
+/* 24/28 medium, -0.04em at 1440; breaks after "matching, and". */
+.ai__desc { font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; margin-top: clamp(20px, 2.778vw, 40px); max-width: 32em; }
 .ai__canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; display: none; }
 .ai--3d .ai__canvas { display: block; }
-.ai__cards { position: relative; z-index: 1; max-width: 1240px; margin: clamp(40px, 5vw, 72px) auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+/* HTML cards (no WebGL, or reduced motion): the same cards, flat. */
+.ai__cards { position: relative; z-index: 1; max-width: 1280px; margin: clamp(40px, 6.944vw, 100px) auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 /* With the 3D cards running, the HTML cards stay only for screen readers. */
 .ai--3d .ai__cards { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.aicard { position: relative; padding: 32px 28px 36px; border-radius: 22px; background: var(--white); border: 1px solid var(--line-light); box-shadow: 0 30px 60px rgba(15, 20, 29, 0.08); }
-.aicard__index { font-size: var(--t-eyebrow-size); line-height: var(--t-eyebrow-lh); letter-spacing: var(--t-eyebrow-ls); font-weight: var(--t-eyebrow-wt); color: var(--blue-deep); }
-.aicard h3 { font-size: var(--t-h3-size); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-ls); font-weight: var(--t-h3-wt); margin-top: 48px; }
-.aicard p { font-size: var(--t-small-size); line-height: var(--t-small-lh); letter-spacing: var(--t-small-ls); font-weight: var(--t-small-wt); margin-top: 12px; color: var(--ink-soft); }
+.aicard { position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: clamp(240px, 22.64vw, 326px); padding: clamp(24px, 2.778vw, 40px); border-radius: 24px; background: #fff; box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25); }
+.aicard:nth-child(2) { background: linear-gradient(246.83deg, #1e6ef3 17.552%, #00b0ff 22.294%, #1e6ef3 100%); color: #fff; }
+.aicard__index { font-size: clamp(56px, 5.833vw, 84px); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; }
+.aicard:nth-child(2) .aicard__index { color: #fff; }
+.aicard h3 { font-size: clamp(20px, 1.667vw, 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 700; margin-top: 48px; }
+.aicard p { font-size: clamp(16px, 1.389vw, 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; margin-top: 20px; }
 .ai__more { padding: 0 var(--gutter) clamp(64px, 8vw, 120px); max-width: 1240px; margin: 0 auto; box-sizing: content-box; }
 .steps { position: relative; margin-top: clamp(56px, 7vw, 96px); }
 .steps__line { position: absolute; left: 0; right: 0; top: 24px; width: 100%; height: 2px; overflow: visible; }

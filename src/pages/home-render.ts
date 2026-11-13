@@ -112,7 +112,6 @@ function aiSection() {
     <div class="ai__stage">
       <div class="ai__glow" aria-hidden="true"></div>
       <div class="ai__head">
-        <p class="eyebrow">Practical AI</p>
         <h2 class="ai__title">${esc(ai.title)}</h2>
         <p class="ai__desc">${esc(ai.description)}</p>
       </div>
