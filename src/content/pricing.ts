@@ -15,7 +15,6 @@ export type Tier = {
 export const ANNUAL_MULTIPLIER = 0.85;
 
 export const hero = {
-  eyebrow: 'Pricing',
   titleOne: 'Recruitment software pricing',
   titleTwo: 'for growing teams',
   subtitle: 'Simple, transparent pricing built for recruitment teams operating at scale.',
@@ -61,7 +60,6 @@ export const tiers: Tier[] = [
 export const tierForUsers = (users: number) => tiers.find((t) => users >= t.min && users <= t.max) ?? tiers[0];
 
 export const calculator = {
-  eyebrow: 'Calculator',
   title: 'Transparent pricing for teams that scale',
   description: 'Choose monthly or annual billing. Pricing is based on recruiter licenses.',
   sliderLabel: 'How many recruiters?',
@@ -71,7 +69,6 @@ export const calculator = {
 };
 
 export const nextSteps = {
-  eyebrow: 'What happens next',
   title: 'From first call to first placement',
   steps: [
     {

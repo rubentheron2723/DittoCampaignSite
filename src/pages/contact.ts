@@ -34,7 +34,6 @@ function render() {
     <div class="page-hero__mark">${markSvg()}</div>
     <div class="wrap wrap--wide">
       <div class="page-hero__inner">
-        <p class="eyebrow">${esc(hero.eyebrow)}</p>
         <h1 class="h-display contact-hero__title">${esc(hero.title)}</h1>
         <p class="h-sub">${esc(hero.subtitle)}</p>
         <p class="lead">${esc(hero.support)}</p>
@@ -74,12 +73,12 @@ function render() {
       </form>
 
       <aside class="contact__aside">
-        <p class="eyebrow eyebrow--blue">${esc(aside.eyebrow)}</p>
+        <p class="label label--blue">${esc(aside.label)}</p>
         <ol class="next">
           ${aside.steps.map((s, i) => `<li class="next__step"><span class="next__dot"><b>${i + 1}</b></span><div><h3>${esc(s.title)}</h3><p>${esc(s.copy)}</p></div></li>`).join('')}
         </ol>
         <div class="direct">
-          <p class="eyebrow">${esc(aside.direct.label)}</p>
+          <p class="label">${esc(aside.direct.label)}</p>
           <a class="direct__email" href="mailto:${aside.direct.email}">${esc(aside.direct.email)}</a>
         </div>
       </aside>
@@ -171,7 +170,6 @@ boot({
     tween.pause();
     const heroTl = gsap
       .timeline({ paused: true, defaults: { ease: 'expo.out' } })
-      .from('.contact-hero .eyebrow', { y: 20, autoAlpha: 0, duration: 0.8 }, 0)
       .add(tween.play(), 0.05)
       .from('.contact-hero .h-sub, .contact-hero .lead', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.5)
       .from('.page-hero__mark', { autoAlpha: 0, scale: 0.9, duration: 1.6 }, 0.2);

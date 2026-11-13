@@ -52,7 +52,7 @@
 .quote__per { font-size: var(--t-caption-size); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-ls); font-weight: var(--t-caption-wt); width: 100%; opacity: 0.7; }
 .quote__totals { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding-top: 18px; border-top: 1px solid var(--line-dark); }
 .quote__totals strong { font-size: var(--t-h3-size); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-ls); font-weight: var(--t-h3-wt); display: block; font-variant-numeric: tabular-nums; }
-.quote__k { font-size: var(--t-eyebrow-size); line-height: var(--t-eyebrow-lh); letter-spacing: var(--t-eyebrow-ls); font-weight: var(--t-eyebrow-wt); display: block; text-transform: uppercase; opacity: 0.6; margin-bottom: 4px; }
+.quote__k { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); display: block; opacity: 0.6; margin-bottom: 4px; }
 .quote__save strong { color: var(--blue); }
 .quote__enterprise { font-size: var(--t-small-size); line-height: var(--t-small-lh); letter-spacing: var(--t-small-ls); font-weight: var(--t-small-wt); display: none; opacity: 0.85; padding: 12px 14px; border-left: 2px solid var(--blue); }
 .quote--enterprise .quote__enterprise { display: block; }

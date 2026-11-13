@@ -20,7 +20,6 @@ export function initFlow(pinned: boolean, animate = true) {
   const pin = q('.flow__pin', section)!;
   const intro = q('.flow__intro', section)!;
   const sky = q<HTMLCanvasElement>('.flow__sky', section)!;
-  const introCopy = q('.flow__intro-copy', section)!;
   const words = qa('.flow__title span', section);
   const axis = q('.flow__axis', section)!;
   const marker = q('.flow__marker', section)!;
@@ -106,7 +105,6 @@ export function initFlow(pinned: boolean, animate = true) {
     0,
   )
     .to(words, { yPercent: -40, autoAlpha: 0, duration: 0.3, stagger: 0.05, ease: 'power2.in' }, INTRO * 0.6)
-    .to(introCopy.querySelector('.eyebrow'), { autoAlpha: 0, duration: 0.2 }, INTRO * 0.6)
     // Flat blue now: hide the intro (its fallback gradient too) and stop the shader drawing.
     .set(intro, { autoAlpha: 0 }, INTRO + 0.02)
     .set(sky, { display: 'none' }, INTRO + 0.02)

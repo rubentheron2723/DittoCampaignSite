@@ -2,7 +2,6 @@
  * About copy, lifted from the production about page.
  */
 export const hero = {
-  eyebrow: 'About Ditto',
   title: 'About Ditto.',
   paragraphs: [
     'Ditto is built by a small team of engineers, designers, and operators who enjoy solving difficult problems.',
@@ -13,7 +12,6 @@ export const hero = {
 };
 
 export const builders = {
-  eyebrow: 'Builders',
   title: 'We like rebuilding broken systems.',
   intro:
     'Most software doesn’t become complicated overnight. It happens slowly. A feature added here. A workaround added there. Over time the system drifts. Workflows get heavier, logic becomes inconsistent, and the tool starts fighting the people using it. We enjoy stepping back, understanding how the system actually works, and rebuilding it so everything becomes clearer again.',
@@ -38,7 +36,6 @@ export const builders = {
 };
 
 export const thinking = {
-  eyebrow: 'How we think',
   title: 'We think independently.',
   intro:
     'Most software companies build by consensus. Layers of meetings and roadmap negotiations slowly dilute the product until it tries to satisfy everyone and excites no one. We prefer clarity over consensus. We build for the people doing the work, not the pitch. Over time the results compound.',
@@ -67,7 +64,6 @@ export const thinking = {
 };
 
 export const team = {
-  eyebrow: 'Team',
   titleOne: 'A team with unusually',
   titleTwo: 'high standards.',
   paragraphs: [

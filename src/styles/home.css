@@ -40,7 +40,6 @@
 /* Stacked only: fades the sky into the flat blue below it. */
 .flow__veil { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, #00b0ff 100%); pointer-events: none; }
 .flow__intro-copy { position: relative; z-index: 2; text-align: center; padding: 0 var(--gutter); color: var(--white); }
-.flow__intro-copy .eyebrow { opacity: 0.9; }
 .flow__title { margin-top: 18px; font-size: var(--t-display-size); line-height: var(--t-display-lh); letter-spacing: var(--t-display-ls); font-weight: var(--t-display-wt); text-shadow: 0 6px 40px rgba(0, 30, 80, 0.25); }
 .flow__title span { display: inline-block; }
 .flow__axis { display: none; }
@@ -49,7 +48,7 @@
 .fstep__card { width: min(100%, 520px); background: var(--white); border: 1px solid rgba(15, 20, 29, 0.1); color: var(--ink); box-shadow: 0 30px 80px rgba(0, 50, 90, 0.22); }
 .fstep__head { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-bottom: 1px solid rgba(15, 20, 29, 0.1); }
 .fstep__num { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(15, 20, 29, 0.22); font-size: var(--t-label-size); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
-.fstep__label { font-size: var(--t-label-size); font-weight: var(--t-label-wt); letter-spacing: 0.18em; text-transform: uppercase; }
+.fstep__label { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); }
 .fstep__visual { display: grid; place-items: center; aspect-ratio: 4 / 3; padding: 20px 28px; border-bottom: 1px solid rgba(15, 20, 29, 0.1); }
 .fstep__art { display: block; width: 100%; height: 100%; overflow: visible; }
 .fstep__foot { display: flex; align-items: center; gap: 14px; padding: 14px 20px; font-size: var(--t-small-size); color: var(--ink-soft); }
@@ -58,7 +57,6 @@
 .mark--step .mark__l { fill: var(--blue); }
 .mark--step .mark__r { fill: var(--ink); }
 .fstep__copy { max-width: 500px; }
-.fstep__eyebrow { color: var(--navy); opacity: 1; }
 .fstep__title { margin-top: 14px; font-size: var(--t-h2-size); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-ls); font-weight: var(--t-h2-wt); }
 .fstep__text { margin-top: 20px; display: grid; gap: 12px; font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); color: rgba(15, 20, 29, 0.78); }
 .fstep__text p:first-child { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); color: var(--ink); }

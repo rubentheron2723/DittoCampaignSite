@@ -49,7 +49,6 @@ function flowSection() {
           <footer class="fstep__foot"><span class="fstep__icon">${markSvg('mark--step')}</span><span>${esc(a.chips[0])}</span></footer>
         </div>
         <div class="fstep__copy">
-          <p class="eyebrow fstep__eyebrow">${a.number} · ${esc(a.label)}</p>
           <h3 class="fstep__title">${esc(a.headline)}</h3>
           <div class="fstep__text">${a.paragraphs.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
           <ul class="fstep__chips">${a.chips.slice(1).map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
@@ -65,7 +64,6 @@ function flowSection() {
         <canvas class="flow__sky" aria-hidden="true"></canvas>
         <div class="flow__veil" aria-hidden="true"></div>
         <div class="flow__intro-copy">
-          <p class="eyebrow">Product</p>
           <h2 class="flow__title">${acts.map((a) => `<span>${esc(a.label)}.</span>`).join(' ')}</h2>
         </div>
       </div>
@@ -152,7 +150,6 @@ function pricingSection() {
   <section class="pricing" id="pricing" data-theme="light">
     <div class="pricing__inner">
       <div class="pricing__head">
-        <p class="eyebrow">Pricing</p>
         <h2 class="pricing__title">${esc(pricing.title)}</h2>
         <p class="pricing__copy">${esc(pricing.copy)}</p>
         <div class="toggle" role="tablist" aria-label="Billing period" id="billing-toggle">

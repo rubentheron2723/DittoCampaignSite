@@ -19,7 +19,6 @@ function render() {
     <div class="faq-hero__marks" aria-hidden="true">${Array.from({ length: 7 }, (_, i) => `<span class="qmark qmark--${i + 1}">?</span>`).join('')}</div>
     <div class="wrap wrap--wide">
       <div class="page-hero__inner">
-        <p class="eyebrow">FAQ</p>
         <h1 class="h-display faq-hero__title">Recruitment software FAQs.</h1>
         <p class="h-sub">Your questions, answered clearly.</p>
         <p class="lead">${total} answers across ${faqCategories.length} topics. Search, or pick a topic.</p>
@@ -35,7 +34,7 @@ function render() {
   <section class="faq" id="faq" data-theme="light">
     <div class="wrap wrap--wide faq__grid">
       <aside class="faq__rail">
-        <p class="eyebrow eyebrow--blue">Topics</p>
+        <p class="label label--blue">Topics</p>
         <nav class="topics" id="topics" aria-label="FAQ topics">
           <a href="#all" data-cat="all" class="is-active"><span>All questions</span><em>${total}</em></a>
           ${faqCategories.map((c) => `<a href="#${slug(c.title)}" data-cat="${slug(c.title)}"><span>${esc(c.title)}</span><em>${c.items.length}</em></a>`).join('')}
@@ -164,7 +163,6 @@ boot({
     tween.pause();
     const heroTl = gsap
       .timeline({ paused: true, defaults: { ease: 'expo.out' } })
-      .from('.faq-hero .eyebrow', { y: 20, autoAlpha: 0, duration: 0.8 }, 0)
       .add(tween.play(), 0.05)
       .from('.faq-hero .h-sub, .faq-hero .lead, .search', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.5)
       .from('.qmark', { scale: 0, autoAlpha: 0, duration: 1.2, stagger: 0.08, ease: 'back.out(1.6)' }, 0.4)

@@ -3,12 +3,12 @@
 .about-hero__copy { margin-top: 28px; display: grid; gap: 14px; max-width: 56ch; }
 .about-hero__copy .lead { color: rgba(231, 239, 244, 0.86); }
 .about-hero__copy .lead:first-child { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); color: var(--white); }
-.about-hero__proof { font-size: var(--t-eyebrow-size); line-height: var(--t-eyebrow-lh); letter-spacing: var(--t-eyebrow-ls); font-weight: var(--t-eyebrow-wt); margin-top: 22px; text-transform: uppercase; color: var(--blue); }
+.about-hero__proof { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); margin-top: 22px; color: var(--blue); }
 .routes { position: relative; }
 .routes__svg { width: 100%; height: auto; overflow: visible; }
 .routes__path { fill: none; stroke: rgba(255, 255, 255, 0.55); stroke-width: 2; stroke-linecap: round; }
 .routes__nodes circle { fill: var(--white); }
-.routes__caption { font-size: var(--t-eyebrow-size); line-height: var(--t-eyebrow-lh); letter-spacing: var(--t-eyebrow-ls); font-weight: var(--t-eyebrow-wt); position: relative; height: 24px; margin-top: 12px; text-transform: uppercase; opacity: 0.75; }
+.routes__caption { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); position: relative; height: 24px; margin-top: 12px; opacity: 0.75; }
 .routes__caption span { position: absolute; left: 5%; top: 0; }
 
 /* Builders */

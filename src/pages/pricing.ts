@@ -17,7 +17,6 @@ function render() {
     <div class="pricing-hero__coins" aria-hidden="true">${[949, 849, 749].map((v, i) => `<span class="coin coin--${i + 1}" data-depth="${0.6 + i * 0.3}">R${v}</span>`).join('')}</div>
     <div class="wrap wrap--wide">
       <div class="page-hero__inner">
-        <p class="eyebrow">${esc(hero.eyebrow)}</p>
         <h1 class="h-display pricing-hero__title"><span>${esc(hero.titleOne)}</span><span>${esc(hero.titleTwo)}</span></h1>
         <p class="h-sub">${esc(hero.subtitle)}</p>
         <p class="lead">${esc(hero.body)}</p>
@@ -32,7 +31,6 @@ function render() {
   <section class="calc" id="calculator" data-theme="light">
     <div class="wrap wrap--wide">
       <header class="calc__head">
-        <p class="eyebrow eyebrow--blue">${esc(calculator.eyebrow)}</p>
         <h2 class="h-section calc__title">${esc(calculator.title)}</h2>
         <p class="lead muted">${esc(calculator.description)}</p>
       </header>
@@ -105,7 +103,6 @@ function render() {
   <section class="steps-section" data-theme="dark">
     <div class="wrap wrap--wide">
       <header class="steps-section__head">
-        <p class="eyebrow eyebrow--blue">${esc(nextSteps.eyebrow)}</p>
         <h2 class="h-section">${esc(nextSteps.title)}</h2>
       </header>
       <ol class="timeline">
@@ -267,7 +264,6 @@ boot({
     tween.pause();
     const heroTl = gsap
       .timeline({ paused: true, defaults: { ease: 'expo.out' } })
-      .from('.pricing-hero .eyebrow', { y: 20, autoAlpha: 0, duration: 0.8 }, 0)
       .add(tween.play(), 0.05)
       .from('.pricing-hero .h-sub, .pricing-hero .lead, .pricing-hero .page-hero__actions', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.5)
       .from('.coin', { y: 80, autoAlpha: 0, rotate: -8, duration: 1.4, stagger: 0.12 }, 0.6)
