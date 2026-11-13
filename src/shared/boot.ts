@@ -2,7 +2,8 @@ import { gsap, prefersReducedMotion, q, qa, ScrollSmoother, ScrollTrigger } from
 import { initMagnetic, initTilt } from '../animations/magnetic';
 import type { PageId } from '../content/shared';
 import { renderChrome } from './chrome';
-import { coverAndGo, hideCurtain, playIntro, playReveal } from './curtain';
+import { coverAndGo, hideCurtain, playReveal } from './curtain';
+import { hideIntro, playCloudIntro } from './intro';
 import { initFooterBlobs } from './footer-blobs';
 import { initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
@@ -37,7 +38,7 @@ export async function boot({ page, render, init }: Options) {
   render();
 
   // Curtain first, so the page never flashes unstyled content.
-  const revealed = reduce ? Promise.resolve(hideCurtain()) : page === 'home' ? playIntro() : playReveal();
+  const revealed = reduce ? Promise.resolve((hideCurtain(), hideIntro())) : page === 'home' ? playCloudIntro() : playReveal();
 
   await document.fonts.ready;
 
