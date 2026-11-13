@@ -15,54 +15,59 @@ import { ai } from '../content/home';
  */
 
 const FACE_W = 1200;
-const FACE_H = 780;
+const FACE_H = 782;
+/** Faces are drawn at 2.4× the Figma card (500 × 326). */
+const K = FACE_W / 500;
+const ACCENT = 1; // the blue card
 
-/** Draws one card face (2D canvas → WebGL texture) in the site's type. */
+/** DM Sans: ascender 0.992em, descender 0.31em. Baseline offset of a line box of height `lh` for a `size` font. */
+const baseline = (size: number, lh: number) => (lh - size * 1.302) / 2 + size * 0.992;
+
+/** Draws one card face (2D canvas → WebGL texture), set as in the Figma section (node 2364:692). */
 function drawFace(index: number, title: string, copy: string) {
   const c = document.createElement('canvas');
   c.width = FACE_W;
   c.height = FACE_H;
   const ctx = c.getContext('2d')!;
-  const accent = index === 0;
-  const r = 40;
+  const accent = index === ACCENT;
   ctx.beginPath();
-  ctx.roundRect(0, 0, FACE_W, FACE_H, r);
+  ctx.roundRect(0, 0, FACE_W, FACE_H, 24 * K);
   if (accent) {
-    const g = ctx.createLinearGradient(0, 0, FACE_W, FACE_H);
-    g.addColorStop(0, '#1e6ef3');
-    g.addColorStop(1, '#00b0ff');
+    // CSS linear-gradient(246.83deg, #1e6ef3 17.552%, #00b0ff 22.294%, #1e6ef3 100%), laid out as CSS does.
+    const ang = (246.83 * Math.PI) / 180;
+    const dx = Math.sin(ang);
+    const dy = -Math.cos(ang);
+    const half = (Math.abs(FACE_W * dx) + Math.abs(FACE_H * dy)) / 2;
+    const g = ctx.createLinearGradient(FACE_W / 2 - dx * half, FACE_H / 2 - dy * half, FACE_W / 2 + dx * half, FACE_H / 2 + dy * half);
+    g.addColorStop(0.17552, '#1e6ef3');
+    g.addColorStop(0.22294, '#00b0ff');
+    g.addColorStop(1, '#1e6ef3');
     ctx.fillStyle = g;
   } else {
-    ctx.fillStyle = '#f7f9fc';
+    ctx.fillStyle = '#ffffff';
   }
   ctx.fill();
-  // A soft diagonal sheen, like light across printed card stock.
-  const sheen = ctx.createLinearGradient(0, FACE_H, FACE_W, 0);
-  sheen.addColorStop(0.35, 'rgba(255,255,255,0)');
-  sheen.addColorStop(0.55, accent ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.7)');
-  sheen.addColorStop(0.75, 'rgba(255,255,255,0)');
-  ctx.fillStyle = sheen;
-  ctx.fill();
 
-  const ink = accent ? '#ffffff' : '#0f141d';
-  const soft = accent ? 'rgba(255,255,255,0.86)' : '#4d596b';
+  const ink = accent ? '#ffffff' : '#171717';
   const family = "'DM Sans', sans-serif";
-  const pad = 72;
+  const pad = 40 * K;
+  const spacing = (em: number, size: number) => {
+    if ('letterSpacing' in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${em * size}px`;
+  };
   ctx.textBaseline = 'alphabetic';
-  // Big index, top left.
-  ctx.fillStyle = accent ? '#ffffff' : '#0f8ecf';
-  ctx.font = `700 230px ${family}`;
-  if ('letterSpacing' in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = '-9px';
-  ctx.fillText(String(index + 1).padStart(2, '0'), pad - 8, pad + 170);
-  if ('letterSpacing' in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = '-1.5px';
 
-  // Title and copy, bottom left, wrapped.
-  const wrap = (text: string, font: string, maxW: number) => {
-    ctx.font = font;
-    const words = text.split(' ');
+  // Big index, top left: 84/88 bold.
+  const num = 84 * K;
+  ctx.fillStyle = accent ? '#ffffff' : '#00b0ff';
+  ctx.font = `700 ${num}px ${family}`;
+  spacing(-0.04, num);
+  ctx.fillText(String(index + 1).padStart(2, '0'), pad, pad + baseline(num, 88 * K));
+
+  // Title (24/28 bold) and copy (20/24 regular), 20 apart, set against the bottom padding.
+  const wrap = (text: string, maxW: number) => {
     const lines: string[] = [];
     let line = '';
-    for (const w of words) {
+    for (const w of text.split(' ')) {
       const next = line ? `${line} ${w}` : w;
       if (ctx.measureText(next).width > maxW && line) {
         lines.push(line);
@@ -73,58 +78,71 @@ function drawFace(index: number, title: string, copy: string) {
     return lines;
   };
   const maxW = FACE_W - pad * 2;
-  const copyLines = wrap(copy, `400 44px ${family}`, maxW);
-  const titleLines = wrap(title, `600 74px ${family}`, maxW);
-  let y = FACE_H - pad - (copyLines.length - 1) * 58;
-  ctx.fillStyle = soft;
-  ctx.font = `400 44px ${family}`;
-  copyLines.forEach((l, i) => ctx.fillText(l, pad, y + i * 58));
-  y -= 58 + 26 + (titleLines.length - 1) * 82;
+  const tSize = 24 * K;
+  const tLh = 28 * K;
+  const cSize = 20 * K;
+  const cLh = 24 * K;
+  ctx.font = `400 ${cSize}px ${family}`;
+  spacing(-0.04, cSize);
+  const copyLines = wrap(copy, maxW);
+  const copyTop = FACE_H - pad - copyLines.length * cLh;
   ctx.fillStyle = ink;
-  ctx.font = `600 74px ${family}`;
-  titleLines.forEach((l, i) => ctx.fillText(l, pad, y + i * 82));
+  copyLines.forEach((l, i) => ctx.fillText(l, pad, copyTop + i * cLh + baseline(cSize, cLh)));
+  ctx.font = `700 ${tSize}px ${family}`;
+  spacing(-0.04, tSize);
+  const titleLines = wrap(title, maxW);
+  const titleTop = copyTop - 20 * K - titleLines.length * tLh;
+  titleLines.forEach((l, i) => ctx.fillText(l, pad, titleTop + i * tLh + baseline(tSize, tLh)));
   return c;
 }
 
 /**
- * Lays the resting cards out in the space left under the headline and copy, so they never cover them.
- * Measures the copy against the canvas and converts to world units (the screen is 2 units tall, y up).
- * Wide screens: a loose row, sized to fit both the width and the height that is free.
+ * Lays the resting cards out in the space under the headline and copy, so they never cover them.
+ * Measures in CSS pixels and converts to world units (the screen is 2 units tall at z = 0, y up).
+ * Wide screens: as in Figma, a row from the left margin, 500 px cards 16 px apart on a 1440 frame,
+ * 100 px under the copy, running off the right edge; smaller if the screen is too short to fit them.
  * Narrow screens: a fanned stack, each card nearer than the last so they never cut into each other.
  */
 function layout(canvas: HTMLCanvasElement, head: HTMLElement) {
   const box = canvas.getBoundingClientRect();
+  const W = Math.max(1, box.width);
   const H = Math.max(1, box.height);
-  const aspect = box.width / H || 16 / 9;
-  const toWorld = (px: number) => 1 - (2 * px) / H;
-  const copyBottom = head.getBoundingClientRect().bottom - box.top;
-  const top = toWorld(copyBottom + Math.max(24, H * 0.04));
-  const bottom = toWorld(H - Math.max(32, H * 0.06));
-  const free = Math.max(0.2, top - bottom);
+  const aspect = W / H;
+  const toX = (px: number) => ((px - W / 2) * 2) / H;
+  const toY = (px: number) => 1 - (2 * px) / H;
+  const unit = (px: number) => (2 * px) / H;
+  const hb = head.getBoundingClientRect();
   const ratio = FACE_H / FACE_W;
+  const bottomPad = Math.max(32, H * 0.06);
 
   if (aspect >= 1.1) {
-    // Tilts and bends make a card read a little taller than its face; the row's own up/down stagger adds 0.08.
-    const w = Math.min(1.0, (aspect * 2 * 0.86) / 3.2, (free - 0.08) / (ratio * 1.12));
-    const h = w * ratio;
-    const mid = (top + bottom) / 2;
-    const gap = w * 1.1;
-    const poses: Partial<CardPose>[] = [
-      { x: -gap, y: mid + 0.02, z: 0.02, rx: -6, ry: 14, rz: 2.5, bend: 0.35, curl: 0.25 },
-      { x: 0, y: mid - 0.04, z: 0.06, rx: -8, ry: -4, rz: -1.5, bend: 0.3, curl: 0.2 },
-      { x: gap, y: mid + 0.04, z: 0, rx: -6, ry: -14, rz: -3, bend: 0.4, curl: 0.25 },
+    const s = W / 1440;
+    const top = hb.bottom - box.top + Math.min(100, Math.max(40, 100 * s));
+    // Tilts and bends make a card read a little taller than its face.
+    const cw = Math.min(500 * s, (H - bottomPad - top) / (ratio * 1.06));
+    const ch = cw * ratio;
+    const gap = 16 * s;
+    const left = hb.left - box.left;
+    const y = toY(top + ch / 2);
+    const tilt = [
+      { ry: 5, rz: 1, bend: 0.18, curl: 0.12 },
+      { ry: -2, rz: -0.6, bend: 0.14, curl: 0.1 },
+      { ry: -6, rz: -1.2, bend: 0.2, curl: 0.14 },
     ];
-    return { size: { w, h }, poses };
+    const poses: Partial<CardPose>[] = tilt.map((t, i) => ({ x: toX(left + cw / 2 + i * (cw + gap)), y, z: 0, rx: -4, ...t, shadow: 1 }));
+    return { size: { w: unit(cw), h: unit(ch) }, poses };
   }
   // The stack spans one card plus two steps of 0.6 card heights; the nearest card looks ~10% larger.
+  const top = toY(hb.bottom - box.top + Math.max(24, H * 0.04));
+  const free = Math.max(0.2, top - toY(H - bottomPad));
   const w = Math.min(0.62, aspect * 2 * 0.68, free / (ratio * 2.4));
   const h = w * ratio;
   const step = h * 0.6;
   const first = top - h * 0.55;
   const poses: Partial<CardPose>[] = [
-    { x: -0.06, y: first, z: 0, rx: -6, ry: 6, rz: 3, bend: 0.3, curl: 0.2 },
-    { x: 0.06, y: first - step, z: 0.16, rx: -6, ry: -5, rz: -2.5, bend: 0.3, curl: 0.2 },
-    { x: -0.04, y: first - step * 2, z: 0.32, rx: -6, ry: 5, rz: 2, bend: 0.32, curl: 0.2 },
+    { x: -0.06, y: first, z: 0, rx: -6, ry: 6, rz: 3, bend: 0.3, curl: 0.2, shadow: 1 },
+    { x: 0.06, y: first - step, z: 0.16, rx: -6, ry: -5, rz: -2.5, bend: 0.3, curl: 0.2, shadow: 1 },
+    { x: -0.04, y: first - step * 2, z: 0.32, rx: -6, ry: 5, rz: 2, bend: 0.32, curl: 0.2, shadow: 1 },
   ];
   return { size: { w, h }, poses };
 }
@@ -140,6 +158,7 @@ const startPose = (i: number): Partial<CardPose> => ({
   bend: 2.4,
   curl: 1.6,
   alpha: 1,
+  shadow: 0,
 });
 
 /** Mid-flight: rushing past nearer the camera, mid-flip and edge-on. */
@@ -152,6 +171,7 @@ const midPose = (i: number): Partial<CardPose> => ({
   rz: (1 - i) * 14,
   bend: 1.1,
   curl: 0.8,
+  shadow: 0,
 });
 
 export function initAI(animate: boolean) {
@@ -170,7 +190,7 @@ export function initAI(animate: boolean) {
       stagger: 0.05,
       scrollTrigger: { trigger: section, start: 'top 70%', toggleActions: 'play none none reverse' },
     });
-    gsap.from('.ai__head .eyebrow, .ai__desc', {
+    gsap.from('.ai__desc', {
       y: 24,
       autoAlpha: 0,
       stagger: 0.1,
@@ -203,7 +223,7 @@ export function initAI(animate: boolean) {
   cards.poses.forEach((p, i) => Object.assign(p, startPose(i)));
   // Resting spots (and the card size) are recomputed on refresh, so the cards always fit under the copy.
   const restFor = (i: number) => {
-    const keys = ['x', 'y', 'z', 'rx', 'ry', 'rz', 'bend', 'curl'] as const;
+    const keys = ['x', 'y', 'z', 'rx', 'ry', 'rz', 'bend', 'curl', 'shadow'] as const;
     return Object.fromEntries(
       keys.map((k) => [
         k,

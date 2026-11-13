@@ -2,7 +2,6 @@
  * Contact copy and form options, lifted from the production contact page.
  */
 export const hero = {
-  eyebrow: 'Contact',
   title: 'Book a demo or talk to sales',
   subtitle: "Tell us what you're trying to solve and we'll point you to the right setup.",
   support: 'No sales pressure. Just a quick conversation to see if Ditto fits your workflow.',
@@ -60,7 +59,7 @@ export const success = {
 };
 
 export const aside = {
-  eyebrow: 'What happens next',
+  label: 'What happens next',
   steps: [
     { title: 'A guided walkthrough', copy: 'We show you how recruiters source, manage jobs, collaborate, and submit candidates in Ditto.' },
     { title: 'Your call', copy: 'If Ditto fits your team and goals, we move forward together. If not, you still leave with a clear picture.' },

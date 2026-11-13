@@ -26,6 +26,8 @@ export type CardPose = {
   curl: number;
   /** 0..1 */
   alpha: number;
+  /** 0..1: the soft drop shadow under the card (faded out while it tumbles). */
+  shadow: number;
 };
 
 export type PaperCards = {
@@ -84,10 +86,15 @@ in vec3 vWorld;
 uniform sampler2D uTex;
 uniform float uAlpha;
 uniform vec3 uEye;
+uniform float uFlat; // 1 = draw the texture as is (the shadow), no lighting
 out vec4 outColor;
 
 void main() {
   vec4 tex = texture(uTex, vUv);
+  if (uFlat > 0.5) {
+    outColor = tex * uAlpha;
+    return;
+  }
   if (tex.a < 0.02) discard;
   vec3 n = normalize(vNormal);
   if (!gl_FrontFacing) n = -n;
@@ -166,6 +173,25 @@ const perspective = (fovDeg: number, aspect: number, near: number, far: number) 
   return m;
 };
 
+/** Drop shadow in the CSS sense (0 8px 100px rgba(0,0,0,.25) on a 500 × 326 card), drawn around the card with room for the blur. */
+const SHADOW = { cardW: 500, cardH: 326, radius: 24, blur: 100, y: 8, alpha: 0.25, margin: 160 };
+function shadowTexture() {
+  const c = document.createElement('canvas');
+  c.width = SHADOW.cardW + SHADOW.margin * 2;
+  c.height = SHADOW.cardH + SHADOW.margin * 2;
+  const ctx = c.getContext('2d')!;
+  // Draw the card far off-canvas and keep only its shadow.
+  const off = 10000;
+  ctx.shadowColor = `rgba(0,0,0,${SHADOW.alpha})`;
+  ctx.shadowBlur = SHADOW.blur;
+  ctx.shadowOffsetX = off;
+  ctx.shadowOffsetY = SHADOW.y;
+  ctx.beginPath();
+  ctx.roundRect(SHADOW.margin - off, SHADOW.margin, SHADOW.cardW, SHADOW.cardH, SHADOW.radius);
+  ctx.fill();
+  return c;
+}
+
 /**
  * Starts the renderer on `canvas` with one card per texture source. Returns null
  * without WebGL2. `size` is the card size in world units for a given aspect.
@@ -211,7 +237,7 @@ export function createPaperCards(
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idx), gl.STATIC_DRAW);
 
   const aniso = gl.getExtension('EXT_texture_filter_anisotropic');
-  const textures = faces.map((face) => {
+  const upload = (face: HTMLCanvasElement) => {
     const t = gl.createTexture()!;
     gl.bindTexture(gl.TEXTURE_2D, t);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
@@ -223,7 +249,13 @@ export function createPaperCards(
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     if (aniso) gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, 8);
     return t;
-  });
+  };
+  const textures = faces.map(upload);
+  const shadowTex = upload(shadowTexture());
+  const shadowScale = {
+    x: (SHADOW.cardW + SHADOW.margin * 2) / SHADOW.cardW,
+    y: (SHADOW.cardH + SHADOW.margin * 2) / SHADOW.cardH,
+  };
 
   const u = (n: string) => gl.getUniformLocation(program, n);
   const loc = {
@@ -235,9 +267,10 @@ export function createPaperCards(
     tex: u('uTex'),
     alpha: u('uAlpha'),
     eye: u('uEye'),
+    flat: u('uFlat'),
   };
 
-  const poses: CardPose[] = faces.map(() => ({ x: 0, y: -3, z: 0, rx: 0, ry: 0, rz: 0, bend: 0, curl: 0, alpha: 1 }));
+  const poses: CardPose[] = faces.map(() => ({ x: 0, y: -3, z: 0, rx: 0, ry: 0, rz: 0, bend: 0, curl: 0, alpha: 1, shadow: 0 }));
   const cards: PaperCards = {
     poses,
     size: { w: 1, h: 0.62 },
@@ -275,28 +308,43 @@ export function createPaperCards(
     const viewProj = mul(perspective(FOV, aspect, 0.1, 40), translate(0, 0, -EYE));
     gl.uniformMatrix4fv(loc.viewProj, false, viewProj);
     gl.uniform3f(loc.eye, 0, 0, EYE);
-    gl.uniform2f(loc.size, cards.size.w, cards.size.h);
     gl.uniform1i(loc.tex, 0);
     gl.activeTexture(gl.TEXTURE0);
 
-    // Back to front so the translucent moments blend over the cards behind them.
-    const order = poses.map((p, i) => i).sort((a, b) => poses[a].z - poses[b].z);
-    for (const i of order) {
-      const p = poses[i];
-      if (p.alpha <= 0.001) continue;
+    const model = (p: CardPose, i: number) => {
       // A gentle idle float so resting cards still feel like paper in the air.
       const bob = idle ? Math.sin(t * 0.6 + i * 1.7) * 0.012 : 0;
       const sway = idle ? Math.sin(t * 0.45 + i * 2.3) * 1.2 : 0;
       let m = translate(p.x, p.y + bob, p.z);
       m = mul(m, rot('z', p.rz));
       m = mul(m, rot('y', p.ry + sway));
-      m = mul(m, rot('x', p.rx));
-      gl.uniformMatrix4fv(loc.model, false, m);
+      return mul(m, rot('x', p.rx));
+    };
+    const drawCard = (p: CardPose, i: number, tex: WebGLTexture, sx: number, sy: number, alpha: number) => {
+      gl.uniformMatrix4fv(loc.model, false, model(p, i));
+      gl.uniform2f(loc.size, cards.size.w * sx, cards.size.h * sy);
       gl.uniform1f(loc.bend, p.bend);
       gl.uniform1f(loc.curl, p.curl);
-      gl.uniform1f(loc.alpha, p.alpha);
-      gl.bindTexture(gl.TEXTURE_2D, textures[i]);
+      gl.uniform1f(loc.alpha, alpha);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0);
+    };
+
+    // Shadows first, under every card, without writing depth.
+    gl.depthMask(false);
+    gl.uniform1f(loc.flat, 1);
+    poses.forEach((p, i) => {
+      const a = p.alpha * p.shadow;
+      if (a > 0.001) drawCard(p, i, shadowTex, shadowScale.x, shadowScale.y, a);
+    });
+    gl.depthMask(true);
+    gl.uniform1f(loc.flat, 0);
+
+    // Back to front so the translucent moments blend over the cards behind them.
+    const order = poses.map((p, i) => i).sort((a, b) => poses[a].z - poses[b].z);
+    for (const i of order) {
+      const p = poses[i];
+      if (p.alpha > 0.001) drawCard(p, i, textures[i], 1, 1, p.alpha);
     }
   };
 

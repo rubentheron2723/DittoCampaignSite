@@ -48,8 +48,9 @@ svg { display: block; }
 [data-theme='dark'] { color: var(--white); }
 [data-theme='light'] { color: var(--ink); }
 
-.eyebrow { font-size: var(--t-eyebrow-size); line-height: var(--t-eyebrow-lh); letter-spacing: var(--t-eyebrow-ls); font-weight: var(--t-eyebrow-wt); text-transform: uppercase; opacity: 0.72; }
-.eyebrow--blue { color: var(--blue); opacity: 1; }
+/* Small sentence-case label (no all-caps kickers on this site). */
+.label { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); opacity: 0.72; }
+.label--blue { color: var(--blue); opacity: 1; }
 .wrap { padding: 0 var(--gutter); max-width: 1240px; margin: 0 auto; }
 .wrap--wide { max-width: 1440px; }
 /* SplitText line masks (mask: 'lines' wraps each .split-line in a .split-line-mask that clips).
@@ -153,7 +154,7 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 .rail__track { position: relative; width: 2px; background: rgba(15, 20, 29, 0.18); border-radius: 2px; }
 .rail__fill { position: absolute; left: 0; top: 0; width: 100%; height: 0%; background: var(--ink); border-radius: 2px; }
 .rail__items { display: flex; flex-direction: column; justify-content: space-between; gap: 34px; }
-.rail__items li { font-size: var(--t-eyebrow-size); line-height: var(--t-eyebrow-lh); letter-spacing: var(--t-eyebrow-ls); font-weight: var(--t-eyebrow-wt); display: flex; align-items: center; gap: 10px; text-transform: uppercase; opacity: 0.45; transition: opacity 0.3s; }
+.rail__items li { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); display: flex; align-items: center; gap: 10px; opacity: 0.45; transition: opacity 0.3s; }
 .rail__items li i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; transition: transform 0.3s, background-color 0.3s; }
 .rail__items li.is-active { opacity: 1; }
 .rail__items li.is-active i { background: var(--ink); transform: scale(1.5); }

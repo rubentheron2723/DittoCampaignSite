@@ -28,7 +28,6 @@ function render() {
   <section class="page-hero about-hero" data-theme="dark">
     <div class="wrap wrap--wide about-hero__grid">
       <div class="page-hero__inner">
-        <p class="eyebrow">${esc(hero.eyebrow)}</p>
         <h1 class="h-display about-hero__title">${esc(hero.title)}</h1>
         <div class="about-hero__copy">${hero.paragraphs.map((p) => `<p class="lead">${esc(p)}</p>`).join('')}</div>
         <p class="about-hero__proof">${esc(hero.proof)}</p>
@@ -54,7 +53,6 @@ function render() {
     <div class="builders__pin">
       <div class="wrap wrap--wide builders__grid">
         <div class="builders__sticky">
-          <p class="eyebrow eyebrow--blue">${esc(builders.eyebrow)}</p>
           <h2 class="h-section builders__title">${esc(builders.title)}</h2>
           <p class="lead builders__intro">${esc(builders.intro)}</p>
           <div class="builders__progress" aria-hidden="true">${builders.panels.map(() => '<span><i></i></span>').join('')}</div>
@@ -77,7 +75,6 @@ function render() {
   <section class="thinking" id="thinking" data-theme="light">
     <div class="wrap wrap--wide thinking__grid">
       <div class="thinking__sticky">
-        <p class="eyebrow eyebrow--blue">${esc(thinking.eyebrow)}</p>
         <h2 class="h-section">${esc(thinking.title)}</h2>
         <p class="lead muted thinking__intro">${esc(thinking.intro)}</p>
       </div>
@@ -111,7 +108,6 @@ function render() {
         </ul>
       </div>
       <div class="team__copy">
-        <p class="eyebrow eyebrow--blue">${esc(team.eyebrow)}</p>
         <h2 class="h-section team__title"><span>${esc(team.titleOne)}</span><span>${esc(team.titleTwo)}</span></h2>
         ${team.paragraphs.map((p) => `<p class="lead team__p">${esc(p)}</p>`).join('')}
       </div>
@@ -214,7 +210,6 @@ boot({
     tween.pause();
     const heroTl = gsap
       .timeline({ paused: true, defaults: { ease: 'expo.out' } })
-      .from('.about-hero .eyebrow', { y: 20, autoAlpha: 0, duration: 0.8 }, 0)
       .add(tween.play(), 0.05)
       .from('.about-hero__copy p, .about-hero__proof, .about-hero .page-hero__actions', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.5);
     revealed.then(() => heroTl.play());

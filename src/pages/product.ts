@@ -17,7 +17,6 @@ function hero() {
     <div class="page-hero__mark">${markSvg()}</div>
     <div class="wrap wrap--wide">
       <div class="page-hero__inner">
-        <p class="eyebrow">${esc(h.eyebrow)}</p>
         <h1 class="h-display product-hero__title"><span>${esc(h.headlineLineOne)}</span><span>${esc(h.headlineLineOneTwo)}</span></h1>
         <p class="h-sub">${esc(h.headlineLineTwo)}</p>
         <p class="lead">${esc(h.subhead)}</p>
@@ -37,7 +36,6 @@ function act(a: ActContent, i: number) {
   <section class="act act--${a.id} act--${theme}" id="${a.id}" data-theme="${theme}" data-act="${a.id}">
     <div class="wrap wrap--wide">
       <header class="act__intro">
-        <p class="eyebrow eyebrow--blue">${esc(a.actNumber)} · ${esc(a.label)}</p>
         <h2 class="h-section act__title">${esc(a.headline)}</h2>
         <p class="lead act__lead">${esc(a.intro)}</p>
       </header>
@@ -191,7 +189,6 @@ boot({
     tween.pause();
     const heroTl = gsap
       .timeline({ paused: true, defaults: { ease: 'expo.out' } })
-      .from('.product-hero .eyebrow', { y: 20, autoAlpha: 0, duration: 0.8 }, 0)
       .add(tween.play(), 0.05)
       .from('.product-hero .h-sub, .product-hero .lead', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.5)
       .from('.act-jump__item', { y: 30, autoAlpha: 0, duration: 0.9, stagger: 0.08 }, 0.8)
@@ -203,7 +200,6 @@ boot({
       splitReveal(q('.act__title', s)!, { by: 'words' });
       fadeUp(q('.act__lead', s)!, undefined, { y: 24 });
       fadeUp(q('.act__cta', s)!, undefined, { y: 30 });
-      fadeUp(q('.act__intro .eyebrow', s)!, undefined, { y: 16 });
     });
 
     gsap.matchMedia().add({ desktop: '(min-width: 901px)', mobile: '(max-width: 900px)' }, (ctx) => {

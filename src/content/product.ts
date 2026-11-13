@@ -25,7 +25,6 @@ export type ActContent = {
 };
 
 export const featuresHeroContent = {
-  eyebrow: 'PRODUCT',
   headlineLineOne: 'Recruitment software',
   headlineLineOneTwo: 'for teams that scale',
   headlineLineTwo: 'One platform for sourcing, engagement, and placements across your full hiring workflow.',
@@ -37,7 +36,7 @@ export const featureActs: ActContent[] = [
   {
     id: 'source',
     actNumber: 'Act 1',
-    label: 'SOURCE',
+    label: 'Source',
     headline: 'Find the right candidates, faster',
     intro:
       'Ditto gives recruiters the tools to search deeper, reach wider, and discover better candidates from day one. Every part of the sourcing process is designed to reduce noise early and help recruiters focus their time on candidates who are genuinely worth engaging.',
@@ -100,7 +99,7 @@ export const featureActs: ActContent[] = [
   {
     id: 'engage',
     actNumber: 'Act 2',
-    label: 'ENGAGE',
+    label: 'Engage',
     headline: 'Keep candidates moving, without losing control',
     intro:
       'Once candidates enter your pipeline, execution becomes everything. Ditto gives recruiters complete visibility across every interaction, stage, and follow-up, ensuring nothing slips through the cracks and momentum is never lost.',
@@ -177,7 +176,7 @@ export const featureActs: ActContent[] = [
   {
     id: 'place',
     actNumber: 'Act 3',
-    label: 'PLACE',
+    label: 'Place',
     headline: 'Turn activity into outcomes',
     intro:
       'This is where everything comes together. Ditto helps agencies convert sourcing and engagement into placements that close faster, perform better, and strengthen the business over time.',
