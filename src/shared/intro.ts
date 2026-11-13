@@ -85,6 +85,15 @@ const T = {
   lens: [0, 0.4348, 1.8866, 2.7226],
 };
 
+/**
+ * Before the Figma timeline starts, the clouds fade in while drifting outward into their places,
+ * from SETTLE_PULL of their travel nearer the centre. The drift runs straight on into the parting,
+ * which also moves outward, so the two read as one movement. `settle` goes 0 → 1.
+ */
+const SETTLE_PULL = 0.08;
+const partProgress = (t: number, settle: number) =>
+  EASE_PART(Math.min(1, Math.max(0, (t - T.partStart) / (T.partEnd - T.partStart)))) - (1 - settle) * SETTLE_PULL;
+
 /* ---------- Layouts ---------- */
 
 /** One cloud layer: its box in the Clouds frame (left, top, width, height of the box that holds it),
@@ -350,7 +359,7 @@ function kernel(aberration: number) {
   return { taps, inv, sum };
 }
 
-type Renderer = { draw: (t: number) => void; resize: () => void; dispose: () => void };
+type Renderer = { draw: (t: number, settle: number) => void; resize: () => void; dispose: () => void };
 
 function compile(gl: WebGL2RenderingContext, vs: string, fs: string) {
   const prog = gl.createProgram()!;
@@ -465,10 +474,10 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement): Render
     }
   };
 
-  const draw = (t: number) => {
+  const draw = (t: number, settle: number) => {
     const { cover: s, ox, oy } = fit(layout, W, H);
     const [cx, cy, cw, ch] = layout.clouds;
-    const p = EASE_PART(Math.min(1, Math.max(0, (t - T.partStart) / (T.partEnd - T.partStart))));
+    const p = partProgress(t, settle);
 
     // 1. Clouds into the frame texture, in frame-local px.
     let k = 0;
@@ -544,10 +553,10 @@ function canvasRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement): Rende
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
   };
-  const draw = (t: number) => {
+  const draw = (t: number, settle: number) => {
     const layout = pickLayout(W, H);
     const { cover: s, ox, oy } = fit(layout, W, H);
-    const p = EASE_PART(Math.min(1, Math.max(0, (t - T.partStart) / (T.partEnd - T.partStart))));
+    const p = partProgress(t, settle);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const [cx, cy] = layout.clouds;
@@ -604,6 +613,11 @@ function placeStage(stage: HTMLElement) {
   stage.style.setProperty('--intro-sweep', `${-281 * unit}px`);
 }
 
+/** How far the Figma timeline is pushed back to make room for the clouds fading in. */
+const LEAD = 0.4;
+/** The fade-in and drift into place; it ends just before the parting starts. */
+const FADE_IN = LEAD + T.partStart - 0.02;
+
 /**
  * Plays the landing animation. Resolves when the screen has gone white and starts fading to the
  * page, so the hero entrance can start underneath it.
@@ -621,17 +635,18 @@ export function playCloudIntro(): Promise<void> {
   placeStage(stage);
   gsap.set(mark, { scale: 1.67, autoAlpha: 0 });
   gsap.set(white, { autoAlpha: 0, x: 0, y: 0 });
+  gsap.set(canvas, { autoAlpha: 0 });
 
   return loadClouds(4000).then(
     (img) =>
       new Promise<void>((resolve) => {
         const renderer = img ? (webglRenderer(canvas, img) ?? canvasRenderer(canvas, img)) : null;
         if (!renderer) canvas.style.display = 'none';
-        const clock = { t: 0 };
+        const clock = { t: 0, settle: 0 };
         let cloudsDone = !renderer;
         const draw = () => {
           if (cloudsDone || !renderer) return;
-          renderer.draw(clock.t);
+          renderer.draw(clock.t, clock.settle);
           // Past the end of the lens and the parting, the clouds are gone: stop drawing.
           if (clock.t >= T.lens[3] && clock.t >= T.partEnd) {
             cloudsDone = true;
@@ -647,25 +662,40 @@ export function playCloudIntro(): Promise<void> {
           }
         };
         window.addEventListener('resize', onResize);
-        draw();
 
-        const sweep = () => parseFloat(stage.style.getPropertyValue('--intro-sweep')) || -281;
-        const tl = gsap
-          .timeline({
-            onComplete: () => {
-              window.removeEventListener('resize', onResize);
-              intro.style.display = 'none';
-            },
-          })
-          .to(clock, { t: T.sweepEnd, duration: T.sweepEnd, ease: 'none', onUpdate: draw }, 0)
-          .to(mark, { scale: 1, duration: T.markScaleEnd - T.markScaleStart, ease: EASE_INOUT }, T.markScaleStart)
-          .to(mark, { autoAlpha: 1, duration: T.markFadeEnd - T.markFadeStart, ease: EASE_FADE_IN }, T.markFadeStart)
-          .to(white, { autoAlpha: 1, duration: T.whiteInEnd - T.whiteIn, ease: EASE_INOUT }, T.whiteIn)
-          .to(white, { x: sweep, y: sweep, duration: T.sweepEnd - T.sweepStart, ease: EASE_PART }, T.sweepStart)
-          // Plain white now: fade it away to the hero.
-          .add(resolve, T.sweepEnd)
-          .to(intro, { autoAlpha: 0, duration: 0.8, ease: 'power2.inOut' }, T.sweepEnd);
-        if (import.meta.env.DEV) (window as unknown as { __intro: gsap.core.Timeline }).__intro = tl; // for checking frames in dev
+        // Warm up while the canvas is still invisible: the first draw compiles the shaders and
+        // uploads the texture, which can stall a frame or two. The fade-in only starts after that,
+        // so its first frames are smooth.
+        draw();
+        let started = false;
+        const start = () => {
+          if (started) return;
+          started = true;
+          const sweep = () => parseFloat(stage.style.getPropertyValue('--intro-sweep')) || -281;
+          const at = (figmaTime: number) => LEAD + figmaTime;
+          const tl = gsap
+            .timeline({
+              onComplete: () => {
+                window.removeEventListener('resize', onResize);
+                intro.style.display = 'none';
+              },
+            })
+            // The clouds fade in and drift outward into place.
+            .to(canvas, { autoAlpha: 1, duration: FADE_IN * 0.8, ease: 'power2.out' }, 0)
+            .to(clock, { settle: 1, duration: FADE_IN, ease: 'power3.out', onUpdate: draw }, 0)
+            // Then the Figma timeline.
+            .to(clock, { t: T.sweepEnd, duration: T.sweepEnd, ease: 'none', onUpdate: draw }, at(0))
+            .to(mark, { scale: 1, duration: T.markScaleEnd - T.markScaleStart, ease: EASE_INOUT }, at(T.markScaleStart))
+            .to(mark, { autoAlpha: 1, duration: T.markFadeEnd - T.markFadeStart, ease: EASE_FADE_IN }, at(T.markFadeStart))
+            .to(white, { autoAlpha: 1, duration: T.whiteInEnd - T.whiteIn, ease: EASE_INOUT }, at(T.whiteIn))
+            .to(white, { x: sweep, y: sweep, duration: T.sweepEnd - T.sweepStart, ease: EASE_PART }, at(T.sweepStart))
+            // Plain white now: fade it away to the hero.
+            .add(resolve, at(T.sweepEnd))
+            .to(intro, { autoAlpha: 0, duration: 0.8, ease: 'power2.inOut' }, at(T.sweepEnd));
+          if (import.meta.env.DEV) (window as unknown as { __intro: gsap.core.Timeline }).__intro = tl; // for checking frames in dev
+        };
+        requestAnimationFrame(() => requestAnimationFrame(start));
+        window.setTimeout(start, 150); // rAF doesn't run in a background tab
       }),
   );
 }
