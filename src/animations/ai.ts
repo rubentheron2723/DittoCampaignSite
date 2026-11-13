@@ -111,7 +111,10 @@ function layout(canvas: HTMLCanvasElement, head: HTMLElement) {
   const toX = (px: number) => ((px - W / 2) * 2) / H;
   const toY = (px: number) => 1 - (2 * px) / H;
   const unit = (px: number) => (2 * px) / H;
-  const hb = head.getBoundingClientRect();
+  const hr = head.getBoundingClientRect();
+  // On phones the copy can run a little past the head's own box, so measure its lowest line there.
+  const hb =
+    aspect >= 1.1 ? hr : { left: hr.left, bottom: Math.max(hr.bottom, ...Array.from(head.children, (c) => c.getBoundingClientRect().bottom)) };
   const ratio = FACE_H / FACE_W;
   const bottomPad = Math.max(32, H * 0.06);
 
@@ -130,22 +133,40 @@ function layout(canvas: HTMLCanvasElement, head: HTMLElement) {
       { ry: -6, rz: -1.2, bend: 0.2, curl: 0.14 },
     ];
     const poses: Partial<CardPose>[] = tilt.map((t, i) => ({ x: toX(left + cw / 2 + i * (cw + gap)), y, z: 0, rx: -4, ...t, shadow: 1 }));
-    return { size: { w: unit(cw), h: unit(ch) }, poses };
+    return { size: { w: unit(cw), h: unit(ch) }, poses, slots: null };
   }
-  // The stack spans one card plus two steps of 0.6 card heights; the nearest card looks ~10% larger.
-  const top = toY(hb.bottom - box.top + Math.max(24, H * 0.04));
-  const free = Math.max(0.2, top - toY(H - bottomPad));
-  const w = Math.min(0.62, aspect * 2 * 0.68, free / (ratio * 2.4));
-  const h = w * ratio;
-  const step = h * 0.6;
-  const first = top - h * 0.55;
-  const poses: Partial<CardPose>[] = [
-    { x: -0.06, y: first, z: 0, rx: -6, ry: 6, rz: 3, bend: 0.3, curl: 0.2, shadow: 1 },
-    { x: 0.06, y: first - step, z: 0.16, rx: -6, ry: -5, rz: -2.5, bend: 0.3, curl: 0.2, shadow: 1 },
-    { x: -0.04, y: first - step * 2, z: 0.32, rx: -6, ry: 5, rz: 2, bend: 0.32, curl: 0.2, shadow: 1 },
-  ];
-  return { size: { w, h }, poses };
+  // Narrow: a deck under the copy, as wide as the margins allow (or as tall as the space allows).
+  // The front card is fully shown; the two behind peek out above it. Scrolling then lifts the
+  // front card away and the next moves forward, so every card is read whole (see initAI).
+  const peek = Math.max(8, Math.min(14, H * 0.016));
+  const top = hb.bottom - box.top + Math.max(24, H * 0.03);
+  const margin = Math.max(16, hb.left - box.left);
+  // Bends and tilts make a card read a little taller than its face.
+  const cw = Math.max(120, Math.min(W - margin * 2, (H - bottomPad - top - peek * 2) / (ratio * 1.08)));
+  const ch = cw * ratio;
+  const slot = (n: number): Partial<CardPose> => ({
+    x: 0,
+    y: toY(top + (2 - n) * peek + ch / 2),
+    z: 0.12 - n * 0.06,
+    rx: -4,
+    ry: [0, 3, -3][n],
+    rz: [0, -1.6, 1.8][n],
+    bend: 0.12,
+    curl: 0.08,
+    shadow: 1,
+  });
+  const slots = [slot(0), slot(1), slot(2)];
+  return { size: { w: unit(cw), h: unit(ch) }, poses: slots, slots };
 }
+
+/**
+ * Narrow screens: a card leaving the deck is swiped off to the side, turning and curling as it
+ * goes, level with the deck so it never passes over the copy. `front` is the deck's front slot.
+ */
+const exitPose = (i: number, front: Partial<CardPose>): Partial<CardPose> => {
+  const side = i === 0 ? -1 : 1;
+  return { ...front, x: side * 1.7, y: (front.y ?? 0) + 0.06, z: 0.3, ry: side * -28, rz: side * 12, bend: 0.45, curl: 0.35, shadow: 0 };
+};
 
 /** Where each card starts: far below and behind, tumbling, curled tight, back-side up. */
 const startPose = (i: number): Partial<CardPose> => ({
@@ -220,41 +241,60 @@ export function initAI(animate: boolean) {
   }
   if (import.meta.env.DEV) (window as unknown as { __aiCards: typeof cards }).__aiCards = cards; // for checking frames in dev
 
-  cards.poses.forEach((p, i) => Object.assign(p, startPose(i)));
-  // Resting spots (and the card size) are recomputed on refresh, so the cards always fit under the copy.
-  const restFor = (i: number) => {
-    const keys = ['x', 'y', 'z', 'rx', 'ry', 'rz', 'bend', 'curl', 'shadow'] as const;
-    return Object.fromEntries(
-      keys.map((k) => [
+  // Pose values are functions, re-read on refresh, so the cards always fit under the copy.
+  const KEYS = ['x', 'y', 'z', 'rx', 'ry', 'rz', 'bend', 'curl', 'shadow'] as const;
+  const live = (pick: (l: ReturnType<typeof layout>) => Partial<CardPose>) =>
+    Object.fromEntries(
+      KEYS.map((k) => [
         k,
         () => {
           const l = layout(canvas, head);
           Object.assign(cards.size, l.size);
-          return l.poses[i][k] ?? 0;
+          return pick(l)[k] ?? 0;
         },
       ]),
     );
-  };
 
-  const tl = gsap.timeline({
-    defaults: { ease: 'none' },
-    scrollTrigger: {
-      trigger: stage,
-      start: 'top top',
-      end: '+=180%',
-      pin: true,
-      scrub: 1.2,
-      anticipatePin: 1,
-      invalidateOnRefresh: true,
-      // Measure this pin before the triggers that use the whole section (nav theme, reveals) measure it.
-      refreshPriority: 1,
-    },
+  // Same split as layout(): wide screens get the row, narrow ones the deck.
+  const mm = gsap.matchMedia();
+  mm.add({ wide: '(min-aspect-ratio: 11/10)', narrow: '(max-aspect-ratio: 10999/10000)' }, (ctx) => {
+    const { narrow } = ctx.conditions as { narrow: boolean };
+    cards.poses.forEach((p, i) => Object.assign(p, startPose(i)));
+
+    // Narrow: after landing, two more steps, each lifting the front card off the deck.
+    const STEP = 0.5;
+    const steps = narrow ? cards.poses.length - 1 : 0;
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        trigger: stage,
+        start: 'top top',
+        end: narrow ? '+=300%' : '+=180%',
+        pin: true,
+        scrub: 1.2,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        // Measure this pin before the triggers that use the whole section (nav theme, reveals) measure it.
+        refreshPriority: 1,
+      },
+    });
+    cards.poses.forEach((p, i) => {
+      const at = i * 0.12;
+      tl.to(p, { ...midPose(i), duration: 0.4, ease: 'power1.in' }, at).to(p, { ...live((l) => l.poses[i]), duration: 0.45, ease: 'power3.out' }, at + 0.4);
+    });
+    const landed = 0.97;
+    for (let k = 0; k < steps; k++) {
+      const at = landed + 0.15 + k * STEP;
+      tl.to(cards.poses[k], { ...live((l) => exitPose(k, l.slots?.[0] ?? l.poses[k])), duration: STEP * 0.8, ease: 'power2.in' }, at);
+      // The cards behind move up one place in the deck.
+      for (let j = k + 1; j < cards.poses.length; j++) {
+        const to = j - k - 1;
+        tl.to(cards.poses[j], { ...live((l) => l.slots?.[to] ?? l.poses[j]), duration: STEP * 0.7, ease: 'power2.inOut' }, at + STEP * 0.25);
+      }
+    }
+    // A short hold before the pin releases.
+    tl.to({}, { duration: 0.12 }, steps ? landed + 0.15 + steps * STEP : 0.85);
   });
-  cards.poses.forEach((p, i) => {
-    const at = i * 0.12;
-    tl.to(p, { ...midPose(i), duration: 0.4, ease: 'power1.in' }, at).to(p, { ...restFor(i), duration: 0.45, ease: 'power3.out' }, at + 0.4);
-  });
-  tl.to({}, { duration: 0.12 }, 0.85);
 
   return () => {
     section.classList.remove('ai--3d');
