@@ -2,8 +2,9 @@ import { appUrl, finalCta, footer, nav, type PageId } from '../content/shared';
 import { esc, markSvg } from './mark';
 import { wordmarkSvg } from './wordmark';
 import { artSvg, FOOTER_LOGOMARK, FOOTER_WORDMARK } from './footer-art';
+import { INTRO_MARK } from './intro';
 
-/** Fixed chrome shared by every page: curtain, nav, mobile menu, and (on home) the progress rail. */
+/** Fixed chrome shared by every page: curtain, nav, mobile menu, and (on home) the landing intro and progress rail. */
 export function renderChrome(page: PageId) {
   const chrome = document.getElementById('chrome')!;
   const links = nav
@@ -14,8 +15,16 @@ export function renderChrome(page: PageId) {
     <div class="curtain" id="curtain" aria-hidden="true">
       <div class="curtain__panel"></div>
       <div class="curtain__mark" id="curtain-mark">${markSvg('mark--curtain')}</div>
-      <p class="curtain__words"><span>Source.</span><span>Engage.</span><span>Place.</span></p>
     </div>
+${
+  page === 'home'
+    ? `
+    <div class="intro" id="intro" aria-hidden="true">
+      <div class="intro__stage">${INTRO_MARK}<div class="intro__white"></div></div>
+      <canvas class="intro__clouds"></canvas>
+    </div>`
+    : ''
+}
 
     <header class="nav" id="nav">
       <a class="nav__brand" href="/" aria-label="Ditto home">
