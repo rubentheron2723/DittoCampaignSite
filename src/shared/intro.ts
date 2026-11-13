@@ -689,6 +689,9 @@ export function playCloudIntro(): Promise<void> {
             .to(mark, { autoAlpha: 1, duration: T.markFadeEnd - T.markFadeStart, ease: EASE_FADE_IN }, at(T.markFadeStart))
             .to(white, { autoAlpha: 1, duration: T.whiteInEnd - T.whiteIn, ease: EASE_INOUT }, at(T.whiteIn))
             .to(white, { x: sweep, y: sweep, duration: T.sweepEnd - T.sweepStart, ease: EASE_PART }, at(T.sweepStart))
+            // The disc's soft edge never quite reaches the mark's top corners, so the mark also
+            // fades out under it during the second half of the sweep: the end frame is pure white.
+            .to(mark, { autoAlpha: 0, duration: (T.sweepEnd - T.sweepStart) * 0.5, ease: 'power1.in' }, at((T.sweepStart + T.sweepEnd) / 2))
             // Plain white now: fade it away to the hero.
             .add(resolve, at(T.sweepEnd))
             .to(intro, { autoAlpha: 0, duration: 0.8, ease: 'power2.inOut' }, at(T.sweepEnd));
