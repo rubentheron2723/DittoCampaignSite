@@ -1,4 +1,4 @@
-import { acts, ai, hero, pricing, trust } from '../content/home';
+import { acts, ai, hero, pricing, system, trust } from '../content/home';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc, markSvg } from '../shared/mark';
 import { FLOW_ART } from '../shared/flow-art';
@@ -29,6 +29,28 @@ function heroSection() {
         <a class="btn btn--light btn--hero" href="#cta" data-magnetic>${esc(hero.primary)}</a>
         <a class="btn btn--glass btn--hero" href="#pricing" data-magnetic>${esc(hero.secondary)}</a>
       </div>
+    </div>
+  </section>`;
+}
+
+/**
+ * "Everything recruiters do." (Figma node 2364:777): the headline and, below it, the angled
+ * "Source. Engage. Place." line as an endless marquee along its own slant (animations/system.ts).
+ * The track holds two identical halves so it can loop by sliding exactly one half.
+ */
+function systemSection() {
+  const half = Array.from({ length: 2 }, () => `<span class="system__phrase">${esc(system.loop)}</span>`).join('');
+  return `
+  <section class="system" id="system" data-theme="light">
+    <div class="system__head">
+      <h2 class="system__title">
+        <span class="system__line">${esc(system.lineOne)}</span>
+        <span class="system__line">${esc(system.lineTwo)}</span>
+      </h2>
+      <p class="system__body">${esc(system.body)}</p>
+    </div>
+    <div class="system__loop" aria-hidden="true">
+      <div class="system__tilt"><div class="system__track">${half}${half}</div></div>
     </div>
   </section>`;
 }
@@ -178,6 +200,7 @@ export function renderHome() {
   const main = document.getElementById('main')!;
   main.innerHTML = [
     heroSection(),
+    systemSection(),
     aiSection(),
     flowSection(),
     trustSection(),

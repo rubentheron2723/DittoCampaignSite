@@ -7,6 +7,7 @@ import { initHero } from '../animations/hero';
 import { initFlow } from '../animations/flow';
 import { initCTA, initPricing, initTrust } from '../animations/reveals';
 import { initAI } from '../animations/ai';
+import { initSystem } from '../animations/system';
 import { gsap } from '../animations/gsap';
 
 boot({
@@ -14,6 +15,7 @@ boot({
   render: renderHome,
   init: ({ reduce, revealed }) => {
     // Top to bottom, so each trigger is measured after the pinned sections above it.
+    initSystem(!reduce);
     initAI(!reduce);
     initTrust(!reduce);
     initPricing(!reduce);
