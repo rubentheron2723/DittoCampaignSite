@@ -229,8 +229,8 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
   .footer__col a.is-waving .wave span { animation: none; }
   .footer__col a:hover, .footer__col a:focus-visible { opacity: 0.75; }
 }
-/* 1445.11 × 490.486 lettering on a 1440 frame, at least 116px below the links, cropped to its top 240px. */
-.footer__wordmark { position: relative; display: block; width: 100.355%; height: auto; margin-top: auto; margin-bottom: -17.395%; flex-shrink: 0; }
+/* 1445.11 × 490.486 lettering on a 1440 frame, at least 116px below the links, cropped to its top 292px (moved up so the counters of the d and o show). */
+.footer__wordmark { position: relative; display: block; width: 100.355%; height: auto; margin-top: auto; margin-bottom: -13.784%; flex-shrink: 0; }
 
 @media (max-width: 900px) {
   .nav__links, .nav .btn--ghost { display: none; }
