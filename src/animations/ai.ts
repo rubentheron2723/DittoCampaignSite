@@ -86,28 +86,47 @@ function drawFace(index: number, title: string, copy: string) {
   return c;
 }
 
-/** Card size in world units for a screen aspect (the screen is 2 units tall). */
-const cardSize = (aspect: number) => {
-  const w = aspect >= 1.1 ? Math.min(1.0, (aspect * 2 * 0.86) / 3.2) : Math.min(0.62, aspect * 2 * 0.68);
-  return { w, h: w * (FACE_H / FACE_W) };
-};
+/**
+ * Lays the resting cards out in the space left under the headline and copy, so they never cover them.
+ * Measures the copy against the canvas and converts to world units (the screen is 2 units tall, y up).
+ * Wide screens: a loose row, sized to fit both the width and the height that is free.
+ * Narrow screens: a fanned stack, each card nearer than the last so they never cut into each other.
+ */
+function layout(canvas: HTMLCanvasElement, head: HTMLElement) {
+  const box = canvas.getBoundingClientRect();
+  const H = Math.max(1, box.height);
+  const aspect = box.width / H || 16 / 9;
+  const toWorld = (px: number) => 1 - (2 * px) / H;
+  const copyBottom = head.getBoundingClientRect().bottom - box.top;
+  const top = toWorld(copyBottom + Math.max(24, H * 0.04));
+  const bottom = toWorld(H - Math.max(32, H * 0.06));
+  const free = Math.max(0.2, top - bottom);
+  const ratio = FACE_H / FACE_W;
 
-/** Where each card comes to rest, by screen aspect. */
-function restPoses(aspect: number, w: number): Partial<CardPose>[] {
   if (aspect >= 1.1) {
+    // Tilts and bends make a card read a little taller than its face; the row's own up/down stagger adds 0.08.
+    const w = Math.min(1.0, (aspect * 2 * 0.86) / 3.2, (free - 0.08) / (ratio * 1.12));
+    const h = w * ratio;
+    const mid = (top + bottom) / 2;
     const gap = w * 1.1;
-    return [
-      { x: -gap, y: -0.36, z: 0.02, rx: -6, ry: 14, rz: 2.5, bend: 0.35, curl: 0.25 },
-      { x: 0, y: -0.42, z: 0.06, rx: -8, ry: -4, rz: -1.5, bend: 0.3, curl: 0.2 },
-      { x: gap, y: -0.34, z: 0, rx: -6, ry: -14, rz: -3, bend: 0.4, curl: 0.25 },
+    const poses: Partial<CardPose>[] = [
+      { x: -gap, y: mid + 0.02, z: 0.02, rx: -6, ry: 14, rz: 2.5, bend: 0.35, curl: 0.25 },
+      { x: 0, y: mid - 0.04, z: 0.06, rx: -8, ry: -4, rz: -1.5, bend: 0.3, curl: 0.2 },
+      { x: gap, y: mid + 0.04, z: 0, rx: -6, ry: -14, rz: -3, bend: 0.4, curl: 0.25 },
     ];
+    return { size: { w, h }, poses };
   }
-  // Narrow screens: a fanned stack under the copy, each card nearer than the last so they never cut into each other.
-  return [
-    { x: -0.06, y: -0.34, z: 0, rx: -6, ry: 6, rz: 3, bend: 0.3, curl: 0.2 },
-    { x: 0.06, y: -0.58, z: 0.16, rx: -6, ry: -5, rz: -2.5, bend: 0.3, curl: 0.2 },
-    { x: -0.04, y: -0.82, z: 0.32, rx: -6, ry: 5, rz: 2, bend: 0.32, curl: 0.2 },
+  // The stack spans one card plus two steps of 0.6 card heights; the nearest card looks ~10% larger.
+  const w = Math.min(0.62, aspect * 2 * 0.68, free / (ratio * 2.4));
+  const h = w * ratio;
+  const step = h * 0.6;
+  const first = top - h * 0.55;
+  const poses: Partial<CardPose>[] = [
+    { x: -0.06, y: first, z: 0, rx: -6, ry: 6, rz: 3, bend: 0.3, curl: 0.2 },
+    { x: 0.06, y: first - step, z: 0.16, rx: -6, ry: -5, rz: -2.5, bend: 0.3, curl: 0.2 },
+    { x: -0.04, y: first - step * 2, z: 0.32, rx: -6, ry: 5, rz: 2, bend: 0.32, curl: 0.2 },
   ];
+  return { size: { w, h }, poses };
 }
 
 /** Where each card starts: far below and behind, tumbling, curled tight, back-side up. */
@@ -173,7 +192,8 @@ export function initAI(animate: boolean) {
   const faces = ai.cards.map((c, i) => drawFace(i, c.title, c.copy));
   // Show the canvas first so the renderer measures its real size.
   section.classList.add('ai--3d');
-  const cards = createPaperCards(canvas, faces, cardSize);
+  const head = q('.ai__head', section)!;
+  const cards = createPaperCards(canvas, faces, () => layout(canvas, head).size);
   if (!cards) {
     section.classList.remove('ai--3d');
     return () => {};
@@ -181,10 +201,19 @@ export function initAI(animate: boolean) {
   if (import.meta.env.DEV) (window as unknown as { __aiCards: typeof cards }).__aiCards = cards; // for checking frames in dev
 
   cards.poses.forEach((p, i) => Object.assign(p, startPose(i)));
-  // Resting spots are recomputed on refresh (resize), so the row always fits the screen.
+  // Resting spots (and the card size) are recomputed on refresh, so the cards always fit under the copy.
   const restFor = (i: number) => {
     const keys = ['x', 'y', 'z', 'rx', 'ry', 'rz', 'bend', 'curl'] as const;
-    return Object.fromEntries(keys.map((k) => [k, () => restPoses(cards.aspect(), cards.size.w)[i][k] ?? 0]));
+    return Object.fromEntries(
+      keys.map((k) => [
+        k,
+        () => {
+          const l = layout(canvas, head);
+          Object.assign(cards.size, l.size);
+          return l.poses[i][k] ?? 0;
+        },
+      ]),
+    );
   };
 
   const tl = gsap.timeline({
