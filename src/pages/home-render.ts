@@ -1,6 +1,6 @@
 import { acts, ai, hero, pricing, system, trust } from '../content/home';
 import { ctaAndFooter } from '../shared/chrome';
-import { esc, markSvg } from '../shared/mark';
+import { esc } from '../shared/mark';
 import { FLOW_ART } from '../shared/flow-art';
 
 /**
@@ -55,44 +55,40 @@ function systemSection() {
   </section>`;
 }
 
+/** Where each panel's slanted word is centred, as in Figma (x, y as % of the 1440x1024 frame). */
+const WORD_AT: Record<string, [number, number]> = { source: [43.87, 28.3], engage: [52.92, 28.3], place: [48.59, 22.66] };
+
 /**
- * Source → Engage → Place (Figma node 2370:194). On desktop the section pins and plays the three steps in turn:
- * the big slanted word at the top runs as a marquee and swaps to the current step's word, while the copy
- * (bottom left) and the illustrated card (right) change underneath. On phones the word band pins at the top
- * while the steps scroll past (see animations/flow.ts).
+ * Source → Engage → Place (Figma node 2370:194): three full-screen panels side by side on one long white-to-blue
+ * background. The section pins and scrolling slides the panels sideways (animations/flow.ts). Each panel has its
+ * step's name as a huge slanted marquee near the top, the copy bottom left and the isometric illustration drawn
+ * straight on the background at the right.
  */
 function flowSection() {
-  const words = acts
+  const panels = acts
     .map((a) => {
       const half = Array.from({ length: 4 }, () => `<span>${esc(a.label)}.</span>`).join('');
-      return `<div class="flow__word" data-act="${a.id}"><div class="flow__track">${half}${half}</div></div>`;
+      const [x, y] = WORD_AT[a.id];
+      return `
+      <article class="fpanel" data-act="${a.id}" style="--wx: ${x}%; --wy: ${y}%">
+        <div class="fpanel__words" aria-hidden="true">
+          <div class="fpanel__plane"><div class="fpanel__word"><div class="fpanel__track">${half}${half}</div></div></div>
+        </div>
+        <div class="fpanel__copy">
+          <h3 class="fpanel__title"><span class="sr-only">${esc(a.label)}: </span>${esc(a.headline)}</h3>
+          <p class="fpanel__lead">${esc(a.paragraphs[0])}</p>
+          <div class="fpanel__text">${a.paragraphs.slice(1).map((p) => `<p>${esc(p)}</p>`).join('')}</div>
+        </div>
+        <div class="fpanel__art" aria-hidden="true">${FLOW_ART[a.id]()}</div>
+      </article>`;
     })
-    .join('');
-  const steps = acts
-    .map(
-      (a) => `
-      <article class="fstep" data-act="${a.id}">
-        <div class="fstep__copy">
-          <h3 class="fstep__title"><span class="sr-only">${esc(a.label)}: </span>${esc(a.headline)}</h3>
-          <p class="fstep__lead">${esc(a.paragraphs[0])}</p>
-          <div class="fstep__text">${a.paragraphs.slice(1).map((p) => `<p>${esc(p)}</p>`).join('')}</div>
-        </div>
-        <div class="fstep__card">
-          <header class="fstep__head"><span class="fstep__num">${a.number}</span><span class="fstep__label">${esc(a.label)}</span></header>
-          <div class="fstep__visual">${FLOW_ART[a.id]()}</div>
-          <footer class="fstep__foot"><span class="fstep__icon">${markSvg('mark--step')}</span><span>${esc(a.chips[0])}</span></footer>
-        </div>
-      </article>`,
-    )
     .join('');
 
   return `
   <section class="flow" id="flow" data-theme="light">
     <h2 class="sr-only">${acts.map((a) => `${esc(a.label)}.`).join(' ')}</h2>
     <div class="flow__pin">
-      <div class="flow__bg" aria-hidden="true"><div class="flow__wash"></div></div>
-      <div class="flow__words" aria-hidden="true"><div class="flow__plane">${words}</div></div>
-      <div class="flow__stage">${steps}
+      <div class="flow__strip">${panels}
       </div>
     </div>
   </section>`;
@@ -202,8 +198,8 @@ export function renderHome() {
   main.innerHTML = [
     heroSection(),
     systemSection(),
-    aiSection(),
     flowSection(),
+    aiSection(),
     trustSection(),
     pricingSection(),
     ctaAndFooter(),
