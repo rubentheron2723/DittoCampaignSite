@@ -187,6 +187,8 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 /* Closing CTA: a cloudy sky (the Figma "Clouds" shader, see cta-clouds.ts) under a white top fade.
    The CSS gradient is the sky's own colours, shown until the shader runs or if WebGL2 is missing. */
 .cta {
+  /* Tucked 1px under the section above, so a fractional-pixel seam can't show the page's black background. */
+  margin-top: -1px;
   position: relative; display: flex; align-items: center; justify-content: center;
   min-height: 100vh; min-height: 100lvh; padding: clamp(120px, 12vw, 180px) 0;
   background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); color: var(--white); overflow: clip;
