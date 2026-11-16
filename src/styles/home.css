@@ -201,8 +201,15 @@
 /* "Practical AI that recruiters can trust" (Figma node 2364:692). The stage pins while the capability cards fly in as
    WebGL paper sheets (animations/ai.ts, shared/paper-cards.ts). Near-white, with a blue glow rising from below. */
 .ai { position: relative; background: #fdfdfd; color: #171717; --ai-pad: clamp(20px, 5.556vw, 80px); }
-.ai__stage { position: relative; min-height: 100vh; min-height: 100lvh; padding: clamp(calc(var(--nav-h) + 24px), 8.333vw, 120px) var(--ai-pad) clamp(64px, 8vw, 120px); overflow: clip; }
-.ai__glow { position: absolute; inset: 0; pointer-events: none; opacity: 0.3; background: radial-gradient(57% 52.5% at 50% 131.3%, #1e6ef3 0%, #108ff9 23.077%, #01b0ff 46.154%, rgba(1, 176, 255, 0) 100%); }
+.ai__stage { position: relative; min-height: 100vh; min-height: 100lvh; padding: clamp(calc(var(--nav-h) + 24px), 8.333vw, 120px) var(--ai-pad) clamp(64px, 8vw, 120px); overflow-x: clip; }
+/* Figma's glow (its colours and opacity) rises from below the stage. The stage used to clip it mid-glow, a hard line
+   above the steps; now it spills 300px past the stage (the steps below are taller than that) and fades out there:
+   it still starts ~78% down the stage, peaks just under the stage's bottom edge and is gone before the next section. */
+.ai__glow {
+  position: absolute; left: 0; right: 0; top: 0; bottom: -300px; pointer-events: none; opacity: 0.3;
+  /* Only the outer part of Figma's colours ever showed through the stage's edge, so only that is used: #01B0FF easing out. */
+  background: radial-gradient(60% calc(22vh + 40px) at 50% calc(100% - 260px), rgba(1, 176, 255, 0.85) 0%, rgba(1, 176, 255, 0.55) 30%, rgba(1, 176, 255, 0.25) 60%, rgba(1, 176, 255, 0.07) 82%, rgba(1, 176, 255, 0) 100%);
+}
 .ai__head { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; }
 /* 84/88 bold, -0.04em at 1440 (the h1 size token, set tighter and bolder here as in the design). */
 .ai__title { font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; max-width: 10em; }
@@ -221,7 +228,7 @@
 .aicard:nth-child(2) .aicard__index { color: #fff; }
 .aicard h3 { font-size: clamp(20px, 1.667vw, 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 700; margin-top: 48px; }
 .aicard p { font-size: clamp(16px, 1.389vw, 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; margin-top: 20px; }
-.ai__more { padding: 0 var(--gutter) clamp(64px, 8vw, 120px); max-width: 1240px; margin: 0 auto; box-sizing: content-box; }
+.ai__more { position: relative; z-index: 1; padding: 0 var(--gutter) clamp(64px, 8vw, 120px); max-width: 1240px; margin: 0 auto; box-sizing: content-box; }
 .steps { position: relative; margin-top: clamp(56px, 7vw, 96px); }
 .steps__line { position: absolute; left: 0; right: 0; top: 24px; width: 100%; height: 2px; overflow: visible; }
 .steps__ghost { stroke: var(--line-light); stroke-width: 2; vector-effect: non-scaling-stroke; }
