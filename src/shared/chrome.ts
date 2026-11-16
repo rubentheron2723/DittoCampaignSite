@@ -1,4 +1,4 @@
-import { appUrl, finalCta, footer, nav, type PageId } from '../content/shared';
+import { finalCta, footer, nav, signInUrl, type PageId } from '../content/shared';
 import { esc, markSvg } from './mark';
 import { navLogoSvg } from './nav-logo';
 import { artSvg, FOOTER_LOGOMARK, FOOTER_WORDMARK } from './footer-art';
@@ -28,7 +28,7 @@ export function renderChrome(page: PageId) {
       </a>
       <nav class="nav__links" aria-label="Primary">${links}</nav>
       <div class="nav__actions">
-        <a class="nav__signin" href="${appUrl}" target="_blank" rel="noreferrer">Sign in</a>
+        <a class="nav__signin" href="${signInUrl}">Sign in</a>
         <a class="nav__cta" href="/contact" data-magnetic>Book a demo</a>
         <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu">
           <span></span><span></span>
@@ -44,7 +44,7 @@ export function renderChrome(page: PageId) {
       </nav>
       <div class="menu__foot">
         <a class="btn btn--light btn--lg" href="/contact">Book a demo</a>
-        <a class="btn btn--outline" href="${appUrl}" target="_blank" rel="noreferrer">Sign in</a>
+        <a class="btn btn--outline" href="${signInUrl}">Sign in</a>
       </div>
     </div>
 `;
