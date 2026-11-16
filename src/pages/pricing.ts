@@ -8,8 +8,9 @@ import { boot } from '../shared/boot';
 import { FOOTER_BLOBS } from '../shared/footer-blobs';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
-import { Draggable, gsap, q, qa } from '../animations/gsap';
+import { Draggable, gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, rollNumber, splitReveal } from '../shared/motion';
+import { initPricingCards } from '../animations/pricing-cards';
 
 /* ---------- Render ---------- */
 /**
@@ -18,8 +19,8 @@ import { fadeUp, rollNumber, splitReveal } from '../shared/motion';
  *      glass "Get started" pill.
  *   2. Calculator on #fdfdfd (one screen at 1440), under the footer's Moving blobs: the headline and toggles; the plan
  *      cards over the slider on the left and the price check on the right; a blue "Book a demo" centred below.
- *   3. "From first call to first placement": the five steps as glass rows with big blue numbers, then the four
- *      guarantees as glass cards.
+ *   3. "From first call to first placement" (Figma 2378:1018): five numbered steps in a centred column, with the four
+ *      guarantees as tilted cards around them. Sections 2 and 3 share one #fdfdfd field and one pinned blob layer.
  */
 function render() {
   const main = document.getElementById('main')!;
@@ -40,8 +41,11 @@ function render() {
     </div>
   </section>
 
+  <div class="pfield">
+  <!-- One Moving blobs layer behind the calculator and the steps, pinned to the screen while they scroll past, so the
+       blobs carry on across the join between the two sections. -->
+  <canvas class="pfield__fx" aria-hidden="true"></canvas>
   <section class="calc" id="calculator" data-theme="light">
-    <canvas class="calc__fx" aria-hidden="true"></canvas>
     <header class="calc__head">
       <h2 class="ptitle calc__title"><span>${esc(calculator.titleOne)}</span><span>${esc(calculator.titleTwo)}</span></h2>
       <p class="psub">${esc(calculator.description)}</p>
@@ -99,11 +103,12 @@ function render() {
   </section>
 
   <section class="pnext" data-theme="light">
-    <h2 class="ptitle pnext__title">${esc(nextSteps.title)}</h2>
+    <canvas class="pnext__canvas" aria-hidden="true"></canvas>
+    <h2 class="ptitle pnext__title"><span>From first call</span> <span>to first placement</span></h2>
     <ol class="pnext__steps">
       ${nextSteps.steps
         .map(
-          (s, i) => `<li class="pstep glass">
+          (s, i) => `<li class="pstep">
             <span class="pstep__num">${String(i + 1).padStart(2, '0')}</span>
             <div class="pstep__body"><h3>${esc(s.title)}</h3><p>${esc(s.description)}</p></div>
           </li>`,
@@ -111,9 +116,10 @@ function render() {
         .join('')}
     </ol>
     <ul class="pnext__promises">
-      ${guarantees.map((g) => `<li class="promise glass"><h3>${esc(g.title)}</h3><p>${esc(g.copy)}</p></li>`).join('')}
+      ${guarantees.map((g) => `<li class="promise promise--${g.id}"><div class="promise__face"><h3>${esc(g.title)}</h3><p>${esc(g.copy).replace('\n', '<br>')}</p></div></li>`).join('')}
     </ul>
   </section>
+  </div>
 
   ${ctaAndFooter()}`;
 }
@@ -239,7 +245,10 @@ boot({
     initClouds(q('.phero')!, q<HTMLCanvasElement>('.phero__sky')!, 'phero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
-    initBlobBackdrop(q('.calc')!, q<HTMLCanvasElement>('.calc__fx')!, 'calc--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
+    initBlobBackdrop(q('.pfield')!, q<HTMLCanvasElement>('.pfield__fx')!, 'pfield--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
+    // The blob layer is one screen tall and held on screen through both sections (a pin, as ScrollSmoother rules out
+    // position: sticky), so the blobs neither repeat nor restart at the join.
+    ScrollTrigger.create({ trigger: '.pfield', start: 'top top', end: 'bottom bottom', pin: '.pfield__fx', pinSpacing: false });
     initCalculator(!reduce);
     if (reduce) return;
 
@@ -258,8 +267,11 @@ boot({
     fadeUp('.lcards, .slider', '.calc__pick', { y: 30, stagger: 0.1 });
     fadeUp('.quote > :not(.quote__enterprise), .calc__cta', '.quote', { y: 30, stagger: 0.08 });
 
-    splitReveal('.pnext__title', { by: 'words' });
+    splitReveal('.pnext__title span', { by: 'words' });
     fadeUp('.pstep', '.pnext__steps', { y: 40, stagger: 0.1 });
-    fadeUp('.promise', '.pnext__promises', { y: 30, stagger: 0.08 });
+    // Wide screens: the cards fly in as paper sheets and stick (animations/pricing-cards.ts). Below that the HTML
+    // cards sit in a grid under the steps and rise in.
+    initPricingCards(true);
+    qa('.promise').forEach((card) => fadeUp(card, card, { y: 60, duration: 1.2, start: 'top 90%' }));
   },
 });

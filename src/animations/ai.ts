@@ -24,7 +24,7 @@ const ACCENT = 1; // the blue card
 const baseline = (size: number, lh: number) => (lh - size * 1.302) / 2 + size * 0.992;
 
 /** The blue card's gradient stops (position 0–1, colour): a soft light band near the top right, eased both ways. */
-const ACCENT_STOPS: [number, string][] = [
+export const ACCENT_STOPS: [number, string][] = [
   [0, '#1a7cf5'],
   [0.12, '#0b98fb'],
   [0.24, '#03a9fe'],
