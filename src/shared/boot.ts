@@ -8,6 +8,7 @@ import { initFooterBlobs } from './footer-blobs';
 import { initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
+import { initNavFooterMark } from './nav-footer-mark';
 import { flagPageTransition, playPageTransition, takePageTransition } from './page-transition';
 
 export type BootContext = {
@@ -71,7 +72,7 @@ export async function boot({ page, render, init }: Options) {
   initFooterBlobs(reduce);
   initFooterWave();
   // Nav theming last: its triggers depend on pinned sections' final positions.
-  initNavTheme();
+  initNavTheme(!reduce);
   ScrollTrigger.refresh();
   return ctx;
 }
@@ -113,7 +114,7 @@ function blendCtaIntoPrevious() {
 }
 
 /* ---------- Nav theming ---------- */
-function initNavTheme() {
+function initNavTheme(animate: boolean) {
   const nav = q('#nav')!;
   ScrollTrigger.create({ start: 'top -60', end: 'max', onToggle: (self) => nav.classList.toggle('nav--solid', self.isActive) });
 
@@ -151,8 +152,9 @@ function initNavTheme() {
 
   // Get out of the way once the footer is (nearly) fully in view. If the footer is taller than the
   // space below the nav, hide it as soon as the footer reaches the nav instead.
+  // With motion, the logomark flies down into the footer's instead (nav-footer-mark.ts).
   const footer = q('.footer');
-  if (footer) {
+  if (footer && !(animate && initNavFooterMark())) {
     ScrollTrigger.create({
       trigger: footer,
       start: () => (footer.offsetHeight > window.innerHeight - nav.offsetHeight ? `top ${nav.offsetHeight}px` : 'bottom-=40px bottom'),

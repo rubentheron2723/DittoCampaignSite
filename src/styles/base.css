@@ -123,6 +123,10 @@ svg { display: block; }
 .intro--page .intro__veil { display: block; }
 .intro--page .intro__stage { display: none; }
 
+/* The nav's logomark on its way into the footer's (nav-footer-mark.ts). */
+.mark-fly { position: fixed; left: 0; top: 0; z-index: 61; pointer-events: none; visibility: hidden; transform-origin: 0 0; will-change: transform; }
+.mark-fly svg { display: block; }
+
 /* Fixed nav */
 /* The reworked Figma nav (2377:237 on light, 2377:262 on dark/blue): 72 tall, 80px in at 1440, a one-colour logo,
    plain 16px links and a glass "Book a demo" pill. #FEFEFE over dark/blue sections, #171717 over light ones. */
@@ -132,10 +136,11 @@ svg { display: block; }
 /* Scrolling down (see initNavTheme): the glass, links and buttons slide up out of view and the wordmark folds away
    letter by letter, leaving just the logomark top left. On the way back up it all returns, the letters of "ditto"
    unfolding out of the mark from left to right. */
-.nav--away { pointer-events: none; }
+.nav--away, .nav--footer { pointer-events: none; }
 .nav--away .nav__brand { pointer-events: auto; }
 .nav__links, .nav__actions { transition: transform 0.5s var(--ease-out), opacity 0.35s var(--ease-out); }
-.nav.nav--away::before, .nav--away .nav__links, .nav--away .nav__actions { transform: translateY(-100%); opacity: 0; }
+.nav.nav--away::before, .nav--away .nav__links, .nav--away .nav__actions,
+.nav.nav--footer::before, .nav--footer .nav__links, .nav--footer .nav__actions { transform: translateY(-100%); opacity: 0; }
 .nav-logo__type path {
   transform-box: fill-box; transform-origin: 0 50%;
   transition: opacity 0.4s var(--ease-out), transform 0.6s var(--ease-out), filter 0.5s var(--ease-out);
@@ -147,7 +152,7 @@ svg { display: block; }
 .nav-logo__type path:nth-child(3) { --i: 2; }
 .nav-logo__type path:nth-child(2) { --i: 3; }
 .nav-logo__type path:nth-child(1) { --i: 4; }
-.nav--away .nav-logo__type path {
+.nav--away .nav-logo__type path, .nav--footer .nav-logo__type path {
   opacity: 0; transform: translateX(-9px) scale(0.85); filter: blur(3px);
   transition-duration: 0.3s, 0.4s, 0.3s; transition-delay: calc((4 - var(--i)) * 30ms);
 }
@@ -267,6 +272,7 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 }
 .footer__logomark { grid-column: 1; grid-row: 1; align-self: end; justify-self: start; display: block; width: 72px; }
 .footer__logomark svg { display: block; width: 100%; height: auto; }
+.footer--mark-away .footer__logomark svg { visibility: hidden; }
 .footer__col { font-size: var(--t-footer-size); line-height: var(--t-footer-lh); letter-spacing: var(--t-footer-ls); font-weight: var(--t-footer-wt); display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
 .footer__col:nth-child(5) { grid-column: 2; }
 .footer__title { margin: 0; color: rgba(254, 254, 254, 0.5); }
