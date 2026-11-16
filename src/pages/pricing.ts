@@ -253,7 +253,9 @@ boot({
 
     splitReveal('.calc__title span', { by: 'words' });
     fadeUp('.calc__head .psub, .calc__controls', '.calc__head', { y: 24 });
-    fadeUp('.lcard, .slider', '.calc__pick', { y: 30, stagger: 0.06 });
+    // The row, not the cards: each card has a CSS hover transition on transform, which would fight the tween and
+    // could leave the cards short of their place (below the plan title they line up with).
+    fadeUp('.lcards, .slider', '.calc__pick', { y: 30, stagger: 0.1 });
     fadeUp('.quote > :not(.quote__enterprise), .calc__cta', '.quote', { y: 30, stagger: 0.08 });
 
     splitReveal('.pnext__title', { by: 'words' });
