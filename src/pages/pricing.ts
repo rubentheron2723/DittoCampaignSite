@@ -239,7 +239,7 @@ boot({
     initClouds(q('.phero')!, q<HTMLCanvasElement>('.phero__sky')!, 'phero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
-    initBlobBackdrop(q('.calc')!, q<HTMLCanvasElement>('.calc__fx')!, 'calc--fx', FOOTER_BLOBS, [253, 253, 253], reduce);
+    initBlobBackdrop(q('.calc')!, q<HTMLCanvasElement>('.calc__fx')!, 'calc--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
     initCalculator(!reduce);
     if (reduce) return;
 
