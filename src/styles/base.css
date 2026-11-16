@@ -118,6 +118,10 @@ svg { display: block; }
   border-radius: 50%; background: #fff; filter: blur(44.25px); visibility: hidden;
 }
 .intro__clouds { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* Moving between pages (page-transition.ts): a blurred white veil under the clouds instead of the mark and disc. */
+.intro__veil { position: absolute; display: none; border-radius: 50%; background: #fff; will-change: transform; }
+.intro--page .intro__veil { display: block; }
+.intro--page .intro__stage { display: none; }
 
 /* Fixed nav */
 /* The reworked Figma nav (2377:237 on light, 2377:262 on dark/blue): 72 tall, 80px in at 1440, a one-colour logo,
@@ -125,8 +129,28 @@ svg { display: block; }
 .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 60; height: var(--nav-h); display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 clamp(20px, 5.556vw, 80px); color: #fefefe; transition: color 0.35s var(--ease-out), transform 0.5s var(--ease-out), opacity 0.35s var(--ease-out); }
 /* Slides away once the footer is in view (see initNavTheme). */
 .nav--hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
-/* Scrolling down: slid up out of view, back on the way up (see initNavTheme). */
-.nav--away { transform: translateY(-100%); }
+/* Scrolling down (see initNavTheme): the glass, links and buttons slide up out of view and the wordmark folds away
+   letter by letter, leaving just the logomark top left. On the way back up it all returns, the letters of "ditto"
+   unfolding out of the mark from left to right. */
+.nav--away { pointer-events: none; }
+.nav--away .nav__brand { pointer-events: auto; }
+.nav__links, .nav__actions { transition: transform 0.5s var(--ease-out), opacity 0.35s var(--ease-out); }
+.nav.nav--away::before, .nav--away .nav__links, .nav--away .nav__actions { transform: translateY(-100%); opacity: 0; }
+.nav-logo__type path {
+  transform-box: fill-box; transform-origin: 0 50%;
+  transition: opacity 0.4s var(--ease-out), transform 0.6s var(--ease-out), filter 0.5s var(--ease-out);
+  transition-delay: calc(var(--i) * 45ms + 60ms);
+}
+/* Paths run o, t, t, i, d (right to left): --i counts from the "d" next to the mark. */
+.nav-logo__type path:nth-child(5) { --i: 0; }
+.nav-logo__type path:nth-child(4) { --i: 1; }
+.nav-logo__type path:nth-child(3) { --i: 2; }
+.nav-logo__type path:nth-child(2) { --i: 3; }
+.nav-logo__type path:nth-child(1) { --i: 4; }
+.nav--away .nav-logo__type path {
+  opacity: 0; transform: translateX(-9px) scale(0.85); filter: blur(3px);
+  transition-duration: 0.3s, 0.4s, 0.3s; transition-delay: calc((4 - var(--i)) * 30ms);
+}
 /* Frosted glass once the page scrolls (Figma 2378:325): a 10% white fill with Figma's Glass effect (frost 71, light from
    320deg at 30%, depth 21) and no border. CSS has no Glass effect, so: a heavy backdrop blur for the frost, a little
    saturation for the refraction, and a faint highlight along the lit top edge. Over light sections (Figma 2378:445)
@@ -136,7 +160,7 @@ svg { display: block; }
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 45%), rgba(255, 255, 255, 0.1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
   -webkit-backdrop-filter: blur(36px) saturate(1.4); backdrop-filter: blur(36px) saturate(1.4);
-  opacity: 0; transition: opacity 0.35s var(--ease-out);
+  opacity: 0; transition: opacity 0.35s var(--ease-out), transform 0.5s var(--ease-out);
 }
 .nav--solid::before { opacity: 1; }
 .nav--on-light::before { background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 45%), rgba(23, 23, 23, 0.1); }

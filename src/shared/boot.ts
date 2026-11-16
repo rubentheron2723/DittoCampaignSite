@@ -8,6 +8,7 @@ import { initFooterBlobs } from './footer-blobs';
 import { initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
+import { flagPageTransition, playPageTransition, takePageTransition } from './page-transition';
 
 export type BootContext = {
   reduce: boolean;
@@ -37,9 +38,10 @@ export async function boot({ page, render, init }: Options) {
   renderChrome(page);
   render();
 
-  // Curtain first, so the page never flashes unstyled content.
-  // The entry animation plays on every page, so moving between pages replays it.
-  const revealed = reduce ? Promise.resolve((hideCurtain(), hideIntro())) : playCloudIntro();
+  // Curtain first, so the page never flashes unstyled content. A fresh visit or reload plays the landing intro;
+  // arriving from another page of the site plays the page transition instead.
+  const moved = takePageTransition();
+  const revealed = reduce ? Promise.resolve((hideCurtain(), hideIntro())) : moved ? playPageTransition(page) : playCloudIntro();
 
   await document.fonts.ready;
 
@@ -188,6 +190,7 @@ function initLinks(ctx: BootContext) {
     }
     if (ctx.reduce) return; // plain navigation
     e.preventDefault();
+    flagPageTransition();
     coverAndGo(url.pathname + url.hash);
   });
 }
