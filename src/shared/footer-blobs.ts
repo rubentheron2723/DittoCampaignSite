@@ -384,6 +384,20 @@ function drawArt(ctx: CanvasRenderingContext2D, art: FooterArt, el: Element, ori
   ctx.restore();
 }
 
+/**
+ * The footer logomark can be held back while the nav's logomark flies down into its place (nav-footer-mark.ts).
+ * With the effect running the mark is drawn into the shader's input layer, so that layer is repainted without it;
+ * otherwise the plain SVG is hidden.
+ */
+let markHidden = false;
+let repaintLayer: (() => void) | null = null;
+export function setFooterMarkHidden(hidden: boolean) {
+  if (hidden === markHidden) return;
+  markHidden = hidden;
+  document.querySelector('.footer')?.classList.toggle('footer--mark-away', hidden);
+  repaintLayer?.();
+}
+
 export function initFooterBlobs(reduce: boolean) {
   const footer = document.querySelector<HTMLElement>('.footer');
   const canvas = footer?.querySelector<HTMLCanvasElement>('.footer__fx');
@@ -453,7 +467,7 @@ export function initFooterBlobs(reduce: boolean) {
     ctx.fillStyle = grad;
     ctx.fillRect(-width, -height * 4, width * 4, height * 8);
     ctx.restore();
-    drawArt(ctx, FOOTER_LOGOMARK, logomark, origin, dpr);
+    if (!markHidden) drawArt(ctx, FOOTER_LOGOMARK, logomark, origin, dpr);
     drawArt(ctx, FOOTER_WORDMARK, wordmark, origin, dpr);
 
     gl.bindTexture(gl.TEXTURE_2D, inputTex);
@@ -463,6 +477,10 @@ export function initFooterBlobs(reduce: boolean) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  };
+
+  repaintLayer = () => {
+    if (width) paintLayer();
   };
 
   const resize = () => {
