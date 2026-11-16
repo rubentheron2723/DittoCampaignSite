@@ -1,21 +1,23 @@
 import { gsap, q, ScrollTrigger } from './gsap';
 
-/** Pixels per second along the slant. */
-const SPEED = 90;
-
 /**
- * "Everything recruiters do.": the slanted "Source. Engage. Place." line runs as an endless marquee
- * along its own angle. The track holds two identical halves, so sliding it left by exactly one half
- * (xPercent -50) and starting over is seamless. The tilt is on the parent, so moving the track along
- * x moves it along the slant.
+ * "Everything recruiters do.": the slanted "Source. Engage. Place." line.
  *
- * A fixed x offset starts the line where the Figma frame has it: the "S" of the first "Source." just
- * past the left edge. With reduced motion the line stays there, still. Otherwise it only runs while
- * the section is on screen.
+ * With motion, the line is drawn by the next section's shared marquee (animations/flow.ts), which runs along this
+ * slant here and then carries the same line down into Source / Engage / Place. This section only hides its own copy
+ * and keeps the band's space.
+ *
+ * With reduced motion the line here stays, still, where the Figma frame has it: the "S" of the first "Source." just
+ * past the left edge.
  */
 export function initSystem(animate: boolean) {
   const section = q('.system');
   if (!section) return;
+  if (animate) {
+    section.classList.add('system--handoff');
+    return;
+  }
+
   const tilt = q('.system__tilt', section)!;
   const track = q('.system__track', section)!;
   const phrase = q('.system__phrase', track)!;
@@ -31,23 +33,8 @@ export function initSystem(animate: boolean) {
     tilt.style.transform = 'none';
     const firstLetter = range.getBoundingClientRect().width;
     tilt.style.transform = '';
-    // Start one phrase earlier, so the track still covers the right edge at the end of each loop.
-    gsap.set(track, { x: edge - firstLetter - phrase.offsetWidth });
+    gsap.set(track, { x: edge - firstLetter });
   };
   place();
   ScrollTrigger.addEventListener('refresh', place);
-
-  if (!animate) return;
-
-  const duration = () => track.offsetWidth / 2 / SPEED;
-  const loop = gsap.to(track, { xPercent: -50, ease: 'none', repeat: -1, duration: duration(), paused: true });
-
-  ScrollTrigger.create({
-    trigger: section,
-    start: 'top bottom',
-    end: 'bottom top',
-    onToggle: (self) => (self.isActive ? loop.play() : loop.pause()),
-    // Keep the speed constant when the font size (and so the track's width) changes.
-    onRefresh: () => loop.duration(duration()),
-  });
 }
