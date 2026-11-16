@@ -44,7 +44,7 @@
 /* Source → Engage → Place (Figma node 2370:194): three 1440x1024 panels side by side, slid sideways as the section
    pins (animations/flow.ts). Each panel: a field of faint slanted lines of its word, the copy on the left and its glass
    illustration on the right, both centred vertically. With reduced motion the panels stack instead. */
-.flow { position: relative; color: var(--white); background: #fff; overflow-x: clip; }
+.flow { position: relative; color: var(--white); background: #fff; overflow-x: clip; margin-top: -1px; }
 /* Not clipped vertically: the shared marquee starts out up in the section above (see .flow__marquee). */
 .flow__pin { position: relative; }
 /* Figma's background spans the whole strip: one #01B0FF radial, very wide and 432px tall either side of the middle,
@@ -131,8 +131,9 @@
 .system {
   --system-angle: -11deg;
   position: relative; background: #fdfdfd; color: var(--brand-ink); overflow: clip;
-  /* Tucked 1px under the hero: the hero often ends on a fractional pixel, and its blue background showed through
-     that last, partly covered row as a faint line. */
+  /* Tucked 1px under the hero: section heights often land on fractional pixels (on phones especially), and the
+     page's black background showed through that last, partly covered row as a line. The sections after this one
+     (.flow, .ai, the closing .cta) tuck under the same way. */
   margin-top: -1px;
   padding: clamp(72px, 8.333vw, 120px) var(--gutter) clamp(56px, 8.125vw, 117px);
 }
@@ -165,7 +166,7 @@
 /* ---------- AI ---------- */
 /* "Practical AI that recruiters can trust" (Figma node 2364:692). The stage pins while the capability cards fly in as
    WebGL paper sheets (animations/ai.ts, shared/paper-cards.ts). Near-white, with a blue glow rising from below. */
-.ai { position: relative; background: #fdfdfd; color: #171717; --ai-pad: clamp(20px, 5.556vw, 80px); }
+.ai { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; --ai-pad: clamp(20px, 5.556vw, 80px); }
 .ai__stage { position: relative; min-height: 100vh; min-height: 100lvh; padding: clamp(calc(var(--nav-h) + 24px), 8.333vw, 120px) var(--ai-pad) clamp(64px, 8vw, 120px); overflow-x: clip; }
 /* Figma's glow (its colours and opacity) rises from below the stage. The stage used to clip it mid-glow, a hard line
    under the cards, and the closing CTA now starts right at the stage's bottom edge, so the glow stays inside the stage:
