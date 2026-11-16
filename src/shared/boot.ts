@@ -43,6 +43,8 @@ export async function boot({ page, render, init }: Options) {
   // arriving from another page of the site plays the page transition instead.
   const moved = takePageTransition();
   const revealed = reduce ? Promise.resolve((hideCurtain(), hideIntro())) : moved ? playPageTransition(page) : playCloudIntro();
+  // The intro's white cover is up (or, with reduced motion, the page itself): the body can take its own colour.
+  document.documentElement.classList.remove('booting');
 
   await document.fonts.ready;
 
