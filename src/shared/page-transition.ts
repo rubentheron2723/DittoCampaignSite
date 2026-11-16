@@ -342,7 +342,9 @@ export function playPageTransition(page: PageId): Promise<void> {
   const turn = ((heading - FIGMA_HEADING) * Math.PI) / 180;
   const dir = [Math.cos((heading * Math.PI) / 180), Math.sin((heading * Math.PI) / 180)];
 
-  return loadClouds(2500).then(
+  // The clouds are preloaded (see the pages' <head>) and usually cached; if they're slow, the veil goes without them
+  // rather than holding the page back.
+  return loadClouds(600).then(
     (img) =>
       new Promise<void>((resolve) => {
         const renderer = img ? (webglRenderer(canvas, img, turn) ?? canvasRenderer(canvas, img, turn)) : null;

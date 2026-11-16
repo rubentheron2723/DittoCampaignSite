@@ -718,7 +718,10 @@ export function coverAndGo(href: string) {
   qa('.intro__clouds, .intro__mark, .intro__white', intro).forEach((el) => gsap.set(el, { autoAlpha: 0 }));
   intro.classList.remove('intro--page');
   intro.style.display = '';
-  gsap.fromTo(intro, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: 'power2.inOut', onComplete: () => (window.location.href = href) });
+  // The next page is requested a moment into the fade rather than after it, so fetching it overlaps the fade instead of
+  // following it. This page stays on screen, fading, until the next one is ready to show (which starts white too).
+  gsap.fromTo(intro, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.28, ease: 'power2.out' });
+  window.setTimeout(() => (window.location.href = href), 120);
 }
 
 export function hideIntro() {
