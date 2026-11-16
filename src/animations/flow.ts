@@ -9,8 +9,9 @@ const SPEED = 85;
  *
  * The big slanted marquee is one element shared with the section above ("Everything recruiters do."):
  *   1. While that section is on screen it is that section's black "Source. Engage. Place." line, at its flat slant.
- *   2. As this section scrolls up to pin, it glides up to the top of this section, tilts into Figma's 3D slant,
- *      grows, turns white and rolls over to "Source.".
+ *   2. As this section scrolls up to pin, it glides up to the top of this section and grows; on the way it rolls
+ *      over to a faint white "Source." on Figma's 3D slant (the slant changes while no word is showing, so it never
+ *      warps).
  *   3. As the panels slide it rolls over to "Engage." and then "Place.".
  * It loops the whole time, along whatever slant it has.
  *
@@ -113,10 +114,11 @@ export function initFlow(animate: boolean) {
       scrollTrigger: { trigger: section, start: 'top bottom', end: 'top top', scrub: true },
     })
     .fromTo(move, { '--k': 1 }, { '--k': 0, duration: 1 }, 0)
-    .fromTo(tilt, { '--t': 0 }, { '--t': 1, duration: 0.7, ease: 'power1.inOut' }, 0.15)
-    .fromTo(tilt, { color: '#171717' }, { color: '#ffffff', duration: 0.4 }, 0.45)
-    .to(words.intro, { yPercent: -130, autoAlpha: 0, duration: 0.18, ease: 'power2.in' }, 0.5)
-    .fromTo(steps[0], { yPercent: 30, autoAlpha: 0 }, { yPercent: -50, autoAlpha: 1, duration: 0.24, ease: 'power2.out' }, 0.64);
+    // The black line rolls out on its flat slant; only once it's gone does the line switch to the 3D slant and white,
+    // so its shape never visibly morphs. Then "Source." rolls in, like the later word changes.
+    .to(words.intro, { yPercent: -130, autoAlpha: 0, duration: 0.2, ease: 'power2.in' }, 0.42)
+    .set(tilt, { '--t': 1, color: '#ffffff' }, 0.62)
+    .fromTo(steps[0], { yPercent: 30, autoAlpha: 0 }, { yPercent: -50, autoAlpha: 1, duration: 0.26, ease: 'power2.out' }, 0.62);
 
   // 2 → 3: one roll-over per panel change, halfway through each slide. Words leave on their inner wrapper and
   // arrive on the outer one, so this timeline never animates what the one above does ("Source." arriving).
