@@ -27,6 +27,7 @@ const SWEEP: Record<PageId, number> = {
   about: -180 - FIGMA_HEADING, // the design mirrored: off towards the top right
   faq: 180, // in from the right, off to the left
   contact: 90, // down from the top
+  signin: -FIGMA_HEADING, // off towards the bottom left
 };
 
 const DURATION = 1.2;

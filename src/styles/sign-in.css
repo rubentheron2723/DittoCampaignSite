@@ -1,0 +1,87 @@
+/* Sign in (Figma 2385:1678 / 1037 / 862). One screen: the home hero's sky on the left, fading to white under the form
+   panel on the right. No nav or footer here; the logo leads home. */
+body[data-page='signin'] .nav { display: none; }
+
+.signin {
+  --signin-gutter: clamp(20px, 5.556vw, 80px);
+  position: relative; min-height: 100svh; display: grid; grid-template-columns: minmax(0, 1fr) min(657px, 45.625vw);
+  align-items: center; overflow: clip;
+  /* Until the sky's first frame: its own blues. */
+  background: linear-gradient(180deg, #1e6ef3, #00b0ff);
+}
+.signin__bg { position: absolute; inset: 0; pointer-events: none; }
+.signin__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); }
+.signin--sky .signin__sky { opacity: 1; }
+.signin__fade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(254, 254, 254, 0) 18.715%, #fefefe 54.444%); }
+
+/* Left: logo, 64/68 bold headline and 24/28 medium line, in white, 40 apart. */
+.signin__intro { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 40px; max-width: 608px; padding: 0 24px 0 var(--signin-gutter); color: #fefefe; }
+.signin__logo { display: block; padding: 8px; margin: -8px; }
+.signin__logo .nav-logo { width: 156px; height: auto; }
+.signin__headline { margin: 0; font-size: clamp(40px, calc(40px + 24 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; }
+.signin__headline span { display: block; }
+.signin__lede { margin: 0; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
+
+/* Right: the white panel, the form centred in it, 40 apart. */
+.signin__panel { position: relative; z-index: 1; align-self: stretch; display: flex; align-items: center; background: #fff; padding: 80px var(--signin-gutter); }
+.sform { width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 40px; color: #171717; }
+.sform__title { margin: 0; font-size: clamp(40px, calc(40px + 24 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; color: #0f141d; }
+.sform__sub { margin: 0; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; color: #0f141d; }
+
+.sfield { display: flex; flex-direction: column; gap: 10px; }
+.sfield__label, .sfield__input, .sfield__error, .scheck, .sform__forgot { font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; }
+/* The glass pill: 68 tall, a faint white sheen and a wide soft shadow; a 1px #1E6EF3 edge while typing in it. */
+.sfield__box {
+  position: relative; display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 0 16px 0 20px; border-radius: 999px;
+  border: 1px solid transparent; background: linear-gradient(-87.3deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.64%);
+  box-shadow: 0 8px 100px rgba(0, 0, 0, 0.1); transition: border-color 0.25s var(--ease-out);
+}
+.sfield__box:focus-within { border-color: #1e6ef3; }
+.sfield__input { flex: 1; min-width: 0; height: 66px; padding: 0; border: 0; background: none; color: #171717; font-family: inherit; outline: none; }
+.sfield__input::placeholder { color: rgba(23, 23, 23, 0.4); opacity: 1; }
+.sfield__show {
+  flex: none; height: 36px; padding: 0 20px; border-radius: 999px; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717;
+  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.6) 0.28%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 50px rgba(0, 0, 0, 0.2);
+  transition: filter 0.2s;
+}
+.sfield__show:hover { filter: brightness(0.97); }
+.sfield__show:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 2px; }
+/* Errors (Figma 2385:862) in orange under the pill; empty, they take no space. */
+.sfield__error { margin: 0; color: #fa5a02; }
+.sfield__error:empty { display: none; }
+
+.sform__row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.scheck { position: relative; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+.scheck__input { position: absolute; opacity: 0; width: 28px; height: 28px; margin: 0; cursor: pointer; }
+.scheck__box {
+  position: relative; flex: none; width: 28px; height: 28px; border-radius: 12px;
+  background: linear-gradient(-89.6deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.64%); box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+  transition: background 0.25s var(--ease-out);
+}
+.scheck__box::after {
+  content: ''; position: absolute; left: 10px; top: 6px; width: 6px; height: 12px; border: solid #fefefe; border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0.4); opacity: 0; transition: transform 0.3s var(--ease-out), opacity 0.2s;
+}
+.scheck__input:checked + .scheck__box { background: linear-gradient(-80deg, #1e6ef3 0.875%, #00b0ff 100%); }
+.scheck__input:checked + .scheck__box::after { opacity: 1; transform: rotate(45deg) scale(1); }
+.scheck__input:focus-visible + .scheck__box { outline: 2px solid #1e6ef3; outline-offset: 2px; }
+.sform__forgot { color: #171717; text-decoration: underline; text-underline-position: from-font; }
+.sform__forgot:hover { opacity: 0.6; }
+
+.sform__submit {
+  align-self: center; height: 68px; padding: 0 44px; border-radius: 999px; font-size: clamp(18px, calc(18px + 2 * (100vw - 375px) / 1065), 20px);
+  line-height: 24px; letter-spacing: -0.04em; color: #fefefe; white-space: nowrap;
+  background: linear-gradient(-82.7deg, #1e6ef3 0.875%, #00b0ff 100%); box-shadow: 0 8px 50px rgba(30, 110, 243, 0.35); transition: filter 0.2s;
+}
+.sform__submit:hover { filter: brightness(1.06); }
+.sform__submit:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 3px; }
+.sform__submit:disabled { filter: saturate(0.6); cursor: progress; }
+
+/* Narrow screens: the sky and intro on top, the form below in the white. */
+@media (max-width: 900px) {
+  .signin { grid-template-columns: 1fr; align-items: stretch; }
+  .signin__fade { background: linear-gradient(180deg, rgba(254, 254, 254, 0) 26%, #fefefe 46%); }
+  .signin__intro { padding: 72px var(--signin-gutter) 48px; gap: 28px; }
+  .signin__panel { padding: 48px var(--signin-gutter) 72px; background: none; }
+  .sform { gap: 28px; }
+}
