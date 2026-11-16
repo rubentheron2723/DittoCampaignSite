@@ -42,113 +42,88 @@
 
 /* ---------- FLOW ---------- */
 /* Source → Engage → Place (Figma node 2370:194): three 1440x1024 panels side by side, slid sideways as the section
-   pins (animations/flow.ts). Each panel: the step's name as a huge slanted marquee near the top, copy bottom left
-   and the isometric illustration on the background at the right. With reduced motion the panels stack instead. */
+   pins (animations/flow.ts). Each panel: a field of faint slanted lines of its word, the copy on the left and its glass
+   illustration on the right, both centred vertically. With reduced motion the panels stack instead. */
 .flow { position: relative; color: var(--white); background: #fff; overflow-x: clip; }
 /* Not clipped vertically: the shared marquee starts out up in the section above (see .flow__marquee). */
 .flow__pin { position: relative; }
-/* Figma's background spans the whole strip: a #01B0FF radial from just past the right end (so it deepens toward
-   Place), over a radial from the bottom edge (#1E6EF3 → #108FF9 12.5% → #01B0FF 25% → clear at the top), over white. */
+/* Figma's background spans the whole strip: one #01B0FF radial, very wide and 432px tall either side of the middle,
+   centred 1867px along the 4320px strip, over white. So every panel is white at the top and bottom (meeting the
+   sections around it) with a soft blue band through the middle. */
 .flow__bg {
   position: absolute; left: 0; top: 0; width: 300%; height: 100%;
-  background:
-    radial-gradient(65.7% 4650% at 107.9% 50%, #01b0ff 0%, rgba(1, 176, 255, 0) 100%),
-    radial-gradient(397% 100% at 50% 100%, #1e6ef3 0%, #108ff9 12.5%, #01b0ff 25%, rgba(1, 176, 255, 0) 100%),
-    #fff;
+  background: radial-gradient(167.67% 42.19% at 43.23% 50%, #01b0ff 0%, rgba(1, 176, 255, 0) 100%), #fff;
 }
-/* The panels sit above the marquee, which sits above the background; the background slides with the panels. */
+/* The panels sit above the shared marquee, which sits above the background; the background slides with the panels. */
 .flow__strip { position: relative; z-index: 2; display: flex; width: max-content; }
 .fpanel {
   position: relative; width: 100vw; height: 100vh; overflow: clip;
-  display: flex; align-items: flex-end; gap: 20px;
-  padding: 0 clamp(24px, 2.778vw, 40px) clamp(40px, 11.72vh, 120px);
+  display: flex; align-items: center; gap: 20px;
+  padding: clamp(80px, 11.72vh, 120px) clamp(24px, 2.778vw, 40px);
 }
 
-/* The shared marquee (animations/flow.ts). Its CSS is its starting state (the black line in the section above): GSAP
-   clears a tween's inline styles on refresh until the scroll reaches it, so whatever shows then must be the start.
-   The anchor sits where Source's word is centred in Figma. The tilt switches (while no word is showing) from the section above's flat -11deg slant (--t: 0) to Figma's rotateX(-22deg) rotateY(32deg) (--t: 1, no
-   perspective, so drawn flat as in Figma); the move wrapper carries it down from the section above and scales it from
-   that section's 146px to this one's 164px. Each word starts a quarter in so its track covers both sides while it loops. */
-.flow__marquee { position: absolute; left: 43.87%; top: 28.3%; width: 0; height: 0; z-index: 1; pointer-events: none; }
+/* The shared marquee (animations/flow.ts): the section above's black line, carried into this one. Its CSS is its
+   starting state (that black line): GSAP clears a tween's inline styles on refresh until the scroll reaches it, so
+   whatever shows then must be the start. The move wrapper carries it down from the section above (--k, --dx, --dy, --g
+   are measured on refresh); the tilt is the section above's flat -11deg slant. It rolls out as the Source field fades
+   in. The word starts a quarter in so its track covers both sides while it loops. */
+.flow__marquee { position: absolute; left: 46.3%; top: 33%; width: 0; height: 0; z-index: 1; pointer-events: none; }
 .flow__mq-move, .flow__mq-tilt { position: absolute; left: 0; top: 0; width: 0; height: 0; }
 .flow__mq-move {
   --k: 1; --dx: 0px; --dy: 0px; --g: 1;
   transform: translate(calc(var(--dx) * var(--k)), calc(var(--dy) * var(--k))) scale(calc(var(--g) + (1 - var(--g)) * var(--k)));
 }
 .flow__mq-tilt {
-  --t: 0; color: var(--brand-ink);
-  transform: rotate(calc(-11deg * (1 - var(--t)))) rotateX(calc(-22deg * var(--t))) rotateY(calc(32deg * var(--t)));
+  color: var(--brand-ink); transform: rotate(-11deg);
   font-size: clamp(60px, 10.14vw, 146px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; text-transform: uppercase;
 }
 .flow__mq-word { position: absolute; left: 0; top: 0; width: max-content; transform: translate(-25%, -50%); }
-.flow__mq-word:not([data-word='intro']) { visibility: hidden; }
-.flow__mq-word[data-word='engage'] { color: #eaf8ff; }
 .flow__mq-track { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
-/* On the blue the step words sit back behind the copy and illustrations. */
-.flow__mq-word:not([data-word='intro']) .flow__mq-track { opacity: 0.35; }
-.flow__mq-track span { padding-right: 0.22em; }
-.flow__mq-word[data-word='intro'] span { padding-right: 0.3em; }
-/* Each panel's own still word: only with reduced motion, when the shared marquee is off. */
-.flow:not(.flow--stacked) .fpanel__words { display: none; }
+.flow__mq-track span { padding-right: 0.3em; }
 .flow--stacked .flow__marquee { display: none; }
 
-/* The slanted word. Figma's transform is rotateX(-22deg) rotateY(32deg) with no perspective, which CSS draws the same
-   way (flat). 164 bold, -0.04em at 1440. The track holds two identical halves so the marquee loops by sliding one
-   half; the word starts a quarter in, so the track still covers both sides at the end of each loop. */
-/* Each panel clips its own word; a short fade at the panel's sides softens that edge while the panels slide. */
+/* Each panel's field: eight lines of its word, 164 bold, -0.04em at 1440, white at 5%, on Figma's rotateX(-22deg)
+   rotateY(32deg) slant (no perspective, which CSS draws flat, as Figma does). Clipped to the panel, with a short fade at
+   its sides to soften that edge while the panels slide. Each line loops as a marquee (two identical halves). */
 .fpanel__words {
   position: absolute; inset: 0; pointer-events: none;
   -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
   mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
 }
 .fpanel__plane {
-  position: absolute; left: var(--wx); top: var(--wy); width: 0; height: 0;
+  position: absolute; left: 46.3%; top: var(--wy); width: 0; height: 0;
   transform: rotateX(-22deg) rotateY(32deg);
   font-size: clamp(64px, 11.39vw, 164px); line-height: 1.122; letter-spacing: -0.04em; font-weight: 700; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.05);
 }
 .fpanel__word { position: absolute; left: 0; top: 0; width: max-content; transform: translate(-25%, -50%); }
-.fpanel[data-act='engage'] .fpanel__word { color: #eaf8ff; }
-.fpanel__word { opacity: 0.35; }
 .fpanel__track { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
 .fpanel__track span { padding-right: 0.22em; }
 
 /* 40/44 bold, 24/28 medium, 20/24 regular, all -0.04em at 1440; 760 wide at 1440. */
-.fpanel__copy { position: relative; flex: 1 1 0; min-width: 0; max-width: 760px; display: grid; gap: 17px; margin-bottom: clamp(0px, 7.81vh, 80px); }
+.fpanel__copy { position: relative; flex: 1 1 0; min-width: 0; max-width: 760px; display: grid; gap: 17px; }
 .fpanel__title { font-size: clamp(26px, calc(26px + 14 * (100vw - 375px) / 1065), 40px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; }
 .fpanel__lead { font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
 .fpanel__text { display: grid; gap: 1.2em; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; }
 
-/* The illustration in Figma's 580x556 "Cards" slot, scaled down on shorter screens. */
-.fpanel__art { position: relative; flex: none; width: min(580px, 42vw, calc((100vh - 240px) * 1.043)); aspect-ratio: 580 / 556; }
+/* The illustration (shared/flow-art.ts) centred in Figma's 580x556 "Cards" slot, scaled down on shorter screens. */
+.fpanel__art { position: relative; flex: none; width: min(580px, 42vw, calc((100vh - 200px) * 1.043)); aspect-ratio: 580 / 556; }
 .fstep__art { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
 
-/* Isometric step art (shared/flow-art.ts), drawn straight on the panels' background. Faces come last so their fill wins over the stroke classes. */
-.art-line { fill: none; stroke: rgba(15, 20, 29, 0.55); stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-.art-line--soft { stroke: rgba(15, 20, 29, 0.14); }
-.art-faint { fill: none; stroke: rgba(15, 20, 29, 0.2); stroke-width: 1; stroke-dasharray: 3 4; vector-effect: non-scaling-stroke; }
-.art-faint--blue { stroke: rgba(0, 140, 210, 0.7); }
-.art-blue { fill: none; stroke: #0096e0; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-.art-blue--thick { stroke-width: 3; }
-.art-face { fill: var(--white); }
-.art-face--blue { fill: #d9f1ff; }
-.art-dot { fill: #0096e0; }
-/* On the blue, the dashed guides read in white. */
-.fpanel__art .art-faint { stroke: rgba(255, 255, 255, 0.6); }
-.fpanel__art .art-faint--blue { stroke: rgba(255, 255, 255, 0.9); }
-
-/* Phones: the illustration above the copy, both at the bottom; the word higher up. */
+/* Phones: the illustration above the copy, the pair centred in what's left under the nav. */
 @media (max-width: 900px) {
-  /* The top is kept for the word; the illustration takes what's left between it and the copy. */
-  .fpanel { flex-direction: column; align-items: stretch; justify-content: flex-end; gap: 16px; padding: calc(var(--nav-h) + 16vh) var(--gutter) clamp(32px, 6vh, 56px); }
-  .fpanel__plane, .flow__marquee { top: calc(var(--nav-h) + 8vh); }
-  .fpanel__copy { flex: none; margin-bottom: 0; }
-  .fpanel__art { order: -1; flex: 1 1 0; width: 100%; min-height: 120px; max-height: 320px; aspect-ratio: auto; }
+  /* The stacked illustration and copy run taller than Figma's band, so the blue holds further out (still white at the
+     top and bottom edges), keeping the white copy readable. */
+  .flow__bg { background: radial-gradient(167.67% 50% at 43.23% 50%, #01b0ff 0%, rgba(1, 176, 255, 0.85) 55%, rgba(1, 176, 255, 0) 100%), #fff; }
+  .fpanel { flex-direction: column; align-items: stretch; justify-content: center; gap: 16px; padding: calc(var(--nav-h) + 16px) var(--gutter) clamp(32px, 6vh, 56px); }
+  .fpanel__copy { flex: none; }
+  .fpanel__art { order: -1; flex: 0 1 auto; width: 100%; height: min(36vh, 320px); aspect-ratio: auto; }
 }
 
-/* Reduced motion: no sideways scroll; the panels stack and keep their full-screen layout. */
+/* Reduced motion: no sideways scroll; the panels stack and keep their full-screen layout, each with its own band. */
 .flow--stacked .flow__strip { flex-direction: column; width: auto; }
-.flow--stacked .flow__bg { width: 100%; }
-.flow--stacked .fpanel { min-height: 100vh; height: auto; }
+.flow--stacked .flow__bg { display: none; }
+.flow--stacked .fpanel { min-height: 100vh; height: auto; background: radial-gradient(503% 42.19% at 50% 50%, #01b0ff 0%, rgba(1, 176, 255, 0) 100%), #fff; }
 
 /* ---------- SYSTEM ---------- */
 /* "Everything recruiters do." (Figma node 2364:777, 1440x1024): centred headline and copy, then the slanted
