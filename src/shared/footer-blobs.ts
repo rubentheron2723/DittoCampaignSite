@@ -28,7 +28,7 @@ export type BlobParams = {
 };
 
 /** Settings from the Figma footer's Moving blobs effect. */
-const PARAMS: BlobParams = {
+export const FOOTER_BLOBS: BlobParams = {
   mode: 'Displacement',
   region: 'Edges Only',
   strength: 11,
@@ -404,7 +404,7 @@ export function initFooterBlobs(reduce: boolean) {
     return;
   }
 
-  const u = deriveUniforms(PARAMS);
+  const u = deriveUniforms(FOOTER_BLOBS);
   const vao = gl.createVertexArray();
   const layer = document.createElement('canvas');
   const layerCtx = layer.getContext('2d')!;
@@ -491,7 +491,7 @@ export function initFooterBlobs(reduce: boolean) {
   const render = (now: number) => {
     // Speed 0 (or reduced motion) holds Figma's starting phase.
     let phase = 0.45;
-    if (!reduce && PARAMS.speed > 0) {
+    if (!reduce && FOOTER_BLOBS.speed > 0) {
       phase = (now - start) / 1000 / u.loopLength + 0.45;
       phase -= Math.floor(phase);
     }

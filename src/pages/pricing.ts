@@ -3,7 +3,9 @@ import '../styles/pricing.css';
 
 import { ANNUAL_MULTIPLIER, calculator, guarantees, hero, nextSteps, tierForUsers, tiers, type Currency } from '../content/pricing';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
+import { initBlobBackdrop } from '../shared/blob-backdrop';
 import { boot } from '../shared/boot';
+import { FOOTER_BLOBS } from '../shared/footer-blobs';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
 import { Draggable, gsap, q, qa } from '../animations/gsap';
@@ -14,8 +16,8 @@ import { fadeUp, rollNumber, splitReveal } from '../shared/motion';
  * Pricing (Figma 2378:655 hero, 2378:786 calculator; the third section is designed to match them).
  *   1. Hero: the home hero's cloud sky and bubbles (the frame uses the same shader settings), centred white copy and a
  *      glass "Get started" pill.
- *   2. Calculator on #fdfdfd, one screen (1024 at 1440): the headline, toggles, plan cards and slider at the top; the
- *      plan, three big totals and a blue "Book a demo" at the bottom.
+ *   2. Calculator on #fdfdfd (one screen at 1440), under the footer's Moving blobs: the headline and toggles; the plan
+ *      cards over the slider on the left and the price check on the right; a blue "Book a demo" centred below.
  *   3. "From first call to first placement": the five steps as glass rows with big blue numbers, then the four
  *      guarantees as glass cards.
  */
@@ -39,7 +41,7 @@ function render() {
   </section>
 
   <section class="calc" id="calculator" data-theme="light">
-    <div class="calc__top">
+    <canvas class="calc__fx" aria-hidden="true"></canvas>
     <header class="calc__head">
       <h2 class="ptitle calc__title"><span>${esc(calculator.titleOne)}</span><span>${esc(calculator.titleTwo)}</span></h2>
       <p class="psub">${esc(calculator.description)}</p>
@@ -59,39 +61,41 @@ function render() {
         </div>
       </div>
 
-      <div class="calc__pick">
-        <div class="lcards" id="tiers-row">
-          ${tiers
-            .map(
-              (t) => `<button type="button" class="lcard" data-min="${t.min}" data-label="${t.label}">
-                <b>${esc(t.label)}</b><span>${esc(t.rangeLabel)}</span>
-              </button>`,
-            )
-            .join('')}
-        </div>
-        <div class="slider" id="slider">
-          <div class="slider__track"><div class="slider__fill"></div>
-            ${tiers.map((t) => `<span class="slider__tick" style="left:${((t.min - 1) / 99) * 100}%"><b>${t.min}</b></span>`).join('')}
-            <span class="slider__tick slider__tick--end" style="left:100%"><b>100</b></span>
+      <div class="calc__body">
+        <div class="calc__pick">
+          <div class="lcards" id="tiers-row">
+            ${tiers
+              .map(
+                (t) => `<button type="button" class="lcard" data-min="${t.min}" data-label="${t.label}">
+                  <b>${esc(t.label)}</b><span>${esc(t.rangeLabel)}</span>
+                </button>`,
+              )
+              .join('')}
           </div>
-          <button type="button" class="slider__knob" id="knob" aria-label="Recruiter count" aria-valuemin="1" aria-valuemax="100" aria-valuenow="7" role="slider">
-            <span class="slider__value" id="slider-value">7</span>
-          </button>
+          <div class="slider" id="slider">
+            <div class="slider__track"><div class="slider__fill"></div>
+              ${tiers.map((t) => `<span class="slider__tick" style="left:${((t.min - 1) / 99) * 100}%"><b>${t.min}</b></span>`).join('')}
+              <span class="slider__tick slider__tick--end" style="left:100%"><b>100</b></span>
+            </div>
+            <button type="button" class="slider__knob" id="knob" aria-label="Recruiter count" aria-valuemin="1" aria-valuemax="100" aria-valuenow="7" role="slider">
+              <span class="slider__value" id="slider-value">7</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="quote" id="quote">
+          <p class="quote__tier"><span id="q-tier">Starter</span> <em id="q-range">1 – 9 users</em></p>
+          <div class="quote__rate"><strong id="q-rate">R949</strong><span>${esc(calculator.perLicense)}</span></div>
+          <div class="quote__totals">
+            <div class="quote__total"><strong id="q-total">R6,643</strong><span id="q-period">Monthly total</span></div>
+            <div class="quote__total"><strong id="q-users">7</strong><span>Recruiters</span></div>
+          </div>
+          <p class="quote__enterprise" id="q-enterprise">${esc(calculator.enterprise)}</p>
         </div>
       </div>
-    </div>
     </div>
 
-    <div class="quote" id="quote">
-      <p class="quote__tier"><span id="q-tier">Starter</span> <em id="q-range">1 – 9 users</em></p>
-      <div class="quote__totals">
-        <div class="quote__total"><strong id="q-rate">R949</strong><span>${esc(calculator.perLicense)}</span></div>
-        <div class="quote__total quote__total--mid"><strong id="q-total">R6,643</strong><span id="q-period">Monthly total</span></div>
-        <div class="quote__total quote__total--end"><strong id="q-users">7</strong><span>Recruiters</span></div>
-        <a class="bbtn calc__cta" href="/contact" data-magnetic>Book a demo</a>
-      </div>
-      <p class="quote__enterprise" id="q-enterprise">${esc(calculator.enterprise)}</p>
-    </div>
+    <a class="bbtn calc__cta" href="/contact" data-magnetic>Book a demo</a>
   </section>
 
   <section class="pnext" data-theme="light">
@@ -235,6 +239,7 @@ boot({
     initClouds(q('.phero')!, q<HTMLCanvasElement>('.phero__sky')!, 'phero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
+    initBlobBackdrop(q('.calc')!, q<HTMLCanvasElement>('.calc__fx')!, 'calc--fx', FOOTER_BLOBS, [253, 253, 253], reduce);
     initCalculator(!reduce);
     if (reduce) return;
 
@@ -249,7 +254,7 @@ boot({
     splitReveal('.calc__title span', { by: 'words' });
     fadeUp('.calc__head .psub, .calc__controls', '.calc__head', { y: 24 });
     fadeUp('.lcard, .slider', '.calc__pick', { y: 30, stagger: 0.06 });
-    fadeUp('.quote__tier, .quote__total, .calc__cta', '.quote', { y: 30, stagger: 0.08 });
+    fadeUp('.quote > *, .calc__cta', '.quote', { y: 30, stagger: 0.08 });
 
     splitReveal('.pnext__title', { by: 'words' });
     fadeUp('.pstep', '.pnext__steps', { y: 40, stagger: 0.1 });
