@@ -198,6 +198,9 @@ uniform vec2 uDims;
 // Parting (0 = none): a clear sweep runs from the bottom-left corner to the top-right, pushing
 // the clouds ahead of it, and the sky flattens to uFlat.
 uniform float uPart;
+// A white fade drawn into the sky, so the bubbles pass distorts it too: x = start, y = end (0-1 along the axis),
+// z = axis (0 = left to right, 1 = top to bottom), w = on.
+uniform vec4 uFade;
 uniform vec3 uFlat;
 
 in vec2 vUv;
@@ -343,7 +346,10 @@ void main() {
   float diag = (p.x + (1.0 - p.y)) * 0.5;
   float front = uPart * 1.5 - 0.3;
   blend *= smoothstep(front, front + 0.25, diag);
-  outColor = vec4(mix(sky, cloud, blend), 1.0);
+  vec3 col = mix(sky, cloud, blend);
+  float along = uFade.z < 0.5 ? p.x : p.y;
+  col = mix(col, vec3(254.0 / 255.0), uFade.w * clamp((along - uFade.x) / max(uFade.y - uFade.x, 0.0001), 0.0, 1.0));
+  outColor = vec4(col, 1.0);
 }`;
 
 function compile(gl: WebGL2RenderingContext) {
@@ -386,6 +392,11 @@ export type SkyOptions = {
    * constant in seconds (higher = slower, smoother).
    */
   follow?: { x: number; y: number; angle: number; lag: number };
+  /**
+   * Fade the sky to white (#FEFEFE) inside the shader, before the bubbles, so they ripple across the fade as Figma's
+   * frame-wide effect does. Read every frame: [start, end] as fractions along the axis, and the axis.
+   */
+  fade?: () => { from: number; to: number; axis: 'x' | 'y' } | null;
 };
 const running = new WeakMap<HTMLCanvasElement, Clouds>();
 
@@ -449,6 +460,7 @@ export function initClouds(
   gl.uniform3f(loc('uFlat'), 0, 0.6902, 1); // #00B0FF
   let part = 0;
   const dimsLoc = loc('uDims');
+  const fadeLoc = loc('uFade');
   const baseEvolution = -5 + (p.evolution / 100) * 10;
 
   // With bubbles, the sky renders into a texture that the blobs pass then distorts onto the screen.
@@ -531,6 +543,8 @@ export function initClouds(
       gl.uniform1f(evolutionLoc, baseEvolution + t * DRIFT);
     }
     gl.uniform2f(dimsLoc, canvas.width, canvas.height);
+    const fade = opts.fade?.();
+    gl.uniform4f(fadeLoc, fade?.from ?? 0, fade?.to ?? 1, fade?.axis === 'y' ? 1 : 0, fade ? 1 : 0);
     gl.uniform1f(partLoc, part);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (bubbles && skyTex) bubbles.draw(skyTex, now, reduce);
