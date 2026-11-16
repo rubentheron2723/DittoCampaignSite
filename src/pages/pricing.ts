@@ -18,8 +18,8 @@ import { fadeUp, rollNumber, splitReveal } from '../shared/motion';
  *      glass "Get started" pill.
  *   2. Calculator on #fdfdfd (one screen at 1440), under the footer's Moving blobs: the headline and toggles; the plan
  *      cards over the slider on the left and the price check on the right; a blue "Book a demo" centred below.
- *   3. "From first call to first placement": the five steps as glass rows with big blue numbers, then the four
- *      guarantees as glass cards.
+ *   3. "From first call to first placement" (Figma 2378:1018): five numbered steps in a centred column, with the four
+ *      guarantees as tilted cards around them. Sections 2 and 3 share one #fdfdfd field and one pinned blob layer.
  */
 function render() {
   const main = document.getElementById('main')!;
