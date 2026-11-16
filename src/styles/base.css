@@ -127,8 +127,8 @@ svg { display: block; }
 .nav--hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
 /* Frosted glass once the page scrolls (Figma 2378:325): a 10% white fill with Figma's Glass effect (frost 71, light from
    320deg at 30%, depth 21) and no border. CSS has no Glass effect, so: a heavy backdrop blur for the frost, a little
-   saturation for the refraction, and a faint highlight along the lit top edge. The same glass over light and dark
-   sections; only the text colour changes. */
+   saturation for the refraction, and a faint highlight along the lit top edge. Over light sections (Figma 2378:445)
+   the same glass is tinted with 10% ink instead. */
 .nav::before {
   content: ''; position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 45%), rgba(255, 255, 255, 0.1);
@@ -137,6 +137,7 @@ svg { display: block; }
   opacity: 0; transition: opacity 0.35s var(--ease-out);
 }
 .nav--solid::before { opacity: 1; }
+.nav--on-light::before { background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 45%), rgba(23, 23, 23, 0.1); }
 .nav--on-light { color: var(--brand-ink); }
 .nav__brand, .nav__links, .nav__actions { position: relative; z-index: 1; display: flex; align-items: center; }
 /* Logo: 93.2 x 24 with an 8px hit area around it, one colour (shared/nav-logo.ts). */
@@ -147,7 +148,9 @@ svg { display: block; }
 .nav__links a, .nav__signin { font-size: 16px; line-height: 20px; font-weight: 400; transition: opacity 0.2s; }
 .nav__links a:hover, .nav__signin:hover { opacity: 0.6; }
 .nav__actions { gap: 16px; }
-/* Glass pill, 36 tall: dark glass with white text over light sections, light glass with ink text over dark ones. */
+/* Glass pill, 36 tall: light glass with ink text over dark sections (Figma 2378:262); over light sections (2378:372)
+   a white-to-clear glass with Figma's small Glass effect (frost 4, light from -45deg at 80%): a light backdrop blur and
+   a bright edge on the lit side. Figma sets its text white, which barely shows on light sections, so it's ink here. */
 .nav__cta {
   display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 20px; border-radius: 999px;
   font-size: 16px; line-height: 20px; font-weight: 400; letter-spacing: -0.04em; white-space: nowrap;
@@ -156,8 +159,10 @@ svg { display: block; }
   transition: color 0.35s var(--ease-out), filter 0.2s;
 }
 .nav--on-light .nav__cta {
-  color: #fff;
-  background: linear-gradient(-76.45deg, rgba(23, 23, 23, 0.6) 56.239%, rgba(23, 23, 23, 0) 100%), linear-gradient(-75.24deg, rgba(255, 255, 255, 0.6) 0.279%, rgba(255, 255, 255, 0) 100%);
+  color: var(--brand-ink);
+  background: linear-gradient(-76.45deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%);
+  box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25), inset 1px 1px 0 rgba(255, 255, 255, 0.8), inset -1px -1px 0 rgba(255, 255, 255, 0.25);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
 }
 .nav__cta:hover { filter: brightness(1.08); }
 .menu-toggle { display: none; position: relative; z-index: 2; width: 40px; height: 40px; border-radius: 50%; flex-direction: column; justify-content: center; align-items: center; gap: 6px; }
