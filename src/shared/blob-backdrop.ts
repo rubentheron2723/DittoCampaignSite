@@ -39,7 +39,8 @@ export function initBlobBackdrop(section: HTMLElement, canvas: HTMLCanvasElement
     canvas.width = w;
     canvas.height = h;
     pass.resize(w, h);
-    if (!raf) frame(performance.now());
+    // Resizing clears the canvas (to black, as it is opaque): redraw before the browser paints it.
+    frame(performance.now());
   };
   resize();
   new ResizeObserver(resize).observe(section);

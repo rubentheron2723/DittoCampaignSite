@@ -96,8 +96,15 @@
   background: linear-gradient(-80deg, #1e6ef3 0.875%, #00b0ff 100%); box-shadow: 0 8px 100px rgba(30, 110, 243, 0.35); transition: filter 0.2s;
 }
 .bbtn:hover { filter: brightness(1.06); }
-.quote__enterprise { display: none; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); max-width: 32ch; }
-.quote--enterprise .quote__enterprise { display: block; }
+/* The Enterprise note hangs under the price check without taking space, so the section's height (and the button
+   below) never moves; it fades in and out. Stacked layouts reserve its space instead. */
+.quote { position: relative; }
+.quote__enterprise {
+  position: absolute; top: calc(100% + 12px); right: 0; width: max-content; max-width: 32ch;
+  font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6);
+  opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out), visibility 0s 0.35s;
+}
+.quote--enterprise .quote__enterprise { opacity: 1; visibility: visible; transform: none; transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out), visibility 0s; }
 
 /* The existing slider (kept as it was). */
 .slider { position: relative; margin-top: 56px; padding-bottom: 36px; }
@@ -137,6 +144,7 @@
   .quote__rate { justify-items: start; }
   .quote__totals { justify-content: flex-start; }
   .quote__total { justify-items: start; text-align: left; }
+  .quote__enterprise { position: static; width: auto; }
   .pnext__promises { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
