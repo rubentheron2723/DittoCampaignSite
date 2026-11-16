@@ -43,11 +43,14 @@
 .phero__body { font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; }
 
 /* ---------- 2. Calculator ---------- */
+/* One screen (Figma: 1024 tall at 1440, 120 padding): the controls block at the top, the totals at the bottom. */
 .calc {
   position: relative; margin-top: -1px; background: #fdfdfd; color: #171717;
-  display: flex; flex-direction: column; gap: clamp(32px, 2.778vw, 40px); padding: clamp(80px, 8.333vw, 120px) clamp(20px, 5.556vw, 80px);
+  display: flex; flex-direction: column; justify-content: space-between; gap: 64px;
+  min-height: 100vh; min-height: 100lvh; padding: clamp(80px, 8.333vw, 120px) clamp(20px, 5.556vw, 80px);
 }
-.calc__head { display: grid; gap: clamp(20px, 2.778vw, 40px); }
+.calc__top { display: grid; gap: 40px; }
+.calc__head { display: grid; gap: 40px; }
 .calc__area { display: grid; gap: 40px; }
 .calc__controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
 /* Glass toggle: a glass track with the chosen option on a raised glass pill (moved by animations in pricing.ts). */
@@ -67,18 +70,26 @@
 .lcard span { color: rgba(23, 23, 23, 0.6); white-space: nowrap; }
 .lcard:hover { transform: translateY(-2px); }
 .lcard.is-active { border-color: #00b0ff; box-shadow: 0 1px 50px rgba(0, 0, 0, 0.25); }
-/* Room above the track for the value bubble is a margin, not padding: the knob is placed from the slider's top edge. */
-.calc__pick .slider { flex: 1 1 0; min-width: 0; margin-top: 48px; padding-bottom: 36px; }
+/* The slider in Figma's 569-wide slot, 80 to the right of the cards. Its value bubble rises above the row and its tick
+   labels sit below the track, so the track itself lines up with the middle of the cards. */
+.calc__pick .slider { flex: 0 1 569px; min-width: 0; margin: 30px 0 0; padding-bottom: 30px; }
 /* The plan and the three totals: 84/88 bold figures over 24/28 medium labels. */
 .quote { display: grid; gap: 10px; }
 .quote__tier { font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
 .quote__tier em { font-style: normal; color: rgba(23, 23, 23, 0.6); margin-left: 4px; }
-.quote__totals { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.quote__totals { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .quote__total { display: grid; gap: 12px; }
 .quote__total--mid { justify-items: center; text-align: center; }
 .quote__total--end { justify-items: end; text-align: right; }
 .quote__total strong { font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .quote__total span { font-size: clamp(16px, calc(16px + 8 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
+/* Solid blue pill (Figma): #1E6EF3 into #00B0FF, white 20/24 text, a blue glow. */
+.bbtn {
+  display: inline-flex; align-items: center; justify-content: center; height: 68px; padding: 0 44px; border-radius: 999px; flex: none;
+  font-size: clamp(18px, calc(18px + 2 * (100vw - 375px) / 1065), 20px); line-height: 24px; letter-spacing: -0.04em; white-space: nowrap; color: #fff;
+  background: linear-gradient(-80deg, #1e6ef3 0.875%, #00b0ff 100%); box-shadow: 0 8px 100px rgba(30, 110, 243, 0.35); transition: filter 0.2s;
+}
+.bbtn:hover { filter: brightness(1.06); }
 .quote__enterprise { display: none; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
 .quote--enterprise .quote__enterprise { display: block; }
 
@@ -112,6 +123,8 @@
 /* ---------- Phones and tablets ---------- */
 @media (max-width: 1100px) {
   .calc__pick { flex-direction: column; align-items: stretch; gap: 24px; }
+  .calc__pick .slider { flex: none; margin-top: 40px; }
+  .quote__totals { flex-wrap: wrap; }
   .lcards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .lcard { width: auto; }
   .pnext__promises { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -120,8 +133,9 @@
   .lcards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .gseg { padding: 10px 12px; }
   .gseg button { padding: 8px 14px; }
-  .quote__totals { flex-direction: column; gap: 20px; }
+  .quote__totals { flex-direction: column; align-items: flex-start; gap: 20px; }
   .quote__total--mid, .quote__total--end { justify-items: start; text-align: left; }
+  .calc__cta { align-self: stretch; }
   .pstep { grid-template-columns: 1fr; gap: 12px; }
   .pnext__promises { grid-template-columns: 1fr; }
 }

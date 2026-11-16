@@ -144,6 +144,24 @@ function initNavTheme() {
   const nav = q('#nav')!;
   ScrollTrigger.create({ start: 'top -60', end: 'max', onToggle: (self) => nav.classList.toggle('nav--solid', self.isActive) });
 
+  // Out of the way while reading: the nav slides up as you scroll down and comes back as soon as you scroll up.
+  // Always shown near the top of the page and while the menu is open. A few pixels of slack stop it flickering.
+  const SHOW_ABOVE = 120;
+  const SLACK = 6;
+  let lastY = 0;
+  ScrollTrigger.create({
+    start: 0,
+    end: 'max',
+    onUpdate: (self) => {
+      const y = self.scroll();
+      if (y < SHOW_ABOVE || document.body.classList.contains('menu-open')) nav.classList.remove('nav--away');
+      else if (y - lastY > SLACK) nav.classList.add('nav--away');
+      else if (lastY - y > SLACK) nav.classList.remove('nav--away');
+      else return; // within the slack: keep the reference point until the move is clear
+      lastY = y;
+    },
+  });
+
   const lightSections = qa('[data-theme="light"]');
   // Declared before creating triggers: one can fire onToggle immediately (e.g. reloading mid-page).
   let triggers: ScrollTrigger[] = [];
