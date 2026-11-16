@@ -10,6 +10,7 @@ import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
 import { Draggable, gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, rollNumber, splitReveal } from '../shared/motion';
+import { initPricingCards } from '../animations/pricing-cards';
 
 /* ---------- Render ---------- */
 /**
@@ -102,6 +103,7 @@ function render() {
   </section>
 
   <section class="pnext" data-theme="light">
+    <canvas class="pnext__canvas" aria-hidden="true"></canvas>
     <h2 class="ptitle pnext__title"><span>From first call</span> <span>to first placement</span></h2>
     <ol class="pnext__steps">
       ${nextSteps.steps
@@ -267,7 +269,9 @@ boot({
 
     splitReveal('.pnext__title span', { by: 'words' });
     fadeUp('.pstep', '.pnext__steps', { y: 40, stagger: 0.1 });
-    // The tilted cards float in from a little lower (the tilt is on the inner face, so the tween can own transform).
+    // Wide screens: the cards fly in as paper sheets and stick (animations/pricing-cards.ts). Below that the HTML
+    // cards sit in a grid under the steps and rise in.
+    initPricingCards(true);
     qa('.promise').forEach((card) => fadeUp(card, card, { y: 60, duration: 1.2, start: 'top 90%' }));
   },
 });

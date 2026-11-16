@@ -32,7 +32,7 @@ export type CardPose = {
 
 export type PaperCards = {
   poses: CardPose[];
-  /** Card size in world units (shared by all cards). */
+  /** Card size in world units (shared by all cards; taller or shorter faces than the first keep their own proportions). */
   size: { w: number; h: number };
   aspect: () => number;
   /** Redraws now (the loop also redraws while the canvas is on screen). */
@@ -251,6 +251,8 @@ export function createPaperCards(
     return t;
   };
   const textures = faces.map(upload);
+  // Each face's height relative to the first's (at the same width), so cards of different lengths keep their shape.
+  const tall = faces.map((f) => (f.height / f.width) / (faces[0].height / faces[0].width));
   const shadowTex = upload(shadowTexture());
   const shadowScale = {
     x: (SHADOW.cardW + SHADOW.margin * 2) / SHADOW.cardW,
@@ -322,7 +324,7 @@ export function createPaperCards(
     };
     const drawCard = (p: CardPose, i: number, tex: WebGLTexture, sx: number, sy: number, alpha: number) => {
       gl.uniformMatrix4fv(loc.model, false, model(p, i));
-      gl.uniform2f(loc.size, cards.size.w * sx, cards.size.h * sy);
+      gl.uniform2f(loc.size, cards.size.w * sx, cards.size.h * tall[i] * sy);
       gl.uniform1f(loc.bend, p.bend);
       gl.uniform1f(loc.curl, p.curl);
       gl.uniform1f(loc.alpha, alpha);

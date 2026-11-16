@@ -139,6 +139,11 @@
    nearest side), and shrink with the screen below 1440. The tilt and size live on the inner face, so the entrance
    tween can own the card's transform. */
 .pnext__promises { position: absolute; inset: 0; pointer-events: none; }
+/* With WebGL the cards are paper sheets on this canvas (animations/pricing-cards.ts); the HTML cards stay for screen readers. */
+/* Runs 360px past the section's foot, so the lower cards can fly up from there without being cut off at the join. */
+.pnext__canvas { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% + 360px); z-index: 2; pointer-events: none; display: none; }
+.pnext--3d .pnext__canvas { display: block; }
+.pnext--3d .pnext__promises { clip-path: inset(50%); }
 .promise { position: absolute; display: flex; align-items: center; justify-content: center; width: 368px; height: 290px; pointer-events: auto; }
 .promise--month { left: 28px; top: 237px; height: 220px; }
 .promise--minimums { right: 35px; top: 262px; }
