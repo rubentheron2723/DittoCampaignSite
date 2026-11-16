@@ -324,8 +324,16 @@ export function playPageTransition(page: PageId): Promise<void> {
   const curtain = q('#curtain');
   if (curtain) curtain.style.display = 'none';
   if (!intro) return Promise.resolve();
-  const canvas = q<HTMLCanvasElement>('.intro__clouds', intro)!;
+  // A fresh canvas each time: the one before may already have played (and released its WebGL context), as when the
+  // browser brings a page back from its back/forward cache.
+  const used = q<HTMLCanvasElement>('.intro__clouds', intro)!;
+  const canvas = used.cloneNode() as HTMLCanvasElement;
+  canvas.removeAttribute('style');
+  used.replaceWith(canvas);
   const veil = q('.intro__veil', intro)!;
+  gsap.set(veil, { x: 0, y: 0 });
+  intro.style.display = '';
+  gsap.set(intro, { autoAlpha: 1 });
   // The landing intro's own pieces stay hidden; the intro's white backing holds until the veil is in place.
   intro.classList.add('intro--page');
   gsap.set(canvas, { autoAlpha: 0 });
