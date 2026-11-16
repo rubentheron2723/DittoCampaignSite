@@ -23,6 +23,17 @@ const ACCENT = 1; // the blue card
 /** DM Sans: ascender 0.992em, descender 0.31em. Baseline offset of a line box of height `lh` for a `size` font. */
 const baseline = (size: number, lh: number) => (lh - size * 1.302) / 2 + size * 0.992;
 
+/** The blue card's gradient stops (position 0–1, colour): a soft light band near the top right, eased both ways. */
+const ACCENT_STOPS: [number, string][] = [
+  [0, '#1a7cf5'],
+  [0.12, '#0b98fb'],
+  [0.24, '#03a9fe'],
+  [0.38, '#0b98fb'],
+  [0.58, '#1583f6'],
+  [0.8, '#1b74f4'],
+  [1, '#1e6ef3'],
+];
+
 /** Draws one card face (2D canvas → WebGL texture), set as in the Figma section (node 2364:692). */
 function drawFace(index: number, title: string, copy: string) {
   const c = document.createElement('canvas');
@@ -33,15 +44,15 @@ function drawFace(index: number, title: string, copy: string) {
   ctx.beginPath();
   ctx.roundRect(0, 0, FACE_W, FACE_H, 24 * K);
   if (accent) {
-    // CSS linear-gradient(246.83deg, #1e6ef3 17.552%, #00b0ff 22.294%, #1e6ef3 100%), laid out as CSS does.
+    // Figma's angle and colours (linear-gradient 246.83deg, #1E6EF3 / #00B0FF), laid out as CSS does. Figma jumps
+    // from deep to light blue within 5% of the card, which reads as a hard band; here the light peaks near the
+    // top right and eases out over the whole card instead. Keep in step with .aicard:nth-child(2) in home.css.
     const ang = (246.83 * Math.PI) / 180;
     const dx = Math.sin(ang);
     const dy = -Math.cos(ang);
     const half = (Math.abs(FACE_W * dx) + Math.abs(FACE_H * dy)) / 2;
     const g = ctx.createLinearGradient(FACE_W / 2 - dx * half, FACE_H / 2 - dy * half, FACE_W / 2 + dx * half, FACE_H / 2 + dy * half);
-    g.addColorStop(0.17552, '#1e6ef3');
-    g.addColorStop(0.22294, '#00b0ff');
-    g.addColorStop(1, '#1e6ef3');
+    ACCENT_STOPS.forEach(([at, colour]) => g.addColorStop(at, colour));
     ctx.fillStyle = g;
   } else {
     ctx.fillStyle = '#ffffff';

@@ -16,6 +16,14 @@
   background: radial-gradient(134.57% 124.02% at 50% -24.02%, #1e6ef3 0%, #108ff9 25%, #01b0ff 50%, #11b5ff 53.125%, #21baff 56.25%, #41c4ff 62.5%, #60ceff 68.75%, #80d8ff 75%, #c0ebff 87.5%, #fff 100%);
 }
 .hero__haze { position: absolute; inset: 0; background: linear-gradient(-4.81deg, #fff 5.2916%, rgba(255, 255, 255, 0) 36.114%); }
+/* The background drifts down as the page scrolls (animations/hero.ts), taking its haze with it, so this fade is pinned
+   to the hero's own bottom edge: it always ends in the next section's #fdfdfd. Eased stops, so it has no visible start. */
+.hero::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 34%; z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(253, 253, 253, 0) 0%, rgba(253, 253, 253, 0.04) 15%, rgba(253, 253, 253, 0.13) 30%, rgba(253, 253, 253, 0.28) 45%,
+    rgba(253, 253, 253, 0.48) 60%, rgba(253, 253, 253, 0.7) 75%, rgba(253, 253, 253, 0.9) 90%, #fdfdfd 100%);
+}
 
 .hero__inner { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; gap: clamp(24px, 2.778vw, 40px); }
 .hero__title { font-size: var(--t-hero-size); line-height: var(--t-hero-lh); letter-spacing: var(--t-hero-ls); font-weight: var(--t-hero-wt); }
@@ -193,8 +201,15 @@
 /* "Practical AI that recruiters can trust" (Figma node 2364:692). The stage pins while the capability cards fly in as
    WebGL paper sheets (animations/ai.ts, shared/paper-cards.ts). Near-white, with a blue glow rising from below. */
 .ai { position: relative; background: #fdfdfd; color: #171717; --ai-pad: clamp(20px, 5.556vw, 80px); }
-.ai__stage { position: relative; min-height: 100vh; min-height: 100lvh; padding: clamp(calc(var(--nav-h) + 24px), 8.333vw, 120px) var(--ai-pad) clamp(64px, 8vw, 120px); overflow: clip; }
-.ai__glow { position: absolute; inset: 0; pointer-events: none; opacity: 0.3; background: radial-gradient(57% 52.5% at 50% 131.3%, #1e6ef3 0%, #108ff9 23.077%, #01b0ff 46.154%, rgba(1, 176, 255, 0) 100%); }
+.ai__stage { position: relative; min-height: 100vh; min-height: 100lvh; padding: clamp(calc(var(--nav-h) + 24px), 8.333vw, 120px) var(--ai-pad) clamp(64px, 8vw, 120px); overflow-x: clip; }
+/* Figma's glow (its colours and opacity) rises from below the stage. The stage used to clip it mid-glow, a hard line
+   above the steps; now it spills 300px past the stage (the steps below are taller than that) and fades out there:
+   it still starts ~78% down the stage, peaks just under the stage's bottom edge and is gone before the next section. */
+.ai__glow {
+  position: absolute; left: 0; right: 0; top: 0; bottom: -300px; pointer-events: none; opacity: 0.3;
+  /* Only the outer part of Figma's colours ever showed through the stage's edge, so only that is used: #01B0FF easing out. */
+  background: radial-gradient(60% calc(22vh + 40px) at 50% calc(100% - 260px), rgba(1, 176, 255, 0.85) 0%, rgba(1, 176, 255, 0.55) 30%, rgba(1, 176, 255, 0.25) 60%, rgba(1, 176, 255, 0.07) 82%, rgba(1, 176, 255, 0) 100%);
+}
 .ai__head { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; }
 /* 84/88 bold, -0.04em at 1440 (the h1 size token, set tighter and bolder here as in the design). */
 .ai__title { font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; max-width: 10em; }
@@ -207,12 +222,13 @@
 /* With the 3D cards running, the HTML cards stay only for screen readers. */
 .ai--3d .ai__cards { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .aicard { position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: clamp(240px, 22.64vw, 326px); padding: clamp(24px, 2.778vw, 40px); border-radius: 24px; background: #fff; box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25); }
-.aicard:nth-child(2) { background: linear-gradient(246.83deg, #1e6ef3 17.552%, #00b0ff 22.294%, #1e6ef3 100%); color: #fff; }
+/* The same soft gradient as the WebGL card (ACCENT_STOPS in animations/ai.ts). */
+.aicard:nth-child(2) { background: linear-gradient(246.83deg, #1a7cf5 0%, #0b98fb 12%, #03a9fe 24%, #0b98fb 38%, #1583f6 58%, #1b74f4 80%, #1e6ef3 100%); color: #fff; }
 .aicard__index { font-size: clamp(56px, 5.833vw, 84px); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; }
 .aicard:nth-child(2) .aicard__index { color: #fff; }
 .aicard h3 { font-size: clamp(20px, 1.667vw, 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 700; margin-top: 48px; }
 .aicard p { font-size: clamp(16px, 1.389vw, 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; margin-top: 20px; }
-.ai__more { padding: 0 var(--gutter) clamp(64px, 8vw, 120px); max-width: 1240px; margin: 0 auto; box-sizing: content-box; }
+.ai__more { position: relative; z-index: 1; padding: 0 var(--gutter) clamp(64px, 8vw, 120px); max-width: 1240px; margin: 0 auto; box-sizing: content-box; }
 .steps { position: relative; margin-top: clamp(56px, 7vw, 96px); }
 .steps__line { position: absolute; left: 0; right: 0; top: 24px; width: 100%; height: 2px; overflow: visible; }
 .steps__ghost { stroke: var(--line-light); stroke-width: 2; vector-effect: non-scaling-stroke; }
