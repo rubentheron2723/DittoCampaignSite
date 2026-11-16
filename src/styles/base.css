@@ -258,11 +258,3 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 @media (min-width: 901px) { .menu { display: none; } }
 @media (prefers-reduced-motion: reduce) { .curtain, .intro { display: none; } }
 
-/* Shown only in a browser that has unsaved type tweaks from /type (see type-overrides.ts). */
-.type-preview-pill {
-  position: fixed; left: 16px; bottom: 16px; z-index: 10000; display: flex; align-items: center; gap: 12px;
-  padding: 8px 8px 8px 14px; border-radius: 999px; background: #0a0f15; color: #fff;
-  font: 500 13px/1 var(--t-family), sans-serif; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-}
-.type-preview-pill a, .type-preview-pill button { padding: 7px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); font: inherit; }
-.type-preview-pill a:hover, .type-preview-pill button:hover { background: rgba(255, 255, 255, 0.22); }
