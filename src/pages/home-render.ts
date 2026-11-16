@@ -56,24 +56,31 @@ function systemSection() {
 }
 
 /**
- * Source → Engage → Place. Opens on the cloud sky with the three words; the clouds
- * clear from the bottom-left corner to the top-right onto flat brand blue, then the steps come in one
- * at a time on alternating sides of a fixed centre line (see animations/flow.ts).
+ * Source → Engage → Place (Figma node 2370:194). On desktop the section pins and plays the three steps in turn:
+ * the big slanted word at the top runs as a marquee and swaps to the current step's word, while the copy
+ * (bottom left) and the illustrated card (right) change underneath. On phones the word band pins at the top
+ * while the steps scroll past (see animations/flow.ts).
  */
 function flowSection() {
+  const words = acts
+    .map((a) => {
+      const half = Array.from({ length: 4 }, () => `<span>${esc(a.label)}.</span>`).join('');
+      return `<div class="flow__word" data-act="${a.id}"><div class="flow__track">${half}${half}</div></div>`;
+    })
+    .join('');
   const steps = acts
     .map(
-      (a, i) => `
-      <article class="fstep fstep--${i % 2 ? 'left' : 'right'}" data-act="${a.id}">
+      (a) => `
+      <article class="fstep" data-act="${a.id}">
+        <div class="fstep__copy">
+          <h3 class="fstep__title"><span class="sr-only">${esc(a.label)}: </span>${esc(a.headline)}</h3>
+          <p class="fstep__lead">${esc(a.paragraphs[0])}</p>
+          <div class="fstep__text">${a.paragraphs.slice(1).map((p) => `<p>${esc(p)}</p>`).join('')}</div>
+        </div>
         <div class="fstep__card">
           <header class="fstep__head"><span class="fstep__num">${a.number}</span><span class="fstep__label">${esc(a.label)}</span></header>
           <div class="fstep__visual">${FLOW_ART[a.id]()}</div>
           <footer class="fstep__foot"><span class="fstep__icon">${markSvg('mark--step')}</span><span>${esc(a.chips[0])}</span></footer>
-        </div>
-        <div class="fstep__copy">
-          <h3 class="fstep__title">${esc(a.headline)}</h3>
-          <div class="fstep__text">${a.paragraphs.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
-          <ul class="fstep__chips">${a.chips.slice(1).map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
         </div>
       </article>`,
     )
@@ -81,17 +88,11 @@ function flowSection() {
 
   return `
   <section class="flow" id="flow" data-theme="light">
+    <h2 class="sr-only">${acts.map((a) => `${esc(a.label)}.`).join(' ')}</h2>
     <div class="flow__pin">
-      <div class="flow__intro">
-        <canvas class="flow__sky" aria-hidden="true"></canvas>
-        <div class="flow__veil" aria-hidden="true"></div>
-        <div class="flow__intro-copy">
-          <h2 class="flow__title">${acts.map((a) => `<span>${esc(a.label)}.</span>`).join(' ')}</h2>
-        </div>
-      </div>
-      <div class="flow__stage">
-        <div class="flow__axis" aria-hidden="true"><i class="flow__marker"></i></div>
-        ${steps}
+      <div class="flow__bg" aria-hidden="true"><div class="flow__wash"></div></div>
+      <div class="flow__words" aria-hidden="true"><div class="flow__plane">${words}</div></div>
+      <div class="flow__stage">${steps}
       </div>
     </div>
   </section>`;

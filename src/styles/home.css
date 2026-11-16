@@ -30,43 +30,52 @@
 }
 .btn--light.btn--hero { color: #171717; }
 
-/* ---------- FLOW (pinned, horizontal) ---------- */
-/* Source → Engage → Place (see animations/flow.ts). Stacked by default; .flow--pinned is the desktop
-   scroll-driven version: the clouds part onto flat brand blue, then steps on alternating sides of a fixed centre axis. */
-.flow { position: relative; background: #00b0ff; color: var(--ink); }
-.flow__intro { position: relative; height: 100svh; overflow: hidden; display: grid; place-items: center; background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); }
-.flow__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); }
-.flow--sky .flow__sky { opacity: 1; }
-/* Stacked only: fades the sky into the flat blue below it. */
-.flow__veil { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, #00b0ff 100%); pointer-events: none; }
-.flow__intro-copy { position: relative; z-index: 2; text-align: center; padding: 0 var(--gutter); color: var(--white); }
-.flow__title { margin-top: 18px; font-size: var(--t-display-size); line-height: var(--t-display-lh); letter-spacing: var(--t-display-ls); font-weight: var(--t-display-wt); text-shadow: 0 6px 40px rgba(0, 30, 80, 0.25); }
-.flow__title span { display: inline-block; }
-.flow__axis { display: none; }
+/* ---------- FLOW ---------- */
+/* Source → Engage → Place (Figma node 2370:194, three 1440x1024 frames). White at the top into brand blue at the
+   bottom; a huge slanted word (the step's name, repeated) runs along its own 3D angle near the top; the copy sits
+   bottom left and the step's illustrated card on the right. See animations/flow.ts.
+   Stacked by default (phones, reduced motion); .flow--pinned is the desktop version, one screen that swaps steps. */
+.flow { position: relative; color: var(--white); background: #fff; }
+.flow__pin { position: relative; overflow: clip; }
+/* Figma: a vertical radial from the bottom edge (#1E6EF3 → #108FF9 at 12.5% → #01B0FF at 25% → clear at the top)
+   over white, plus a #01B0FF wash from the right that only reaches the later steps (its opacity is scrubbed). */
+.flow__bg { position: absolute; inset: 0; background: linear-gradient(0deg, #1e6ef3 0%, #108ff9 12.5%, #01b0ff 25%, rgba(1, 176, 255, 0) 100%), #fff; }
+.flow__wash { position: absolute; inset: 0; opacity: 0; background: radial-gradient(90% 120% at 115% 50%, #01b0ff 0%, rgba(1, 176, 255, 0) 100%); }
 
-.fstep { display: grid; gap: 40px; align-items: center; padding: clamp(72px, 10vw, 140px) var(--gutter); }
-.fstep__card { width: min(100%, 520px); background: var(--white); border: 1px solid rgba(15, 20, 29, 0.1); color: var(--ink); box-shadow: 0 30px 80px rgba(0, 50, 90, 0.22); }
+/* The slanted word. Figma's transform is rotateX(-22deg) rotateY(32deg) with no perspective, which CSS draws the
+   same way (flat, orthographic). 164 bold, -0.04em at 1440. Each word's track holds two identical halves so the
+   marquee can loop by sliding exactly one half. */
+.flow__words { position: relative; height: clamp(150px, 34vw, 340px); pointer-events: none; }
+.flow__plane {
+  position: absolute; left: 48.6%; top: 50%; width: 0; height: 0;
+  transform: rotateX(-22deg) rotateY(32deg);
+  font-size: clamp(64px, 11.39vw, 164px); line-height: 1.122; letter-spacing: -0.04em; font-weight: 700; text-transform: uppercase;
+}
+/* A quarter in, not half: the track then still covers both sides after the marquee slides it left by one half. */
+.flow__word { position: absolute; left: 0; top: 0; width: max-content; transform: translate(-25%, -50%); }
+.flow__word:not(:first-child) { visibility: hidden; }
+.flow__word[data-act='engage'] { color: #eaf8ff; }
+.flow__track { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
+.flow__track span { padding-right: 0.22em; }
+
+.flow__stage { position: relative; }
+.fstep { position: relative; display: grid; gap: 32px; padding: 32px var(--gutter) 72px; }
+.fstep__copy { display: grid; gap: 17px; max-width: 760px; }
+/* 40/44 bold, 24/28 medium, 20/24 regular, all -0.04em at 1440. */
+.fstep__title { font-size: clamp(26px, calc(26px + 14 * (100vw - 375px) / 1065), 40px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; }
+.fstep__lead { font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
+.fstep__text { display: grid; gap: 1.2em; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; }
+
+/* The illustrated card in Figma's 580x556 "Cards" slot. */
+.fstep__card { display: flex; flex-direction: column; width: min(100%, 580px); background: var(--white); border: 1px solid rgba(15, 20, 29, 0.1); color: var(--ink); box-shadow: 0 30px 80px rgba(0, 50, 90, 0.22); }
 .fstep__head { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-bottom: 1px solid rgba(15, 20, 29, 0.1); }
 .fstep__num { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(15, 20, 29, 0.22); font-size: var(--t-label-size); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
 .fstep__label { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); }
-.fstep__visual { display: grid; place-items: center; aspect-ratio: 4 / 3; padding: 20px 28px; border-bottom: 1px solid rgba(15, 20, 29, 0.1); }
+.fstep__visual { flex: 1; min-height: 0; display: grid; place-items: center; aspect-ratio: 4 / 3; padding: 20px 28px; border-bottom: 1px solid rgba(15, 20, 29, 0.1); }
 .fstep__art { display: block; width: 100%; height: 100%; overflow: visible; }
 .fstep__foot { display: flex; align-items: center; gap: 14px; padding: 14px 20px; font-size: var(--t-small-size); color: var(--ink-soft); }
 .fstep__icon { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid rgba(15, 20, 29, 0.22); }
 .fstep__icon .mark { width: 16px; height: auto; }
-.mark--step .mark__l { fill: var(--blue); }
-.mark--step .mark__r { fill: var(--ink); }
-.fstep__copy { max-width: 500px; }
-.fstep__title { margin-top: 14px; font-size: var(--t-h2-size); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-ls); font-weight: var(--t-h2-wt); }
-.fstep__text { margin-top: 20px; display: grid; gap: 12px; font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); color: rgba(15, 20, 29, 0.78); }
-.fstep__text p:first-child { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); color: var(--ink); }
-.fstep__chips { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; }
-.fstep__chips li { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); padding: 8px 13px; border-radius: 999px; border: 1px solid rgba(15, 20, 29, 0.2); background: rgba(255, 255, 255, 0.22); }
-@media (min-width: 901px) {
-  .flow:not(.flow--pinned) .fstep { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; }
-  .flow:not(.flow--pinned) .fstep--left .fstep__card { justify-self: end; }
-  .flow:not(.flow--pinned) .fstep--right .fstep__card { order: 2; }
-}
 
 /* Isometric step art (shared/flow-art.ts), drawn for the white cards. Faces come last so their fill wins over the stroke classes. */
 .art-line { fill: none; stroke: rgba(15, 20, 29, 0.55); stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
@@ -79,20 +88,27 @@
 .art-face--blue { fill: #d9f1ff; }
 .art-dot { fill: #0096e0; }
 
-/* Pinned (desktop) */
-.flow--pinned .flow__pin { position: relative; height: 100vh; overflow: hidden; }
-.flow--pinned .flow__intro { position: absolute; inset: 0; height: auto; }
-.flow--pinned .flow__veil { display: none; }
+/* Stacked (phones, reduced motion): the word band pins to the top while the steps scroll under it. It carries its
+   own white-to-blue fade (and sits under the fixed nav), so copy passing beneath it disappears into the fade. */
+.flow:not(.flow--pinned) { --band: calc(var(--nav-h) + clamp(130px, 30vw, 240px)); }
+.flow:not(.flow--pinned) .flow__bg { background: linear-gradient(180deg, #fff 0, #01b0ff calc(var(--band) * 0.75), #01b0ff 82%, #108ff9 93%, #1e6ef3 100%); }
+.flow:not(.flow--pinned) .flow__words { z-index: 2; height: var(--band); background: linear-gradient(180deg, #fff 0%, #01b0ff 75%); }
+.flow:not(.flow--pinned) .flow__words::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 40px; background: linear-gradient(180deg, #01b0ff, rgba(1, 176, 255, 0)); }
+.flow:not(.flow--pinned) .flow__plane { top: calc(var(--nav-h) + (100% - var(--nav-h)) / 2); }
+
+/* Pinned (desktop): one screen. The word sits ~27% down; each step is laid over the others, copy bottom left
+   (40px in, 120px up at 1024 tall) and the card bottom right, scaled down on shorter screens. */
+.flow--pinned .flow__pin { height: 100vh; }
+.flow--pinned .flow__words { position: absolute; inset: 0; height: auto; }
+.flow--pinned .flow__plane { top: 27%; }
 .flow--pinned .flow__stage { position: absolute; inset: 0; }
-.flow--pinned .flow__axis { display: block; position: absolute; left: 50%; top: calc(50% + var(--nav-h) / 2); width: 4px; height: min(52vh, 420px); transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(15, 20, 29, 0.6) 1px, transparent 1.6px) 0 0 / 4px 17px repeat-y; }
-.flow__marker { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; background: var(--ink); }
-.flow--pinned .fstep { position: absolute; inset: 0; grid-template-columns: minmax(0, 1fr) clamp(80px, 9vw, 160px) minmax(0, 1fr); gap: 0; padding: var(--nav-h) max(var(--gutter), 170px) 0; } /* clears the progress rail on the right */
-.flow--pinned .fstep__card, .flow--pinned .fstep__copy { grid-row: 1; }
-.flow--pinned .fstep--right .fstep__copy { grid-column: 1; justify-self: end; }
-.flow--pinned .fstep--right .fstep__card { grid-column: 3; }
-.flow--pinned .fstep--left .fstep__card { grid-column: 1; justify-self: end; }
-.flow--pinned .fstep--left .fstep__copy { grid-column: 3; }
-.flow--pinned .fstep__card { width: min(100%, 500px); }
+.flow--pinned .fstep {
+  position: absolute; inset: 0; display: flex; align-items: flex-end; gap: 20px;
+  padding: 0 clamp(24px, 2.778vw, 40px) clamp(40px, 11.72vh, 120px);
+}
+.flow--pinned .fstep__copy { flex: 1 1 0; min-width: 0; }
+.flow--pinned .fstep__card { flex: none; width: min(580px, 42vw, calc((100vh - 240px) * 1.043)); aspect-ratio: 580 / 556; }
+.flow--pinned .fstep__visual { aspect-ratio: auto; }
 
 /* ---------- TRUST ---------- */
 .trust { background: var(--paper); color: var(--ink); padding: clamp(96px, 12vw, 180px) 0 0; overflow: clip; }
