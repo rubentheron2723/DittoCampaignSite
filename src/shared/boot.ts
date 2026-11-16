@@ -187,6 +187,23 @@ function initNavTheme(animate: boolean) {
 
 /* ---------- Links: hash scroll + page transitions ---------- */
 function initLinks(ctx: BootContext) {
+  // Fetch a page as soon as a link to it is pointed at or focused, so it's ready by the time it's clicked.
+  const fetched = new Set<string>([window.location.pathname]);
+  const prefetch = (e: Event) => {
+    const a = (e.target as Element).closest?.<HTMLAnchorElement>('a[href]');
+    if (!a || a.target === '_blank') return;
+    const url = new URL(a.href, window.location.href);
+    if (url.origin !== window.location.origin || fetched.has(url.pathname)) return;
+    fetched.add(url.pathname);
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = url.pathname;
+    document.head.appendChild(link);
+  };
+  document.addEventListener('pointerover', prefetch, { passive: true });
+  document.addEventListener('focusin', prefetch);
+  document.addEventListener('touchstart', prefetch, { passive: true });
+
   document.addEventListener('click', (e) => {
     const a = (e.target as Element).closest<HTMLAnchorElement>('a[href]');
     if (!a || a.target === '_blank' || e.metaKey || e.ctrlKey || e.shiftKey) return;
