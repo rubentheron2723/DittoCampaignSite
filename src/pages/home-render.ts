@@ -55,28 +55,28 @@ function systemSection() {
   </section>`;
 }
 
-/** Where each panel's slanted word is centred, as in Figma (x, y as % of the 1440x1024 frame). */
-const WORD_AT: Record<string, [number, number]> = { source: [43.87, 28.3], engage: [52.92, 28.3], place: [48.59, 22.66] };
+/** Where each panel's eight word lines are centred, as % down the 1440x1024 frame (Figma: 164px lines ~165px apart). */
+const WORD_LINES = [0.98, 17.29, 33.01, 50.29, 64.75, 80.57, 96.78, 113.28];
 
 /**
- * Source → Engage → Place (Figma node 2370:194): three full-screen panels side by side on one long white-to-blue
- * background. The section pins and scrolling slides the panels sideways (animations/flow.ts). Copy sits bottom
- * left and the isometric illustration is drawn straight on the background at the right.
+ * Source → Engage → Place (Figma node 2370:194): three full-screen panels side by side on one long background, white
+ * at the top and bottom with a soft blue band through the middle (so it meets the sections around it in white). The
+ * section pins and scrolling slides the panels sideways (animations/flow.ts). Each panel: a field of eight faint
+ * slanted lines of its word, the copy on the left and its glass illustration on the right, both centred vertically.
  *
- * The big slanted marquee is one element shared with the section above: it starts as that section's black
- * "Source. Engage. Place." line, then turns into this section's white "Source." line and changes to "Engage." and
- * "Place." as the panels slide. Each panel also keeps its own still word, shown only with reduced motion.
+ * The section above's black "Source. Engage. Place." line is carried in by a shared marquee ("intro"): it rises with
+ * this section and rolls out as the Source field fades in.
  */
 function flowSection() {
   const panels = acts
     .map((a) => {
       const half = Array.from({ length: 4 }, () => `<span>${esc(a.label)}.</span>`).join('');
-      const [x, y] = WORD_AT[a.id];
+      const lines = WORD_LINES.map(
+        (y) => `<div class="fpanel__plane" style="--wy: ${y}%"><div class="fpanel__word"><div class="fpanel__track">${half}${half}</div></div></div>`,
+      ).join('');
       return `
-      <article class="fpanel" data-act="${a.id}" style="--wx: ${x}%; --wy: ${y}%">
-        <div class="fpanel__words" aria-hidden="true">
-          <div class="fpanel__plane"><div class="fpanel__word"><div class="fpanel__track">${half}${half}</div></div></div>
-        </div>
+      <article class="fpanel" data-act="${a.id}">
+        <div class="fpanel__words" aria-hidden="true">${lines}</div>
         <div class="fpanel__copy">
           <h3 class="fpanel__title"><span class="sr-only">${esc(a.label)}: </span>${esc(a.headline)}</h3>
           <p class="fpanel__lead">${esc(a.paragraphs[0])}</p>
@@ -87,13 +87,9 @@ function flowSection() {
     })
     .join('');
 
-  // The shared marquee: the section above's line ("intro"), then one word per step. Each track holds two identical
-  // halves so it can loop by sliding exactly one half.
-  const track = (word: string, text: string, n: number) => {
-    const half = Array.from({ length: n }, () => `<span>${esc(text)}</span>`).join('');
-    return `<div class="flow__mq-word" data-word="${word}"><div class="flow__mq-roll"><div class="flow__mq-track">${half}${half}</div></div></div>`;
-  };
-  const marquee = [track('intro', system.loop, 2), ...acts.map((a) => track(a.id, `${a.label}.`, 4))].join('');
+  // The shared marquee: the section above's line. The track holds two identical halves so it loops by sliding one.
+  const half = Array.from({ length: 2 }, () => `<span>${esc(system.loop)}</span>`).join('');
+  const marquee = `<div class="flow__mq-word"><div class="flow__mq-track">${half}${half}</div></div>`;
 
   return `
   <section class="flow" id="flow" data-theme="light">

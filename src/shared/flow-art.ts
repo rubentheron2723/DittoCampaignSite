@@ -1,110 +1,69 @@
 /**
- * Isometric line illustrations for the Source / Engage / Place step cards.
- * Drawn in code from a tiny 3D-to-isometric helper so the geometry stays exact.
- * Classes (styled in home.css): art-line (grey edge), art-faint (dashed guide),
- * art-blue (accent stroke), art-face (solid face that hides what's behind),
- * art-face--blue (accent face), art-dot (accent node).
+ * The Source / Engage / Place illustrations, from the reworked Figma frames (node 2370:194): glass faces (10% white,
+ * a 50% ink outline), white guide lines and white dots, drawn straight on the panel's blue. Generated from Figma's
+ * exported vector pieces (each keeps its root's fill="none"), placed where Figma has it inside its 580-wide "SVG" frame, so the art is exactly
+ * Figma's while every piece stays a separate element the entrance can animate (animations/flow.ts).
  */
 
-const S = 19; // px per unit
-const CX = 200;
-const CY = 120;
+/** Figma node 2378:495, 580 x 488.72. */
+const SOURCE = [
+  '<svg class="fart__piece" x="44.23" y="295.13" width="491.54" height="157.96" viewBox="0 0 491.536 157.958" overflow="visible" fill="none"><path d="M0.5 0V45.1308M245.768 112.827V157.958M491.036 0V45.1308" stroke="white"/></svg>',
+  '<svg class="fart__piece" x="289.5" y="268.31" width="246.27" height="140.15" viewBox="0 0 246.268 140.153" overflow="visible" fill="none"><path d="M245.768 26.8263L0.5 139.653V113.327L245.768 0.500001V26.8263Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="44.23" y="268.31" width="246.27" height="140.15" viewBox="0 0 246.268 140.153" overflow="visible" fill="none"><path d="M0.5 26.8263L245.768 139.653V113.327L0.5 0.500001V26.8263Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="44.23" y="155.48" width="491.54" height="226.65" viewBox="0 0 491.536 226.654" overflow="visible" fill="none"><path d="M245.768 0.5L491.036 113.327L245.768 226.154L0.5 113.327L245.768 0.5Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="289.5" y="208.13" width="246.27" height="140.15" viewBox="0 0 246.268 140.153" overflow="visible" fill="none"><path d="M245.768 26.8263L0.5 139.653V113.327L245.768 0.500001V26.8263Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="44.23" y="208.13" width="246.27" height="140.15" viewBox="0 0 246.268 140.153" overflow="visible" fill="none"><path d="M0.5 26.8263L245.768 139.653V113.327L0.5 0.500001V26.8263Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="44.23" y="95.3" width="491.54" height="226.65" viewBox="0 0 491.536 226.654" overflow="visible" fill="none"><path d="M245.768 0.5L491.036 113.327L245.768 226.154L0.5 113.327L245.768 0.5Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="289.5" y="147.96" width="246.27" height="140.15" viewBox="0 0 246.268 140.153" overflow="visible" fill="none"><path d="M245.768 26.8263L0.5 139.653V113.327L245.768 0.500001V26.8263Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="44.23" y="147.96" width="246.27" height="140.15" viewBox="0 0 246.268 140.153" overflow="visible" fill="none"><path d="M0.5 26.8263L245.768 139.653V113.327L0.5 0.500001V26.8263Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="44.23" y="35.13" width="491.54" height="226.65" viewBox="0 0 491.536 226.654" overflow="visible" fill="none"><path d="M245.768 0.5L491.036 113.327L245.768 226.154L0.5 113.327L245.768 0.5Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>'
+];
 
-type V3 = [number, number, number];
+/** Figma node 2378:514, 580 x 347.5. */
+const ENGAGE = [
+  '<svg class="fart__piece" x="200.14" y="115.27" width="45.78" height="62.61" viewBox="0 0 45.7794 62.6103" overflow="visible" fill="none"><path d="M45.2794 41.5735L0.5 62.1103V21.0368L45.2794 0.500001V41.5735Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="155.55" y="115.27" width="45.59" height="62.61" viewBox="0 0 45.5856 62.6103" overflow="visible" fill="none"><path d="M0.5 41.5735L45.0856 62.1103V21.0368L0.5 0.500001V41.5735Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="155.55" y="94.73" width="90.36" height="42.07" viewBox="0 0 90.365 42.0735" overflow="visible" fill="none"><path d="M45.0856 0.5L89.865 21.0368L45.0856 41.5735L0.5 21.0368L45.0856 0.5Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="461.83" y="153.41" width="45.59" height="62.61" viewBox="0 0 45.5856 62.6103" overflow="visible" fill="none"><path d="M45.0856 41.5735L0.5 62.1103V21.0368L45.0856 0.500001V41.5735Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="417.05" y="153.41" width="45.78" height="62.61" viewBox="0 0 45.7794 62.6103" overflow="visible" fill="none"><path d="M0.5 41.5735L45.2794 62.1103V21.0368L0.5 0.500001V41.5735Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="417.05" y="132.87" width="90.36" height="42.07" viewBox="0 0 90.365 42.0735" overflow="visible" fill="none"><path d="M45.2794 0.5L89.865 21.0368L45.2794 41.5735L0.5 21.0368L45.2794 0.5Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="244.91" y="182.75" width="45.59" height="91.95" viewBox="0 0 45.5856 91.9485" overflow="visible" fill="none"><path d="M45.0856 70.9118L0.5 91.4485V21.0368L45.0856 0.500001V70.9118Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="200.14" y="182.75" width="45.78" height="91.95" viewBox="0 0 45.7794 91.9485" overflow="visible" fill="none"><path d="M0.5 70.9118L45.2794 91.4485V21.0368L0.5 0.500001V70.9118Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="199.88" y="161.96" width="90.86" height="42.57" viewBox="0 0 90.865 42.5735" overflow="visible" fill="none"><path d="M45.5294 0.75L90.115 21.2868L45.5294 41.8235L0.75 21.2868L45.5294 0.75Z" fill="white" fill-opacity="0.1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="192.88" y="109.59" width="15.51" height="12.35" viewBox="0 0 15.508 12.3529" overflow="visible" fill="none"><g><use xlink:href="#fa20-stroke0_0_32" fill="white"/><mask id="fa20-stroke1_0_32" fill="white"><use xlink:href="#fa20-stroke0_0_32"/></mask><path d="M15.508 6.17647C15.508 9.58764 12.0364 12.3529 7.75401 12.3529C3.47159 12.3529 0 9.58764 0 6.17647C0 2.7653 3.47159 0 7.75401 0C12.0364 0 15.508 2.7653 15.508 6.17647Z" stroke-width="3.08824" stroke="white" mask="url(#fa20-stroke1_0_32)"/></g><defs><path id="fa20-stroke0_0_32" d="M7.75401 12.3529C12.0364 12.3529 15.508 9.58764 15.508 6.17647C15.508 2.7653 12.0364 0 7.75401 0C3.47159 0 0 2.7653 0 6.17647C0 9.58764 3.47159 12.3529 7.75401 12.3529Z"/></defs></svg>',
+  '<svg class="fart__piece" x="454.58" y="147.73" width="15.51" height="12.35" viewBox="0 0 15.508 12.3529" overflow="visible" fill="none"><path d="M7.75401 12.3529C12.0364 12.3529 15.508 9.58764 15.508 6.17647C15.508 2.7653 12.0364 0 7.75401 0C3.47159 0 0 2.7653 0 6.17647C0 9.58764 3.47159 12.3529 7.75401 12.3529Z" fill="white"/></svg>',
+  '<svg class="fart__piece" x="237.66" y="177.07" width="15.51" height="12.35" viewBox="0 0 15.508 12.3529" overflow="visible" fill="none"><path d="M7.75401 12.3529C12.0364 12.3529 15.508 9.58764 15.508 6.17647C15.508 2.7653 12.0364 0 7.75401 0C3.47159 0 0 2.7653 0 6.17647C0 9.58764 3.47159 12.3529 7.75401 12.3529Z" fill="white"/></svg>',
+  '<svg class="fart__piece" x="199.89" y="68.39" width="263.2" height="86.27" viewBox="0 0 263.198 86.2721" overflow="visible" fill="none"><path d="M0.750103 47.3823L13.9319 39.1985L26.9199 31.3235L40.1017 23.7574L53.0897 17.1176L66.2715 11.25L79.2595 6.61765L92.4413 3.22059L105.429 1.21323L118.417 0.75L131.599 1.98529L144.587 4.61029L157.769 8.93382L170.757 14.6471L183.939 21.9044L196.927 30.3971L210.108 39.9706L223.096 50.4706L236.278 61.7426L249.266 73.4779L262.448 85.5221" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="white"/></svg>',
+  '<svg class="fart__piece" x="244.66" y="125.83" width="218.42" height="58.17" viewBox="0 0 218.419 58.1692" overflow="visible" fill="none"><path d="M217.668 28.0809L206.813 23.1397L195.957 18.3529L185.102 13.875L174.246 9.8603L163.39 6.30883L152.535 3.68383L141.679 1.67648L130.824 0.75H119.968L109.112 1.67648L98.2567 3.68383L87.4011 6.61765L76.5455 10.4779L65.6899 15.4191L54.8343 20.9779L43.9787 27.4632L33.123 34.4118L22.4613 41.8235L11.6057 49.5441L0.750054 57.4191" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="white"/></svg>',
+  '<svg class="fart__piece" x="199.89" y="96.8" width="46.28" height="87.2" viewBox="0 0 46.2797 87.1987" overflow="visible" fill="none"><path d="M0.750124 18.9706L3.07635 14.9559L5.20869 11.25L7.53488 7.85294L9.66725 4.91911L11.9934 2.60294L14.1258 1.21323L16.452 0.75L18.5844 1.36764L20.9106 2.91176L23.0429 5.84559L25.3691 9.70588L27.6953 14.8015L29.8277 20.9779L32.1539 28.2353L34.2862 36.4191L36.6124 45.375L38.7448 54.9485L41.071 65.1397L43.2033 75.7941L45.5295 86.4485" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="white"/></svg>'
+];
 
-/** 3D (x right-forward, y left-forward, z up) to isometric screen space. */
-const iso = ([x, y, z]: V3) => [CX + (x - y) * 0.866 * S, CY + (x + y) * 0.5 * S - z * S] as const;
-const pt = (v: V3) => iso(v).map((n) => n.toFixed(1)).join(',');
-const path = (vs: V3[], close = true) => `M${vs.map(pt).join('L')}${close ? 'Z' : ''}`;
-const el = (d: string, cls: string) => `<path class="${cls}" d="${d}"/>`;
+/** Figma node 2378:534, 580 x 401. */
+const PLACE = [
+  '<svg class="fart__piece" x="146.05" y="215.83" width="39.19" height="53.81" viewBox="0 0 39.1878 53.8079" overflow="visible" fill="none"><path d="M38.6878 35.7052L0.5 53.3079V18.1026L38.6878 0.500001V35.7052Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="107.67" y="215.83" width="39.38" height="53.81" viewBox="0 0 39.3817 53.8079" overflow="visible" fill="none"><path d="M0.5 35.7052L38.8817 53.3079V18.1026L0.5 0.500001V35.7052Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="107.67" y="198.22" width="77.57" height="36.21" viewBox="0 0 77.5695 36.2052" overflow="visible" fill="none"><path d="M38.8817 0.5L77.0695 18.1026L38.8817 35.7052L0.5 18.1026L38.8817 0.5Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="138" y="210.5" width="15.51" height="12.35" viewBox="0 0 15.508 12.3529" overflow="visible" fill="none"><path d="M7.75401 12.3529C12.0364 12.3529 15.508 9.58764 15.508 6.17647C15.508 2.7653 12.0364 0 7.75401 0C3.47159 0 0 2.7653 0 6.17647C0 9.58764 3.47159 12.3529 7.75401 12.3529Z" fill="white"/></svg>',
+  '<svg class="fart__piece" x="244.92" y="187.88" width="39.19" height="83.15" viewBox="0 0 39.1878 83.1456" overflow="visible" fill="none"><path d="M38.6878 65.0429L0.5 82.6455V18.1026L38.6878 0.500001V65.0429Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="206.53" y="187.88" width="39.38" height="83.15" viewBox="0 0 39.3817 83.1455" overflow="visible" fill="none"><path d="M0.5 65.0429L38.8817 82.6455V18.1026L0.5 0.500001V65.0429Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="206.53" y="170.28" width="77.57" height="36.21" viewBox="0 0 77.5695 36.2052" overflow="visible" fill="none"><path d="M38.8817 0.5L77.0695 18.1026L38.8817 35.7052L0.5 18.1026L38.8817 0.5Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="237" y="182.5" width="15.51" height="12.35" viewBox="0 0 15.508 12.3529" overflow="visible" fill="none"><path d="M7.75401 12.3529C12.0364 12.3529 15.508 9.58764 15.508 6.17647C15.508 2.7653 12.0364 0 7.75401 0C3.47159 0 0 2.7653 0 6.17647C0 9.58764 3.47159 12.3529 7.75401 12.3529Z" fill="white"/></svg>',
+  '<svg class="fart__piece" x="343.78" y="159.93" width="39.19" height="112.48" viewBox="0 0 39.1878 112.483" overflow="visible" fill="none"><path d="M38.6878 94.3806L0.5 111.983V18.1026L38.6878 0.500001V94.3806Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="305.4" y="159.93" width="39.38" height="112.48" viewBox="0 0 39.3817 112.483" overflow="visible" fill="none"><path d="M0.5 94.3806L38.8817 111.983V18.1026L0.5 0.500001V94.3806Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="305.4" y="142.48" width="77.57" height="36.05" viewBox="0 0 77.5695 36.0508" overflow="visible" fill="none"><path d="M38.8817 0.5L77.0695 17.9482L38.8817 35.5508L0.5 17.9482L38.8817 0.5Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="336" y="154.5" width="15.51" height="12.35" viewBox="0 0 15.508 12.3529" overflow="visible" fill="none"><path d="M7.75401 12.3529C12.0364 12.3529 15.508 9.58764 15.508 6.17647C15.508 2.7653 12.0364 0 7.75401 0C3.47159 0 0 2.7653 0 6.17647C0 9.58764 3.47159 12.3529 7.75401 12.3529Z" fill="white"/></svg>',
+  '<svg class="fart__piece" x="442.64" y="120.4" width="39.19" height="153.56" viewBox="0 0 39.1878 153.556" overflow="visible" fill="none"><path d="M38.6878 135.453L0.5 153.056V18.1026L38.6878 0.500001V135.453Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="404.26" y="120.4" width="39.38" height="153.56" viewBox="0 0 39.3816 153.556" overflow="visible" fill="none"><path d="M0.5 135.453L38.8816 153.056V18.1026L0.5 0.500001V135.453Z" fill="white" fill-opacity="0.1" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="404.01" y="102.55" width="78.07" height="36.71" viewBox="0 0 78.0695 36.7052" overflow="visible" fill="none"><path d="M39.1316 0.75L77.3195 18.3526L39.1316 35.9552L0.75 18.3526L39.1316 0.75Z" fill="white" fill-opacity="0.1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#171717" stroke-opacity="0.5"/></svg>',
+  '<svg class="fart__piece" x="435" y="114.5" width="15.51" height="12.35" viewBox="0 0 15.508 12.3529" overflow="visible" fill="none"><path d="M7.75401 12.3529C12.0364 12.3529 15.508 9.58764 15.508 6.17647C15.508 2.7653 12.0364 0 7.75401 0C3.47159 0 0 2.7653 0 6.17647C0 9.58764 3.47159 12.3529 7.75401 12.3529Z" fill="white"/></svg>',
+  '<svg class="fart__piece" x="146.03" y="101.75" width="296.31" height="115.44" viewBox="0 0 296.314 115.44" overflow="visible" fill="none"><path d="M0.460695 115.246C0.460695 115.246 10.9607 90.2458 43.9607 79.2458C76.9607 68.2458 98.9607 86.2458 98.9607 86.2458C98.9607 86.2458 113.961 53.7458 142.961 44.7458C171.961 35.7458 196.961 57.7458 196.961 57.7458C196.961 57.7458 208.961 13.7458 240.961 3.24577C272.961 -7.25423 295.961 15.7457 295.961 15.7457" stroke="white"/></svg>'
+];
 
-/** A box from (x, y, z) with size w × d × h; draws the three faces facing the viewer. */
-function box(x: number, y: number, z: number, w: number, d: number, h: number, accent = false) {
-  const top: V3[] = [[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]];
-  const right: V3[] = [[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]];
-  const left: V3[] = [[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]];
-  const face = accent ? 'art-face art-face--blue art-line' : 'art-face art-line';
-  return el(path(right), face) + el(path(left), face) + el(path(top), accent ? 'art-face art-face--blue art-blue' : 'art-face art-line');
-}
-
-/** A flat grid on the plane z, from (x0, y0) spanning n × m cells. */
-function grid(x0: number, y0: number, z: number, n: number, m: number, cls = 'art-faint') {
-  let d = '';
-  for (let i = 0; i <= n; i++) d += path([[x0 + i, y0, z], [x0 + i, y0 + m, z]], false);
-  for (let j = 0; j <= m; j++) d += path([[x0, y0 + j, z], [x0 + n, y0 + j, z]], false);
-  return el(d, cls);
-}
-
-/** An ellipse lying flat on the plane z (a circle in 3D), centred at (x, y). */
-function ring(x: number, y: number, z: number, r: number, cls: string) {
-  const pts: V3[] = [];
-  for (let i = 0; i < 36; i++) {
-    const a = (i / 36) * Math.PI * 2;
-    pts.push([x + Math.cos(a) * r, y + Math.sin(a) * r, z]);
-  }
-  return el(path(pts), cls);
-}
-
-const dot = (v: V3, r = 4) => {
-  const [px, py] = iso(v);
-  return `<circle class="art-dot" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}"/>`;
-};
-
-const svg = (body: string) => `<svg class="fstep__art" viewBox="0 0 400 300" aria-hidden="true" focusable="false">${body}</svg>`;
-
-/** Source: a stack of database layers, with search running across the top one. */
-function sourceArt() {
-  const layers = [0, 1.6, 3.2]
-    .map((z, i) => box(-3, -3, z, 6, 6, 0.7, false) + (i === 2 ? grid(-3, -3, z + 0.7, 6, 6, 'art-line art-line--soft') : ''))
-    .join('');
-  const guides = el(
-    path([[-3, 3, 0], [-3, 3, -1.2]], false) + path([[3, 3, 0], [3, 3, -1.2]], false) + path([[3, -3, 0], [3, -3, -1.2]], false),
-    'art-faint',
-  );
-  const lens = ring(0.5, 0.5, 5.2, 1.6, 'art-blue') + el(path([[1.6, 1.6, 5.2], [3, 3, 5.2]], false), 'art-blue art-blue--thick');
-  const hits = [dot([-1.5, -1.5, 3.9]), dot([1.5, -0.5, 3.9]), dot([-0.5, 2, 3.9])].join('');
-  const beam = el(path([[0.5, 0.5, 5.2], [0.5, 0.5, 3.9]], false), 'art-faint art-faint--blue');
-  return svg(guides + layers + beam + hits + lens);
-}
-
-/** Engage: a candidate, a recruiter and a client wired into one live conversation. */
-function engageArt() {
-  const floor = grid(-4, -4, 0, 8, 8);
-  const nodes = box(-3.4, -0.6, 0, 1.4, 1.4, 1.4) + box(2, -3.4, 0, 1.4, 1.4, 1.4) + box(0.6, 2, 0, 1.4, 1.4, 2.4, true);
-  const link = (a: V3, b: V3, lift: number) => {
-    const pts: V3[] = [];
-    for (let i = 0; i <= 20; i++) {
-      const t = i / 20;
-      pts.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t + Math.sin(t * Math.PI) * lift]);
-    }
-    return el(path(pts, false), 'art-blue');
-  };
-  const links = link([-2.7, 0.1, 1.4], [1.3, 2.7, 2.4], 1.6) + link([2.7, -2.7, 1.4], [1.3, 2.7, 2.4], 1.4) + link([-2.7, 0.1, 1.4], [2.7, -2.7, 1.4], 2.2);
-  // A message bubble floating over the hub.
-  const bubble =
-    el(path([[0.2, 1.2, 4.6], [2.6, 1.2, 4.6], [2.6, 1.2, 5.8], [0.9, 1.2, 5.8], [0.5, 1.2, 6.3], [0.6, 1.2, 5.8], [0.2, 1.2, 5.8]]), 'art-face art-blue') +
-    el(path([[0.6, 1.2, 5.3], [2.2, 1.2, 5.3]], false) + path([[0.6, 1.2, 5.0], [1.7, 1.2, 5.0]], false), 'art-blue');
-  return svg(floor + links + nodes + bubble + dot([-2.7, 0.1, 1.4]) + dot([2.7, -2.7, 1.4]) + dot([1.3, 2.7, 2.4]));
-}
-
-/** Place: activity stacking up into results, topped with a confirmed placement. */
-function placeArt() {
-  const floor = grid(-4, -4, 0, 8, 8);
-  const bars = [
-    [-3, 1.5, 1.2],
-    [-1.4, 0, 2.2],
-    [0.2, -1.5, 3.2],
-    [1.8, -3, 4.6],
-  ]
-    .map(([x, y, h], i, all) => box(x, y, 0, 1.2, 1.2, h, i === all.length - 1))
-    .join('');
-  const trend = el(path([[-2.4, 2.1, 1.9], [-0.8, 0.6, 2.9], [0.8, -0.9, 3.9], [2.4, -2.4, 5.6]], false), 'art-faint art-faint--blue');
-  const badge = ring(2.4, -2.4, 7, 1.1, 'art-face art-blue') + el(path([[1.9, -2.6, 7], [2.3, -2.2, 7], [3, -3, 7]], false), 'art-blue art-blue--thick');
-  return svg(floor + bars + trend + badge);
-}
+const svg = (height: number, pieces: string[]) =>
+  `<svg class="fstep__art" viewBox="0 0 580 ${height}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">${pieces.join('')}</svg>`;
 
 export const FLOW_ART: Record<string, () => string> = {
-  source: sourceArt,
-  engage: engageArt,
-  place: placeArt,
+  source: () => svg(488.72, SOURCE),
+  engage: () => svg(347.5, ENGAGE),
+  place: () => svg(401, PLACE),
 };
