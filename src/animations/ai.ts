@@ -3,7 +3,7 @@ import { createPaperCards, type CardPose } from '../shared/paper-cards';
 import { ai } from '../content/home';
 
 /**
- * "Practical AI that recruiters can trust", second on the home page.
+ * "Practical AI that recruiters can trust", on the home page after Source / Engage / Place.
  *
  * The three capability cards are paper sheets in WebGL (see paper-cards.ts),
  * after the stat cards on tibdigital.com. The stage pins and, as you scroll,
@@ -212,7 +212,6 @@ export function initAI(animate: boolean) {
   const section = q('.ai')!;
   const stage = q('.ai__stage', section)!;
   const canvas = q<HTMLCanvasElement>('.ai__canvas', section)!;
-  const stepsPath = q<SVGPathElement>('.steps__path', section)!;
 
   if (animate) {
     const split = SplitText.create('.ai__title', { type: 'lines,words', mask: 'lines', linesClass: 'split-line' });
@@ -230,15 +229,6 @@ export function initAI(animate: boolean) {
       stagger: 0.1,
       scrollTrigger: { trigger: section, start: 'top 65%', toggleActions: 'play none none reverse' },
     });
-
-    // Steps and note below the cards.
-    const steps = q('.steps', section)!;
-    gsap
-      .timeline({ scrollTrigger: { trigger: steps, start: 'top 80%', end: 'bottom 55%', scrub: 0.5 } })
-      .fromTo(stepsPath, { drawSVG: '0%' }, { drawSVG: '100%', ease: 'none' }, 0)
-      .from('.step__dot', { scale: 0, autoAlpha: 0, stagger: 0.3, ease: 'back.out(2)', duration: 0.3 }, 0)
-      .from('.step p', { y: 20, autoAlpha: 0, stagger: 0.3, duration: 0.3 }, 0.05);
-    gsap.from('.ai__note', { x: -20, autoAlpha: 0, scrollTrigger: { trigger: '.ai__note', start: 'top 90%' } });
   }
 
   if (!animate) return () => {};

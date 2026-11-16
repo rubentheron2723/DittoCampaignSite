@@ -5,7 +5,7 @@ import { boot } from '../shared/boot';
 import { renderHome } from './home-render';
 import { initHero } from '../animations/hero';
 import { initFlow } from '../animations/flow';
-import { initCTA, initPricing, initTrust } from '../animations/reveals';
+import { initCTA } from '../animations/reveals';
 import { initAI } from '../animations/ai';
 import { initSystem } from '../animations/system';
 
@@ -17,8 +17,6 @@ boot({
     initSystem(!reduce);
     initFlow(!reduce);
     initAI(!reduce);
-    initTrust(!reduce);
-    initPricing(!reduce);
     initCTA(!reduce);
 
     if (reduce) {

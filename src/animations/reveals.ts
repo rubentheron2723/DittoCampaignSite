@@ -1,4 +1,4 @@
-import { Flip, gsap, q, qa, ScrollTrigger, SplitText } from './gsap';
+import { gsap, q, qa, ScrollTrigger, SplitText } from './gsap';
 
 const enter = (trigger: Element, start = 'top 75%') => ({
   trigger,
@@ -62,64 +62,6 @@ export function initTrust(animate: boolean) {
       },
     });
   }
-}
-
-/* ---------- Pricing ---------- */
-export function initPricing(animate: boolean) {
-  const section = q('.pricing')!;
-  const toggle = q('#billing-toggle', section)!;
-  const pill = q('.toggle__pill', toggle)!;
-  const buttons = qa<HTMLButtonElement>('button', toggle);
-  const tiers = qa<HTMLElement>('.tier', section);
-
-  if (animate) {
-    const split = SplitText.create('.pricing__title', { type: 'lines,words', mask: 'lines', linesClass: 'split-line' });
-    gsap.from(split.words, { yPercent: 110, autoAlpha: 0, duration: 1, ease: 'expo.out', stagger: 0.04, scrollTrigger: enter(section) });
-    gsap.from('.pricing__copy, .toggle', { y: 24, autoAlpha: 0, stagger: 0.1, scrollTrigger: enter(section, 'top 70%') });
-    gsap.from(tiers, {
-      y: 80,
-      autoAlpha: 0,
-      duration: 1.1,
-      ease: 'expo.out',
-      stagger: 0.1,
-      scrollTrigger: enter(q('.tiers')!, 'top 80%'),
-    });
-  }
-
-  let period: 'monthly' | 'annual' = 'monthly';
-  const fmt = (n: number) => n.toFixed(2);
-
-  function setPeriod(next: 'monthly' | 'annual', btn: HTMLButtonElement) {
-    if (next === period) return;
-    period = next;
-    buttons.forEach((b) => b.setAttribute('aria-selected', String(b === btn)));
-
-    // Slide the pill under the chosen label with Flip.
-    const state = Flip.getState(pill);
-    pill.style.left = `${btn.offsetLeft}px`;
-    pill.style.width = `${btn.offsetWidth}px`;
-    Flip.from(state, { duration: animate ? 0.55 : 0, ease: 'power3.inOut' });
-
-    // Roll each price to its new value.
-    tiers.forEach((tier, i) => {
-      const amount = tier.querySelector<HTMLElement>('.tier__amount')!;
-      const from = Number(amount.textContent);
-      const to = Number(next === 'annual' ? tier.dataset.annual : tier.dataset.monthly);
-      const obj = { v: from };
-      gsap.to(obj, {
-        v: to,
-        duration: animate ? 0.8 : 0,
-        delay: i * 0.05,
-        ease: 'power3.out',
-        onUpdate: () => (amount.textContent = fmt(obj.v)),
-      });
-      if (animate) {
-        gsap.fromTo(tier, { scale: 0.985 }, { scale: 1, duration: 0.6, ease: 'elastic.out(1, 0.6)', delay: i * 0.05 });
-      }
-    });
-  }
-
-  buttons.forEach((btn) => btn.addEventListener('click', () => setPeriod(btn.dataset.period as 'monthly' | 'annual', btn)));
 }
 
 /* ---------- CTA ---------- */
