@@ -120,28 +120,37 @@ svg { display: block; }
 .intro__clouds { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
 /* Fixed nav */
-.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 60; height: var(--nav-h); display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 var(--gutter); color: var(--white); transition: color 0.35s var(--ease-out), transform 0.5s var(--ease-out), opacity 0.35s var(--ease-out); }
+/* The reworked Figma nav (2377:237 on light, 2377:262 on dark/blue): 72 tall, 80px in at 1440, a one-colour logo,
+   plain 16px links and a glass "Book a demo" pill. #FEFEFE over dark/blue sections, #171717 over light ones. */
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 60; height: var(--nav-h); display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 clamp(20px, 5.556vw, 80px); color: #fefefe; transition: color 0.35s var(--ease-out), transform 0.5s var(--ease-out), opacity 0.35s var(--ease-out); }
 /* Slides away once the footer is in view (see initNavTheme). */
 .nav--hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
 .nav::before { content: ''; position: absolute; inset: 0; background: rgba(8, 12, 18, 0.55); border-bottom: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(14px) saturate(1.1); -webkit-backdrop-filter: blur(14px) saturate(1.1); opacity: 0; transition: opacity 0.35s var(--ease-out), background-color 0.35s; }
 .nav--solid::before { opacity: 1; }
-.nav--on-light { color: var(--ink); }
+.nav--on-light { color: var(--brand-ink); }
 .nav--on-light::before { background: rgba(235, 240, 246, 0.72); border-bottom-color: var(--line-light); }
-.nav--on-light .mark__r { fill: var(--ink); }
-.nav--on-light .btn--solid { background: #0a0f15; color: #eff5fb; }
-.nav:not(.nav--on-light) .btn--solid { background: var(--white); color: var(--black); }
 .nav__brand, .nav__links, .nav__actions { position: relative; z-index: 1; display: flex; align-items: center; }
-/* Brand wordmark: blue mark parts are fixed; the dark parts follow currentColor. */
-.wordmark { display: block; height: 100%; width: auto; overflow: visible; }
-.nav__brand { height: 26px; }
-.wordmark--nav { height: 26px; }
-.nav--on-light .nav__brand { color: var(--brand-ink); }
-.nav__links { gap: 4px; }
-.nav__links a { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); position: relative; padding: 9px 14px; border-radius: 999px; opacity: 0.78; transition: opacity 0.2s, background-color 0.2s; }
-.nav__links a:hover, .nav__links a.is-active { opacity: 1; background: rgba(255, 255, 255, 0.1); }
-.nav--on-light .nav__links a:hover, .nav--on-light .nav__links a.is-active { background: rgba(15, 20, 29, 0.06); }
-.nav__links a.is-active::after { content: ''; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--blue); translate: -50% 0; }
-.nav__actions { gap: 8px; }
+/* Logo: 93.2 x 24 with an 8px hit area around it, one colour (shared/nav-logo.ts). */
+.nav__brand { padding: 8px; }
+.nav-logo { display: block; width: 93.2px; height: 24px; overflow: visible; }
+/* Links: 16/20 regular, 16 apart, plain text. */
+.nav__links { gap: 16px; }
+.nav__links a, .nav__signin { font-size: 16px; line-height: 20px; font-weight: 400; transition: opacity 0.2s; }
+.nav__links a:hover, .nav__signin:hover { opacity: 0.6; }
+.nav__actions { gap: 16px; }
+/* Glass pill, 36 tall: dark glass with white text over light sections, light glass with ink text over dark ones. */
+.nav__cta {
+  display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 20px; border-radius: 999px;
+  font-size: 16px; line-height: 20px; font-weight: 400; letter-spacing: -0.04em; white-space: nowrap;
+  color: var(--brand-ink); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(-76.45deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%), linear-gradient(-75.24deg, rgba(255, 255, 255, 0.6) 0.279%, rgba(255, 255, 255, 0) 100%);
+  transition: color 0.35s var(--ease-out), filter 0.2s;
+}
+.nav--on-light .nav__cta {
+  color: #fff;
+  background: linear-gradient(-76.45deg, rgba(23, 23, 23, 0.6) 56.239%, rgba(23, 23, 23, 0) 100%), linear-gradient(-75.24deg, rgba(255, 255, 255, 0.6) 0.279%, rgba(255, 255, 255, 0) 100%);
+}
+.nav__cta:hover { filter: brightness(1.08); }
 .menu-toggle { display: none; position: relative; z-index: 2; width: 40px; height: 40px; border-radius: 50%; flex-direction: column; justify-content: center; align-items: center; gap: 6px; }
 .menu-toggle span { display: block; width: 20px; height: 2px; background: currentColor; border-radius: 2px; transition: transform 0.3s var(--ease-out); }
 body.menu-open .menu-toggle { color: var(--white); }
@@ -234,10 +243,9 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 .footer__wordmark { position: relative; display: block; width: 100.355%; height: auto; margin-top: auto; margin-bottom: -13.784%; flex-shrink: 0; }
 
 @media (max-width: 900px) {
-  .nav__links, .nav .btn--ghost { display: none; }
+  .nav__links, .nav__signin { display: none; }
   .menu-toggle { display: flex; }
-  .nav .btn--solid { height: 38px; padding: 0 14px; }
-  .rail { display: none; }
+  .nav__cta { padding: 0 16px; }
   .page-hero { min-height: 60svh; padding-top: calc(var(--nav-h) + 40px); }
 }
 @media (max-width: 760px) {
