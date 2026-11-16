@@ -120,12 +120,17 @@ function initForm() {
   });
 }
 
+const narrow = window.matchMedia('(max-width: 900px)');
+
 boot({
   page: 'signin',
   render,
   init: ({ reduce, revealed }) => {
     initClouds(q('.signin')!, q<HTMLCanvasElement>('.signin__sky')!, 'signin--sky', reduce, SKY_HERO, {
-      bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
+      // Figma runs Moving blobs over the whole frame at full strength, after the sky's white fade.
+      bubbles: { params: HERO_BUBBLES, intensity: 1 },
+      // Figma's fade: clear at 18.7% across to #FEFEFE at 54.4%; on narrow screens, top to bottom instead.
+      fade: () => (narrow.matches ? { from: 0.26, to: 0.46, axis: 'y' } : { from: 0.18715, to: 0.54444, axis: 'x' }),
     });
     initForm();
     if (reduce) return;
