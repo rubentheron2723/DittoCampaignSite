@@ -41,7 +41,8 @@ export async function boot({ page, render, init }: Options) {
 
   // Curtain first, so the page never flashes unstyled content. A fresh visit or reload plays the landing intro;
   // arriving from another page of the site plays the page transition instead.
-  const moved = takePageTransition();
+  // Following a link here, or going back or forward to this page, is a move within the site.
+  const moved = takePageTransition() || cameBackOrForward();
   const revealed = reduce ? Promise.resolve((hideCurtain(), hideIntro())) : moved ? playPageTransition(page) : playCloudIntro();
   // The intro's white cover is up (or, with reduced motion, the page itself): the body can take its own colour.
   document.documentElement.classList.remove('booting');
@@ -78,6 +79,22 @@ export async function boot({ page, render, init }: Options) {
   ScrollTrigger.refresh();
   return ctx;
 }
+
+/** True when this load came from the browser's back or forward buttons. */
+function cameBackOrForward() {
+  const entry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+  return entry?.type === 'back_forward';
+}
+
+// Back or forward to a page the browser kept in its back/forward cache: it comes back exactly as it was left, under the
+// white cover it faded to on the way out, so uncover it with the page transition (or just lift the cover).
+window.addEventListener('pageshow', (e) => {
+  if (!e.persisted) return;
+  takePageTransition(); // a flag from leaving this page belongs to the page we left for
+  const page = document.body.dataset.page as PageId | undefined;
+  if (prefersReducedMotion() || !page) hideIntro();
+  else playPageTransition(page);
+});
 
 /* ---------- CTA join ---------- */
 /**

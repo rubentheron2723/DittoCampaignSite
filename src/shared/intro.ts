@@ -721,11 +721,6 @@ export function coverAndGo(href: string) {
   gsap.fromTo(intro, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: 'power2.inOut', onComplete: () => (window.location.href = href) });
 }
 
-// Coming back via the browser's back/forward cache restores the page as it was left: still covered in white.
-window.addEventListener('pageshow', (e) => {
-  if (e.persisted) hideIntro();
-});
-
 export function hideIntro() {
   const intro = q('#intro');
   if (intro) intro.style.display = 'none';
