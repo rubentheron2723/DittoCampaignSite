@@ -37,6 +37,8 @@
   font-size: var(--t-button-lg-size); line-height: var(--t-button-lg-lh); letter-spacing: var(--t-button-lg-ls); font-weight: var(--t-button-lg-wt);
 }
 .btn--light.btn--hero { color: #171717; }
+/* "View Pricing" sits on the hero's pale bottom fade, where white text washed out: ink, like "Book a demo". */
+.btn--glass.btn--hero { color: #171717; }
 
 /* ---------- FLOW ---------- */
 /* Source → Engage → Place (Figma node 2370:194): three 1440x1024 panels side by side, slid sideways as the section
@@ -169,6 +171,9 @@
 .system {
   --system-angle: -11deg;
   position: relative; background: #fdfdfd; color: var(--brand-ink); overflow: clip;
+  /* Tucked 1px under the hero: the hero often ends on a fractional pixel, and its blue background showed through
+     that last, partly covered row as a faint line. */
+  margin-top: -1px;
   padding: clamp(72px, 8.333vw, 120px) var(--gutter) clamp(56px, 8.125vw, 117px);
 }
 .system__head { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; text-align: center; }
