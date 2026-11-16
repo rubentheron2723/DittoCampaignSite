@@ -56,7 +56,7 @@
 
 /* The shared marquee (animations/flow.ts). Its CSS is its starting state (the black line in the section above): GSAP
    clears a tween's inline styles on refresh until the scroll reaches it, so whatever shows then must be the start.
-   The anchor sits where Source's word is centred in Figma. The tilt goes from the section above's flat -11deg slant (--t: 0) to Figma's rotateX(-22deg) rotateY(32deg) (--t: 1, no
+   The anchor sits where Source's word is centred in Figma. The tilt switches (while no word is showing) from the section above's flat -11deg slant (--t: 0) to Figma's rotateX(-22deg) rotateY(32deg) (--t: 1, no
    perspective, so drawn flat as in Figma); the move wrapper carries it down from the section above and scales it from
    that section's 146px to this one's 164px. Each word starts a quarter in so its track covers both sides while it loops. */
 .flow__marquee { position: absolute; left: 43.87%; top: 28.3%; width: 0; height: 0; z-index: 1; pointer-events: none; }
@@ -74,6 +74,8 @@
 .flow__mq-word:not([data-word='intro']) { visibility: hidden; }
 .flow__mq-word[data-word='engage'] { color: #eaf8ff; }
 .flow__mq-track { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
+/* On the blue the step words sit back behind the copy and illustrations. */
+.flow__mq-word:not([data-word='intro']) .flow__mq-track { opacity: 0.35; }
 .flow__mq-track span { padding-right: 0.22em; }
 .flow__mq-word[data-word='intro'] span { padding-right: 0.3em; }
 /* Each panel's own still word: only with reduced motion, when the shared marquee is off. */
@@ -96,11 +98,12 @@
 }
 .fpanel__word { position: absolute; left: 0; top: 0; width: max-content; transform: translate(-25%, -50%); }
 .fpanel[data-act='engage'] .fpanel__word { color: #eaf8ff; }
+.fpanel__word { opacity: 0.35; }
 .fpanel__track { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
 .fpanel__track span { padding-right: 0.22em; }
 
 /* 40/44 bold, 24/28 medium, 20/24 regular, all -0.04em at 1440; 760 wide at 1440. */
-.fpanel__copy { position: relative; flex: 1 1 0; min-width: 0; max-width: 760px; display: grid; gap: 17px; }
+.fpanel__copy { position: relative; flex: 1 1 0; min-width: 0; max-width: 760px; display: grid; gap: 17px; margin-bottom: clamp(0px, 7.81vh, 80px); }
 .fpanel__title { font-size: clamp(26px, calc(26px + 14 * (100vw - 375px) / 1065), 40px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; }
 .fpanel__lead { font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
 .fpanel__text { display: grid; gap: 1.2em; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; }
@@ -128,7 +131,7 @@
   /* The top is kept for the word; the illustration takes what's left between it and the copy. */
   .fpanel { flex-direction: column; align-items: stretch; justify-content: flex-end; gap: 16px; padding: calc(var(--nav-h) + 16vh) var(--gutter) clamp(32px, 6vh, 56px); }
   .fpanel__plane, .flow__marquee { top: calc(var(--nav-h) + 8vh); }
-  .fpanel__copy { flex: none; }
+  .fpanel__copy { flex: none; margin-bottom: 0; }
   .fpanel__art { order: -1; flex: 1 1 0; width: 100%; min-height: 120px; max-height: 320px; aspect-ratio: auto; }
 }
 
