@@ -60,9 +60,12 @@ const WORD_AT: Record<string, [number, number]> = { source: [43.87, 28.3], engag
 
 /**
  * Source → Engage → Place (Figma node 2370:194): three full-screen panels side by side on one long white-to-blue
- * background. The section pins and scrolling slides the panels sideways (animations/flow.ts). Each panel has its
- * step's name as a huge slanted marquee near the top, the copy bottom left and the isometric illustration drawn
- * straight on the background at the right.
+ * background. The section pins and scrolling slides the panels sideways (animations/flow.ts). Copy sits bottom
+ * left and the isometric illustration is drawn straight on the background at the right.
+ *
+ * The big slanted marquee is one element shared with the section above: it starts as that section's black
+ * "Source. Engage. Place." line, then turns into this section's white "Source." line and changes to "Engage." and
+ * "Place." as the panels slide. Each panel also keeps its own still word, shown only with reduced motion.
  */
 function flowSection() {
   const panels = acts
@@ -84,10 +87,20 @@ function flowSection() {
     })
     .join('');
 
+  // The shared marquee: the section above's line ("intro"), then one word per step. Each track holds two identical
+  // halves so it can loop by sliding exactly one half.
+  const track = (word: string, text: string, n: number) => {
+    const half = Array.from({ length: n }, () => `<span>${esc(text)}</span>`).join('');
+    return `<div class="flow__mq-word" data-word="${word}"><div class="flow__mq-roll"><div class="flow__mq-track">${half}${half}</div></div></div>`;
+  };
+  const marquee = [track('intro', system.loop, 2), ...acts.map((a) => track(a.id, `${a.label}.`, 4))].join('');
+
   return `
   <section class="flow" id="flow" data-theme="light">
     <h2 class="sr-only">${acts.map((a) => `${esc(a.label)}.`).join(' ')}</h2>
     <div class="flow__pin">
+      <div class="flow__bg" aria-hidden="true"></div>
+      <div class="flow__marquee" aria-hidden="true"><div class="flow__mq-move"><div class="flow__mq-tilt">${marquee}</div></div></div>
       <div class="flow__strip">${panels}
       </div>
     </div>
