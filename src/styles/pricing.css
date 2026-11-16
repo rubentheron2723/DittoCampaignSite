@@ -64,10 +64,11 @@
 .gseg button em { font-style: normal; font-size: 10px; line-height: 12px; letter-spacing: -0.04em; color: #00b0ff; }
 /* Cards over the slider (left, 569 wide), price check (right). */
 .calc__body { display: flex; align-items: flex-start; gap: 10px; }
-.calc__pick { flex: 0 1 569px; min-width: 0; display: flex; flex-direction: column; }
+/* As wide as the cards need (at least Figma's 569), so the longest range never spills out of its card. */
+.calc__pick { flex: 0 1 auto; min-width: 569px; display: flex; flex-direction: column; }
 .lcards { display: flex; gap: 20px; }
 .lcard {
-  display: grid; gap: 4px; width: 120px; padding: 16px 20px; border-radius: 24px; border: 1px solid transparent; text-align: left;
+  display: grid; gap: 4px; min-width: 120px; padding: 16px 20px; border-radius: 24px; border: 1px solid transparent; text-align: left;
   background: linear-gradient(-84deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1);
   font-size: 16px; line-height: 20px; letter-spacing: -0.04em; transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s var(--ease-out);
 }
@@ -95,8 +96,15 @@
   background: linear-gradient(-80deg, #1e6ef3 0.875%, #00b0ff 100%); box-shadow: 0 8px 100px rgba(30, 110, 243, 0.35); transition: filter 0.2s;
 }
 .bbtn:hover { filter: brightness(1.06); }
-.quote__enterprise { display: none; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); max-width: 32ch; }
-.quote--enterprise .quote__enterprise { display: block; }
+/* The Enterprise note hangs under the price check without taking space, so the section's height (and the button
+   below) never moves; it fades in and out. Stacked layouts reserve its space instead. */
+.quote { position: relative; }
+.quote__enterprise {
+  position: absolute; top: calc(100% + 12px); right: 0; width: max-content; max-width: 32ch;
+  font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6);
+  opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out), visibility 0s 0.35s;
+}
+.quote--enterprise .quote__enterprise { opacity: 1; visibility: visible; transform: none; transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out), visibility 0s; }
 
 /* The existing slider (kept as it was). */
 .slider { position: relative; margin-top: 56px; padding-bottom: 36px; }
@@ -128,7 +136,7 @@
 /* ---------- Phones and tablets ---------- */
 @media (max-width: 1100px) {
   .calc__body { flex-direction: column; align-items: stretch; gap: 40px; }
-  .calc__pick { flex: none; }
+  .calc__pick { flex: none; min-width: 0; }
   .lcards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .lcard { width: auto; }
   .calc__pick .slider { margin-top: 64px; }
@@ -136,6 +144,7 @@
   .quote__rate { justify-items: start; }
   .quote__totals { justify-content: flex-start; }
   .quote__total { justify-items: start; text-align: left; }
+  .quote__enterprise { position: static; width: auto; }
   .pnext__promises { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {

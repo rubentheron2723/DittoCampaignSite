@@ -239,7 +239,7 @@ boot({
     initClouds(q('.phero')!, q<HTMLCanvasElement>('.phero__sky')!, 'phero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
-    initBlobBackdrop(q('.calc')!, q<HTMLCanvasElement>('.calc__fx')!, 'calc--fx', FOOTER_BLOBS, [253, 253, 253], reduce);
+    initBlobBackdrop(q('.calc')!, q<HTMLCanvasElement>('.calc__fx')!, 'calc--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
     initCalculator(!reduce);
     if (reduce) return;
 
@@ -254,7 +254,7 @@ boot({
     splitReveal('.calc__title span', { by: 'words' });
     fadeUp('.calc__head .psub, .calc__controls', '.calc__head', { y: 24 });
     fadeUp('.lcard, .slider', '.calc__pick', { y: 30, stagger: 0.06 });
-    fadeUp('.quote > *, .calc__cta', '.quote', { y: 30, stagger: 0.08 });
+    fadeUp('.quote > :not(.quote__enterprise), .calc__cta', '.quote', { y: 30, stagger: 0.08 });
 
     splitReveal('.pnext__title', { by: 'words' });
     fadeUp('.pstep', '.pnext__steps', { y: 40, stagger: 0.1 });
