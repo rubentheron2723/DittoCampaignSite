@@ -14,8 +14,8 @@ import { fadeUp, rollNumber, splitReveal } from '../shared/motion';
  * Pricing (Figma 2378:655 hero, 2378:786 calculator; the third section is designed to match them).
  *   1. Hero: the home hero's cloud sky and bubbles (the frame uses the same shader settings), centred white copy and a
  *      glass "Get started" pill.
- *   2. Calculator on #fdfdfd: 84px headline, glass Monthly/Annual and ZAR/USD toggles, four glass plan cards next to
- *      the slider, then the plan, three big totals and a glass "Book a demo".
+ *   2. Calculator on #fdfdfd, one screen (1024 at 1440): the headline, toggles, plan cards and slider at the top; the
+ *      plan, three big totals and a blue "Book a demo" at the bottom.
  *   3. "From first call to first placement": the five steps as glass rows with big blue numbers, then the four
  *      guarantees as glass cards.
  */
@@ -39,6 +39,7 @@ function render() {
   </section>
 
   <section class="calc" id="calculator" data-theme="light">
+    <div class="calc__top">
     <header class="calc__head">
       <h2 class="ptitle calc__title"><span>${esc(calculator.titleOne)}</span><span>${esc(calculator.titleTwo)}</span></h2>
       <p class="psub">${esc(calculator.description)}</p>
@@ -79,6 +80,7 @@ function render() {
         </div>
       </div>
     </div>
+    </div>
 
     <div class="quote" id="quote">
       <p class="quote__tier"><span id="q-tier">Starter</span> <em id="q-range">1 – 9 users</em></p>
@@ -86,10 +88,10 @@ function render() {
         <div class="quote__total"><strong id="q-rate">R949</strong><span>${esc(calculator.perLicense)}</span></div>
         <div class="quote__total quote__total--mid"><strong id="q-total">R6,643</strong><span id="q-period">Monthly total</span></div>
         <div class="quote__total quote__total--end"><strong id="q-users">7</strong><span>Recruiters</span></div>
+        <a class="bbtn calc__cta" href="/contact" data-magnetic>Book a demo</a>
       </div>
       <p class="quote__enterprise" id="q-enterprise">${esc(calculator.enterprise)}</p>
     </div>
-    <a class="gbtn gbtn--lg calc__cta" href="/contact" data-magnetic>Book a demo</a>
   </section>
 
   <section class="pnext" data-theme="light">
@@ -247,7 +249,7 @@ boot({
     splitReveal('.calc__title span', { by: 'words' });
     fadeUp('.calc__head .psub, .calc__controls', '.calc__head', { y: 24 });
     fadeUp('.lcard, .slider', '.calc__pick', { y: 30, stagger: 0.06 });
-    fadeUp('.quote > *, .calc__cta', '.quote', { y: 30, stagger: 0.08 });
+    fadeUp('.quote__tier, .quote__total, .calc__cta', '.quote', { y: 30, stagger: 0.08 });
 
     splitReveal('.pnext__title', { by: 'words' });
     fadeUp('.pstep', '.pnext__steps', { y: 40, stagger: 0.1 });
