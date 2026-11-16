@@ -187,16 +187,19 @@ function initCalculator(animate: boolean) {
     update();
   };
 
-  Draggable.create(knob, {
+  // Bounds by the knob's centre, not its box: the box sits half outside the track at either end (its negative
+  // margin), so bounding the box by the track would stop the centre short of 1 and 100.
+  const bounds = () => ({ minX: 0, maxX: track.clientWidth });
+  const [drag] = Draggable.create(knob, {
     type: 'x',
-    bounds: track,
+    bounds: bounds(),
     inertia: false,
     onDrag() {
       users = Math.max(1, Math.min(100, Math.round((this.x / track.clientWidth) * 99 + 1)));
       gsap.set(fill, { width: `${(this.x / track.clientWidth) * 100}%` });
       update();
     },
-    onPress() { gsap.to(knob, { scale: 1.12, duration: 0.2 }); },
+    onPress() { this.applyBounds(bounds()); gsap.to(knob, { scale: 1.12, duration: 0.2 }); },
     onRelease() { gsap.to(knob, { scale: 1, duration: 0.5, ease: 'elastic.out(1, 0.5)' }); setUsers(users); },
   });
   track.addEventListener('click', (e) => {
@@ -208,7 +211,7 @@ function initCalculator(animate: boolean) {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); setUsers(users - 1); }
   });
   cards.forEach((c) => c.addEventListener('click', () => setUsers(Number(c.dataset.min))));
-  window.addEventListener('resize', place);
+  window.addEventListener('resize', () => { drag.applyBounds(bounds()); place(); });
 
   // Glass toggles: the raised glass pill slides to the chosen option.
   function seg(id: string, onChange: (v: string) => void) {

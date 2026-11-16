@@ -23,7 +23,7 @@ const IMG_ASPECT = 1.5;
 /* ---------- Easing and keyframes ---------- */
 
 /** CSS cubic-bezier(x1, y1, x2, y2) as an easing function. */
-function bezier(x1: number, y1: number, x2: number, y2: number) {
+export function bezier(x1: number, y1: number, x2: number, y2: number) {
   const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
   const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
   const sx = (t: number) => ((ax * t + bx) * t + cx) * t;
@@ -55,7 +55,7 @@ function bezier(x1: number, y1: number, x2: number, y2: number) {
 }
 
 const EASE_INOUT = bezier(0.5, 0, 0.5, 1);
-const EASE_PART = bezier(0.73, 0, 0.15, 1);
+export const EASE_PART = bezier(0.73, 0, 0.15, 1);
 const EASE_OUT = bezier(0, 0, 0, 1);
 const EASE_FADE_IN = bezier(0.714, 0, 0.028, 1);
 
@@ -98,7 +98,7 @@ const partProgress = (t: number, settle: number) =>
 
 /** One cloud layer: its box in the Clouds frame (left, top, width, height of the box that holds it),
  * the image's own size inside it, its 2D matrix (CSS matrix(a, b, c, d)), and how far it travels. */
-type Cloud = { box: [number, number, number, number]; size: [number, number]; m: [number, number, number, number]; from?: [number, number]; to: [number, number] };
+export type Cloud = { box: [number, number, number, number]; size: [number, number]; m: [number, number, number, number]; from?: [number, number]; to: [number, number] };
 
 type Layout = {
   /** The design frame the screen is fitted to. */
@@ -114,14 +114,14 @@ type Layout = {
 };
 
 const I: [number, number, number, number] = [1, 0, 0, 1];
-const FLIP_Y: [number, number, number, number] = [1, 0, 0, -1];
+export const FLIP_Y: [number, number, number, number] = [1, 0, 0, -1];
 const FLIP_X: [number, number, number, number] = [-1, 0, 0, 1];
-const TURN: [number, number, number, number] = [-1, 0, 0, -1];
+export const TURN: [number, number, number, number] = [-1, 0, 0, -1];
 const R30: [number, number, number, number] = [0.866025, 0.5, -0.5, 0.866025];
-const R210: [number, number, number, number] = [-0.866025, -0.5, 0.5, -0.866025];
+export const R210: [number, number, number, number] = [-0.866025, -0.5, 0.5, -0.866025];
 const R_75: [number, number, number, number] = [0.258819, -0.965926, 0.965926, 0.258819];
 const R_75F: [number, number, number, number] = [-0.258819, -0.965926, -0.965926, 0.258819];
-const R_22: [number, number, number, number] = [0.92737, -0.374145, 0.374145, 0.92737];
+export const R_22: [number, number, number, number] = [0.92737, -0.374145, 0.374145, 0.92737];
 const R158: [number, number, number, number] = [-0.92737, 0.374145, -0.374145, -0.92737];
 
 /** Where each layer travels (the same on desktop and mobile), bottom layer first. */
@@ -236,7 +236,7 @@ function fit(layout: Layout, w: number, h: number) {
 }
 
 /** The 4 corners (screen px, clockwise from top-left of the image) and object-fit: cover UVs of a layer at progress p. */
-function quad(layer: Cloud, p: number, s: number, ox: number, oy: number, cx: number, cy: number) {
+export function quad(layer: Cloud, p: number, s: number, ox: number, oy: number, cx: number, cy: number) {
   const [bl, bt, bw, bh] = layer.box;
   const [w, h] = layer.size;
   const [a, b, c, d] = layer.m;
@@ -275,7 +275,7 @@ function quad(layer: Cloud, p: number, s: number, ox: number, oy: number, cx: nu
 
 /* ---------- WebGL2 renderer ---------- */
 
-const SPRITE_VERT = `#version 300 es
+export const SPRITE_VERT = `#version 300 es
 in vec2 aPos; in vec2 aUv;
 uniform vec2 uSize; // the target's size in px
 out vec2 vUv;
@@ -284,12 +284,12 @@ void main() {
   gl_Position = vec4(aPos.x / uSize.x * 2.0 - 1.0, 1.0 - aPos.y / uSize.y * 2.0, 0.0, 1.0);
 }`;
 
-const SPRITE_FRAG = `#version 300 es
+export const SPRITE_FRAG = `#version 300 es
 precision highp float;
 in vec2 vUv; uniform sampler2D uTex; out vec4 o;
 void main() { o = texture(uTex, vUv); }`;
 
-const FULL_VERT = `#version 300 es
+export const FULL_VERT = `#version 300 es
 in vec2 aPos;
 void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
 
@@ -299,7 +299,7 @@ void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
  * Figma also averages 4 jittered taps per pixel (sub-pixel antialiasing); one tap is used here,
  * which looks the same on soft clouds and costs a quarter as much.
  */
-const LENS_FRAG = `#version 300 es
+export const LENS_FRAG = `#version 300 es
 precision highp float;
 uniform sampler2D uTex;
 uniform vec2 uScreen;     // canvas size in px
@@ -348,7 +348,7 @@ void main() {
 }`;
 
 /** Figma's aberration kernel at quality "Low" (the setting used in the file). */
-function kernel(aberration: number) {
+export function kernel(aberration: number) {
   const bucket = aberration <= 0.001 ? 0 : aberration < 0.08 ? 1 : aberration < 0.18 ? 2 : aberration < 0.35 ? 3 : 4;
   if (bucket === 0) return { taps: 0, inv: 1, sum: 1 };
   const size = Math.max(3, (64 / 3) * [0, 0.25, 0.5, 0.75, 1][bucket]);
@@ -361,7 +361,7 @@ function kernel(aberration: number) {
 
 type Renderer = { draw: (t: number, settle: number) => void; resize: () => void; dispose: () => void };
 
-function compile(gl: WebGL2RenderingContext, vs: string, fs: string) {
+export function compile(gl: WebGL2RenderingContext, vs: string, fs: string) {
   const prog = gl.createProgram()!;
   for (const [type, src] of [
     [gl.VERTEX_SHADER, vs],
@@ -577,7 +577,7 @@ function canvasRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement): Rende
 /* ---------- The intro ---------- */
 
 /** Loads the cloud cut-out, giving up after `timeout` ms. */
-function loadClouds(timeout: number): Promise<HTMLImageElement | null> {
+export function loadClouds(timeout: number): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
     const img = new Image();
     img.decoding = 'async';
@@ -713,10 +713,12 @@ export function coverAndGo(href: string) {
     window.location.href = href;
     return;
   }
-  // Only the white: the clouds, mark and sweep stay hidden until the next page's intro plays them.
+  // Only the white: the clouds, mark and sweep stay hidden. The next page opens with the page transition
+  // (page-transition.ts), which starts from this same white.
   qa('.intro__clouds, .intro__mark, .intro__white', intro).forEach((el) => gsap.set(el, { autoAlpha: 0 }));
+  intro.classList.remove('intro--page');
   intro.style.display = '';
-  gsap.fromTo(intro, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, ease: 'power2.inOut', onComplete: () => (window.location.href = href) });
+  gsap.fromTo(intro, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: 'power2.inOut', onComplete: () => (window.location.href = href) });
 }
 
 // Coming back via the browser's back/forward cache restores the page as it was left: still covered in white.

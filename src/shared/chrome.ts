@@ -18,6 +18,7 @@ export function renderChrome(page: PageId) {
     </div>
     <div class="intro" id="intro" aria-hidden="true">
       <div class="intro__stage">${INTRO_MARK}<div class="intro__white"></div></div>
+      <div class="intro__veil"></div>
       <canvas class="intro__clouds"></canvas>
     </div>
 
