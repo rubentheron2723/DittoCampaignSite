@@ -1,6 +1,6 @@
 import { appUrl, finalCta, footer, nav, type PageId } from '../content/shared';
 import { esc, markSvg } from './mark';
-import { wordmarkSvg } from './wordmark';
+import { navLogoSvg } from './nav-logo';
 import { artSvg, FOOTER_LOGOMARK, FOOTER_WORDMARK } from './footer-art';
 import { INTRO_MARK } from './intro';
 
@@ -28,12 +28,12 @@ ${
 
     <header class="nav" id="nav">
       <a class="nav__brand" href="/" aria-label="Ditto home">
-        ${wordmarkSvg('wordmark--nav', 'mark--nav')}
+        ${navLogoSvg('', 'mark--nav')}
       </a>
       <nav class="nav__links" aria-label="Primary">${links}</nav>
       <div class="nav__actions">
-        <a class="btn btn--ghost" href="${appUrl}" target="_blank" rel="noreferrer">Sign in</a>
-        <a class="btn btn--solid" href="/contact" data-magnetic>Book a demo</a>
+        <a class="nav__signin" href="${appUrl}" target="_blank" rel="noreferrer">Sign in</a>
+        <a class="nav__cta" href="/contact" data-magnetic>Book a demo</a>
         <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu">
           <span></span><span></span>
         </button>
