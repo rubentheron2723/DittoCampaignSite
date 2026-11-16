@@ -4,7 +4,7 @@ import { wordmarkSvg } from './wordmark';
 import { artSvg, FOOTER_LOGOMARK, FOOTER_WORDMARK } from './footer-art';
 import { INTRO_MARK } from './intro';
 
-/** Fixed chrome shared by every page: curtain, nav, mobile menu, and (on home) the landing intro and progress rail. */
+/** Fixed chrome shared by every page: curtain, nav, mobile menu, and (on home) the landing intro. */
 export function renderChrome(page: PageId) {
   const chrome = document.getElementById('chrome')!;
   const links = nav
@@ -51,19 +51,7 @@ ${
         <a class="btn btn--outline" href="${appUrl}" target="_blank" rel="noreferrer">Sign in</a>
       </div>
     </div>
-
-    ${
-      page === 'home'
-        ? `<aside class="rail" id="rail" aria-hidden="true">
-            <span class="rail__track"><span class="rail__fill"></span></span>
-            <ol class="rail__items">
-              <li data-act="source"><i></i><b>Source</b></li>
-              <li data-act="engage"><i></i><b>Engage</b></li>
-              <li data-act="place"><i></i><b>Place</b></li>
-            </ol>
-          </aside>`
-        : ''
-    }`;
+`;
 }
 
 /** Closing band + footer, appended to the end of a page's main content. */
