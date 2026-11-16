@@ -1,4 +1,4 @@
-import { acts, ai, hero, pricing, system, trust } from '../content/home';
+import { acts, ai, hero, system } from '../content/home';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
 import { FLOW_ART } from '../shared/flow-art';
@@ -27,7 +27,7 @@ function heroSection() {
       </div>
       <div class="hero__actions">
         <a class="btn btn--light btn--hero" href="#cta" data-magnetic>${esc(hero.primary)}</a>
-        <a class="btn btn--glass btn--hero" href="#pricing" data-magnetic>${esc(hero.secondary)}</a>
+        <a class="btn btn--glass btn--hero" href="/pricing" data-magnetic>${esc(hero.secondary)}</a>
       </div>
     </div>
   </section>`;
@@ -107,30 +107,6 @@ function flowSection() {
   </section>`;
 }
 
-function trustSection() {
-  const ticker = [...trust.ticker, ...trust.ticker].map((t) => `<span>${esc(t)}</span>`).join('');
-  return `
-  <section class="trust" id="trust" data-theme="light">
-    <div class="trust__inner">
-      <h2 class="trust__title">${esc(trust.headline)}</h2>
-      <p class="trust__body">${esc(trust.body)}</p>
-      <div class="stats">
-        ${trust.stats
-          .map(
-            (s) => `<div class="stat">
-              <span class="stat__value" data-count="${s.value}" data-format="${s.format ?? 'int'}">${s.format === 'year' ? '2000' : '0'}</span>${
-                s.suffix ? `<span class="stat__suffix">${esc(s.suffix)}</span>` : ''
-              }
-              <span class="stat__label">${esc(s.label)}</span>
-            </div>`,
-          )
-          .join('')}
-      </div>
-    </div>
-    <div class="ticker" aria-hidden="true"><div class="ticker__row">${ticker}</div></div>
-  </section>`;
-}
-
 /**
  * "Practical AI that recruiters can trust": the capability cards are paper
  * sheets in WebGL (animations/ai.ts) on a pinned stage; the HTML cards below
@@ -158,51 +134,6 @@ function aiSection() {
           .join('')}
       </div>
     </div>
-    <div class="ai__more">
-      <div class="steps">
-        <svg class="steps__line" viewBox="0 0 1000 80" preserveAspectRatio="none" aria-hidden="true">
-          <path class="steps__ghost" d="M20,40 L980,40" />
-          <path class="steps__path" d="M20,40 L980,40" />
-        </svg>
-        <ol class="steps__list">
-          ${ai.flow
-            .map(
-              (f, i) => `<li class="step"><span class="step__dot"><b>${i + 1}</b></span><p>${esc(f)}</p></li>`,
-            )
-            .join('')}
-        </ol>
-      </div>
-      <p class="ai__note">${esc(ai.note)}</p>
-    </div>
-  </section>`;
-}
-
-function pricingSection() {
-  return `
-  <section class="pricing" id="pricing" data-theme="light">
-    <div class="pricing__inner">
-      <div class="pricing__head">
-        <h2 class="pricing__title">${esc(pricing.title)}</h2>
-        <p class="pricing__copy">${esc(pricing.copy)}</p>
-        <div class="toggle" role="tablist" aria-label="Billing period" id="billing-toggle">
-          <span class="toggle__pill" aria-hidden="true"></span>
-          <button type="button" role="tab" aria-selected="true" data-period="monthly">${esc(pricing.monthlyLabel)}</button>
-          <button type="button" role="tab" aria-selected="false" data-period="annual">${esc(pricing.annualLabel)} <em>${esc(pricing.annualNote)}</em></button>
-        </div>
-      </div>
-      <div class="tiers">
-        ${pricing.tiers
-          .map(
-            (t, i) => `<article class="tier ${i === 1 ? 'tier--featured' : ''}" data-monthly="${t.monthly}" data-annual="${t.annual}">
-              <p class="tier__users">${esc(t.users)} <span>active users</span></p>
-              <p class="tier__price"><span class="tier__currency">R</span><span class="tier__amount">${t.monthly.toFixed(2)}</span></p>
-              <p class="tier__per">${esc(pricing.perSeat)}</p>
-              <a class="btn ${i === 1 ? 'btn--solid' : 'btn--outline-dark'}" href="#cta" data-magnetic>Get started</a>
-            </article>`,
-          )
-          .join('')}
-      </div>
-    </div>
   </section>`;
 }
 
@@ -213,8 +144,6 @@ export function renderHome() {
     systemSection(),
     flowSection(),
     aiSection(),
-    trustSection(),
-    pricingSection(),
     ctaAndFooter(),
   ].join('');
 }

@@ -150,21 +150,6 @@
 .flow--stacked .flow__bg { width: 100%; }
 .flow--stacked .fpanel { min-height: 100vh; height: auto; }
 
-/* ---------- TRUST ---------- */
-.trust { background: var(--paper); color: var(--ink); padding: clamp(96px, 12vw, 180px) 0 0; overflow: clip; }
-.trust__inner { padding: 0 var(--gutter); max-width: 1240px; margin: 0 auto; }
-.trust__title { font-size: var(--t-h1-size); line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); font-weight: var(--t-h1-wt); max-width: 14ch; }
-.trust__body { font-size: var(--t-lead-size); line-height: var(--t-lead-lh); letter-spacing: var(--t-lead-ls); font-weight: var(--t-lead-wt); margin-top: 32px; max-width: 64ch; color: var(--ink-soft); }
-.stats { margin-top: clamp(56px, 7vw, 100px); display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; border-top: 1px solid var(--line-light); }
-.stat { padding-top: 28px; }
-.stat__value, .stat__suffix { font-size: var(--t-number-size); line-height: var(--t-number-lh); letter-spacing: var(--t-number-ls); font-weight: var(--t-number-wt); font-variant-numeric: tabular-nums; }
-.stat__suffix { color: var(--blue-deep); }
-.stat__label { font-size: var(--t-small-size); line-height: var(--t-small-lh); letter-spacing: var(--t-small-ls); font-weight: var(--t-small-wt); display: block; margin-top: 12px; color: var(--ink-soft); max-width: 24ch; }
-.ticker { margin-top: clamp(72px, 9vw, 140px); padding: 22px 0; border-top: 1px solid var(--line-light); border-bottom: 1px solid var(--line-light); overflow: hidden; white-space: nowrap; }
-.ticker__row { display: inline-flex; gap: 0; will-change: transform; }
-.ticker__row span { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); display: inline-flex; align-items: center; gap: 28px; padding-right: 28px; color: var(--ink); }
-.ticker__row span::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
-
 /* ---------- SYSTEM ---------- */
 /* "Everything recruiters do." (Figma node 2364:777, 1440x1024): centred headline and copy, then the slanted
    "Source. Engage. Place." line, which runs as a marquee along its own angle (animations/system.ts). */
@@ -208,12 +193,12 @@
 .ai { position: relative; background: #fdfdfd; color: #171717; --ai-pad: clamp(20px, 5.556vw, 80px); }
 .ai__stage { position: relative; min-height: 100vh; min-height: 100lvh; padding: clamp(calc(var(--nav-h) + 24px), 8.333vw, 120px) var(--ai-pad) clamp(64px, 8vw, 120px); overflow-x: clip; }
 /* Figma's glow (its colours and opacity) rises from below the stage. The stage used to clip it mid-glow, a hard line
-   above the steps; now it spills 300px past the stage (the steps below are taller than that) and fades out there:
-   it still starts ~78% down the stage, peaks just under the stage's bottom edge and is gone before the next section. */
+   under the cards, and the closing CTA now starts right at the stage's bottom edge, so the glow stays inside the stage:
+   it peaks 170px above that edge and fades to nothing exactly at it. Only the light outer part of Figma's colours ever
+   showed, so only that is used: #01B0FF easing out. */
 .ai__glow {
-  position: absolute; left: 0; right: 0; top: 0; bottom: -300px; pointer-events: none; opacity: 0.3;
-  /* Only the outer part of Figma's colours ever showed through the stage's edge, so only that is used: #01B0FF easing out. */
-  background: radial-gradient(60% calc(22vh + 40px) at 50% calc(100% - 260px), rgba(1, 176, 255, 0.85) 0%, rgba(1, 176, 255, 0.55) 30%, rgba(1, 176, 255, 0.25) 60%, rgba(1, 176, 255, 0.07) 82%, rgba(1, 176, 255, 0) 100%);
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.3;
+  background: radial-gradient(60% 170px at 50% calc(100% - 170px), rgba(1, 176, 255, 0.85) 0%, rgba(1, 176, 255, 0.55) 30%, rgba(1, 176, 255, 0.25) 60%, rgba(1, 176, 255, 0.07) 82%, rgba(1, 176, 255, 0) 100%);
 }
 .ai__head { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; }
 /* 84/88 bold, -0.04em at 1440 (the h1 size token, set tighter and bolder here as in the design). */
@@ -233,54 +218,10 @@
 .aicard:nth-child(2) .aicard__index { color: #fff; }
 .aicard h3 { font-size: clamp(20px, 1.667vw, 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 700; margin-top: 48px; }
 .aicard p { font-size: clamp(16px, 1.389vw, 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; margin-top: 20px; }
-.ai__more { position: relative; z-index: 1; padding: 0 var(--gutter) clamp(64px, 8vw, 120px); max-width: 1240px; margin: 0 auto; box-sizing: content-box; }
-.steps { position: relative; margin-top: clamp(56px, 7vw, 96px); }
-.steps__line { position: absolute; left: 0; right: 0; top: 24px; width: 100%; height: 2px; overflow: visible; }
-.steps__ghost { stroke: var(--line-light); stroke-width: 2; vector-effect: non-scaling-stroke; }
-.steps__path { stroke: var(--blue); stroke-width: 2; vector-effect: non-scaling-stroke; }
-.steps__list { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.step__dot { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: var(--white); border: 1px solid var(--line-light); box-shadow: 0 10px 24px rgba(6, 49, 73, 0.12); font-weight: 600; }
-.step p { font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); margin-top: 18px; max-width: 28ch; }
-.ai__note { font-size: var(--t-small-size); line-height: var(--t-small-lh); letter-spacing: var(--t-small-ls); font-weight: var(--t-small-wt); margin-top: 48px; padding: 18px 22px; border-left: 2px solid var(--blue); background: rgba(255, 255, 255, 0.6); color: var(--ink-soft); max-width: 70ch; }
-
-/* ---------- PRICING ---------- */
-.pricing { background: linear-gradient(180deg, var(--paper), #d6d8de); color: var(--ink); padding: clamp(96px, 12vw, 180px) 0; }
-.pricing__inner { padding: 0 var(--gutter); max-width: 1240px; margin: 0 auto; }
-.pricing__head { text-align: center; max-width: 720px; margin: 0 auto; }
-.pricing__title { font-size: var(--t-h1-size); line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); font-weight: var(--t-h1-wt); margin-top: 14px; }
-.pricing__copy { font-size: var(--t-lead-size); line-height: var(--t-lead-lh); letter-spacing: var(--t-lead-ls); font-weight: var(--t-lead-wt); margin-top: 18px; color: var(--ink-soft); }
-.toggle { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; margin-top: 32px; padding: 5px; border-radius: 999px; background: rgba(15, 20, 29, 0.06); border: 1px solid var(--line-light); }
-.toggle button { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); position: relative; z-index: 1; padding: 10px 20px; border-radius: 999px; color: var(--ink-soft); transition: color 0.3s; white-space: nowrap; }
-.toggle button[aria-selected='true'] { color: var(--white); }
-.toggle button em { font-size: var(--t-caption-size); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-ls); font-weight: var(--t-caption-wt); font-style: normal; color: var(--blue-deep); margin-left: 4px; }
-.toggle button[aria-selected='true'] em { color: var(--blue); }
-.toggle__pill { position: absolute; top: 5px; left: 5px; width: calc(50% - 5px); height: calc(100% - 10px); border-radius: 999px; background: #0a0f15; }
-.tiers { margin-top: clamp(48px, 6vw, 80px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
-.tier { display: grid; align-content: start; gap: 8px; padding: 32px 28px; border-radius: var(--radius); background: var(--white); border: 1px solid var(--line-light); box-shadow: 0 20px 50px rgba(6, 49, 73, 0.08); will-change: transform; }
-.tier--featured { background: linear-gradient(160deg, #0a0f15, var(--navy)); color: var(--white); border-color: transparent; box-shadow: 0 30px 70px rgba(6, 49, 73, 0.3); }
-.tier__users { font-size: var(--t-h3-size); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-ls); font-weight: var(--t-h3-wt); }
-.tier__users span { font-size: var(--t-caption-size); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-ls); font-weight: var(--t-caption-wt); opacity: 0.7; margin-left: 6px; }
-.tier__price { margin-top: 22px; display: flex; align-items: baseline; gap: 4px; font-variant-numeric: tabular-nums; }
-.tier__currency { font-size: 24px; font-weight: 500; opacity: 0.7; }
-.tier__amount { font-size: var(--t-number-size); line-height: var(--t-number-lh); letter-spacing: var(--t-number-ls); font-weight: var(--t-number-wt); }
-.tier__per { font-size: var(--t-caption-size); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-ls); font-weight: var(--t-caption-wt); opacity: 0.7; }
-.tier .btn { margin-top: 26px; justify-self: start; }
-.tier--featured .btn--solid { background: var(--white); color: var(--black); }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1100px) {
-  .stats { grid-template-columns: repeat(2, 1fr); }
-}
 @media (max-width: 900px) {
   .hero { padding-top: calc(var(--nav-h) + 32px); }
   /* Flow stacks vertically on small screens */
-  .ai__cards, .steps__list, .tiers { grid-template-columns: 1fr; }
-  .steps__line { display: none; }
-}
-@media (max-width: 560px) {
-  .toggle { width: 100%; }
-  .toggle button { padding: 10px 8px; display: grid; gap: 2px; }
-  .toggle button em { margin: 0; }
-  .stats { grid-template-columns: 1fr 1fr; gap: 16px; }
-
+  .ai__cards { grid-template-columns: 1fr; }
 }

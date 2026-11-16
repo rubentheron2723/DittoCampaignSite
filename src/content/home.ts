@@ -3,13 +3,6 @@
  * (src/lib/content.ts and the home landing page) so the words are real.
  */
 
-export const nav = [
-  { label: 'Product', href: '#flow' },
-  { label: 'AI', href: '#ai' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'About', href: '#trust' },
-];
-
 export const hero = {
   lineOne: 'Recruitment.',
   lineTwo: 'Running at scale.',
@@ -76,28 +69,6 @@ export const acts: Act[] = [
   },
 ];
 
-export const trust = {
-  headline: 'Trusted by leading recruitment teams since 2016.',
-  body:
-    'Ditto powers recruitment agencies and hiring teams across multiple markets, providing the infrastructure behind modern recruitment operations. From independent agencies to large, listed organisations, teams rely on Ditto to manage sourcing, communication, and placements while keeping their entire recruitment engine running smoothly.',
-  stats: [
-    { value: 2016, label: 'Backing the industry since', format: 'year' as const },
-    { value: 10, suffix: '+', label: 'Years in high-volume recruitment' },
-    { value: 1, label: 'Seat minimum. Start with one licence.' },
-    { value: 0, label: 'Long-term contracts. Month to month.' },
-  ],
-  ticker: [
-    'Listed groups',
-    'Independent agencies',
-    'In-house hiring teams',
-    'Permanent',
-    'Contract',
-    'Retained',
-    'Contingent',
-    'Executive search',
-  ],
-};
-
 export const ai = {
   title: 'Practical AI that recruiters can trust',
   description:
@@ -115,26 +86,6 @@ export const ai = {
       title: 'Editable matching prompts',
       copy: 'Ditto proposes matching logic from your spec. Your team can refine prompts with no limits.',
     },
-  ],
-  flow: [
-    'Create role brief and define hiring intent',
-    'Let Ditto generate ad, prompt, and candidate scoring',
-    'Review, adjust, and approve with complete transparency',
-  ],
-  note: 'Ditto is not a black box. Matching logic is visible, editable, and never shown to candidates.',
-};
-
-export const pricing = {
-  title: 'Simple pricing based on team size',
-  copy: 'Start with one seat. Scale up or down as needed. Monthly and annual options are available.',
-  monthlyLabel: 'Billed monthly',
-  annualLabel: 'Billed annually',
-  annualNote: 'save 15%',
-  perSeat: 'per active user / month',
-  tiers: [
-    { users: '1 – 4', monthly: 949, annual: 806.65 },
-    { users: '5 – 9', monthly: 849, annual: 721.65 },
-    { users: '10+', monthly: 749, annual: 636.65 },
   ],
 };
 

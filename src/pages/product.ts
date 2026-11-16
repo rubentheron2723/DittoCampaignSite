@@ -1,12 +1,13 @@
 import '../styles/base.css';
 import '../styles/product.css';
 
-import { featureActs, featuresHeroContent, finalFeaturesCta, type ActContent } from '../content/product';
+import { featureActs, featuresHeroContent, finalFeaturesCta, trust, type ActContent } from '../content/product';
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc, markSvg } from '../shared/mark';
 import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, splitReveal } from '../shared/motion';
+import { initTrust } from '../animations/reveals';
 
 /* ---------- Render ---------- */
 function hero() {
@@ -80,6 +81,31 @@ function act(a: ActContent, i: number) {
   </section>`;
 }
 
+/** "Trusted by leading recruitment teams since 2016.": headline, copy, counting stats and the client-type ticker. */
+function trustSection() {
+  const ticker = [...trust.ticker, ...trust.ticker].map((t) => `<span>${esc(t)}</span>`).join('');
+  return `
+  <section class="trust" id="trust" data-theme="light">
+    <div class="trust__inner">
+      <h2 class="trust__title">${esc(trust.headline)}</h2>
+      <p class="trust__body">${esc(trust.body)}</p>
+      <div class="stats">
+        ${trust.stats
+          .map(
+            (s) => `<div class="stat">
+              <span class="stat__value" data-count="${s.value}" data-format="${s.format ?? 'int'}">${s.format === 'year' ? '2000' : '0'}</span>${
+                s.suffix ? `<span class="stat__suffix">${esc(s.suffix)}</span>` : ''
+              }
+              <span class="stat__label">${esc(s.label)}</span>
+            </div>`,
+          )
+          .join('')}
+      </div>
+    </div>
+    <div class="ticker" aria-hidden="true"><div class="ticker__row">${ticker}</div></div>
+  </section>`;
+}
+
 function render() {
   const main = document.getElementById('main')!;
   document.getElementById('chrome')!.insertAdjacentHTML(
@@ -94,6 +120,7 @@ function render() {
   main.innerHTML = [
     hero(),
     ...featureActs.map(act),
+    trustSection(),
     ctaAndFooter({ lineOne: finalFeaturesCta.title.replace(' recruitment business?', ''), lineTwo: 'recruitment business?', copy: finalFeaturesCta.body }),
   ].join('');
 }
@@ -181,6 +208,7 @@ boot({
 
     if (reduce) {
       acts.forEach((s) => initDeck(s, false));
+      initTrust(false);
       return;
     }
 
@@ -206,5 +234,7 @@ boot({
       const { desktop } = ctx.conditions as { desktop: boolean };
       acts.forEach((s) => initDeck(s, desktop));
     });
+    // After the acts' pinned decks, so it's measured below them.
+    initTrust(true);
   },
 });

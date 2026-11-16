@@ -72,3 +72,24 @@
   .fcard { grid-area: auto; padding: 24px; }
   .act__cta { flex-direction: column; align-items: flex-start; }
 }
+
+/* ---------- Trust (moved from the home page) ---------- */
+.trust { background: var(--paper); color: var(--ink); padding: clamp(96px, 12vw, 180px) 0 0; overflow: clip; }
+.trust__inner { padding: 0 var(--gutter); max-width: 1240px; margin: 0 auto; }
+.trust__title { font-size: var(--t-h1-size); line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); font-weight: var(--t-h1-wt); max-width: 14ch; }
+.trust__body { font-size: var(--t-lead-size); line-height: var(--t-lead-lh); letter-spacing: var(--t-lead-ls); font-weight: var(--t-lead-wt); margin-top: 32px; max-width: 64ch; color: var(--ink-soft); }
+.stats { margin-top: clamp(56px, 7vw, 100px); display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; border-top: 1px solid var(--line-light); }
+.stat { padding-top: 28px; }
+.stat__value, .stat__suffix { font-size: var(--t-number-size); line-height: var(--t-number-lh); letter-spacing: var(--t-number-ls); font-weight: var(--t-number-wt); font-variant-numeric: tabular-nums; }
+.stat__suffix { color: var(--blue-deep); }
+.stat__label { font-size: var(--t-small-size); line-height: var(--t-small-lh); letter-spacing: var(--t-small-ls); font-weight: var(--t-small-wt); display: block; margin-top: 12px; color: var(--ink-soft); max-width: 24ch; }
+.ticker { margin-top: clamp(72px, 9vw, 140px); padding: 22px 0; border-top: 1px solid var(--line-light); border-bottom: 1px solid var(--line-light); overflow: hidden; white-space: nowrap; }
+.ticker__row { display: inline-flex; gap: 0; will-change: transform; }
+.ticker__row span { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); display: inline-flex; align-items: center; gap: 28px; padding-right: 28px; color: var(--ink); }
+.ticker__row span::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
+@media (max-width: 1100px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .stats { gap: 16px; }
+}
