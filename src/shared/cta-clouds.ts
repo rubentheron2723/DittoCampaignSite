@@ -30,7 +30,12 @@ type CloudMotion = {
    */
   anchor?: 'keyframes' | 'base';
 };
-export type CloudParams = Omit<typeof SKY_ORIGINAL, 'transform'> & { transform: SkyTransform; motion?: CloudMotion };
+/**
+ * A steady, endless drift instead of a keyframed timeline: the view pans sideways at `x` Figma transform units per
+ * second while the clouds slowly reform (`evolution`, shader phase per second). Never loops, so it never jumps.
+ */
+type CloudDrift = { x: number; evolution: number };
+export type CloudParams = Omit<typeof SKY_ORIGINAL, 'transform'> & { transform: SkyTransform; motion?: CloudMotion; drift?: CloudDrift };
 
 /** The first "footerpt1" frame: dense, billowy clouds. Used by the Source / Engage / Place intro. */
 export const SKY_ORIGINAL = {
@@ -53,8 +58,8 @@ export const SKY_ORIGINAL = {
 };
 
 /**
- * The closing CTA's sky (Figma 2378:1159, "cloudsBG"): the frame's own settings, held still. Its old
- * timeline (a pan and zoom swing) is gone, and without it the clouds sit at the frame's size: puffier.
+ * The closing CTA's sky (Figma 2378:1159, "cloudsBG"): the frame's own settings. Its old timeline (a pan and zoom
+ * swing) is gone, so the clouds keep the frame's puffier size; they just drift slowly (see `drift`).
  */
 export const SKY_CTA: CloudParams = {
   ...SKY_ORIGINAL,
@@ -66,6 +71,10 @@ export const SKY_CTA: CloudParams = {
   warpAmount: 12,
   warpScale: 12,
   stretch: 19,
+  // A slow, serene drift: about 10px a second to the left, rising a touch, while the clouds gently reform (the
+  // phase itself carries them left and up, so the pan goes the same way). No zoom or tilt, so they keep the
+  // frame's puffy shape.
+  drift: { x: -0.5, evolution: 0.005 },
 };
 
 /**
@@ -357,8 +366,8 @@ function compile(gl: WebGL2RenderingContext) {
 export function initCtaClouds(reduce: boolean) {
   const section = document.querySelector<HTMLElement>('.cta');
   const canvas = section?.querySelector<HTMLCanvasElement>('.cta__sky');
-  // Still clouds (the frame has no animation): drawn once and on resize, never looped.
-  if (section && canvas) initClouds(section, canvas, 'cta--sky', true, SKY_CTA);
+  // Drifts while on screen; still with reduced motion.
+  if (section && canvas) initClouds(section, canvas, 'cta--sky', reduce, SKY_CTA);
 }
 
 /**
@@ -515,6 +524,9 @@ export function initClouds(
         setTransform(moved);
       }
       gl.uniform1f(evolutionLoc, -5 + (lerp(eTrack[0].v, sampleTrack(eTrack, time, lerp), amount) / 100) * 10);
+    } else if (p.drift) {
+      setTransform({ ...p.transform, x: p.transform.x + t * p.drift.x });
+      gl.uniform1f(evolutionLoc, baseEvolution + t * p.drift.evolution);
     } else {
       gl.uniform1f(evolutionLoc, baseEvolution + t * DRIFT);
     }
