@@ -68,21 +68,10 @@ export function applyTypeOverrides(doc: Document, vars: Record<string, string>, 
 }
 
 /**
- * On the live site: apply this browser's saved preview, and show a small pill
- * so it's obvious the page is not showing the committed type.
+ * On the live site: apply this browser's saved preview from the /type editor (only in this browser). There's no
+ * on-page badge; reset or keep editing at /type.
  */
 export function initTypePreview() {
   const vars = loadTypeOverrides();
-  if (!Object.keys(vars).length) return;
-  applyTypeOverrides(document, vars);
-  if (window.top !== window) return; // inside the editor's preview frame
-
-  const pill = document.createElement('div');
-  pill.className = 'type-preview-pill';
-  pill.innerHTML = `<span>Previewing custom type</span><a href="/type">Edit</a><button type="button">Reset</button>`;
-  pill.querySelector('button')!.addEventListener('click', () => {
-    saveTypeOverrides({});
-    window.location.reload();
-  });
-  document.body.appendChild(pill);
+  if (Object.keys(vars).length) applyTypeOverrides(document, vars);
 }

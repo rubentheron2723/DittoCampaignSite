@@ -110,8 +110,8 @@ function drawFace(index: number, title: string, copy: string) {
 /**
  * Lays the resting cards out in the space under the headline and copy, so they never cover them.
  * Measures in CSS pixels and converts to world units (the screen is 2 units tall at z = 0, y up).
- * Wide screens: as in Figma, a row from the left margin, 500 px cards 16 px apart on a 1440 frame,
- * 100 px under the copy, running off the right edge; smaller if the screen is too short to fit them.
+ * Wide screens: a row centred on the screen, 100 px under the copy, cards 16 px apart on a 1440 frame and up to
+ * 500 px wide; narrower so the row fits between the page margins (the headline's), or if the screen is too short.
  * Narrow screens: a fanned stack, each card nearer than the last so they never cut into each other.
  */
 function layout(canvas: HTMLCanvasElement, head: HTMLElement) {
@@ -132,11 +132,13 @@ function layout(canvas: HTMLCanvasElement, head: HTMLElement) {
   if (aspect >= 1.1) {
     const s = W / 1440;
     const top = hb.bottom - box.top + Math.min(100, Math.max(40, 100 * s));
-    // Tilts and bends make a card read a little taller than its face.
-    const cw = Math.min(500 * s, (H - bottomPad - top) / (ratio * 1.06));
-    const ch = cw * ratio;
     const gap = 16 * s;
-    const left = hb.left - box.left;
+    const margin = hb.left - box.left;
+    // Tilts and bends make a card read a little taller than its face.
+    const cw = Math.min(500 * s, (W - 2 * margin - 2 * gap) / 3, (H - bottomPad - top) / (ratio * 1.06));
+    const ch = cw * ratio;
+    // Centred: the middle card sits on the screen's centre line.
+    const left = (W - (3 * cw + 2 * gap)) / 2;
     const y = toY(top + ch / 2);
     const tilt = [
       { ry: 5, rz: 1, bend: 0.18, curl: 0.12 },
