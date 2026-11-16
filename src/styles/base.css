@@ -108,7 +108,7 @@ svg { display: block; }
 .curtain__mark { position: absolute; width: 120px; height: 140px; left: calc(50% - 60px); top: calc(50% - 100px); transform-origin: 0 0; }
 .curtain__mark .mark__l, .curtain__mark .mark__r { transform-box: fill-box; transform-origin: center; }
 
-/* Landing intro (home): clouds part over the mark, then a white sweep clears it (see intro.ts). */
+/* Entry animation (every page): clouds part over the mark, then a white sweep clears it (see intro.ts). */
 .intro { position: fixed; inset: 0; z-index: 101; background: #fff; pointer-events: none; overflow: hidden; }
 .intro__stage { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform: scale(var(--intro-scale, 1)); }
 .intro__mark { position: absolute; left: -82.8015px; top: -96.5px; width: 165.603px; height: 193px; display: block; visibility: hidden; }

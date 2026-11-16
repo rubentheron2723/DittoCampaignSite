@@ -15,9 +15,10 @@ export type Tier = {
 export const ANNUAL_MULTIPLIER = 0.85;
 
 export const hero = {
-  titleOne: 'Recruitment software pricing',
-  titleTwo: 'for growing teams',
+  titleOne: 'Recruitment software',
+  titleTwo: 'pricing for growing teams.',
   subtitle: 'Simple, transparent pricing built for recruitment teams operating at scale.',
+  cta: 'Get started',
   body:
     'Seat-based pricing that grows with your business. Add users anytime, switch between monthly or annual billing, and keep your recruitment operations running from one structured system.',
 };
@@ -60,7 +61,8 @@ export const tiers: Tier[] = [
 export const tierForUsers = (users: number) => tiers.find((t) => users >= t.min && users <= t.max) ?? tiers[0];
 
 export const calculator = {
-  title: 'Transparent pricing for teams that scale',
+  titleOne: 'Transparent pricing',
+  titleTwo: 'for teams that scale',
   description: 'Choose monthly or annual billing. Pricing is based on recruiter licenses.',
   sliderLabel: 'How many recruiters?',
   includes: 'We do not limit features or usage by license count. You always get the full suite. No modules, no paid add-ons.',

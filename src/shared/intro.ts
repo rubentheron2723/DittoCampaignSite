@@ -1,7 +1,7 @@
-import { gsap, q } from '../animations/gsap';
+import { gsap, q, qa } from '../animations/gsap';
 
 /**
- * The home page's landing animation, from the Figma frames "landing anim" (2364:820, desktop)
+ * The site's entry animation, played on every page load (including each move between pages), from the Figma frames "landing anim" (2364:820, desktop)
  * and "Mobile start" (2364:1369). One 3.8 s timeline:
  *
  *   0.52 → 2.25 s  Fifteen copies of one cloud cut-out slide away off screen, parting over the mark.
@@ -702,6 +702,27 @@ export function playCloudIntro(): Promise<void> {
       }),
   );
 }
+
+/**
+ * Leaving for another page on the site: fades this page out to the intro's plain white, then navigates. The next
+ * page's intro starts from that same white, so the move is seamless and the entry animation plays again.
+ */
+export function coverAndGo(href: string) {
+  const intro = q('#intro');
+  if (!intro) {
+    window.location.href = href;
+    return;
+  }
+  // Only the white: the clouds, mark and sweep stay hidden until the next page's intro plays them.
+  qa('.intro__clouds, .intro__mark, .intro__white', intro).forEach((el) => gsap.set(el, { autoAlpha: 0 }));
+  intro.style.display = '';
+  gsap.fromTo(intro, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, ease: 'power2.inOut', onComplete: () => (window.location.href = href) });
+}
+
+// Coming back via the browser's back/forward cache restores the page as it was left: still covered in white.
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) hideIntro();
+});
 
 export function hideIntro() {
   const intro = q('#intro');
