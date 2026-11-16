@@ -43,7 +43,16 @@ export async function boot({ page, render, init }: Options) {
   // arriving from another page of the site plays the page transition instead.
   // Following a link here, or going back or forward to this page, is a move within the site.
   const moved = takePageTransition() || cameBackOrForward();
-  const revealed = reduce ? Promise.resolve((hideCurtain(), hideIntro())) : moved ? playPageTransition(page) : playCloudIntro();
+  const cover = reduce ? Promise.resolve((hideCurtain(), hideIntro())) : moved ? playPageTransition(page) : playCloudIntro();
+  // Failsafe: the cover must never stay up. If the animation stalls or throws (a blocked image, a lost WebGL context,
+  // a browser shield), the page is shown anyway after a little longer than the animation would take.
+  // (The transition takes 1.2 s after its clouds load; the landing intro about 4.9 s after waiting up to 4 s for them.)
+  const limit = moved ? 2500 : 9000;
+  const revealed = Promise.race([
+    cover.catch((err) => console.warn('Entry animation failed:', err)),
+    new Promise<void>((r) => window.setTimeout(r, limit)),
+  ]);
+  if (!reduce) liftCoverIfStuck(limit + 500);
   // The intro's white cover is up (or, with reduced motion, the page itself): the body can take its own colour.
   document.documentElement.classList.remove('booting');
 
@@ -78,6 +87,23 @@ export async function boot({ page, render, init }: Options) {
   initNavTheme(!reduce);
   ScrollTrigger.refresh();
   return ctx;
+}
+
+/** Hides the entry cover if it's still up a beat after the animation should have finished with it. */
+function liftCoverIfStuck(after: number) {
+  window.setTimeout(() => {
+    const intro = q('#intro');
+    if (!intro || getComputedStyle(intro).display === 'none') return;
+    // Plain timers and a CSS fade, not GSAP: if the animation stalled because frames aren't running, a tween would
+    // stall with it.
+    gsap.killTweensOf(intro);
+    intro.style.transition = 'opacity 0.4s ease';
+    intro.style.opacity = '0';
+    window.setTimeout(() => {
+      hideIntro();
+      intro.style.transition = '';
+    }, 450);
+  }, after);
 }
 
 /** True when this load came from the browser's back or forward buttons. */
