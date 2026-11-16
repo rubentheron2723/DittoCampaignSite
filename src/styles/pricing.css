@@ -46,14 +46,15 @@
 /* Figma 2378:786: one screen at 1440 (120 padding), everything in one column 40 apart: the headline and copy, the
    toggles, then the plan cards over the slider on the left and the price check on the right, then "Book a demo"
    centred. The footer's Moving blobs run on a canvas behind it all (shared/blob-backdrop.ts). */
+/* The calculator and the steps share one #fdfdfd field and one blob layer (pinned to the screen in pricing.ts). */
+.pfield { position: relative; margin-top: -1px; background: #fdfdfd; }
+.pfield__fx { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; display: block; pointer-events: none; opacity: 0; transition: opacity 0.8s var(--ease-out); }
+.pfield--fx .pfield__fx { opacity: 1; }
 .calc {
-  position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; overflow: clip;
+  position: relative; z-index: 1; color: #171717;
   display: flex; flex-direction: column; gap: 40px;
   min-height: 100vh; min-height: 100lvh; padding: clamp(80px, 8.333vw, 120px) clamp(20px, 5.556vw, 80px);
 }
-.calc__fx { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; opacity: 0; transition: opacity 0.8s var(--ease-out); }
-.calc--fx .calc__fx { opacity: 1; }
-.calc > *:not(.calc__fx) { position: relative; z-index: 1; }
 .calc__head { display: grid; gap: 40px; }
 .calc__area { display: grid; gap: 40px; }
 .calc__controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
@@ -121,19 +122,49 @@
 /* ---------- 3. Next steps ---------- */
 /* Designed to match: the 84px headline, the five steps as glass rows with big blue numbers, the four guarantees as
    glass cards. */
-.pnext { position: relative; background: #fdfdfd; color: #171717; padding: clamp(40px, 5.556vw, 80px) clamp(20px, 5.556vw, 80px) clamp(80px, 8.333vw, 120px); }
-.pnext__title { max-width: 12em; }
-.pnext__steps { margin-top: clamp(40px, 4.444vw, 64px); display: grid; gap: 20px; }
-.pstep { display: grid; grid-template-columns: clamp(64px, 8.333vw, 120px) minmax(0, 1fr); gap: clamp(16px, 2.778vw, 40px); align-items: start; padding: clamp(24px, 2.222vw, 32px) clamp(20px, 2.778vw, 40px); border-radius: 24px; }
-.pstep__num { font-size: clamp(36px, 3.889vw, 56px); line-height: 1; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; font-variant-numeric: tabular-nums; }
-.pstep__body h3 { font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
-.pstep__body p { margin-top: 12px; max-width: 70ch; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
-.pnext__promises { margin-top: 40px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
-.promise { padding: 24px; border-radius: 24px; }
-.promise h3 { font-size: 20px; line-height: 24px; letter-spacing: -0.04em; font-weight: 500; }
-.promise p { margin-top: 8px; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
+.pnext {
+  position: relative; z-index: 1; color: #171717;
+  display: flex; flex-direction: column; align-items: center; gap: 80px;
+  padding: clamp(80px, 8.333vw, 120px) clamp(20px, 5.556vw, 80px);
+}
+/* Figma 2378:1018: the title centred over a 684-wide column of numbered steps, four tilted cards around them. */
+.pnext__title { text-align: center; }
+.pnext__steps { width: min(100%, 684px); display: grid; gap: 40px; }
+.pstep { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 20px; align-items: center; }
+.pstep__num { font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; font-variant-numeric: tabular-nums; }
+.pstep__body { display: grid; gap: 12px; }
+.pstep__body h3 { font-size: clamp(18px, calc(18px + 4 * (100vw - 375px) / 1065), 22px); line-height: 1.18; letter-spacing: -0.04em; font-weight: 400; }
+.pstep__body p { font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; }
+/* The cards hang off the section's edges, placed as in the frame (its rotated bounding boxes, measured from the
+   nearest side), and shrink with the screen below 1440. The tilt and size live on the inner face, so the entrance
+   tween can own the card's transform. */
+.pnext__promises { position: absolute; inset: 0; pointer-events: none; }
+.promise { position: absolute; display: flex; align-items: center; justify-content: center; width: 368px; height: 290px; pointer-events: auto; }
+.promise--month { left: 28px; top: 237px; height: 220px; }
+.promise--minimums { right: 35px; top: 262px; }
+.promise--suite { left: 12px; top: 809px; }
+.promise--start { right: 23px; top: 786px; height: 311px; width: 378px; }
+.promise__face {
+  flex: none; width: 344px; display: grid; gap: 20px; padding: 20px; border-radius: 24px; background: #fff; color: #171717;
+  box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25); scale: min(1, calc(100vw / 1440px)); transition: translate 0.4s var(--ease-out);
+}
+.promise:hover .promise__face { translate: 0 -6px; }
+.promise--month .promise__face { rotate: -15deg; }
+.promise--minimums .promise__face, .promise--suite .promise__face {
+  rotate: 30deg; color: #fff;
+  background: linear-gradient(234.79deg, #1e6ef3 17.552%, #00b0ff 22.294%, #1e6ef3 100%), #fff;
+}
+.promise--start .promise__face { rotate: -30deg; }
+.promise h3 { font-size: 24px; line-height: 28px; letter-spacing: -0.04em; font-weight: 700; }
+.promise p { font-size: 20px; line-height: 24px; letter-spacing: -0.04em; }
 
 /* ---------- Phones and tablets ---------- */
+/* Too narrow for the cards beside the steps: they line up under them, untilted. */
+@media (max-width: 1359px) {
+  .pnext__promises { position: static; inset: auto; width: min(100%, 684px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; pointer-events: auto; }
+  .promise { position: static; width: auto; height: auto; }
+  .promise__face { width: 100%; height: 100%; rotate: none !important; scale: none; }
+}
 @media (max-width: 1100px) {
   .calc__body { flex-direction: column; align-items: stretch; gap: 40px; }
   .calc__pick { flex: none; min-width: 0; }
@@ -145,13 +176,12 @@
   .quote__totals { justify-content: flex-start; }
   .quote__total { justify-items: start; text-align: left; }
   .quote__enterprise { position: static; width: auto; }
-  .pnext__promises { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
   .lcards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .gseg { padding: 10px 12px; }
   .gseg button { padding: 8px 14px; }
   .calc__cta { align-self: stretch; }
-  .pstep { grid-template-columns: 1fr; gap: 12px; }
+  .pstep { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; }
   .pnext__promises { grid-template-columns: 1fr; }
 }

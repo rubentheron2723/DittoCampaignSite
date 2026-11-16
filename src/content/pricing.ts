@@ -101,9 +101,10 @@ export const nextSteps = {
   ],
 };
 
+/** The four tilted cards around the steps (Figma 2378:1018); `id` places and colours each one. */
 export const guarantees = [
-  { title: 'Month to month', copy: 'No long-term contracts. Scale seats up or down as needed.' },
-  { title: 'No minimums', copy: 'Start with a single licence and add users whenever you need to.' },
-  { title: 'Same-day start', copy: 'Sign up and start using Ditto the same day. Migrations add a few days.' },
-  { title: 'Full suite, always', copy: 'Every feature on every plan. No modules, no paid add-ons.' },
+  { id: 'month', title: 'Month to month', copy: 'No long-term contracts. Scale seats up or down as needed.' },
+  { id: 'minimums', title: 'No minimums', copy: 'Start with a single licence and add users whenever you need to.' },
+  { id: 'start', title: 'Same-day start', copy: 'Sign up and start using Ditto the same day.\nMigrations add a few days.' },
+  { id: 'suite', title: 'Full suite, always', copy: 'Every feature on every plan. No modules, no paid add-ons.' },
 ];

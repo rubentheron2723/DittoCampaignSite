@@ -3,7 +3,7 @@ import { createBlobsPass, type BlobParams } from './footer-blobs';
 const MAX_DPR = 1.5;
 
 /**
- * The footer's Moving blobs over a flat colour, on a canvas behind a section's content (Figma's ShaderEffect works on
+ * The footer's Moving blobs over a flat colour, on a canvas (sized by its own CSS box) behind a section's content (Figma's ShaderEffect works on
  * the whole frame, but that needs HTML-in-Canvas, so here the content sits on top, undistorted). Renders only while
  * the section is on screen; with reduced motion it draws one still frame. Without WebGL2 float targets the canvas
  * just stays hidden. Adds `<section class>--fx` once the first frame is drawn.
@@ -33,8 +33,8 @@ export function initBlobBackdrop(section: HTMLElement, canvas: HTMLCanvasElement
   };
   const resize = () => {
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
-    const w = Math.max(1, Math.round(section.clientWidth * dpr));
-    const h = Math.max(1, Math.round(section.clientHeight * dpr));
+    const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
+    const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
     if (canvas.width === w && canvas.height === h) return;
     canvas.width = w;
     canvas.height = h;
@@ -43,7 +43,7 @@ export function initBlobBackdrop(section: HTMLElement, canvas: HTMLCanvasElement
     frame(performance.now());
   };
   resize();
-  new ResizeObserver(resize).observe(section);
+  new ResizeObserver(resize).observe(canvas);
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     if (visible && !raf) raf = requestAnimationFrame(loop);

@@ -52,7 +52,10 @@ export const SKY_ORIGINAL = {
   evolution: 13,
 };
 
-/** The reworked "footerpt1" frame (node 2348:7299): thinner, wispier, more stretched clouds. Used by the closing CTA. */
+/**
+ * The closing CTA's sky (Figma 2378:1159, "cloudsBG"): the frame's own settings, held still. Its old
+ * timeline (a pan and zoom swing) is gone, and without it the clouds sit at the frame's size: puffier.
+ */
 export const SKY_CTA: CloudParams = {
   ...SKY_ORIGINAL,
   transform: { x: 29.5724, y: 44.37, radius: 67.8272, angle: 9.4504 },
@@ -63,25 +66,6 @@ export const SKY_CTA: CloudParams = {
   warpAmount: 12,
   warpScale: 12,
   stretch: 19,
-  // The frame's 9s timeline: the phase runs 0 → 42 while the view pans right and swings
-  // its zoom and angle out and back. Every keyframe uses cubic-bezier(0.5, 0, 0.5, 1).
-  motion: {
-    duration: 9,
-    // Calmer than the Figma original on the site: a third of the speed and 60% of the travel.
-    speed: 1 / 3,
-    amount: 0.6,
-    evolution: [
-      { t: 0, v: 0 },
-      { t: 9, v: 42 },
-    ],
-    // Keyframes from the original timeline, shifted by the later change to the frame's base
-    // transform (radius 78.42 → 67.83, angle 8.46° → 9.45°) so the clouds keep the new size.
-    transform: [
-      { t: 0, v: { x: 29.5724, y: 44.37, radius: 91.6703, angle: -10.6134 } },
-      { t: 8.1304, v: { x: 158.2253, y: 44.37, radius: 109.4052, angle: -3.0054 } },
-      { t: 9, v: { x: 160, y: 44.37, radius: 91.6703, angle: -10.6134 } },
-    ],
-  },
 };
 
 /**
@@ -373,7 +357,8 @@ function compile(gl: WebGL2RenderingContext) {
 export function initCtaClouds(reduce: boolean) {
   const section = document.querySelector<HTMLElement>('.cta');
   const canvas = section?.querySelector<HTMLCanvasElement>('.cta__sky');
-  if (section && canvas) initClouds(section, canvas, 'cta--sky', reduce, SKY_CTA);
+  // Still clouds (the frame has no animation): drawn once and on resize, never looped.
+  if (section && canvas) initClouds(section, canvas, 'cta--sky', true, SKY_CTA);
 }
 
 /**

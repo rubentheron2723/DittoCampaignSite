@@ -8,7 +8,7 @@ import { boot } from '../shared/boot';
 import { FOOTER_BLOBS } from '../shared/footer-blobs';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
-import { Draggable, gsap, q, qa } from '../animations/gsap';
+import { Draggable, gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, rollNumber, splitReveal } from '../shared/motion';
 
 /* ---------- Render ---------- */
@@ -40,8 +40,11 @@ function render() {
     </div>
   </section>
 
+  <div class="pfield">
+  <!-- One Moving blobs layer behind the calculator and the steps, pinned to the screen while they scroll past, so the
+       blobs carry on across the join between the two sections. -->
+  <canvas class="pfield__fx" aria-hidden="true"></canvas>
   <section class="calc" id="calculator" data-theme="light">
-    <canvas class="calc__fx" aria-hidden="true"></canvas>
     <header class="calc__head">
       <h2 class="ptitle calc__title"><span>${esc(calculator.titleOne)}</span><span>${esc(calculator.titleTwo)}</span></h2>
       <p class="psub">${esc(calculator.description)}</p>
@@ -99,11 +102,11 @@ function render() {
   </section>
 
   <section class="pnext" data-theme="light">
-    <h2 class="ptitle pnext__title">${esc(nextSteps.title)}</h2>
+    <h2 class="ptitle pnext__title"><span>From first call</span> <span>to first placement</span></h2>
     <ol class="pnext__steps">
       ${nextSteps.steps
         .map(
-          (s, i) => `<li class="pstep glass">
+          (s, i) => `<li class="pstep">
             <span class="pstep__num">${String(i + 1).padStart(2, '0')}</span>
             <div class="pstep__body"><h3>${esc(s.title)}</h3><p>${esc(s.description)}</p></div>
           </li>`,
@@ -111,9 +114,10 @@ function render() {
         .join('')}
     </ol>
     <ul class="pnext__promises">
-      ${guarantees.map((g) => `<li class="promise glass"><h3>${esc(g.title)}</h3><p>${esc(g.copy)}</p></li>`).join('')}
+      ${guarantees.map((g) => `<li class="promise promise--${g.id}"><div class="promise__face"><h3>${esc(g.title)}</h3><p>${esc(g.copy).replace('\n', '<br>')}</p></div></li>`).join('')}
     </ul>
   </section>
+  </div>
 
   ${ctaAndFooter()}`;
 }
@@ -239,7 +243,10 @@ boot({
     initClouds(q('.phero')!, q<HTMLCanvasElement>('.phero__sky')!, 'phero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
-    initBlobBackdrop(q('.calc')!, q<HTMLCanvasElement>('.calc__fx')!, 'calc--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
+    initBlobBackdrop(q('.pfield')!, q<HTMLCanvasElement>('.pfield__fx')!, 'pfield--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
+    // The blob layer is one screen tall and held on screen through both sections (a pin, as ScrollSmoother rules out
+    // position: sticky), so the blobs neither repeat nor restart at the join.
+    ScrollTrigger.create({ trigger: '.pfield', start: 'top top', end: 'bottom bottom', pin: '.pfield__fx', pinSpacing: false });
     initCalculator(!reduce);
     if (reduce) return;
 
@@ -258,8 +265,9 @@ boot({
     fadeUp('.lcards, .slider', '.calc__pick', { y: 30, stagger: 0.1 });
     fadeUp('.quote > :not(.quote__enterprise), .calc__cta', '.quote', { y: 30, stagger: 0.08 });
 
-    splitReveal('.pnext__title', { by: 'words' });
+    splitReveal('.pnext__title span', { by: 'words' });
     fadeUp('.pstep', '.pnext__steps', { y: 40, stagger: 0.1 });
-    fadeUp('.promise', '.pnext__promises', { y: 30, stagger: 0.08 });
+    // The tilted cards float in from a little lower (the tilt is on the inner face, so the tween can own transform).
+    qa('.promise').forEach((card) => fadeUp(card, card, { y: 60, duration: 1.2, start: 'top 90%' }));
   },
 });
