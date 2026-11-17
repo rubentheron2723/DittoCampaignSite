@@ -2,8 +2,8 @@ import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
 
 const pages = ['index', 'product', 'pricing', 'about', 'faq', 'contact', 'sign-in', 'type'];
-/** Ready-made pages served as they are from public/ (not built): /html is a coworker's MCP marketing page, for review. */
-const staticPages = ['html'];
+/** Ready-made pages served as they are from public/ (not built): /mcp is a coworker's MCP marketing page, for review. */
+const staticPages = ['mcp'];
 
 /** Dev-only: serve /product as /product.html so links match the Vercel cleanUrls deploy. */
 function cleanUrls(): Plugin {
