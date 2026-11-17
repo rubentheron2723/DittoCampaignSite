@@ -326,6 +326,13 @@ vec2 lens(vec2 local, float amount) {
   return c * (1.0 + amount * (d2 + d2 * d2)) + centre;
 }
 vec4 distorted(vec2 local, float amount) { return tex(lens(local, amount)); }
+// A per-pixel random number in 0..1 (Dave Hoskins' hash12): no sin(), which loses precision on some GPUs for the
+// large numbers screen coordinates give.
+float hash12(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
 
 void main() {
   vec2 px = vec2(gl_FragCoord.x, uScreen.y - gl_FragCoord.y) / uDpr;
@@ -333,11 +340,13 @@ void main() {
   if (uTaps == 0) { o = distorted(local, uAmount); return; }
   vec4 acc = vec4(0.0);
   float ws = 0.0;
-  float jit = uJitter * (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5);
+  float jit = uJitter > 0.0 ? uJitter * (hash12(gl_FragCoord.xy) - 0.5) : 0.0;
   for (int i = 0; i < 48; i++) {
     if (i >= uTaps) break;
     float fi = (float(i) + jit) * uInvKernel - 0.5;
-    float window = max(0.0, 1.0 - abs(fi * 2.0));
+    // Unclamped, as Figma's kernel is: with a fractional kernel size the last tap's weight goes negative, and
+    // uWeightSum counts it so. Clamping it at zero brightened the intro's clouds into a washed-out negative.
+    float window = 1.0 - abs(fi * 2.0);
     vec4 r = distorted(local, uAmount + (fi + 0.5) * uChroma);
     vec4 g = distorted(local, uAmount + fi * uChroma);
     vec4 b = distorted(local, uAmount + (fi - 0.5) * uChroma);
