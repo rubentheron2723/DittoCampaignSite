@@ -495,6 +495,8 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     jumpTo(dir > 0 ? st.end + 2 : st.start - 2);
   };
   const busy = () => performance.now() < busyUntil;
+  /** Whether the team scene has been built this visit: after that it persists as its finished layout. */
+  let built = false;
   /** Into the team scene: the last statement fades away, then the logo builds and the copy follows. */
   const toTeam = () => {
     index = teamAt;
@@ -503,11 +505,18 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     pos.v = last;
     show(last, false);
     section.classList.add('think--team');
+    if (built) {
+      // Played once already: the finished layout simply fades back in (a refresh plays it again).
+      scene!.show();
+      busyUntil = performance.now() + 700;
+      return;
+    }
     scene!.reset();
     // Busy through the hand-over, then through the build itself (its length is known once it starts).
     busyUntil = performance.now() + (HANDOVER + 0.2) * 1000;
     gsap.delayedCall(HANDOVER, () => {
       const d = scene!.play();
+      built = true;
       // Held through the whole build, and a beat after: the page can't be scrolled on until the layout has landed.
       busyUntil = performance.now() + (d + 0.6) * 1000;
     });
@@ -517,7 +526,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     index = last;
     section.classList.remove('think--team');
     busyUntil = performance.now() + HANDOVER * 1000;
-    gsap.delayedCall(HANDOVER, () => scene!.reset());
+    gsap.delayedCall(HANDOVER, () => (built ? scene!.finish() : scene!.reset()));
     show(last, false);
   };
   const step = (dir: 1 | -1) => {
