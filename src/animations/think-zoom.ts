@@ -1,4 +1,4 @@
-import { gsap, q, qa, ScrollTrigger } from './gsap';
+import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from './gsap';
 import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
 
 /**
@@ -399,17 +399,25 @@ export function initThinkZoom(animate: boolean) {
   // Plays the flight to statement `to` at a steady pace (STEP_TIME for a move), whichever way.
   let target = 0;
   let flight: gsap.core.Tween | null = null;
+  // While a move plays, the page holds still: the wheel and trackpad can't carry the reader on to the next section
+  // (or back to the last) halfway through a statement's flight. Scrolling picks up again as it lands.
+  let unlock = 0;
+  const hold = (on: boolean) => {
+    const smoother = ScrollSmoother.get();
+    window.clearTimeout(unlock);
+    if (smoother) smoother.paused(on);
+    else document.documentElement.style.overflow = on ? 'hidden' : '';
+  };
   const go = (to: number) => {
     if (to === target) return;
     target = to;
     flight?.kill();
-    flight = gsap.to(pos, {
-      v: to,
-      // Passing several at once, each after the first goes a little quicker, so the flight doesn't trail far behind.
-      duration: STEP_TIME * (Math.min(1, Math.abs(to - pos.v)) + Math.max(0, Math.abs(to - pos.v) - 1) * 0.6),
-      ease: 'none',
-      onUpdate: schedule,
-    });
+    // Passing several at once, each after the first goes a little quicker, so the flight doesn't trail far behind.
+    const duration = STEP_TIME * (Math.min(1, Math.abs(to - pos.v)) + Math.max(0, Math.abs(to - pos.v) - 1) * 0.6);
+    hold(true);
+    flight = gsap.to(pos, { v: to, duration, ease: 'none', onUpdate: schedule, onComplete: () => hold(false) });
+    // Never leave the page stuck if the tween is cut short (a refresh, a lost frame loop).
+    unlock = window.setTimeout(() => hold(false), (duration + 0.5) * 1000);
   };
   document.fonts.ready.then(() => {
     layout();
@@ -421,14 +429,14 @@ export function initThinkZoom(animate: boolean) {
       pin: stage,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
-        // Straight from the scroll: ScrollSmoother already smooths it, and a second lag on top made the flight
-        // trail the wheel and then play out in a rush once scrolling stopped.
+        // The scroll picks the statement; the move itself plays at its own pace (see go).
         go(Math.min(steps, Math.floor(along(self.progress) + 1 - ADVANCE_AT)));
       },
       onRefresh: (self) => {
         layout();
         // Straight to wherever the scroll already is (a reload partway down), without playing the moves.
         flight?.kill();
+        hold(false);
         target = Math.min(steps, Math.floor(along(self.progress) + 1 - ADVANCE_AT));
         pos.v = target;
         draw();
