@@ -74,9 +74,10 @@ input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: n
   background: linear-gradient(-79.83deg, #1e6ef3 0.875%, #00b0ff 100%); color: #fff;
   box-shadow: 0 8px 100px rgba(30, 110, 243, 0.35);
   font: inherit; font-size: 20px; line-height: 24px; letter-spacing: -0.04em;
-  transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out), opacity 0.2s;
+  /* Only the glow transitions: it slides in on scroll (GSAP owns its transform and opacity, see .cnext__mail a). */
+  transition: box-shadow 0.35s var(--ease-out);
 }
-.form__submit:hover { transform: translateY(-2px); box-shadow: 0 12px 100px rgba(30, 110, 243, 0.5); }
+.form__submit:hover { box-shadow: 0 12px 100px rgba(30, 110, 243, 0.55); }
 .form__submit:focus-visible { outline: none; box-shadow: 0 0 0 7px rgba(30, 110, 243, 0.2), 0 8px 100px rgba(30, 110, 243, 0.35); }
 .form__submit-sending { display: none; }
 .form.is-sending .form__submit-label { display: none; }
@@ -152,9 +153,11 @@ input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: n
 .cnext__mail a {
   font-size: min(var(--t-h1-size), 10.5vw); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #fdfdfd;
   text-decoration: underline; text-decoration-thickness: from-font; text-underline-position: from-font; overflow-wrap: anywhere;
-  transition: opacity 0.25s;
+  /* Colour, not opacity: a CSS transition on opacity fought the scroll entrance (GSAP re-reads the resting opacity
+     when ScrollTrigger refreshes, caught it mid-transition at 0, and left the address invisible). */
+  transition: color 0.25s;
 }
-.cnext__mail a:hover { opacity: 0.85; }
+.cnext__mail a:hover { color: rgba(253, 253, 253, 0.85); }
 
 @media (max-width: 760px) {
   .form__fields { grid-template-columns: minmax(0, 1fr); gap: 28px; }
