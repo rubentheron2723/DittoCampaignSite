@@ -4,8 +4,8 @@ import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
 /**
  * "We think independently." (Figma 2390:287): the section pins and scrolling flies the reader through its statements.
  * Each one holds, then swells twenty times over and turns 30 degrees as if the camera rushes through it, fading as it
- * passes, and the next statement settles in behind it. All of it is seen through Figma's Lens distortion (0.36 barrel),
- * so the type bends outwards as it grows.
+ * passes, and the next statement settles in behind it. All of it is seen through Figma's Lens distortion, which wakes
+ * up as the zoom starts and bends the type outwards as it grows (Figma's own lens keyframes, below).
  *
  * The scroll chooses the statement; the move between two plays out over a fixed time (Figma's 2 s zoom), however fast
  * the wheel or trackpad goes. Tied straight to the scroll, a flick of the trackpad covered a whole step at once and
@@ -22,8 +22,8 @@ import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
  */
 const T = {
   zoomStart: 0,
-  zoomEnd: 0.82,
-  fadeOutStart: 0.2,
+  zoomEnd: 1,
+  fadeOutStart: 0.25,
   fadeInStart: 0.5,
   fadeInEnd: 1,
 };
@@ -35,15 +35,39 @@ const TURN = (-30 * Math.PI) / 180;
 const EASE = bezier(0.5, 0, 0.5, 1);
 /** The lens: Figma's Lens distortion over a 2062.6 x 1539 frame at (-265, -304) in the 1440 x 1024 section. */
 const FRAME = { x: -265, y: -304, w: 2062.6, h: 1539 };
-const DISTORTION = 0.36;
 /**
- * At rest the lens is Figma's 0.36, which barely bends type near the middle of the screen. While a statement rushes
- * past, the lens swells (up to 0.36 + LENS_SWELL) with a touch of colour fringing, so the warp reads as it flies.
+ * Figma's lens keyframes (the Lens distortion on 2390:521), as fractions of a move (Figma's 1.0 s to 3.0 s). The lens
+ * is off at rest; it eases in as the zoom starts (0.11 distortion, 0.07 aberration at 1.5 s), peaks at 2.6 s (0.6 and
+ * 0.52) and snaps back to nothing as the statement clears. Each key's ease runs to the next key.
  */
-const LENS_SWELL = 0.95;
-const FRINGE = 0.07;
+type Key = { t: number; v: number; ease?: (x: number) => number };
+const E_INOUT = bezier(0.5, 0, 0.5, 1);
+const E_OUT = bezier(0, 0, 0, 1);
+const at = (s: number) => (s - 1) / 2;
+const LENS_DISTORTION: Key[] = [
+  { t: at(1), v: 0, ease: E_INOUT },
+  { t: at(1.49662), v: 0.11, ease: E_INOUT },
+  { t: at(2.601206), v: 0.6, ease: E_OUT },
+  { t: at(3), v: 0 },
+];
+const LENS_ABERRATION: Key[] = [
+  { t: at(1), v: 0, ease: E_INOUT },
+  { t: at(1.49662), v: 0.07, ease: E_INOUT },
+  { t: at(2.601206), v: 0.52, ease: E_OUT },
+  { t: at(3), v: 0 },
+];
+const sample = (keys: Key[], t: number) => {
+  if (t <= keys[0].t) return keys[0].v;
+  for (let i = 0; i < keys.length - 1; i++) {
+    const a = keys[i], b = keys[i + 1];
+    if (t < b.t) return a.v + (b.v - a.v) * (a.ease ?? E_INOUT)((t - a.t) / (b.t - a.t));
+  }
+  return keys[keys.length - 1].v;
+};
 /** Scroll per statement, in screen heights: enough to hold the section while each move plays. */
 const STEP_SCROLL = 0.85;
+/** Extra scroll held after the last statement arrives, so its move plays out before the page moves on. */
+const TAIL = 1.1;
 /** How far into a statement's stretch of scroll the move to the next one starts. */
 const ADVANCE_AT = 0.3;
 
@@ -285,12 +309,10 @@ export function initThinkZoom(animate: boolean) {
     const alpha = 1 - f;
     return alpha > 0.001 ? { scale: 1 + (SCALE - 1) * z, turn: TURN * z, alpha } : null;
   };
-  /** How hard the lens is working: 0 at rest, 1 mid-flight. */
-  const swell = () => {
+  /** How far through the current move the flight is (0 at rest on a statement). */
+  const moveAt = () => {
     const i = Math.floor(pos.v);
-    if (i >= statements.length - 1) return 0;
-    const z = EASE(gsap.utils.clamp(0, 1, (pos.v - i - T.zoomStart) / (T.zoomEnd - T.zoomStart)));
-    return Math.sin(Math.PI * z);
+    return i >= statements.length - 1 ? 0 : pos.v - i;
   };
 
   const draw = () => {
@@ -346,9 +368,9 @@ export function initThinkZoom(animate: boolean) {
     gl.uniform2f(lu.screen, canvas.width, canvas.height);
     gl.uniform1f(lu.dpr, canvas.width / W);
     gl.uniform4f(lu.frame, frame.x, frame.y, frame.w, frame.h);
-    const w = swell();
-    const amount = DISTORTION + LENS_SWELL * w;
-    const fringe = FRINGE * w;
+    const m = moveAt();
+    const amount = sample(LENS_DISTORTION, m);
+    const fringe = sample(LENS_ABERRATION, m);
     const kn = kernel(fringe);
     gl.uniform1f(lu.amount, amount);
     gl.uniform1f(lu.chroma, (1 + Math.abs(amount)) * fringe);
@@ -372,6 +394,8 @@ export function initThinkZoom(animate: boolean) {
   };
 
   const steps = statements.length - 1;
+  /** The scroll's progress through the pin, in statements (the tail after the last counts as staying on it). */
+  const along = (progress: number) => (progress * (STEP_SCROLL * steps + TAIL)) / STEP_SCROLL;
   // Plays the flight to statement `to` at a steady pace (STEP_TIME for a move), whichever way.
   let target = 0;
   let flight: gsap.core.Tween | null = null;
@@ -393,19 +417,19 @@ export function initThinkZoom(animate: boolean) {
     ScrollTrigger.create({
       trigger: section,
       start: 'top top',
-      end: () => `+=${window.innerHeight * STEP_SCROLL * steps}`,
+      end: () => `+=${window.innerHeight * (STEP_SCROLL * steps + TAIL)}`,
       pin: stage,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
         // Straight from the scroll: ScrollSmoother already smooths it, and a second lag on top made the flight
         // trail the wheel and then play out in a rush once scrolling stopped.
-        go(Math.min(steps, Math.floor(self.progress * steps + 1 - ADVANCE_AT)));
+        go(Math.min(steps, Math.floor(along(self.progress) + 1 - ADVANCE_AT)));
       },
       onRefresh: (self) => {
         layout();
         // Straight to wherever the scroll already is (a reload partway down), without playing the moves.
         flight?.kill();
-        target = Math.min(steps, Math.floor(self.progress * steps + 1 - ADVANCE_AT));
+        target = Math.min(steps, Math.floor(along(self.progress) + 1 - ADVANCE_AT));
         pos.v = target;
         draw();
       },
