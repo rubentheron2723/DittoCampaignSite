@@ -1,87 +1,117 @@
 import '../styles/base.css';
 import '../styles/contact.css';
 
-import { aside, errors, fields, hero, interests, roles, success, teamSizes } from '../content/contact';
+import { dialCodes, errors, fields, hero, interests, next, roles, success, teamSizes } from '../content/contact';
 import { boot } from '../shared/boot';
 import { footerHtml } from '../shared/chrome';
 import { esc, markSvg } from '../shared/mark';
-import { gsap, q, qa } from '../animations/gsap';
-import { fadeUp, splitReveal, stickyPin } from '../shared/motion';
+import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
+import { fadeUp, splitReveal } from '../shared/motion';
+import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
+import { initBlobBackdrop } from '../shared/blob-backdrop';
+import { FOOTER_BLOBS } from '../shared/footer-blobs';
+import { initSelects, selectHtml } from '../shared/select';
 
-const text = (name: keyof typeof fields, type = 'text', extra = '') => {
-  const f = fields[name] as { label: string; placeholder?: string };
-  return `<label class="field" data-field="${name}">
-    <span class="field__label">${esc(f.label)}</span>
-    <input class="field__input" name="${name}" type="${type}" placeholder="${esc(f.placeholder ?? '')}" ${extra} />
-    <span class="field__line" aria-hidden="true"></span>
-    <span class="field__error" role="alert"></span>
-  </label>`;
+/*
+ * Contact (Figma 2396:121 hero, 2390:340 form with the 2396:478 dropdown, 2396:191 "What happens next?").
+ */
+
+type FieldName = keyof typeof fields;
+
+/** A labelled field around `control`; the label's id is `<name>-label`. */
+const field = (name: FieldName, control: string, extra = '') => `<div class="field${extra}" data-field="${name}">
+    <label class="field__label" id="${name}-label" for="${name}-input">${esc(fields[name].label)}</label>
+    ${control}
+    <p class="field__error" role="alert"></p>
+  </div>`;
+
+const text = (name: FieldName, type: string, attrs = '') => {
+  const f = fields[name] as { placeholder?: string };
+  return field(
+    name,
+    `<input class="pill field__input" id="${name}-input" name="${name}" type="${type}" placeholder="${esc(f.placeholder ?? '')}" ${attrs} />`,
+  );
 };
-const select = (name: keyof typeof fields, options: string[]) => `<label class="field" data-field="${name}">
-    <span class="field__label">${esc(fields[name].label)}</span>
-    <select class="field__input" name="${name}">
-      <option value="" disabled selected>Select an option</option>
-      ${options.map((o) => `<option value="${esc(o)}">${esc(o)}</option>`).join('')}
-    </select>
-    <span class="field__line" aria-hidden="true"></span>
-    <span class="field__error" role="alert"></span>
-  </label>`;
+
+const choice = (name: FieldName, options: string[]) =>
+  field(name, selectHtml(name, options.map((o) => ({ value: o, label: o })), { labelledBy: `${name}-label` }));
+
+/** The contact number: a dialling-code chip (its own small dropdown) and the number, in one pill. */
+const phone = () =>
+  field(
+    'phone',
+    `<div class="pill phone">
+      ${selectHtml(
+        'dial',
+        dialCodes.map((d) => ({ value: d.code, label: `${d.code}  ${d.country}`, short: d.code })),
+        { labelledBy: 'phone-label', initial: '+27', variant: 'chip' },
+      )}
+      <input class="phone__input" id="phone-input" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="${esc(fields.phone.placeholder)}" />
+    </div>`,
+  );
 
 function render() {
   const main = document.getElementById('main')!;
   main.innerHTML = `
-  <section class="page-hero contact-hero" data-theme="dark">
-    <div class="page-hero__mark">${markSvg()}</div>
-    <div class="wrap wrap--wide">
-      <div class="page-hero__inner">
-        <h1 class="h-display contact-hero__title">${esc(hero.title)}</h1>
-        <p class="h-sub">${esc(hero.subtitle)}</p>
-        <p class="lead">${esc(hero.support)}</p>
+  <section class="chero" data-theme="dark">
+    <div class="chero__bg" aria-hidden="true">
+      <canvas class="chero__sky"></canvas>
+      <div class="chero__glow"></div>
+      <div class="chero__haze"></div>
+    </div>
+    <div class="chero__inner">
+      <h1 class="chero__title">${hero.title.map((l) => `<span class="chero__line">${esc(l)}</span>`).join(' ')}</h1>
+      <div class="chero__copy">
+        <p class="chero__lead">${esc(hero.subtitle)}</p>
+        <p class="chero__support">${esc(hero.support)}</p>
       </div>
     </div>
   </section>
 
-  <section class="contact" id="contact-form" data-theme="light">
-    <div class="wrap wrap--wide contact__grid">
-      <form class="form" id="form" novalidate>
-        <div class="form__fields">
-          ${text('name', 'text', 'autocomplete="name"')}
-          ${text('email', 'email', 'autocomplete="email"')}
-          ${text('business', 'text', 'autocomplete="organization"')}
-          ${text('website', 'url', 'autocomplete="url" inputmode="url"')}
-          ${text('phone', 'tel', 'autocomplete="tel" inputmode="tel"')}
-          ${select('role', roles)}
-          ${select('teamSize', teamSizes)}
-          ${select('interest', interests)}
-          <label class="field field--full" data-field="message">
-            <span class="field__label">${esc(fields.message.label)}</span>
-            <textarea class="field__input" name="message" rows="4" placeholder="${esc(fields.message.placeholder)}"></textarea>
-            <span class="field__line" aria-hidden="true"></span>
-            <span class="field__error" role="alert"></span>
-          </label>
-        </div>
-        <div class="form__foot">
-          <button type="submit" class="btn btn--solid btn--lg form__submit" data-magnetic><span class="form__submit-label">Send request</span><span class="form__submit-sending">Sending…</span></button>
-          <p class="form__note">Prototype only: nothing is sent yet. The production form posts to Supabase with Turnstile spam protection.</p>
-        </div>
-        <div class="form__success" id="form-success" aria-live="polite">
-          <div class="form__success-mark">${markSvg('mark--on-light')}</div>
-          <h2 class="h-section">${esc(success.title)}</h2>
-          <p class="lead muted">${esc(success.copy)}</p>
-          <a class="btn btn--outline-dark" href="/">Back to home</a>
-        </div>
-      </form>
+  <section class="cform" id="contact-form" data-theme="light">
+    <form class="form" id="form" novalidate>
+      <div class="form__fields">
+        ${text('name', 'text', 'autocomplete="name"')}
+        ${text('email', 'email', 'autocomplete="email"')}
+        ${text('business', 'text', 'autocomplete="organization"')}
+        ${text('website', 'text', 'autocomplete="url" inputmode="url"')}
+        ${phone()}
+        ${choice('role', roles)}
+        ${choice('teamSize', teamSizes)}
+        ${choice('interest', interests)}
+        ${field(
+          'message',
+          `<textarea class="field__input form__message" id="message-input" name="message" rows="6" placeholder="${esc(fields.message.placeholder)}"></textarea>`,
+          ' field--full',
+        )}
+      </div>
+      <button type="submit" class="form__submit"><span class="form__submit-label">Send request</span><span class="form__submit-sending" aria-hidden="true">Sending…</span></button>
+      <div class="form__success" id="form-success" aria-live="polite">
+        <div class="form__success-mark">${markSvg('mark--on-light')}</div>
+        <h2 class="form__success-title">${esc(success.title)}</h2>
+        <p class="form__success-copy">${esc(success.copy)}</p>
+      </div>
+    </form>
+  </section>
 
-      <aside class="contact__aside">
-        <p class="label label--blue">${esc(aside.label)}</p>
-        <ol class="next">
-          ${aside.steps.map((s, i) => `<li class="next__step"><span class="next__dot"><b>${i + 1}</b></span><div><h3>${esc(s.title)}</h3><p>${esc(s.copy)}</p></div></li>`).join('')}
-        </ol>
-        <div class="direct">
-          <p class="label">${esc(aside.direct.label)}</p>
-          <a class="direct__email" href="mailto:${aside.direct.email}">${esc(aside.direct.email)}</a>
-        </div>
-      </aside>
+  <section class="cnext" data-theme="light">
+    <canvas class="cnext__fx" aria-hidden="true"></canvas>
+    <div class="cnext__top">
+      <h2 class="cnext__title">${esc(next.title)}</h2>
+      <ol class="cnext__steps">
+        ${next.steps
+          .map(
+            (s, i) => `<li class="cnext__step">
+              <span class="cnext__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+              <div class="cnext__desc"><h3>${esc(s.title)}</h3><p>${esc(s.copy)}</p></div>
+            </li>`,
+          )
+          .join('')}
+      </ol>
+    </div>
+    <div class="cnext__mail">
+      <p>${esc(next.direct.label)}</p>
+      <a href="mailto:${next.direct.email}">${esc(next.direct.email)}</a>
     </div>
   </section>
 
@@ -94,7 +124,7 @@ const validators: Record<string, (v: string) => boolean> = {
   email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
   business: (v) => v.trim().length > 1,
   website: (v) => /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)?$/i.test(v.trim()),
-  phone: (v) => /^[+\d][\d\s()-]{5,}$/.test(v.trim()) && v.replace(/\D/g, '').length >= 6,
+  phone: (v) => /^[\d\s()-]{5,}$/.test(v.trim()) && v.replace(/\D/g, '').length >= 6,
   role: (v) => !!v,
   teamSize: (v) => !!v,
   interest: (v) => !!v,
@@ -105,33 +135,41 @@ function initForm(animate: boolean) {
   const form = q<HTMLFormElement>('#form')!;
   const fieldEls = qa<HTMLElement>('.field', form);
   const submit = q<HTMLButtonElement>('.form__submit', form)!;
+  initSelects(form, animate);
 
-  const setError = (field: HTMLElement, msg: string) => {
-    const err = q('.field__error', field)!;
-    const had = field.classList.contains('is-invalid');
-    field.classList.toggle('is-invalid', !!msg);
+  /** The field's own value: its text input, or its dropdown's hidden input (not the phone's dialling code). */
+  const inputOf = (f: HTMLElement) =>
+    q<HTMLInputElement>(`[name="${f.dataset.field}"]`, f)!;
+  /** What to focus to fix it. */
+  const focusOf = (f: HTMLElement) => q<HTMLElement>('.field__input, .phone__input, .select__button', f)!;
+
+  const setError = (f: HTMLElement, msg: string) => {
+    const err = q('.field__error', f)!;
+    const had = f.classList.contains('is-invalid');
+    f.classList.toggle('is-invalid', !!msg);
     err.textContent = msg;
     if (msg && !had && animate) {
-      gsap.fromTo(field, { x: -6 }, { x: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' });
+      gsap.fromTo(f, { x: -6 }, { x: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' });
       gsap.fromTo(err, { y: -6, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.4 });
     }
   };
-  const validate = (field: HTMLElement) => {
-    const name = field.dataset.field!;
-    const input = q<HTMLInputElement>('.field__input', field)!;
-    const ok = validators[name](input.value);
-    setError(field, ok ? '' : errors[name as keyof typeof errors]);
-    field.classList.toggle('is-filled', !!input.value);
+  const validate = (f: HTMLElement) => {
+    const name = f.dataset.field!;
+    const ok = validators[name](inputOf(f).value);
+    setError(f, ok ? '' : errors[name as keyof typeof errors]);
     return ok;
   };
 
-  fieldEls.forEach((field) => {
-    const input = q<HTMLInputElement>('.field__input', field)!;
-    input.addEventListener('blur', () => validate(field));
-    input.addEventListener('input', () => field.classList.contains('is-invalid') && validate(field));
-    input.addEventListener('change', () => validate(field));
-    input.addEventListener('focus', () => field.classList.add('is-focused'));
-    input.addEventListener('blur', () => field.classList.remove('is-focused'));
+  fieldEls.forEach((f) => {
+    const input = inputOf(f);
+    // Checked as you leave a field, and again as you correct one already marked.
+    if (input.type === 'hidden') {
+      input.addEventListener('change', () => validate(f));
+      f.addEventListener('select:close', () => validate(f));
+    } else {
+      input.addEventListener('blur', () => validate(f));
+      input.addEventListener('input', () => f.classList.contains('is-invalid') && validate(f));
+    }
   });
 
   form.addEventListener('submit', (e) => {
@@ -139,7 +177,7 @@ function initForm(animate: boolean) {
     const results = fieldEls.map(validate);
     const firstBad = fieldEls[results.indexOf(false)];
     if (firstBad) {
-      q<HTMLInputElement>('.field__input', firstBad)!.focus();
+      focusOf(firstBad).focus();
       if (animate) gsap.fromTo(submit, { x: -4 }, { x: 0, duration: 0.4, ease: 'elastic.out(1, 0.3)' });
       return;
     }
@@ -149,35 +187,73 @@ function initForm(animate: boolean) {
     gsap.delayedCall(animate ? 1.1 : 0, () => {
       form.classList.add('is-sent');
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
-      tl.to('.form__fields, .form__foot', { autoAlpha: 0, y: -20, duration: animate ? 0.5 : 0 })
+      tl.to('.form__fields, .form__submit', { autoAlpha: 0, y: -20, duration: animate ? 0.5 : 0 })
         .set('.form__success', { display: 'grid' })
         .fromTo('.form__success-mark .mark__l', { x: -80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 })
         .fromTo('.form__success-mark .mark__r', { x: 80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 }, '<')
-        .from('.form__success h2, .form__success p, .form__success .btn', { y: 24, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, '-=0.5');
+        .from('.form__success-title, .form__success-copy', { y: 24, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, '-=0.5');
     });
   });
+}
+
+/**
+ * The "What happens next?" backdrop: the section's white, fading to #00b0ff from 64.1% to 85.2% of its height
+ * (Figma's cloudsBG gradient), drawn into a strip the blobs then distort.
+ */
+function nextGradient() {
+  const c = document.createElement('canvas');
+  c.width = 1;
+  c.height = 512;
+  const ctx = c.getContext('2d')!;
+  const g = ctx.createLinearGradient(0, 0, 0, c.height);
+  g.addColorStop(0, '#fdfdfd');
+  g.addColorStop(0.64111, '#fdfdfd');
+  g.addColorStop(0.85156, '#00b0ff');
+  g.addColorStop(1, '#00b0ff');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 1, c.height);
+  return c;
 }
 
 boot({
   page: 'contact',
   render,
   init: ({ reduce, revealed }) => {
+    // The same sky as the About and Pricing heroes: Figma's Contact hero uses identical Clouds and Moving blobs.
+    initClouds(q('.chero')!, q<HTMLCanvasElement>('.chero__sky')!, 'chero--sky', reduce, SKY_HERO, {
+      bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
+    });
+    initBlobBackdrop(q('.cnext')!, q<HTMLCanvasElement>('.cnext__fx')!, 'cnext--fx', FOOTER_BLOBS, nextGradient(), reduce, 0.55);
     initForm(!reduce);
     if (reduce) return;
-    stickyPin(q('.contact__aside')!, q('.contact__grid')!);
 
-    const { tween } = splitReveal('.contact-hero__title', { by: 'words', scrollTrigger: false, stagger: 0.05 });
+    const { tween } = splitReveal('.chero__title', { by: 'chars', scrollTrigger: false, stagger: 0.025 });
     tween.pause();
     const heroTl = gsap
       .timeline({ paused: true, defaults: { ease: 'expo.out' } })
       .add(tween.play(), 0.05)
-      .from('.contact-hero .h-sub, .contact-hero .lead', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.5)
-      .from('.page-hero__mark', { autoAlpha: 0, scale: 0.9, duration: 1.6 }, 0.2);
-    revealed.then(() => heroTl.play());
+      .from('.chero__lead, .chero__support', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.5);
+    revealed.then(() => {
+      heroTl.play();
+      // Never leave the copy hidden if frames are starved.
+      window.setTimeout(() => heroTl.progress() < 1 && heroTl.progress(1), 3500);
+    });
 
-    fadeUp('.field', '.form', { y: 24, stagger: 0.06, start: 'top 80%' });
-    fadeUp('.form__foot', '.form__foot', { y: 20, start: 'top 95%' });
-    fadeUp('.contact__aside > *', '.contact__aside', { y: 24, stagger: 0.1 });
-    fadeUp('.next__step', '.next', { y: 20, stagger: 0.1, start: 'top 85%' });
+    fadeUp('.field', '.form', { y: 24, stagger: 0.05, start: 'top 80%' });
+    fadeUp('.form__submit', '.form__submit', { y: 20, start: 'top 95%' });
+
+    splitReveal('.cnext__title', { by: 'words', start: 'top 80%' });
+    qa<HTMLElement>('.cnext__step').forEach((step) =>
+      gsap.from(step.children, {
+        y: 30,
+        autoAlpha: 0,
+        duration: 1,
+        ease: 'expo.out',
+        stagger: 0.08,
+        scrollTrigger: { trigger: step, start: 'top 85%', toggleActions: 'play none none reverse' },
+      }),
+    );
+    fadeUp('.cnext__mail > *', '.cnext__mail', { y: 30, stagger: 0.1, start: 'top 90%' });
+    ScrollTrigger.refresh();
   },
 });

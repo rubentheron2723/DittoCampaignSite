@@ -1,45 +1,164 @@
-.contact-hero { min-height: 62svh; }
-.contact { background: linear-gradient(180deg, var(--paper-2), var(--paper)); padding: clamp(64px, 8vw, 120px) 0 clamp(96px, 12vw, 160px); }
-.contact__grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
-.form { position: relative; padding: clamp(24px, 3vw, 40px); border-radius: 24px; background: var(--white); border: 1px solid var(--line-light); box-shadow: 0 30px 80px rgba(6, 49, 73, 0.1); }
-.form__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 24px; }
-.field { position: relative; display: grid; gap: 8px; }
+/* ---------- Hero (Figma 2396:121) ---------- */
+/* The About and Pricing heroes' sky (clouds, soft-light glow, white haze at the foot), one screen tall, with the
+   84/88 title on two lines, the 24/28 lead and the 20/24 support line centred. */
+.chero {
+  --pad: clamp(20px, 5.556vw, 80px);
+  position: relative; display: flex; align-items: center; justify-content: center; min-height: 100vh; min-height: 100lvh;
+  padding: calc(var(--nav-h) + 48px) var(--pad) 120px;
+  background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); color: #fefefe; overflow: clip; text-align: center;
+}
+.chero__bg { position: absolute; inset: 0; pointer-events: none; }
+.chero__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); }
+.chero--sky .chero__sky { opacity: 1; }
+.chero__glow {
+  position: absolute; inset: 0; opacity: 0.4; mix-blend-mode: soft-light;
+  background: radial-gradient(134.57% 124.02% at 50% -24.02%, #1e6ef3 0%, #108ff9 25%, #01b0ff 50%, #11b5ff 53.125%, #21baff 56.25%, #41c4ff 62.5%, #60ceff 68.75%, #80d8ff 75%, #c0ebff 87.5%, #fff 100%);
+}
+.chero__haze { position: absolute; inset: 0; background: linear-gradient(0deg, #fff 0%, rgba(255, 255, 255, 0) 34.289%); }
+.chero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.chero__title { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
+.chero__line { display: block; }
+.chero__copy { display: flex; flex-direction: column; gap: 12px; }
+.chero__lead { margin: 0; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
+.chero__support { margin: 0; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; }
+
+/* ---------- The form (Figma 2390:340; dropdown 2396:478) ---------- */
+/* Two columns of fields 40 apart on #FDFDFD, each a 20/24 label over a glass pill (68 tall, a white sheen fading
+   right to left, a soft 100px shadow); the message a 234-tall rounded box; the blue "Send request" pill centred. */
+.cform {
+  --pad: clamp(20px, 5.556vw, 80px);
+  position: relative; background: #fdfdfd; color: #171717;
+  min-height: 100vh; display: flex; align-items: center; padding: clamp(64px, 8vw, 120px) var(--pad);
+}
+.form { position: relative; width: 100%; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.form__fields { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; }
+.field { position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .field--full { grid-column: 1 / -1; }
-.field__label { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); color: var(--ink-soft); transition: color 0.2s; }
-.field.is-focused .field__label { color: var(--blue-deep); }
-.field__input { font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); width: 100%; padding: 12px 0; background: none; border: 0; border-bottom: 1px solid var(--line-light); color: var(--ink); outline: none; appearance: none; -webkit-appearance: none; border-radius: 0; }
-.field__input::placeholder { color: rgba(77, 89, 107, 0.55); }
-select.field__input { cursor: pointer; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f141d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0 center / 18px; padding-right: 28px; }
-select.field__input:invalid, select.field__input option[value=''] { color: rgba(77, 89, 107, 0.7); }
-.field.is-filled select.field__input { color: var(--ink); }
-textarea.field__input { resize: vertical; min-height: 96px; }
-.field__line { position: absolute; left: 0; right: 0; bottom: 22px; height: 2px; background: var(--blue); transform: scaleX(0); transform-origin: left; transition: transform 0.4s var(--ease-out); pointer-events: none; }
-.field:has(textarea) .field__line { bottom: 26px; }
-.field.is-focused .field__line { transform: scaleX(1); }
-.field.is-invalid .field__line { transform: scaleX(1); background: #c2782a; }
-.field__error { font-size: var(--t-caption-size); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-ls); font-weight: var(--t-caption-wt); min-height: 14px; color: #c2782a; }
-.form__foot { margin-top: 32px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-.form__note { font-size: var(--t-small-size); line-height: var(--t-small-lh); letter-spacing: var(--t-small-ls); font-weight: var(--t-small-wt); color: var(--ink-soft); max-width: 44ch; }
-.form__submit { min-width: 170px; }
+/* The field with an open dropdown sits above the ones after it (their entrance leaves each its own layer). */
+.field:has(.select.is-open) { z-index: 30; }
+.field__label { font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717; }
+
+.pill {
+  --ring: 0 0 0 0 transparent;
+  display: flex; align-items: center; width: 100%; min-height: 68px; padding: 0 20px; border: 0; border-radius: 999px;
+  background: linear-gradient(-86.6deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.64%), #fdfdfd;
+  box-shadow: inset var(--ring), 0 8px 100px rgba(0, 0, 0, 0.1);
+  font: inherit; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717;
+  transition: box-shadow 0.25s var(--ease-out);
+}
+input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: none; appearance: none; }
+.pill::placeholder, .phone__input::placeholder, .form__message::placeholder, .select__value.is-placeholder { color: rgba(23, 23, 23, 0.4); }
+/* In use: the dropdown's chosen-option outline, 1px #1E6EF3. */
+.pill:focus, .pill:focus-within, .select.is-open > .pill { --ring: 0 0 0 1px #1e6ef3; }
+.field.is-invalid .pill, .field.is-invalid .form__message { --ring: 0 0 0 1px #d4572a; }
+.field__error { margin: 0; min-height: 0; font-size: 14px; line-height: 18px; letter-spacing: -0.02em; color: #d4572a; }
+.field__error:empty { display: none; }
+
+/* Contact number: the dialling-code chip and the number in one pill (16 top and bottom around the chip). */
+.phone { gap: 16px; }
+.phone__input { flex: 1 1 auto; min-width: 0; height: 100%; padding: 0; border: 0; background: none; font: inherit; color: inherit; letter-spacing: inherit; }
+
+/* The message box: 36 corners, 234 tall, text from 16/20. */
+.form__message {
+  display: block; width: 100%; height: 234px; resize: vertical; padding: 16px 20px; border: 0; border-radius: 36px;
+  background: linear-gradient(-88.43deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.71%), #fdfdfd;
+  box-shadow: inset var(--ring, 0 0 0 0 transparent), 0 8px 100px rgba(0, 0, 0, 0.1);
+  font: inherit; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717;
+  transition: box-shadow 0.25s var(--ease-out);
+}
+.form__message:focus { --ring: 0 0 0 1px #1e6ef3; }
+
+/* Send request: the blue pill, 22 × 44, with a blue glow. */
+.form__submit {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 22px 44px; border: 0; border-radius: 999px; cursor: pointer;
+  background: linear-gradient(-79.83deg, #1e6ef3 0.875%, #00b0ff 100%); color: #fff;
+  box-shadow: 0 8px 100px rgba(30, 110, 243, 0.35);
+  font: inherit; font-size: 20px; line-height: 24px; letter-spacing: -0.04em;
+  transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out), opacity 0.2s;
+}
+.form__submit:hover { transform: translateY(-2px); box-shadow: 0 12px 100px rgba(30, 110, 243, 0.5); }
+.form__submit:focus-visible { outline: none; box-shadow: 0 0 0 7px rgba(30, 110, 243, 0.2), 0 8px 100px rgba(30, 110, 243, 0.35); }
 .form__submit-sending { display: none; }
 .form.is-sending .form__submit-label { display: none; }
 .form.is-sending .form__submit-sending { display: inline; }
-.form.is-sending .form__submit { opacity: 0.8; }
+.form.is-sending .form__submit { opacity: 0.8; cursor: default; }
 .form__success { display: none; position: absolute; inset: 0; place-content: center; justify-items: center; text-align: center; gap: 16px; padding: 40px; }
 .form__success-mark { width: 64px; margin-bottom: 12px; filter: drop-shadow(0 20px 40px rgba(0, 176, 255, 0.35)); }
-.form.is-sent { min-height: 520px; }
+.form__success-title { margin: 0; font-size: clamp(32px, calc(32px + 32 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; }
+.form__success-copy { margin: 0; font-size: 20px; line-height: 24px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
 
-.contact__aside { position: sticky; top: calc(var(--nav-h) + 24px); }
-.next { margin-top: 20px; display: grid; gap: 22px; }
-.next__step { display: grid; grid-template-columns: 40px 1fr; gap: 16px; align-items: start; }
-.next__dot { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--white); border: 1px solid var(--line-light); font-weight: 600; font-size: 14px; }
-.next__step h3 { font-size: var(--t-h3-size); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-ls); font-weight: var(--t-h3-wt); }
-.next__step p { font-size: var(--t-small-size); line-height: var(--t-small-lh); letter-spacing: var(--t-small-ls); font-weight: var(--t-small-wt); margin-top: 6px; color: var(--ink-soft); }
-.direct { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line-light); }
-.direct__email { font-size: var(--t-h3-size); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-ls); font-weight: var(--t-h3-wt); display: inline-block; margin-top: 8px; border-bottom: 2px solid var(--blue); }
+/* Dropdowns (shared/select.ts). The panel: white, 36 corners, 16 × 20 inside, options 8 apart. */
+.select { position: relative; width: 100%; }
+.select__button { justify-content: space-between; gap: 16px; text-align: left; cursor: pointer; }
+.select__value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.select__chev { flex: none; color: #171717; transition: transform 0.3s var(--ease-out); }
+.select.is-open .select__chev { transform: rotate(180deg); }
+.select__button:focus { outline: none; }
+.select__list {
+  position: absolute; z-index: 20; top: calc(100% + 8px); left: 0; right: 0; margin: 0; list-style: none;
+  display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; border-radius: 36px; outline: none;
+  max-height: min(420px, 60vh); overflow-y: auto; overscroll-behavior: contain;
+  background: linear-gradient(-89.64deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.71%), #fff;
+  box-shadow: 0 8px 100px rgba(0, 0, 0, 0.1);
+}
+.select__list[hidden] { display: none; }
+.select__option {
+  flex: none; display: flex; align-items: center; min-height: 68px; padding: 0 20px; border-radius: 999px; cursor: pointer;
+  font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+/* Hover: a light grey fill. */
+.select__option:hover { background: rgba(179, 179, 179, 0.1); }
+/* The chosen option: a 1px #1E6EF3 outline and a faint lift. */
+.select__option.is-selected { background: rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 0 1px #1e6ef3, 0 8px 20px rgba(0, 0, 0, 0.05); }
+/* The keyboard's place (only while the keyboard is in use): a 7px pale blue ring inside the pill. */
+.select.is-kbd .select__option.is-active { box-shadow: inset 0 0 0 7px rgba(30, 110, 243, 0.2); }
+.select.is-kbd .select__option.is-active.is-selected { box-shadow: inset 0 0 0 1px #1e6ef3, inset 0 0 0 7px rgba(30, 110, 243, 0.2); }
 
-@media (max-width: 900px) {
-  .contact__grid { grid-template-columns: 1fr; }
-  .form__fields { grid-template-columns: 1fr; }
-  .contact__aside { position: static; }
+/* The dialling-code chip: a small glass pill (8 × 20, 16/20) with its own list, wider than it. */
+.select--chip { width: auto; flex: none; }
+.select--chip .select__button {
+  display: inline-flex; align-items: center; padding: 8px 20px; border: 0; border-radius: 999px;
+  background: linear-gradient(-82.44deg, rgba(255, 255, 255, 0.6) 0.279%, rgba(255, 255, 255, 0) 100%), #fdfdfd;
+  box-shadow: 0 8px 50px rgba(0, 0, 0, 0.2);
+  font: inherit; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717;
+}
+.select--chip .select__button:focus-visible { box-shadow: 0 0 0 4px rgba(30, 110, 243, 0.2), 0 8px 50px rgba(0, 0, 0, 0.2); }
+.select--chip .select__list { top: calc(100% + 18px); left: -16px; right: auto; width: min(360px, 80vw); }
+.select--chip .select__option { white-space: pre; }
+
+/* ---------- What happens next? (Figma 2396:191) ---------- */
+/* #FDFDFD fading to #00B0FF from 64% to 85% down, under the footer's Moving blobs (.cnext__fx). The 84/88 title and
+   three steps (an 84/88 #00B0FF number, a 22/26 title and 16/20 copy, 684 wide) at the top; the email at the foot. */
+.cnext {
+  --pad: clamp(20px, 5.556vw, 80px);
+  position: relative; overflow: clip; color: #171717;
+  background: linear-gradient(180deg, #fdfdfd 64.111%, #00b0ff 85.156%);
+  min-height: 100vh; min-height: 100lvh; padding: clamp(80px, 8.333vw, 120px) var(--pad);
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 120px;
+}
+.cnext__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s var(--ease-out); pointer-events: none; }
+.cnext--fx .cnext__fx { opacity: 1; }
+.cnext__top { position: relative; z-index: 1; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 80px; }
+.cnext__title { margin: 0; text-align: center; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
+.cnext__steps { width: min(684px, 100%); margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 40px; }
+.cnext__step { display: flex; align-items: center; gap: 20px; }
+.cnext__num { flex: none; width: calc(var(--t-h1-size) * 1.333); font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; }
+.cnext__desc { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.cnext__desc h3 { margin: 0; font-size: clamp(19px, calc(19px + 3 * (100vw - 375px) / 1065), 22px); line-height: 1.18; letter-spacing: -0.04em; font-weight: 400; }
+.cnext__desc p { margin: 0; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; }
+.cnext__mail { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; color: #fdfdfd; max-width: 100%; }
+.cnext__mail p { margin: 0; font-size: clamp(19px, calc(19px + 3 * (100vw - 375px) / 1065), 22px); line-height: 1.18; letter-spacing: -0.04em; }
+.cnext__mail a {
+  font-size: min(var(--t-h1-size), 10.5vw); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #fdfdfd;
+  text-decoration: underline; text-decoration-thickness: from-font; text-underline-position: from-font; overflow-wrap: anywhere;
+  transition: opacity 0.25s;
+}
+.cnext__mail a:hover { opacity: 0.85; }
+
+@media (max-width: 760px) {
+  .form__fields { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .cnext__top { gap: 48px; }
+  .cnext__steps { gap: 28px; }
+  .cnext__step { align-items: flex-start; }
 }
