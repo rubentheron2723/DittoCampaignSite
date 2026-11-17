@@ -74,9 +74,3 @@ export const team = {
   ],
 };
 
-export const finalBanner = {
-  lineOne: 'Recruitment software built by curious people',
-  lineTwo: 'who like solving difficult problems.',
-  copy: 'We keep building because the work matters, the problems are real, and the impact compounds when systems get better.',
-  button: 'Book a demo',
-};
