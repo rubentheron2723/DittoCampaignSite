@@ -20,13 +20,15 @@ function render() {
       <div class="ahero__haze"></div>
     </div>
     <div class="ahero__inner">
-      <h1 class="ahero__title">${esc(hero.title)}</h1>
       <div class="ahero__row">
-        <div class="ahero__copy">
-          <p class="ahero__lead">${esc(hero.paragraphs[0])}</p>
-          <div class="ahero__body">${hero.paragraphs.slice(1).map((p) => `<p>${esc(p)}</p>`).join('')}</div>
+        <div class="ahero__text">
+          <h1 class="ahero__title">${esc(hero.title)}</h1>
+          <div class="ahero__copy">
+            <p class="ahero__lead">${esc(hero.paragraphs[0])}</p>
+            <div class="ahero__body">${hero.paragraphs.slice(1).map((p) => `<p>${esc(p)}</p>`).join('')}</div>
+          </div>
         </div>
-        ${glassLogoHtml()}
+        <div class="ahero__logo">${glassLogoHtml()}</div>
       </div>
       <div class="ahero__actions">
         <a class="gbtn gbtn--lg" href="/contact" data-magnetic>Book a demo</a>
