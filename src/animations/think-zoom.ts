@@ -538,6 +538,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     // doesn't visibly move).
     jumpTo(st.start + 1);
     freeze(true);
+    building = false;
     holdNav(true);
     flight?.kill();
     busyUntil = 0;
@@ -577,6 +578,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     pos.v = last;
     show(last, false);
     section.classList.add('think--team');
+    building = !built;
     if (built) {
       // Played once already: the finished layout simply fades back in (a refresh plays it again).
       scene!.show();
@@ -598,6 +600,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   /** Back up out of it: the team layout fades away, then the last statement fades back in (toTeam in reverse). */
   const fromTeam = () => {
     index = last;
+    building = false;
     busyUntil = performance.now() + (HANDOVER + 0.6) * 1000;
     show(last, false);
     gsap.to(team!, {
@@ -621,7 +624,8 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     else if (index === teamAt) fromTeam();
     else move(to);
   };
-  /** Whether a swipe during the hand-over asked for the build to be hurried (it starts after the hand-over). */
+  /** Whether the logo is building (the first time in), and whether a swipe has hurried it (from the hand-over on). */
+  let building = false;
   let hurried = false;
   /** Runs the step now, or keeps it for when the current move allows. */
   let waiting: ReturnType<typeof setTimeout> | undefined;
@@ -640,9 +644,10 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
       step(dir);
       return;
     }
-    // Scrolling on while the logo builds speeds the build up, so it isn't a wait. That's all the swipe does: the
-    // finished layout still holds until the next one, rather than the page running straight on past it.
-    if (dir > 0 && index === teamAt && scene) {
+    // The first swipe on while the logo builds speeds the build up, so it isn't a wait. That's all that swipe does:
+    // the finished layout still holds rather than the page running straight on past it. Any further swipe is kept
+    // like any other and moves on once the layout has landed (otherwise it was lost, and the page felt stuck).
+    if (dir > 0 && index === teamAt && scene && building && !hurried) {
       hurried = true;
       const left = scene.hurry();
       if (left) busyUntil = Math.min(busyUntil, performance.now() + left * 1000);
