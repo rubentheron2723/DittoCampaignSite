@@ -1,15 +1,35 @@
-.about-hero { min-height: 90svh; align-content: center; }
-.about-hero__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
-.about-hero__copy { margin-top: 28px; display: grid; gap: 14px; max-width: 56ch; }
-.about-hero__copy .lead { color: rgba(231, 239, 244, 0.86); }
-.about-hero__copy .lead:first-child { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); color: var(--white); }
-.about-hero__proof { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); margin-top: 22px; color: var(--blue); }
-.routes { position: relative; }
-.routes__svg { width: 100%; height: auto; overflow: visible; }
-.routes__path { fill: none; stroke: rgba(255, 255, 255, 0.55); stroke-width: 2; stroke-linecap: round; }
-.routes__nodes circle { fill: var(--white); }
-.routes__caption { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); position: relative; height: 24px; margin-top: 12px; opacity: 0.75; }
-.routes__caption span { position: absolute; left: 5%; top: 0; }
+/* ---------- Hero (Figma 2387:2) ---------- */
+/* The Pricing hero's sky, glow and haze. "About Ditto." at 164/168 bold, then the copy beside the glass logomark,
+   then two glass buttons centred. */
+.ahero {
+  position: relative; display: flex; align-items: center; min-height: 100vh; min-height: 100lvh;
+  padding: calc(var(--nav-h) + 48px) clamp(20px, 5.556vw, 80px) 120px;
+  background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); color: #fefefe; overflow: clip;
+}
+.ahero__bg { position: absolute; inset: 0; pointer-events: none; }
+.ahero__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); }
+.ahero--sky .ahero__sky { opacity: 1; }
+.ahero__glow {
+  position: absolute; inset: 0; opacity: 0.4; mix-blend-mode: soft-light;
+  background: radial-gradient(134.57% 124.02% at 50% -24.02%, #1e6ef3 0%, #108ff9 25%, #01b0ff 50%, #11b5ff 53.125%, #21baff 56.25%, #41c4ff 62.5%, #60ceff 68.75%, #80d8ff 75%, #c0ebff 87.5%, #fff 100%);
+}
+.ahero__haze { position: absolute; inset: 0; background: linear-gradient(0deg, #fff 0%, rgba(255, 255, 255, 0) 34.289%); }
+.ahero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+.ahero__title { margin: 0; font-size: var(--t-hero-size); line-height: 1.024; letter-spacing: -0.04em; font-weight: 700; }
+.ahero__row { display: flex; align-items: center; justify-content: space-between; gap: 40px; padding-right: clamp(0px, 11.8vw, 170px); }
+.ahero__copy { display: flex; flex-direction: column; gap: 12px; max-width: 685px; }
+.ahero__lead { margin: 0; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
+.ahero__body { display: grid; gap: 24px; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; }
+.ahero__body p { margin: 0; }
+.ahero__actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; }
+
+/* The glass logomark (shared/glass-logo.ts): two panes in 3D, tilted by the pointer. */
+.glogo { flex: none; width: 202.5px; height: 236px; perspective: 900px; }
+.glogo__rig, .glogo__pane { position: absolute; inset: 0; transform-style: preserve-3d; }
+.glogo__rig { position: relative; width: 100%; height: 100%; will-change: transform; }
+.glogo svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.glogo__face { filter: drop-shadow(0 18px 40px rgba(6, 49, 120, 0.18)); }
+
 
 /* Builders */
 .builders { background: linear-gradient(180deg, #000 0%, #04253a 100%); }
@@ -57,8 +77,7 @@
 .team__p:first-of-type { margin-top: 26px; }
 
 @media (max-width: 900px) {
-  .about-hero__grid, .builders__grid, .thinking__grid, .team__grid { grid-template-columns: 1fr; }
-  .routes { margin-top: 20px; }
+  .builders__grid, .thinking__grid, .team__grid { grid-template-columns: 1fr; }
   .builders__pin { min-height: auto; padding: 96px 0; }
   .builders__stage { min-height: auto; gap: 16px; }
   .bpanel { grid-area: auto; padding: 28px; }
@@ -67,4 +86,11 @@
   .principle__dot { left: -36px; }
   .principles__line { left: 2px; }
   .team__visual { order: 2; }
+}
+
+/* Narrow screens: the glass mark sits under the copy, a little smaller. */
+@media (max-width: 900px) {
+  .ahero__row { flex-direction: column; align-items: flex-start; padding-right: 0; }
+  .glogo { align-self: center; transform: scale(0.72); margin: -24px 0; }
+  .ahero__actions { justify-content: flex-start; }
 }
