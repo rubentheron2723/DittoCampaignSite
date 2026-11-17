@@ -453,12 +453,28 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   let flight: gsap.core.Tween | null = null;
   let captured = false;
   let st: ScrollTrigger | null = null;
-  /** Wheel input since the last move (trackpads send many small events per gesture). */
+  /*
+   * One swipe (or wheel spin) is one step, and the next swipe counts as soon as it starts: no need to wait for the
+   * page to go quiet. A trackpad keeps sending wheel events for a second or so after the fingers lift (inertia), as
+   * a fading tail; a new swipe shows up as a pause, or as the deltas jumping up again once the tail has faded.
+   * A swipe that comes while a move is still playing is kept (one at most) and runs as soon as the move allows.
+   */
+  /** Wheel input in the current gesture. */
   let acc = 0;
-  /** Until this time, wheel events are the tail of a gesture already used (trackpad inertia), not a new one. */
-  let quietUntil = 0;
-  const QUIET = 220;
+  /** The current gesture (counted up as new ones start) and the last one that moved the stage. */
+  let gesture = 0;
+  let used = -1;
+  /** The current gesture's largest delta, and the last delta and its time. */
+  let peak = 0;
+  let lastAbs = 0;
+  let lastAt = 0;
+  /** A gap this long between wheel events starts a new gesture (ms). */
+  const QUIET = 180;
   const THRESHOLD = 30;
+  /** A step asked for while the last is still playing, run when it can (1 down, -1 up, 0 none). */
+  let pending: 1 | -1 | 0 = 0;
+  /** Moves accept the next step this far through (the next statement has mostly arrived by then). */
+  const NEXT_AT = 0.7;
 
   const smoother = () => ScrollSmoother.get();
   const freeze = (on: boolean) => {
@@ -478,7 +494,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     index = to;
     flight?.kill();
     const duration = STEP_TIME * Math.min(1, Math.abs(to - pos.v));
-    busyUntil = performance.now() + duration * 1000;
+    busyUntil = performance.now() + duration * NEXT_AT * 1000;
     show(to, true);
     flight = gsap.to(pos, {
       v: to,
@@ -498,7 +514,9 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     if (captured || !st || performance.now() - releasedAt < 800) return;
     captured = true;
     acc = 0;
-    quietUntil = performance.now() + QUIET;
+    pending = 0;
+    // The gesture that scrolled the page here (and its inertia) has done its job.
+    used = gesture;
     // Stop at the section's top, a pixel inside so the pin counts as active (the stage is pinned there, so the page
     // doesn't visibly move).
     jumpTo(st.start + 1);
@@ -534,6 +552,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   /** Into the team scene: the last statement fades away, then the logo builds and the copy follows. */
   const toTeam = () => {
     index = teamAt;
+    hurried = false;
     // Settle any flight still under way on the last statement, so only the HTML is left to fade.
     flight?.kill();
     pos.v = last;
@@ -549,10 +568,12 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     // Busy through the hand-over, then through the build itself (its length is known once it starts).
     busyUntil = performance.now() + (HANDOVER + 0.2) * 1000;
     gsap.delayedCall(HANDOVER, () => {
-      const d = scene!.play();
+      let d = scene!.play();
       built = true;
-      // Held through the whole build, and a beat after: the page can't be scrolled on until the layout has landed.
-      busyUntil = performance.now() + (d + 0.6) * 1000;
+      // Already scrolled on during the hand-over: build it quickly.
+      if (hurried) d = scene!.hurry();
+      // Held through the build: the page can't be scrolled on until the layout has landed (scrolling hurries it).
+      busyUntil = performance.now() + d * 1000;
     });
   };
   /** Back up out of it: the team layout fades away, then the last statement fades back in (toTeam in reverse). */
@@ -574,44 +595,90 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     });
   };
   const step = (dir: 1 | -1) => {
-    if (busy()) return;
     const to = index + dir;
     if (to < 0) release(-1);
     else if (to > steps) release(1);
     else if (to === teamAt) toTeam();
     else if (index === teamAt) fromTeam();
     else move(to);
-    acc = 0;
-    // Swallow the rest of this gesture (and its inertia) so one swipe is one step.
-    quietUntil = performance.now() + QUIET + STEP_TIME * 1000;
+  };
+  /** Whether a swipe during the hand-over asked for the build to be hurried (it starts after the hand-over). */
+  let hurried = false;
+  /** Runs the step now, or keeps it for when the current move allows. */
+  let waiting: ReturnType<typeof setTimeout> | undefined;
+  const flush = () => {
+    clearTimeout(waiting);
+    if (!pending || !captured) return void (pending = 0);
+    const left = busyUntil - performance.now();
+    if (left > 0) return void (waiting = setTimeout(flush, left + 10));
+    const dir = pending;
+    pending = 0;
+    step(dir);
+  };
+  const request = (dir: 1 | -1) => {
+    if (!busy()) {
+      pending = 0;
+      step(dir);
+      return;
+    }
+    // Scrolling on while the logo builds speeds the build up, so it isn't a wait. That's all the swipe does: the
+    // finished layout still holds until the next one, rather than the page running straight on past it.
+    if (dir > 0 && index === teamAt && scene) {
+      hurried = true;
+      const left = scene.hurry();
+      if (left) busyUntil = Math.min(busyUntil, performance.now() + left * 1000);
+      return;
+    }
+    pending = dir;
+    flush();
   };
 
   window.addEventListener(
     'wheel',
     (e) => {
+      // Gestures are tracked even while the page scrolls freely, so the one that arrives here is known as such.
+      const now = performance.now();
+      const d = Math.abs(e.deltaY);
+      // A new gesture: after a pause, or the deltas jumping back up once the last one's tail had faded.
+      if (now - lastAt > QUIET || (lastAbs < peak * 0.5 && d > lastAbs * 1.6 + 4)) {
+        gesture++;
+        acc = 0;
+        peak = 0;
+      }
+      peak = Math.max(peak, d);
+      lastAbs = d;
+      lastAt = now;
       if (!captured) return;
       e.preventDefault();
-      const now = performance.now();
-      if (now < quietUntil || busy()) {
-        // Still the same gesture: keep waiting for a pause before the next one counts.
-        quietUntil = Math.max(quietUntil, now + QUIET);
-        return;
-      }
+      if (gesture === used) return;
       acc += e.deltaY;
-      if (Math.abs(acc) > THRESHOLD) step(acc > 0 ? 1 : -1);
+      if (Math.abs(acc) > THRESHOLD) {
+        used = gesture;
+        request(acc > 0 ? 1 : -1);
+      }
     },
     { passive: false },
   );
   let touchY = 0;
-  window.addEventListener('touchstart', (e) => (touchY = e.touches[0].clientY), { passive: true });
+  /** Whether this touch has already stepped: one swipe, one step. */
+  let touchUsed = false;
+  window.addEventListener(
+    'touchstart',
+    (e) => {
+      touchY = e.touches[0].clientY;
+      touchUsed = false;
+    },
+    { passive: true },
+  );
   window.addEventListener(
     'touchmove',
     (e) => {
       if (!captured) return;
       e.preventDefault();
       const dy = touchY - e.touches[0].clientY;
-      if (Math.abs(dy) > 40) {
-        step(dy > 0 ? 1 : -1);
+      if (!touchUsed && Math.abs(dy) > 40) {
+        touchUsed = true;
+        request(dy > 0 ? 1 : -1);
         touchY = e.touches[0].clientY;
       }
     },
@@ -623,7 +690,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     const up = ['ArrowUp', 'PageUp'].includes(e.key);
     if (!down && !up) return;
     e.preventDefault();
-    step(down ? 1 : -1);
+    request(down ? 1 : -1);
   });
 
   show(0, false);
