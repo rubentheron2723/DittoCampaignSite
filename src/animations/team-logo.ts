@@ -74,11 +74,15 @@ function flowSvg() {
         <stop offset="0.65263" stop-color="#00B0FF"/><stop offset="0.986642" stop-color="#1E6EF3"/>
       </linearGradient>
     </defs>
+    <!-- Layered back to front as they meet: the blue ribbon, the blue half, the ink ribbon, the ink half. With the
+         whole mark on top, the blue half's tip cut across the ink ribbon; now it tucks behind it. -->
     ${flow(RIBBON_BACK, 'tflow-b', 'url(#tflow-back)', LEFT, RIBBON_BLUE)}
-    ${flow(RIBBON_FRONT, 'tflow-f', '#171717', RIGHT, '#171717')}
-    <g class="tflow__mark" transform="translate(${MARK.x} ${MARK.y})">
+    <g class="tflow__mark tflow__mark--l" transform="translate(${MARK.x} ${MARK.y})">
       <path d="${LEFT}" fill="${RIBBON_BLUE}" fill-rule="evenodd" />
       <path class="tflow__tint" d="${LEFT}" fill="url(#tflow-mark)" fill-rule="evenodd" />
+    </g>
+    ${flow(RIBBON_FRONT, 'tflow-f', '#171717', RIGHT, '#171717')}
+    <g class="tflow__mark tflow__mark--r" transform="translate(${MARK.x} ${MARK.y})">
       <path d="${RIGHT}" fill="#171717" fill-rule="evenodd" />
     </g>
   </svg>`;
@@ -87,6 +91,8 @@ function flowSvg() {
 export type TeamScene = {
   /** Plays the whole sequence. Returns its length in seconds. */
   play: () => number;
+  /** Fades straight into the finished layout (once it has played, it isn't played again). */
+  show: () => void;
   /** Straight to the finished layout (arriving from below). */
   finish: () => void;
   /** Back to blank. */
@@ -100,12 +106,13 @@ export function createTeamScene(root: HTMLElement, stage: HTMLElement = root): T
   stage.insertAdjacentHTML('beforeend', flowSvg());
   const svg = stage.lastElementChild as SVGSVGElement;
   const spines = qa<SVGPathElement>('.tflow__spine', svg);
-  const mark = q<SVGGElement>('.tflow__mark', svg)!;
+  // The mark's two halves, in their own layers (see flowSvg), moved as one.
+  const mark = qa<SVGGElement>('.tflow__mark', svg);
   const tint = q<SVGPathElement>('.tflow__tint', svg)!;
   const logo = q<SVGSVGElement>('.tlogo', root)!;
   const text = qa<HTMLElement>('.team__title, .team__p', root);
   const markAt = `translate(${MARK.x} ${MARK.y})`;
-  const setMark = (x: number, y: number, k: number) => mark.setAttribute('transform', `translate(${x} ${y}) scale(${k})`);
+  const setMark = (x: number, y: number, k: number) => mark.forEach((g) => g.setAttribute('transform', `translate(${x} ${y}) scale(${k})`));
 
   /** The layout's logo, in the flow's frame units (so the forming mark can grow into exactly its place). */
   const target = () => {
@@ -124,7 +131,7 @@ export function createTeamScene(root: HTMLElement, stage: HTMLElement = root): T
     gsap.set(spines, { drawSVG: '0% 0%' });
     gsap.set(mark, { autoAlpha: 0 });
     gsap.set(tint, { opacity: 0 });
-    mark.setAttribute('transform', markAt);
+    mark.forEach((g) => g.setAttribute('transform', markAt));
     gsap.set(logo, { autoAlpha: 0 });
     gsap.set(text, { autoAlpha: 0, y: 28 });
   };
@@ -133,6 +140,13 @@ export function createTeamScene(root: HTMLElement, stage: HTMLElement = root): T
     gsap.set(svg, { autoAlpha: 0 });
     gsap.set(logo, { autoAlpha: 1 });
     gsap.set(text, { autoAlpha: 1, y: 0 });
+  };
+
+  const show = () => {
+    tl?.kill();
+    gsap.set(svg, { autoAlpha: 0 });
+    gsap.fromTo(logo, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, ease: 'power1.out' });
+    gsap.fromTo(text, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'expo.out', stagger: 0.04 });
   };
 
   const play = () => {
@@ -174,5 +188,5 @@ export function createTeamScene(root: HTMLElement, stage: HTMLElement = root): T
   };
 
   reset();
-  return { play, finish, reset };
+  return { play, show, finish, reset };
 }
