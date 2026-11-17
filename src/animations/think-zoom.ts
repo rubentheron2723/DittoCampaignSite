@@ -1,5 +1,6 @@
 import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from './gsap';
 import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
+import { createTeamScene, type TeamScene } from './team-logo';
 
 /**
  * "We think independently." (Figma 2390:287): the section pins and scrolling flies the reader through its statements.
@@ -159,26 +160,40 @@ function drawFromDom(item: HTMLElement, origin: DOMRect, res: number, family: st
   };
 }
 
-export function initThinkZoom(animate: boolean) {
+/**
+ * Sets up the section. `team` (the next section's content) joins the stage as its last stop on wide screens, where it
+ * builds its logo in the same locked view (team-logo.ts). Returns whether it did.
+ */
+export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   const section = q('.think');
   const stage = section && q('.think__stage', section);
   const canvas = section && q<HTMLCanvasElement>('.think__lens', section);
-  if (!section || !stage || !canvas || !animate) return;
+  if (!section || !stage || !canvas || !animate) return false;
   const statements = qa<HTMLElement>('.think__item', section);
-  if (statements.length < 2) return;
+  if (statements.length < 2) return false;
   let family = "'DM Sans', sans-serif";
 
   const gl = canvas.getContext('webgl2', { premultipliedAlpha: true, alpha: true, antialias: true });
-  if (!gl) return;
+  if (!gl) return false;
   let sprite: WebGLProgram, lensProg: WebGLProgram;
   try {
     sprite = compile(gl, SPRITE_VERT, SPRITE_FRAG);
     lensProg = compile(gl, FULL_VERT, LENS_FRAG);
   } catch (err) {
     console.warn('think: shaders failed', err);
-    return;
+    return false;
   }
   section.classList.add('think--gl');
+
+  // The team section moves into the stage (wide screens only: its copy needs the room), and its own section goes.
+  let scene: TeamScene | null = null;
+  if (team && window.matchMedia('(min-width: 901px)').matches) {
+    const host = team.closest('section');
+    team.classList.add('think__team');
+    stage.appendChild(team);
+    host?.remove();
+    scene = createTeamScene(team);
+  }
 
   const U = (p: WebGLProgram, n: string) => gl.getUniformLocation(p, n);
   const su = { size: U(sprite, 'uSize'), tex: U(sprite, 'uTex'), alpha: U(sprite, 'uAlpha') };
@@ -384,7 +399,12 @@ export function initThinkZoom(animate: boolean) {
     });
   };
 
-  const steps = statements.length - 1;
+  /** The last stop: the team scene when it's in the stage, otherwise the last statement. */
+  const last = statements.length - 1;
+  const teamAt = scene ? statements.length : -1;
+  const steps = scene ? teamAt : last;
+  /** How long fading the last statement out takes before the logo starts building (s). */
+  const HANDOVER = 0.45;
 
   /*
    * The section takes the scroll while it is on screen. When it reaches the top (coming down, or back up from below),
@@ -452,8 +472,18 @@ export function initThinkZoom(animate: boolean) {
     flight?.kill();
     busyUntil = 0;
     index = at;
-    pos.v = at;
-    show(at, false);
+    if (at === teamAt) {
+      // Back up from below: the team scene, already built.
+      pos.v = last;
+      section.classList.add('think--team');
+      scene!.finish();
+      show(last, false);
+    } else {
+      pos.v = at;
+      section.classList.remove('think--team');
+      scene?.reset();
+      show(at, false);
+    }
     schedule();
   };
   const release = (dir: 1 | -1) => {
@@ -465,11 +495,37 @@ export function initThinkZoom(animate: boolean) {
     jumpTo(dir > 0 ? st.end + 2 : st.start - 2);
   };
   const busy = () => performance.now() < busyUntil;
+  /** Into the team scene: the last statement fades away, then the logo builds and the copy follows. */
+  const toTeam = () => {
+    index = teamAt;
+    // Settle any flight still under way on the last statement, so only the HTML is left to fade.
+    flight?.kill();
+    pos.v = last;
+    show(last, false);
+    section.classList.add('think--team');
+    scene!.reset();
+    // Busy through the hand-over, then through the build itself (its length is known once it starts).
+    busyUntil = performance.now() + (HANDOVER + 0.2) * 1000;
+    gsap.delayedCall(HANDOVER, () => {
+      const d = scene!.play();
+      busyUntil = performance.now() + d * 1000;
+    });
+  };
+  /** Back up out of it: the scene fades, and the last statement returns. */
+  const fromTeam = () => {
+    index = last;
+    section.classList.remove('think--team');
+    busyUntil = performance.now() + HANDOVER * 1000;
+    gsap.delayedCall(HANDOVER, () => scene!.reset());
+    show(last, false);
+  };
   const step = (dir: 1 | -1) => {
     if (busy()) return;
     const to = index + dir;
     if (to < 0) release(-1);
     else if (to > steps) release(1);
+    else if (to === teamAt) toTeam();
+    else if (index === teamAt) fromTeam();
     else move(to);
     acc = 0;
     // Swallow the rest of this gesture (and its inertia) so one swipe is one step.
@@ -537,4 +593,5 @@ export function initThinkZoom(animate: boolean) {
     });
     ScrollTrigger.refresh();
   });
+  return !!scene;
 }
