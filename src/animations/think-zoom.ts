@@ -192,7 +192,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     team.classList.add('think__team');
     stage.appendChild(team);
     host?.remove();
-    scene = createTeamScene(team);
+    scene = createTeamScene(team, stage);
   }
 
   const U = (p: WebGLProgram, n: string) => gl.getUniformLocation(p, n);
@@ -508,7 +508,8 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     busyUntil = performance.now() + (HANDOVER + 0.2) * 1000;
     gsap.delayedCall(HANDOVER, () => {
       const d = scene!.play();
-      busyUntil = performance.now() + d * 1000;
+      // Held through the whole build, and a beat after: the page can't be scrolled on until the layout has landed.
+      busyUntil = performance.now() + (d + 0.6) * 1000;
     });
   };
   /** Back up out of it: the scene fades, and the last statement returns. */
