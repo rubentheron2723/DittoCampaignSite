@@ -69,7 +69,7 @@
 .rebuild__fx { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; opacity: 0; transition: opacity 0.8s var(--ease-out); pointer-events: none; }
 .rebuild--fx .rebuild__fx { opacity: 1; }
 .rebuild__list { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-.rrow { display: flex; flex-direction: column; gap: 20px; will-change: clip-path; }
+.rrow { display: flex; flex-direction: column; gap: 20px; }
 .rrow__bar { height: 2px; background: rgba(23, 23, 23, 0.1); overflow: hidden; }
 .rrow__bar i { display: block; height: 100%; background: #171717; transform: scaleX(0); transform-origin: 0 50%; }
 .rrow__num { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; }

@@ -5,8 +5,8 @@ import { builders, hero, team, thinking } from '../content/about';
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
-import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
-import { fadeUp, splitReveal } from '../shared/motion';
+import { gsap, q, qa, ScrollTrigger, SplitText } from '../animations/gsap';
+import { splitReveal } from '../shared/motion';
 import { initThinkZoom } from '../animations/think-zoom';
 import { createTeamScene, teamLogoSvg } from '../animations/team-logo';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
@@ -17,9 +17,24 @@ import { FOOTER_BLOBS } from '../shared/footer-blobs';
 /** The rows' title widths in Figma, which set where each title breaks onto its second line. */
 const TITLE_W = [444, 524, 524, 362, 362];
 
-/** Each row's number, title and copy rise in as it scrolls into view. */
+/**
+ * As each row scrolls into view its number, title and copy rise into place line by line, each line out of its own
+ * mask: the number first, the title's lines a beat behind, then the copy's, quicker. Once in, the lines are joined back
+ * into plain text, so a resize rewraps it as usual.
+ */
 function rowsReveal() {
-  qa<HTMLElement>('.rrow').forEach((row) => fadeUp(row.querySelectorAll('.rrow__num, .rrow__title, .rrow__body'), row, { y: 30, start: 'top 85%' }));
+  qa<HTMLElement>('.rrow').forEach((row) => {
+    const splits = ['.rrow__num', '.rrow__title', '.rrow__body'].map((sel) =>
+      SplitText.create(q(sel, row)!, { type: 'lines', mask: 'lines', linesClass: 'split-line' }),
+    );
+    const [num, title, body] = splits;
+    const tl = gsap
+      .timeline({ paused: true, defaults: { ease: 'expo.out', duration: 1.1 }, onComplete: () => splits.forEach((sp) => sp.revert()) })
+      .from(num.lines, { yPercent: 105 }, 0)
+      .from(title.lines, { yPercent: 105, stagger: 0.08 }, 0.08)
+      .from(body.lines, { yPercent: 105, autoAlpha: 0, duration: 1, stagger: 0.035 }, 0.2);
+    ScrollTrigger.create({ trigger: row, start: 'top 85%', once: true, onEnter: () => tl.play() });
+  });
 }
 
 function render() {
@@ -100,8 +115,9 @@ function render() {
 
 /**
  * The rows stack as they reach the top, like a reverse accordion: each row holds still under the nav while the next
- * one slides up over it. The row underneath is clipped away along the incoming row's top edge, rather than covered by a
- * solid block, so the moving blobs behind stay visible. Its progress line fills as it is covered.
+ * one slides up over it. The row underneath fades away just above the incoming row's top edge (a soft edge, not a hard
+ * cut, which sliced through lines of the copy), rather than being covered by a solid block, so the moving blobs behind
+ * stay visible. Its progress line fills as it is covered.
  * Without motion (or on short screens where a row wouldn't fit), they're a plain list.
  */
 function initRebuild(animate: boolean) {
@@ -109,6 +125,8 @@ function initRebuild(animate: boolean) {
   const fills = rows.map((r) => q<HTMLElement>('.rrow__bar i', r)!);
   if (!animate) return;
   const PIN = () => q('#nav')!.offsetHeight + 24;
+  /** How tall the soft edge is where a row fades under the next (px). */
+  const FADE = 56;
   const last = rows[rows.length - 1];
 
   const mm = gsap.matchMedia();
@@ -135,7 +153,9 @@ function initRebuild(animate: boolean) {
           return;
         }
         const visible = Math.round(gsap.utils.clamp(0, h, next.getBoundingClientRect().top - top - 20));
-        row.style.clipPath = visible >= h ? '' : `inset(0 0 ${h - visible}px 0)`;
+        const mask = visible >= h ? '' : `linear-gradient(to bottom, #000 ${visible - FADE}px, transparent ${visible}px)`;
+        row.style.maskImage = mask;
+        row.style.webkitMaskImage = mask;
         fills[i].style.transform = `scaleX(${1 - visible / h})`;
       });
     };
@@ -143,7 +163,10 @@ function initRebuild(animate: boolean) {
     update();
     return () => {
       st.kill();
-      rows.forEach((r) => (r.style.clipPath = ''));
+      rows.forEach((r) => {
+        r.style.maskImage = '';
+        r.style.webkitMaskImage = '';
+      });
       fills.forEach((f) => (f.style.transform = ''));
     };
   });
