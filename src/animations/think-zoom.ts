@@ -1,6 +1,8 @@
 import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from './gsap';
-import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
+import { bezier, capKernel, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
 import { createTeamScene, type TeamScene } from './team-logo';
+import { sdfField } from './sdf';
+import { uncovered } from '../shared/cover';
 
 /**
  * "We think independently." (Figma 2390:287): the section pins and scrolling flies the reader through its statements.
@@ -65,20 +67,6 @@ const LENS_ABERRATION: Key[] = [
   { t: at(2.601206), v: 0.52, ease: E_OUT },
   { t: at(3), v: 0 },
 ];
-/**
- * The aberration's samples, at most MAX_TAPS. Figma's kernel takes up to 22, each three texture reads per pixel, over
- * the whole retina screen: the main cost of a frame. Fewer, spread across the same width and jittered per pixel (so
- * they blend rather than show as separate copies), look the same on moving, fringed type.
- */
-const MAX_TAPS = 12;
-const capped = (k: { taps: number; inv: number; sum: number }) => {
-  if (k.taps <= MAX_TAPS) return k;
-  const taps = MAX_TAPS;
-  const inv = 1 / (taps - 1);
-  let sum = 0;
-  for (let i = 0; i < taps; i++) sum += 1 - Math.abs((i * inv - 0.5) * 2);
-  return { taps, inv, sum };
-};
 const sample = (keys: Key[], t: number) => {
   if (t <= keys[0].t) return keys[0].v;
   for (let i = 0; i < keys.length - 1; i++) {
@@ -139,73 +127,6 @@ type Plate = {
 /** The distance fields' resolution (texels per CSS px) and reach (texels either side of an edge). */
 const SDF_RES = 2;
 const SDF_SPREAD = 6;
-
-/**
- * Squared distances to the nearest "on" cell, in place (Felzenszwalb & Huttenlocher's exact transform, as Mapbox's
- * tiny-sdf does it): along each column, then each row.
- */
-function edt(grid: Float64Array, width: number, height: number) {
-  const n = Math.max(width, height);
-  const f = new Float64Array(n);
-  const v = new Uint16Array(n);
-  const z = new Float64Array(n + 1);
-  const pass = (offset: number, stride: number, length: number) => {
-    v[0] = 0;
-    z[0] = -Infinity;
-    z[1] = Infinity;
-    f[0] = grid[offset];
-    for (let q = 1, k = 0, s = 0; q < length; q++) {
-      f[q] = grid[offset + q * stride];
-      const q2 = q * q;
-      do {
-        const r = v[k];
-        s = (f[q] - f[r] + q2 - r * r) / (q - r) / 2;
-      } while (s <= z[k] && --k > -1);
-      k++;
-      v[k] = q;
-      z[k] = s;
-      z[k + 1] = Infinity;
-    }
-    for (let q = 0, k = 0; q < length; q++) {
-      while (z[k + 1] < q) k++;
-      const r = v[k];
-      const qr = q - r;
-      grid[offset + q * stride] = f[r] + qr * qr;
-    }
-  };
-  for (let x = 0; x < width; x++) pass(x, width, height);
-  for (let y = 0; y < height; y++) pass(y * width, 1, width);
-}
-
-/** A canvas's coverage as a distance field, into one channel (0 or 1) of an RG8 buffer (0.5 = the edge). */
-function sdfInto(out: Uint8Array, channel: number, src: HTMLCanvasElement) {
-  const w = src.width;
-  const h = src.height;
-  const alpha = src.getContext('2d')!.getImageData(0, 0, w, h).data;
-  const outer = new Float64Array(w * h);
-  const inner = new Float64Array(w * h);
-  for (let i = 0; i < w * h; i++) {
-    const a = alpha[i * 4 + 3] / 255;
-    if (a === 0) {
-      outer[i] = 1e20;
-      inner[i] = 0;
-    } else if (a === 1) {
-      outer[i] = 0;
-      inner[i] = 1e20;
-    } else {
-      // Partly covered: the edge passes through this pixel, at a distance set by how much it covers.
-      const d = 0.5 - a;
-      outer[i] = d > 0 ? d * d : 0;
-      inner[i] = d < 0 ? d * d : 0;
-    }
-  }
-  edt(outer, w, h);
-  edt(inner, w, h);
-  for (let i = 0; i < w * h; i++) {
-    const d = Math.sqrt(outer[i]) - Math.sqrt(inner[i]);
-    out[i * 2 + channel] = Math.max(0, Math.min(255, Math.round((0.5 - d / (2 * SDF_SPREAD)) * 255)));
-  }
-}
 
 /** A colour as straight RGBA in 0..1 ('rgb(23, 23, 23)' / 'rgba(23, 23, 23, 0.6)'). */
 function rgba(css: string): number[] {
@@ -456,7 +377,36 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
 
   let fieldsRun = 0;
   const idle = () =>
-    new Promise<void>((r) => ('requestIdleCallback' in window ? requestIdleCallback(() => r(), { timeout: 200 }) : setTimeout(r, 16)));
+    new Promise<void>((r) => ('requestIdleCallback' in window ? requestIdleCallback(() => r(), { timeout: 500 }) : setTimeout(r, 16)));
+  // The fields are built in a worker: each is a few hundred thousand distance sums, which on the main thread made the
+  // page (and the landing intro over it) stutter. Without workers they're built here, between frames.
+  let worker: Worker | null = null;
+  try {
+    worker = new Worker(new URL('./sdf-worker.ts', import.meta.url), { type: 'module' });
+  } catch {
+    worker = null;
+  }
+  let jobId = 0;
+  const jobs = new Map<number, (field: Uint8Array) => void>();
+  worker?.addEventListener('message', (e: MessageEvent<{ id: number; field: Uint8Array }>) => {
+    jobs.get(e.data.id)?.(e.data.field);
+    jobs.delete(e.data.id);
+  });
+  const fieldOf = (title: Uint8Array, body: Uint8Array, w: number, h: number) =>
+    worker
+      ? new Promise<Uint8Array>((resolve) => {
+          const id = ++jobId;
+          jobs.set(id, resolve);
+          worker!.postMessage({ id, title, body, w, h, spread: SDF_SPREAD }, [title.buffer, body.buffer]);
+        })
+      : Promise.resolve(sdfField(title, body, w, h, SDF_SPREAD));
+  /** A canvas's alpha channel, one byte per pixel. */
+  const alphaOf = (c: HTMLCanvasElement) => {
+    const rgba = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
+    const a = new Uint8Array(c.width * c.height);
+    for (let i = 0; i < a.length; i++) a[i] = rgba[i * 4 + 3];
+    return a;
+  };
   const makeFields = async (origin: DOMRect) => {
     const run = ++fieldsRun;
     const list = plates;
@@ -468,9 +418,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
       const body = drawFromDom(item, origin, SDF_RES, family, '.think__body');
       const w = title.canvas.width;
       const h = title.canvas.height;
-      const data = new Uint8Array(w * h * 2);
-      sdfInto(data, 0, title.canvas);
-      sdfInto(data, 1, body.canvas);
+      const data = await fieldOf(alphaOf(title.canvas), alphaOf(body.canvas), w, h);
       if (run !== fieldsRun) return;
       const tex = gl.createTexture()!;
       gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -596,13 +544,14 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     const m = moveAt();
     const amount = sample(LENS_DISTORTION, m);
     const fringe = sample(LENS_ABERRATION, m);
-    const kn = capped(kernel(fringe));
+    // At most 12 of Figma's aberration taps, jittered so they blend (see capKernel).
+    const kn = capKernel(kernel(fringe), 12);
     gl.uniform1f(lu.amount, amount);
     gl.uniform1f(lu.chroma, (1 + Math.abs(amount)) * fringe);
     gl.uniform1i(lu.taps, kn.taps);
     gl.uniform1f(lu.inv, kn.inv);
     gl.uniform1f(lu.sum, kn.sum);
-    gl.uniform1f(lu.jitter, kn.taps > 0 ? 1 : 0);
+    gl.uniform1f(lu.jitter, kn.jitter);
     gl.bindVertexArray(fullVao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.bindVertexArray(null);
@@ -905,7 +854,9 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   });
 
   show(0, false);
-  Promise.all([document.fonts.ready, loadCanvasFont()]).then(([, f]) => {
+  // Set up once the entry cover has lifted: drawing the statements (and then their fields) is real work, and the section
+  // is a long way down the page anyway.
+  Promise.all([document.fonts.ready, loadCanvasFont(), uncovered()]).then(([, f]) => {
     family = f;
     layout();
     draw();

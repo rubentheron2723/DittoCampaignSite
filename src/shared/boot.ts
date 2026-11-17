@@ -10,6 +10,7 @@ import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
 import { initNavFooterMark } from './nav-footer-mark';
 import { flagPageTransition, playPageTransition, takePageTransition } from './page-transition';
+import { liftCover } from './cover';
 
 export type BootContext = {
   reduce: boolean;
@@ -53,6 +54,8 @@ export async function boot({ page, render, init }: Options) {
     new Promise<void>((r) => window.setTimeout(r, limit)),
   ]);
   if (!reduce) liftCoverIfStuck(limit + 500);
+  // The page's animated backgrounds start as the cover lifts, not underneath it (cover.ts).
+  revealed.then(liftCover);
   // The intro's white cover is up (or, with reduced motion, the page itself): the body can take its own colour.
   document.documentElement.classList.remove('booting');
 

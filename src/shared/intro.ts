@@ -373,6 +373,18 @@ export function kernel(aberration: number) {
   return { taps, inv, sum };
 }
 
+/**
+ * Figma's kernel with at most \`max\` taps, spread over the same width (pair with uJitter = 1 so they blend). Its full
+ * kernel reaches 22 taps, each three texture reads per pixel over the whole screen: the bulk of a frame's work.
+ */
+export function capKernel(k: { taps: number; inv: number; sum: number }, max: number) {
+  if (k.taps <= max) return { ...k, jitter: 0 };
+  const inv = 1 / (max - 1);
+  let sum = 0;
+  for (let i = 0; i < max; i++) sum += 1 - Math.abs((i * inv - 0.5) * 2);
+  return { taps: max, inv, sum, jitter: 1 };
+}
+
 type Renderer = { draw: (t: number, settle: number) => void; resize: () => void; dispose: () => void };
 
 export function compile(gl: WebGL2RenderingContext, vs: string, fs: string) {
@@ -453,6 +465,7 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement): Render
     taps: U(lensProg, 'uTaps'),
     inv: U(lensProg, 'uInvKernel'),
     sum: U(lensProg, 'uWeightSum'),
+    jitter: U(lensProg, 'uJitter'),
   };
 
   let W = 1, H = 1, dpr = 1, fboScale = 1;
@@ -470,7 +483,9 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement): Render
     const { cover } = fit(layout, W, H);
     const cw = layout.clouds[2] * cover;
     const ch = layout.clouds[3] * cover;
-    fboScale = Math.min(dpr, maxTex / cw, maxTex / ch);
+    // The clouds are soft: drawn flat at the CSS size (not the screen's 1.5x) they look the same, for well under half the
+    // fill (fifteen overlapping layers, every frame).
+    fboScale = Math.min(1, dpr, maxTex / cw, maxTex / ch);
     const nw = Math.max(1, Math.round(cw * fboScale));
     const nh = Math.max(1, Math.round(ch * fboScale));
     if (nw !== fboW || nh !== fboH) {
@@ -533,12 +548,13 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement): Render
     gl.uniform4f(lu.frame, ox + cx * s, oy + cy * s, cw * s, ch * s);
     const amount = sample(layout.distortion, t);
     const ab = sample(layout.aberration, t);
-    const kn = kernel(ab);
+    const kn = capKernel(kernel(ab), 12);
     gl.uniform1f(lu.amount, amount);
     gl.uniform1f(lu.chroma, (1 + Math.abs(amount)) * ab);
     gl.uniform1i(lu.taps, kn.taps);
     gl.uniform1f(lu.inv, kn.inv);
     gl.uniform1f(lu.sum, kn.sum);
+    gl.uniform1f(lu.jitter, kn.jitter);
     gl.bindVertexArray(fullVao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.bindVertexArray(null);

@@ -1,4 +1,5 @@
 import { FOOTER_ART_FILL, FOOTER_LOGOMARK, FOOTER_WORDMARK, type FooterArt } from './footer-art';
+import { covered } from './cover';
 
 /**
  * The footer's "Moving blobs" effect.
@@ -547,6 +548,8 @@ export function initFooterBlobs(reduce: boolean) {
   let raf = 0;
   let visible = false;
   const loop = (now: number) => {
+    // Held still under the entry cover (see cover.ts); it resumes as the cover lifts.
+    if (covered(kick)) return void (raf = 0);
     render(now);
     raf = visible && !reduce ? requestAnimationFrame(loop) : 0;
   };
