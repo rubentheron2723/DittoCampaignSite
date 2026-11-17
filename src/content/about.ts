@@ -1,5 +1,5 @@
 /**
- * About copy, lifted from the production about page.
+ * About copy, lifted from the production about page. The hero follows Figma 2387:2.
  */
 export const hero = {
   title: 'About Ditto.',
@@ -8,7 +8,6 @@ export const hero = {
     'We design recruitment software used by agencies and hiring teams to run their operations. Recruiters use Ditto to manage candidate pipelines, communicate with clients and candidates, coordinate interviews, and place people into companies that are growing.',
     "This isn't theoretical software. It's infrastructure that recruiters rely on to do their work every day.",
   ],
-  proof: 'Used by thousands of recruiters. Powering millions of job applications.',
 };
 
 export const builders = {
