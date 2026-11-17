@@ -473,8 +473,25 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   const THRESHOLD = 30;
   /** A step asked for while the last is still playing, run when it can (1 down, -1 up, 0 none). */
   let pending: 1 | -1 | 0 = 0;
-  /** Moves accept the next step this far through (the next statement has mostly arrived by then). */
-  const NEXT_AT = 0.7;
+  /** After a move lands, the statement holds this long before a kept swipe moves on (s): each is seen at rest. */
+  const HOLD = 0.5;
+
+  // While the stage holds the scroll the nav stays folded to its mark (see .nav--hold in base.css), and opens fully
+  // while the pointer is up in its strip.
+  const nav = document.getElementById('nav');
+  const holdNav = (on: boolean) => {
+    nav?.classList.toggle('nav--hold', on);
+    if (!on) nav?.classList.remove('nav--peek');
+  };
+  window.addEventListener(
+    'pointermove',
+    (e) => {
+      if (!captured || !nav || e.pointerType === 'touch') return;
+      nav.classList.toggle('nav--peek', e.clientY < nav.offsetHeight + 24);
+    },
+    { passive: true },
+  );
+  document.documentElement.addEventListener('pointerleave', () => nav?.classList.remove('nav--peek'));
 
   const smoother = () => ScrollSmoother.get();
   const freeze = (on: boolean) => {
@@ -494,7 +511,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     index = to;
     flight?.kill();
     const duration = STEP_TIME * Math.min(1, Math.abs(to - pos.v));
-    busyUntil = performance.now() + duration * NEXT_AT * 1000;
+    busyUntil = performance.now() + (duration + HOLD) * 1000;
     show(to, true);
     flight = gsap.to(pos, {
       v: to,
@@ -521,6 +538,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     // doesn't visibly move).
     jumpTo(st.start + 1);
     freeze(true);
+    holdNav(true);
     flight?.kill();
     busyUntil = 0;
     index = at;
@@ -543,6 +561,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     captured = false;
     releasedAt = performance.now();
     freeze(false);
+    holdNav(false);
     // Carry on from the section's far edge going down (still pinned, so nothing jumps), or from just above it going up.
     jumpTo(dir > 0 ? st.end + 2 : st.start - 2);
   };
