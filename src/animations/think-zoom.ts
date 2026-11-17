@@ -80,8 +80,28 @@ function drawStatement(s: Statement, W: number, H: number, res: number) {
   };
   const titleFont = `700 ${titleSize}px ${family}`;
   const bodyFont = `400 ${bodySize}px ${family}`;
-  const titleLines = wrap(s.title, titleFont, titleSize, titleW);
-  const bodyLines = wrap(s.body, bodyFont, bodySize, bodyW);
+  // As the CSS does (text-wrap: balance / pretty): titles break into lines of even length, and the copy never ends
+  // on one word alone.
+  const balanced = (text: string, font: string, size: number, width: number) => {
+    const lines = wrap(text, font, size, width);
+    if (lines.length < 2) return lines;
+    let lo = width * 0.4, hi = width;
+    for (let i = 0; i < 12; i++) {
+      const mid = (lo + hi) / 2;
+      if (wrap(text, font, size, mid).length > lines.length) lo = mid;
+      else hi = mid;
+    }
+    return wrap(text, font, size, hi);
+  };
+  const pretty = (text: string, font: string, size: number, width: number) => {
+    let lines = wrap(text, font, size, width);
+    for (let w = width; lines.length > 1 && !lines[lines.length - 1].includes(' ') && w > width * 0.8; w -= width * 0.02) {
+      lines = wrap(text, font, size, w);
+    }
+    return lines;
+  };
+  const titleLines = balanced(s.title, titleFont, titleSize, titleW);
+  const bodyLines = pretty(s.body, bodyFont, bodySize, bodyW);
   const titleH = titleLines.length * titleLh;
   const bodyH = bodyLines.length * bodyLh;
   const gap = narrow ? 24 : 20;

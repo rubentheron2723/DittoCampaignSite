@@ -72,6 +72,7 @@
 @media (max-width: 760px) {
   .rebuild { padding-top: 80px; padding-bottom: 80px; }
   .rrow__text { flex-direction: column; gap: 16px; }
+  .rrow__title { max-width: none; }
   .rrow__body { width: auto; }
 }
 
