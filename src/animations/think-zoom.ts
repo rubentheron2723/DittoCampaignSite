@@ -59,6 +59,20 @@ const LENS_ABERRATION: Key[] = [
   { t: at(2.601206), v: 0.52, ease: E_OUT },
   { t: at(3), v: 0 },
 ];
+/**
+ * The aberration's samples, at most MAX_TAPS. Figma's kernel takes up to 22, each three texture reads per pixel, over
+ * the whole retina screen: the main cost of a frame. Fewer, spread across the same width and jittered per pixel (so
+ * they blend rather than show as separate copies), look the same on moving, fringed type.
+ */
+const MAX_TAPS = 12;
+const capped = (k: { taps: number; inv: number; sum: number }) => {
+  if (k.taps <= MAX_TAPS) return k;
+  const taps = MAX_TAPS;
+  const inv = 1 / (taps - 1);
+  let sum = 0;
+  for (let i = 0; i < taps; i++) sum += 1 - Math.abs((i * inv - 0.5) * 2);
+  return { taps, inv, sum };
+};
 const sample = (keys: Key[], t: number) => {
   if (t <= keys[0].t) return keys[0].v;
   for (let i = 0; i < keys.length - 1; i++) {
@@ -81,8 +95,117 @@ precision highp float;
 in vec2 vUv; uniform sampler2D uTex; uniform float uAlpha; out vec4 o;
 void main() { o = texture(uTex, vUv) * uAlpha; }`;
 
+/**
+ * The same, from a signed distance field (title in R, copy in G; 0.5 on the letters' edges): the letters' edges are
+ * found afresh at whatever size they're drawn, so they stay sharp however far the statement zooms (a bitmap blurs and
+ * pixelates as it grows 20x). Each part takes its own colour.
+ */
+const SDF_FRAG = `#version 300 es
+precision highp float;
+in vec2 vUv; uniform sampler2D uTex; uniform float uAlpha; uniform vec4 uTitle; uniform vec4 uBody; out vec4 o;
+float edge(float d) {
+  float w = max(fwidth(d) * 0.7, 1e-4);
+  return smoothstep(0.5 - w, 0.5 + w, d);
+}
+void main() {
+  vec2 d = texture(uTex, vUv).rg;
+  float t = edge(d.r) * uTitle.a;
+  float b = edge(d.g) * uBody.a;
+  // Premultiplied; the two never overlap.
+  o = (vec4(uTitle.rgb, 1.0) * t + vec4(uBody.rgb, 1.0) * b) * uAlpha;
+}`;
+
 /** A drawn statement, where it sits, and the point it zooms about (the middle of its title). */
-type Plate = { tex: WebGLTexture; x: number; y: number; w: number; h: number; px: number; py: number };
+type Plate = {
+  tex: WebGLTexture;
+  /** Its distance field, once made (until then the bitmap is drawn). */
+  sdf?: WebGLTexture;
+  title: number[];
+  body: number[];
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  px: number;
+  py: number;
+};
+
+/** The distance fields' resolution (texels per CSS px) and reach (texels either side of an edge). */
+const SDF_RES = 2;
+const SDF_SPREAD = 6;
+
+/**
+ * Squared distances to the nearest "on" cell, in place (Felzenszwalb & Huttenlocher's exact transform, as Mapbox's
+ * tiny-sdf does it): along each column, then each row.
+ */
+function edt(grid: Float64Array, width: number, height: number) {
+  const n = Math.max(width, height);
+  const f = new Float64Array(n);
+  const v = new Uint16Array(n);
+  const z = new Float64Array(n + 1);
+  const pass = (offset: number, stride: number, length: number) => {
+    v[0] = 0;
+    z[0] = -Infinity;
+    z[1] = Infinity;
+    f[0] = grid[offset];
+    for (let q = 1, k = 0, s = 0; q < length; q++) {
+      f[q] = grid[offset + q * stride];
+      const q2 = q * q;
+      do {
+        const r = v[k];
+        s = (f[q] - f[r] + q2 - r * r) / (q - r) / 2;
+      } while (s <= z[k] && --k > -1);
+      k++;
+      v[k] = q;
+      z[k] = s;
+      z[k + 1] = Infinity;
+    }
+    for (let q = 0, k = 0; q < length; q++) {
+      while (z[k + 1] < q) k++;
+      const r = v[k];
+      const qr = q - r;
+      grid[offset + q * stride] = f[r] + qr * qr;
+    }
+  };
+  for (let x = 0; x < width; x++) pass(x, width, height);
+  for (let y = 0; y < height; y++) pass(y * width, 1, width);
+}
+
+/** A canvas's coverage as a distance field, into one channel (0 or 1) of an RG8 buffer (0.5 = the edge). */
+function sdfInto(out: Uint8Array, channel: number, src: HTMLCanvasElement) {
+  const w = src.width;
+  const h = src.height;
+  const alpha = src.getContext('2d')!.getImageData(0, 0, w, h).data;
+  const outer = new Float64Array(w * h);
+  const inner = new Float64Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    const a = alpha[i * 4 + 3] / 255;
+    if (a === 0) {
+      outer[i] = 1e20;
+      inner[i] = 0;
+    } else if (a === 1) {
+      outer[i] = 0;
+      inner[i] = 1e20;
+    } else {
+      // Partly covered: the edge passes through this pixel, at a distance set by how much it covers.
+      const d = 0.5 - a;
+      outer[i] = d > 0 ? d * d : 0;
+      inner[i] = d < 0 ? d * d : 0;
+    }
+  }
+  edt(outer, w, h);
+  edt(inner, w, h);
+  for (let i = 0; i < w * h; i++) {
+    const d = Math.sqrt(outer[i]) - Math.sqrt(inner[i]);
+    out[i * 2 + channel] = Math.max(0, Math.min(255, Math.round((0.5 - d / (2 * SDF_SPREAD)) * 255)));
+  }
+}
+
+/** A colour as straight RGBA in 0..1 ('rgb(23, 23, 23)' / 'rgba(23, 23, 23, 0.6)'). */
+function rgba(css: string): number[] {
+  const m = css.match(/[\d.]+/g)?.map(Number) ?? [23, 23, 23, 1];
+  return [m[0] / 255, m[1] / 255, m[2] / 255, m[3] ?? 1];
+}
 
 /**
  * DM Sans with its optical size fixed at the site's 16 (type.css sets opsz with font-variation-settings, which canvas
@@ -110,7 +233,7 @@ function loadCanvasFont() {
  * Draws a statement exactly where and how the HTML lays it out: every word at its own line box, in the element's
  * computed size, weight, spacing and colour. (A word broken across lines, at a hyphen, is drawn letter by letter.)
  */
-function drawFromDom(item: HTMLElement, origin: DOMRect, res: number, family: string) {
+function drawFromDom(item: HTMLElement, origin: DOMRect, res: number, family: string, part?: string) {
   const pad = 24;
   const box = item.getBoundingClientRect();
   const c = document.createElement('canvas');
@@ -133,12 +256,13 @@ function drawFromDom(item: HTMLElement, origin: DOMRect, res: number, family: st
     // The text's content box runs from the ascender to the descender (DM Sans: 0.992em and 0.31em).
     ctx.fillText(node.data.slice(from, to), r.left, r.bottom - size * 0.31);
   };
-  for (const el of qa<HTMLElement>('.think__title, .think__body', item)) {
+  // One part alone is drawn for its shape only (a distance field), so solid: its colour is applied when drawn.
+  for (const el of qa<HTMLElement>(part ?? '.think__title, .think__body', item)) {
     const cs = getComputedStyle(el);
     const size = parseFloat(cs.fontSize);
     ctx.font = `${cs.fontWeight} ${cs.fontSize} ${family}`;
     if ('letterSpacing' in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing;
-    ctx.fillStyle = cs.color;
+    ctx.fillStyle = part ? '#000' : cs.color;
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     for (let node = walker.nextNode() as Text | null; node; node = walker.nextNode() as Text | null) {
       for (const m of node.data.matchAll(/\S+/g)) draw(node, m.index!, m.index! + m[0].length, size);
@@ -198,11 +322,13 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   if (statements.length < 2) return false;
   let family = "'DM Sans', sans-serif";
 
-  const gl = canvas.getContext('webgl2', { premultipliedAlpha: true, alpha: true, antialias: true });
+  // No multisampling: everything reaching the screen is one full-screen pass, which it would only slow down.
+  const gl = canvas.getContext('webgl2', { premultipliedAlpha: true, alpha: true, antialias: false });
   if (!gl) return false;
-  let sprite: WebGLProgram, lensProg: WebGLProgram;
+  let sprite: WebGLProgram, sdfProg: WebGLProgram, lensProg: WebGLProgram;
   try {
     sprite = compile(gl, SPRITE_VERT, SPRITE_FRAG);
+    sdfProg = compile(gl, SPRITE_VERT, SDF_FRAG);
     lensProg = compile(gl, FULL_VERT, LENS_FRAG);
   } catch (err) {
     console.warn('think: shaders failed', err);
@@ -231,10 +357,14 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
 
   const U = (p: WebGLProgram, n: string) => gl.getUniformLocation(p, n);
   const su = { size: U(sprite, 'uSize'), tex: U(sprite, 'uTex'), alpha: U(sprite, 'uAlpha') };
+  const du = {
+    size: U(sdfProg, 'uSize'), tex: U(sdfProg, 'uTex'), alpha: U(sdfProg, 'uAlpha'),
+    title: U(sdfProg, 'uTitle'), body: U(sdfProg, 'uBody'),
+  };
   const lu = {
     tex: U(lensProg, 'uTex'), screen: U(lensProg, 'uScreen'), dpr: U(lensProg, 'uDpr'), frame: U(lensProg, 'uFrame'),
     amount: U(lensProg, 'uAmount'), chroma: U(lensProg, 'uChroma'), taps: U(lensProg, 'uTaps'),
-    inv: U(lensProg, 'uInvKernel'), sum: U(lensProg, 'uWeightSum'),
+    inv: U(lensProg, 'uInvKernel'), sum: U(lensProg, 'uWeightSum'), jitter: U(lensProg, 'uJitter'),
   };
 
   const quadVao = gl.createVertexArray();
@@ -301,14 +431,53 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fboTex, 0);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    // Text drawn sharper than the screen, so it holds up a little as it grows.
-    plates.forEach((p) => gl.deleteTexture(p.tex));
+    // A bitmap of each statement first (drawn at once), then its distance field, made a statement at a time in idle
+    // moments, which takes over as each is ready.
+    plates.forEach((p) => {
+      gl.deleteTexture(p.tex);
+      if (p.sdf) gl.deleteTexture(p.sdf);
+    });
     const res = Math.min(dpr * 1.5, 3);
     const origin = stage.getBoundingClientRect();
     plates = statements.map((item) => {
       const d = drawFromDom(item, origin, res, family);
-      return { tex: texFrom(d.canvas), x: d.x, y: d.y, w: d.w, h: d.h, px: d.px, py: d.py };
+      const title = rgba(getComputedStyle(q('.think__title', item)!).color);
+      const body = rgba(getComputedStyle(q('.think__body', item)!).color);
+      return { tex: texFrom(d.canvas), title, body, x: d.x, y: d.y, w: d.w, h: d.h, px: d.px, py: d.py };
     });
+    makeFields(origin);
+  };
+
+  let fieldsRun = 0;
+  const idle = () =>
+    new Promise<void>((r) => ('requestIdleCallback' in window ? requestIdleCallback(() => r(), { timeout: 200 }) : setTimeout(r, 16)));
+  const makeFields = async (origin: DOMRect) => {
+    const run = ++fieldsRun;
+    const list = plates;
+    for (let i = 0; i < list.length; i++) {
+      await idle();
+      if (run !== fieldsRun) return;
+      const item = statements[i];
+      const title = drawFromDom(item, origin, SDF_RES, family, '.think__title');
+      const body = drawFromDom(item, origin, SDF_RES, family, '.think__body');
+      const w = title.canvas.width;
+      const h = title.canvas.height;
+      const data = new Uint8Array(w * h * 2);
+      sdfInto(data, 0, title.canvas);
+      sdfInto(data, 1, body.canvas);
+      if (run !== fieldsRun) return;
+      const tex = gl.createTexture()!;
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG8, w, h, 0, gl.RG, gl.UNSIGNED_BYTE, data);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      list[i].sdf = tex;
+    }
   };
 
   /** Where the scroll is: a step number (0 = the first statement settled) with a fraction. */
@@ -363,9 +532,6 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    gl.useProgram(sprite);
-    gl.uniform2f(su.size, frame.w, frame.h);
-    gl.uniform1i(su.tex, 0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindVertexArray(quadVao);
     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
@@ -392,8 +558,21 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
         verts.set([cx + dx * cos - dy * sin, cy + dx * sin + dy * cos, u, v], k * 4);
       });
       gl.bufferData(gl.ARRAY_BUFFER, verts, gl.DYNAMIC_DRAW);
-      gl.bindTexture(gl.TEXTURE_2D, p.tex);
-      gl.uniform1f(su.alpha, st.alpha);
+      if (p.sdf) {
+        gl.useProgram(sdfProg);
+        gl.uniform2f(du.size, frame.w, frame.h);
+        gl.uniform1i(du.tex, 0);
+        gl.uniform4fv(du.title, p.title);
+        gl.uniform4fv(du.body, p.body);
+        gl.uniform1f(du.alpha, st.alpha);
+        gl.bindTexture(gl.TEXTURE_2D, p.sdf);
+      } else {
+        gl.useProgram(sprite);
+        gl.uniform2f(su.size, frame.w, frame.h);
+        gl.uniform1i(su.tex, 0);
+        gl.uniform1f(su.alpha, st.alpha);
+        gl.bindTexture(gl.TEXTURE_2D, p.tex);
+      }
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     });
     // 2. Through the lens onto the screen.
@@ -411,12 +590,13 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     const m = moveAt();
     const amount = sample(LENS_DISTORTION, m);
     const fringe = sample(LENS_ABERRATION, m);
-    const kn = kernel(fringe);
+    const kn = capped(kernel(fringe));
     gl.uniform1f(lu.amount, amount);
     gl.uniform1f(lu.chroma, (1 + Math.abs(amount)) * fringe);
     gl.uniform1i(lu.taps, kn.taps);
     gl.uniform1f(lu.inv, kn.inv);
     gl.uniform1f(lu.sum, kn.sum);
+    gl.uniform1f(lu.jitter, kn.taps > 0 ? 1 : 0);
     gl.bindVertexArray(fullVao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.bindVertexArray(null);
