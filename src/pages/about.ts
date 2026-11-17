@@ -6,7 +6,8 @@ import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc, MARK_L, MARK_R } from '../shared/mark';
 import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
-import { fadeUp, splitReveal, stickyPin } from '../shared/motion';
+import { fadeUp, splitReveal } from '../shared/motion';
+import { initThinkZoom } from '../animations/think-zoom';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { glassLogoHtml, initGlassLogo } from '../shared/glass-logo';
 import { initBlobBackdrop } from '../shared/blob-backdrop';
@@ -66,21 +67,16 @@ function render() {
     </div>
   </section>
 
-  <section class="thinking" id="thinking" data-theme="light">
-    <div class="wrap wrap--wide thinking__grid">
-      <div class="thinking__sticky">
-        <h2 class="h-section">${esc(thinking.title)}</h2>
-        <p class="lead muted thinking__intro">${esc(thinking.intro)}</p>
-      </div>
-      <ol class="principles">
-        <span class="principles__line"><span class="principles__fill"></span></span>
-        ${thinking.principles
+  <section class="think" id="thinking" data-theme="light">
+    <div class="think__stage">
+      <canvas class="think__fx" aria-hidden="true"></canvas>
+      <canvas class="think__lens" aria-hidden="true"></canvas>
+      <ol class="think__list">
+        ${[{ title: thinking.title, body: thinking.intro }, ...thinking.principles]
           .map(
-            (p, i) => `<li class="principle" data-i="${i}">
-              <span class="principle__dot"></span>
-              <p class="principle__index">0${i + 1}</p>
-              <h3 class="principle__title">${esc(p.title)}</h3>
-              <p class="principle__body">${esc(p.body)}</p>
+            (p, i) => `<li class="think__item">
+              <${i ? 'h3' : 'h2'} class="think__title">${esc(p.title)}</${i ? 'h3' : 'h2'}>
+              <p class="think__body">${esc(p.body)}</p>
             </li>`,
           )
           .join('')}
@@ -162,17 +158,6 @@ function initRebuild(animate: boolean) {
   });
 }
 
-function initPrinciples(animate: boolean) {
-  if (!animate) return;
-  gsap.fromTo('.principles__fill', { scaleY: 0 }, { scaleY: 1, transformOrigin: 'top', ease: 'none', scrollTrigger: { trigger: '.principles', start: 'top 70%', end: 'bottom 70%', scrub: 0.4 } });
-  qa<HTMLElement>('.principle').forEach((p) => {
-    gsap.from(p.querySelector('.principle__dot'), { scale: 0, duration: 0.5, ease: 'back.out(2.5)', scrollTrigger: { trigger: p, start: 'top 70%', toggleActions: 'play none none reverse' } });
-    splitReveal(p.querySelector('.principle__title')!, { trigger: p, start: 'top 72%' });
-    fadeUp(p.querySelectorAll('.principle__index, .principle__body'), p, { y: 20, start: 'top 72%' });
-    ScrollTrigger.create({ trigger: p, start: 'top 55%', end: 'bottom 45%', toggleClass: { targets: p, className: 'is-active' } });
-  });
-}
-
 function initTeam(animate: boolean) {
   if (!animate) return;
   // The two halves start apart and lock together as the section scrolls into place.
@@ -192,7 +177,8 @@ boot({
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
     initGlassLogo(q('.glogo')!, q('.ahero')!, !reduce);
-    initPrinciples(!reduce);
+    initBlobBackdrop(q('.think')!, q<HTMLCanvasElement>('.think__fx')!, 'think--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
+    initThinkZoom(!reduce);
     initTeam(!reduce);
 
     initBlobBackdrop(q('.rebuild')!, q<HTMLCanvasElement>('.rebuild__fx')!, 'rebuild--fx', FOOTER_BLOBS, [254, 254, 254], reduce, 0.55);
@@ -216,9 +202,6 @@ boot({
     });
 
     rowsReveal();
-    stickyPin(q('.thinking__sticky')!, q('.thinking__grid')!, 112);
-    splitReveal('.thinking__sticky .h-section');
-    fadeUp('.thinking__intro', '.thinking__sticky', { y: 24 });
 
   },
 });
