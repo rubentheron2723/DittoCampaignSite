@@ -35,11 +35,9 @@ const DISTORTION = 0.36;
  * past, the lens swells (up to 0.36 + LENS_SWELL) with a touch of colour fringing, so the warp reads as it flies.
  */
 const LENS_SWELL = 0.95;
-const FRINGE = 0.14;
+const FRINGE = 0.07;
 /** Scroll per statement, in screen heights. */
 const STEP_SCROLL = 1.4;
-/** How long the flight takes to catch up with the scroll (s): smooths out flicks of the wheel. */
-const CATCH_UP = 1.1;
 
 const INK = '#171717';
 const BODY = 'rgba(23, 23, 23, 0.6)';
@@ -230,7 +228,8 @@ export function initThinkZoom(animate: boolean) {
   const layout = () => {
     W = Math.max(1, stage.clientWidth);
     H = Math.max(1, stage.clientHeight);
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Soft, fast-moving type: 1.5x is plenty, and keeps the lens pass light enough to hold the frame rate.
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     // The lens frame, cover-fitted like the section's 1440 x 1024 design frame.
@@ -239,7 +238,7 @@ export function initThinkZoom(animate: boolean) {
     const oy = (H - 1024 * s) / 2;
     Object.assign(frame, { x: ox + FRAME.x * s, y: oy + FRAME.y * s, w: FRAME.w * s, h: FRAME.h * s });
     const maxTex = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE) as number, 4096);
-    const fs = Math.min(dpr, maxTex / frame.w, maxTex / frame.h);
+    const fs = Math.min(dpr, 1.25, maxTex / frame.w, maxTex / frame.h);
     fw = Math.max(1, Math.round(frame.w * fs));
     fh = Math.max(1, Math.round(frame.h * fs));
     gl.bindTexture(gl.TEXTURE_2D, fboTex);
@@ -253,7 +252,7 @@ export function initThinkZoom(animate: boolean) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     // Text drawn sharper than the screen, so it holds up a little as it grows.
     plates.forEach((p) => gl.deleteTexture(p.tex));
-    const res = Math.min(dpr * 1.5, 3);
+    const res = Math.min(dpr * 1.5, 2.25);
     plates = statements.map((st) => {
       const d = drawStatement(st, W, H, res);
       return { tex: texFrom(d.canvas), x: d.x, y: d.y, w: d.w, h: d.h, px: d.px, py: d.py };
@@ -353,6 +352,17 @@ export function initThinkZoom(animate: boolean) {
     gl.bindVertexArray(null);
   };
 
+  // At most one draw per frame, however many scroll updates arrive.
+  let queued = false;
+  const schedule = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      draw();
+    });
+  };
+
   const steps = statements.length - 1;
   document.fonts.ready.then(() => {
     layout();
@@ -364,7 +374,10 @@ export function initThinkZoom(animate: boolean) {
       pin: stage,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
-        gsap.to(pos, { v: self.progress * steps, duration: CATCH_UP, ease: 'power3.out', overwrite: true, onUpdate: draw });
+        // Straight from the scroll: ScrollSmoother already smooths it, and a second lag on top made the flight
+        // trail the wheel and then play out in a rush once scrolling stopped.
+        pos.v = self.progress * steps;
+        schedule();
       },
       onRefresh: (self) => {
         layout();
