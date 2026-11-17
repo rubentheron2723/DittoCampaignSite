@@ -7,9 +7,8 @@ import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
  * passes, and the next statement settles in behind it. All of it is seen through Figma's Lens distortion, which wakes
  * up as the zoom starts and bends the type outwards as it grows (Figma's own lens keyframes, below).
  *
- * The scroll chooses the statement; the move between two plays out over a fixed time (Figma's 2 s zoom), however fast
- * the wheel or trackpad goes. Tied straight to the scroll, a flick of the trackpad covered a whole step at once and
- * the flight happened in a blink. Scrolling past several statements plays them one after another at the same pace.
+ * The section takes over the scroll while it's on screen (see "takes the scroll" below): each gesture moves one
+ * statement, and each move plays over a fixed time (Figma's 2 s zoom), however fast the wheel or trackpad goes.
  *
  * The statements are drawn into textures (canvas 2D text, laid out like the HTML) and composited in WebGL2: first
  * flat into the lens frame, then through the lens onto the screen. The HTML list stays in the page for screen readers
@@ -64,12 +63,6 @@ const sample = (keys: Key[], t: number) => {
   }
   return keys[keys.length - 1].v;
 };
-/** Scroll per statement, in screen heights: enough to hold the section while each move plays. */
-const STEP_SCROLL = 0.85;
-/** Extra scroll held after the last statement arrives, so its move plays out before the page moves on. */
-const TAIL = 1.1;
-/** How far into a statement's stretch of scroll the move to the next one starts. */
-const ADVANCE_AT = 0.3;
 
 const INK = '#171717';
 const BODY = 'rgba(23, 23, 23, 0.6)';
@@ -394,51 +387,139 @@ export function initThinkZoom(animate: boolean) {
   };
 
   const steps = statements.length - 1;
-  /** The scroll's progress through the pin, in statements (the tail after the last counts as staying on it). */
-  const along = (progress: number) => (progress * (STEP_SCROLL * steps + TAIL)) / STEP_SCROLL;
-  // Plays the flight to statement `to` at a steady pace (STEP_TIME for a move), whichever way.
-  let target = 0;
+
+  /*
+   * The section takes the scroll while it is on screen. When it reaches the top (coming down, or back up from below),
+   * the page stops there and holds still; each scroll gesture (wheel, trackpad swipe, touch swipe, arrow or page key)
+   * then moves one statement, at its own pace. Only past the last statement (or before the first) does a gesture let
+   * go of the page, which carries on from where the section ends (or begins).
+   *
+   * Driving the moves from scroll distance didn't work with smooth scrolling: a flick sent the real scroll position
+   * far past the section before the smoothed one caught up, so the page ran on to the next section mid-statement.
+   */
+  let index = 0;
   let flight: gsap.core.Tween | null = null;
-  // While a move plays, the page holds still: the wheel and trackpad can't carry the reader on to the next section
-  // (or back to the last) halfway through a statement's flight. Scrolling picks up again as it lands.
-  let unlock = 0;
-  const hold = (on: boolean) => {
-    const smoother = ScrollSmoother.get();
-    window.clearTimeout(unlock);
-    if (smoother) smoother.paused(on);
+  let captured = false;
+  let st: ScrollTrigger | null = null;
+  /** Wheel input since the last move (trackpads send many small events per gesture). */
+  let acc = 0;
+  /** Until this time, wheel events are the tail of a gesture already used (trackpad inertia), not a new one. */
+  let quietUntil = 0;
+  const QUIET = 220;
+  const THRESHOLD = 30;
+
+  const smoother = () => ScrollSmoother.get();
+  const freeze = (on: boolean) => {
+    const sm = smoother();
+    if (sm) sm.paused(on);
     else document.documentElement.style.overflow = on ? 'hidden' : '';
   };
-  const go = (to: number) => {
-    if (to === target) return;
-    target = to;
-    flight?.kill();
-    // Passing several at once, each after the first goes a little quicker, so the flight doesn't trail far behind.
-    const duration = STEP_TIME * (Math.min(1, Math.abs(to - pos.v)) + Math.max(0, Math.abs(to - pos.v) - 1) * 0.6);
-    hold(true);
-    flight = gsap.to(pos, { v: to, duration, ease: 'none', onUpdate: schedule, onComplete: () => hold(false) });
-    // Never leave the page stuck if the tween is cut short (a refresh, a lost frame loop).
-    unlock = window.setTimeout(() => hold(false), (duration + 0.5) * 1000);
+  const jumpTo = (y: number) => {
+    const sm = smoother();
+    if (sm) sm.scrollTop(y);
+    else window.scrollTo(0, y);
   };
+
+  /** When the current move ends, by the clock (not the tween, which stalls if frames do). */
+  let busyUntil = 0;
+  const move = (to: number) => {
+    index = to;
+    flight?.kill();
+    const duration = STEP_TIME * Math.min(1, Math.abs(to - pos.v));
+    busyUntil = performance.now() + duration * 1000;
+    flight = gsap.to(pos, { v: to, duration, ease: 'none', onUpdate: schedule });
+  };
+  /** Just after letting go, the jump out of the section must not count as entering it again. */
+  let releasedAt = -Infinity;
+  const capture = (at: number) => {
+    if (captured || !st || performance.now() - releasedAt < 800) return;
+    captured = true;
+    acc = 0;
+    quietUntil = performance.now() + QUIET;
+    // Stop at the section's top, a pixel inside so the pin counts as active (the stage is pinned there, so the page
+    // doesn't visibly move).
+    jumpTo(st.start + 1);
+    freeze(true);
+    flight?.kill();
+    busyUntil = 0;
+    index = at;
+    pos.v = at;
+    schedule();
+  };
+  const release = (dir: 1 | -1) => {
+    if (!captured || !st) return;
+    captured = false;
+    releasedAt = performance.now();
+    freeze(false);
+    // Carry on from the section's far edge going down (still pinned, so nothing jumps), or from just above it going up.
+    jumpTo(dir > 0 ? st.end + 2 : st.start - 2);
+  };
+  const busy = () => performance.now() < busyUntil;
+  const step = (dir: 1 | -1) => {
+    if (busy()) return;
+    const to = index + dir;
+    if (to < 0) release(-1);
+    else if (to > steps) release(1);
+    else move(to);
+    acc = 0;
+    // Swallow the rest of this gesture (and its inertia) so one swipe is one step.
+    quietUntil = performance.now() + QUIET + STEP_TIME * 1000;
+  };
+
+  window.addEventListener(
+    'wheel',
+    (e) => {
+      if (!captured) return;
+      e.preventDefault();
+      const now = performance.now();
+      if (now < quietUntil || busy()) {
+        // Still the same gesture: keep waiting for a pause before the next one counts.
+        quietUntil = Math.max(quietUntil, now + QUIET);
+        return;
+      }
+      acc += e.deltaY;
+      if (Math.abs(acc) > THRESHOLD) step(acc > 0 ? 1 : -1);
+    },
+    { passive: false },
+  );
+  let touchY = 0;
+  window.addEventListener('touchstart', (e) => (touchY = e.touches[0].clientY), { passive: true });
+  window.addEventListener(
+    'touchmove',
+    (e) => {
+      if (!captured) return;
+      e.preventDefault();
+      const dy = touchY - e.touches[0].clientY;
+      if (Math.abs(dy) > 40) {
+        step(dy > 0 ? 1 : -1);
+        touchY = e.touches[0].clientY;
+      }
+    },
+    { passive: false },
+  );
+  window.addEventListener('keydown', (e) => {
+    if (!captured) return;
+    const down = ['ArrowDown', 'PageDown', ' ', 'Spacebar'].includes(e.key);
+    const up = ['ArrowUp', 'PageUp'].includes(e.key);
+    if (!down && !up) return;
+    e.preventDefault();
+    step(down ? 1 : -1);
+  });
+
   document.fonts.ready.then(() => {
     layout();
     draw();
-    ScrollTrigger.create({
+    st = ScrollTrigger.create({
       trigger: section,
       start: 'top top',
-      end: () => `+=${window.innerHeight * (STEP_SCROLL * steps + TAIL)}`,
+      // One screen of pinned scroll: room to stop at the top, and to leave from the bottom without a jump.
+      end: '+=100%',
       pin: stage,
       invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        // The scroll picks the statement; the move itself plays at its own pace (see go).
-        go(Math.min(steps, Math.floor(along(self.progress) + 1 - ADVANCE_AT)));
-      },
-      onRefresh: (self) => {
+      onEnter: () => capture(0),
+      onEnterBack: () => capture(steps),
+      onRefresh: () => {
         layout();
-        // Straight to wherever the scroll already is (a reload partway down), without playing the moves.
-        flight?.kill();
-        hold(false);
-        target = Math.min(steps, Math.floor(along(self.progress) + 1 - ADVANCE_AT));
-        pos.v = target;
         draw();
       },
     });
