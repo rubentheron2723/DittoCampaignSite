@@ -19,9 +19,9 @@ import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
 const T = {
   zoomStart: 0.2778,
   zoomEnd: 0.8333,
-  fadeOutStart: 0.4157,
-  fadeInStart: 0.6,
-  fadeInEnd: 0.98,
+  fadeOutStart: 0.45,
+  fadeInStart: 0.55,
+  fadeInEnd: 0.92,
 };
 const ARRIVE_SCALE = 0.82;
 const SCALE = 20.180792;
@@ -37,7 +37,7 @@ const DISTORTION = 0.36;
 const LENS_SWELL = 0.95;
 const FRINGE = 0.14;
 /** Scroll per statement, in screen heights. */
-const STEP_SCROLL = 1.8;
+const STEP_SCROLL = 1.4;
 /** How long the flight takes to catch up with the scroll (s): smooths out flicks of the wheel. */
 const CATCH_UP = 1.1;
 
@@ -45,7 +45,8 @@ const INK = '#171717';
 const BODY = 'rgba(23, 23, 23, 0.6)';
 
 type Statement = { title: string; body: string };
-type Plate = { tex: WebGLTexture; x: number; y: number; w: number; h: number };
+/** A drawn statement, where it sits, and the point it zooms about (the middle of its title). */
+type Plate = { tex: WebGLTexture; x: number; y: number; w: number; h: number; px: number; py: number };
 
 const SPRITE_VERT = `#version 300 es
 in vec2 aPos; in vec2 aUv;
@@ -143,7 +144,17 @@ function drawStatement(s: Statement, W: number, H: number, res: number) {
     draw(titleLines, titleFont, titleSize, titleLh, INK, 0, (h - titleH) / 2);
     draw(bodyLines, bodyFont, bodySize, bodyLh, BODY, w - bodyW, (h - bodyH) / 2);
   }
-  return { canvas: c, x: (W - w) / 2 - pad, y: (H - h) / 2 - pad, w: w + pad * 2, h: h + pad * 2 };
+  // Zoom into the title itself, so the flight passes through its letters (the row's middle is the empty gap
+  // between title and copy, which left the screen blank for most of the zoom).
+  measure.font = titleFont;
+  const titleTextW = Math.max(...titleLines.map((l) => measure.measureText(l).width));
+  const titleTop = narrow ? 0 : (h - titleH) / 2;
+  const left = (W - w) / 2;
+  const top = (H - h) / 2;
+  return {
+    canvas: c, x: left - pad, y: top - pad, w: w + pad * 2, h: h + pad * 2,
+    px: left + titleTextW * 0.5, py: top + titleTop + titleH * 0.5,
+  };
 }
 
 export function initThinkZoom(animate: boolean) {
@@ -245,7 +256,7 @@ export function initThinkZoom(animate: boolean) {
     const res = Math.min(dpr * 1.5, 3);
     plates = statements.map((st) => {
       const d = drawStatement(st, W, H, res);
-      return { tex: texFrom(d.canvas), x: d.x, y: d.y, w: d.w, h: d.h };
+      return { tex: texFrom(d.canvas), x: d.x, y: d.y, w: d.w, h: d.h, px: d.px, py: d.py };
     });
   };
 
@@ -290,11 +301,12 @@ export function initThinkZoom(animate: boolean) {
     gl.bindVertexArray(quadVao);
     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
     // Zoom about the middle of the screen, in the frame's own px.
-    const cx = W / 2 - frame.x;
-    const cy = H / 2 - frame.y;
     plates.forEach((p, i) => {
       const st = stateOf(i);
       if (!st) return;
+      // Its pivot, in the frame's own px.
+      const cx = p.px - frame.x;
+      const cy = p.py - frame.y;
       const cos = Math.cos(st.turn) * st.scale;
       const sin = Math.sin(st.turn) * st.scale;
       const corners = [
