@@ -310,6 +310,7 @@ uniform float uChroma;    // (1 + |amount|) * aberration strength
 uniform int uTaps;        // 0 = no aberration
 uniform float uInvKernel;
 uniform float uWeightSum;
+uniform float uJitter;    // 0..1: shifts each pixel's samples by a random part of a step (fewer samples, no banding)
 out vec4 o;
 
 vec4 tex(vec2 local) {
@@ -331,10 +332,12 @@ void main() {
   vec2 local = px - uFrame.xy;
   if (uTaps == 0) { o = distorted(local, uAmount); return; }
   vec4 acc = vec4(0.0);
+  float ws = 0.0;
+  float jit = uJitter * (fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5);
   for (int i = 0; i < 48; i++) {
     if (i >= uTaps) break;
-    float fi = float(i) * uInvKernel - 0.5;
-    float window = 1.0 - abs(fi * 2.0);
+    float fi = (float(i) + jit) * uInvKernel - 0.5;
+    float window = max(0.0, 1.0 - abs(fi * 2.0));
     vec4 r = distorted(local, uAmount + (fi + 0.5) * uChroma);
     vec4 g = distorted(local, uAmount + fi * uChroma);
     vec4 b = distorted(local, uAmount + (fi - 0.5) * uChroma);
@@ -343,8 +346,10 @@ void main() {
     float bs = b.a > 0.01 ? b.b / max(0.001, b.a) : 1.0;
     float a = max(max(r.a, g.a), b.a);
     acc += vec4(rs * a, gs * a, bs * a, a) * window;
+    ws += window;
   }
-  o = acc / max(uWeightSum, 0.0001);
+  // The weights actually used (the same as uWeightSum unless jittered).
+  o = acc / max(uJitter > 0.0 ? ws : uWeightSum, 0.0001);
 }`;
 
 /** Figma's aberration kernel at quality "Low" (the setting used in the file). */
