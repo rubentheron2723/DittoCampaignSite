@@ -10,6 +10,7 @@ export const hero = {
   ],
 };
 
+/** "We like rebuilding broken systems." (Figma 2390:108): five numbered rows, the first one the section's own. */
 export const builders = {
   title: 'We like rebuilding broken systems.',
   intro:

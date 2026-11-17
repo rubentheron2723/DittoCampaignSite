@@ -9,6 +9,16 @@ import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, splitReveal, stickyPin } from '../shared/motion';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { glassLogoHtml, initGlassLogo } from '../shared/glass-logo';
+import { initBlobBackdrop } from '../shared/blob-backdrop';
+import { FOOTER_BLOBS } from '../shared/footer-blobs';
+
+/** The rows' title widths in Figma, which set where each title breaks onto its second line. */
+const TITLE_W = [444, 524, 524, 362, 362];
+
+/** Each row's number, title and copy rise in as it scrolls into view. */
+function rowsReveal() {
+  qa<HTMLElement>('.rrow').forEach((row) => fadeUp(row.querySelectorAll('.rrow__num, .rrow__title, .rrow__body'), row, { y: 30, start: 'top 85%' }));
+}
 
 function render() {
   const main = document.getElementById('main')!;
@@ -37,26 +47,22 @@ function render() {
     </div>
   </section>
 
-  <section class="builders" id="builders" data-theme="dark">
-    <div class="builders__pin">
-      <div class="wrap wrap--wide builders__grid">
-        <div class="builders__sticky">
-          <h2 class="h-section builders__title">${esc(builders.title)}</h2>
-          <p class="lead builders__intro">${esc(builders.intro)}</p>
-          <div class="builders__progress" aria-hidden="true">${builders.panels.map(() => '<span><i></i></span>').join('')}</div>
-        </div>
-        <div class="builders__stage">
-          ${builders.panels
-            .map(
-              (p, i) => `<article class="bpanel" data-i="${i}">
-                <p class="bpanel__index">0${i + 1}</p>
-                <h3 class="bpanel__title">${esc(p.title)}</h3>
-                <p class="bpanel__body">${esc(p.body)}</p>
-              </article>`,
-            )
-            .join('')}
-        </div>
-      </div>
+  <section class="rebuild" id="builders" data-theme="light">
+    <!-- Moving blobs behind the rows, held on screen through the section (as on Pricing). -->
+    <canvas class="rebuild__fx" aria-hidden="true"></canvas>
+    <div class="rebuild__list">
+      ${[{ title: builders.title, body: builders.intro }, ...builders.panels]
+        .map(
+          (r, i) => `<article class="rrow">
+            <div class="rrow__bar" aria-hidden="true"><i></i></div>
+            <p class="rrow__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</p>
+            <div class="rrow__text">
+              <${i ? 'h3' : 'h2'} class="rrow__title" style="--w:${TITLE_W[i]}px">${esc(r.title)}</${i ? 'h3' : 'h2'}>
+              <p class="rrow__body">${esc(r.body)}</p>
+            </div>
+          </article>`,
+        )
+        .join('')}
     </div>
   </section>
 
@@ -105,37 +111,55 @@ function render() {
   ${ctaAndFooter()}`;
 }
 
-function initBuilders(pinned: boolean) {
-  const panels = qa<HTMLElement>('.bpanel');
-  const segs = qa<HTMLElement>('.builders__progress span');
-  const n = panels.length;
-  if (!pinned) {
-    panels.forEach((p) => fadeUp(p, p, { y: 40 }));
-    return;
-  }
-  gsap.set(panels.slice(1), { autoAlpha: 0, y: 60 });
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: '.builders__pin',
-      start: 'top top',
-      end: () => `+=${n * 80}%`,
-      pin: true,
-      scrub: 0.6,
-      anticipatePin: 1,
-      invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        const i = Math.min(n - 1, Math.floor(self.progress * n));
-        segs.forEach((s, j) => s.classList.toggle('is-active', j <= i));
-      },
-    },
+/**
+ * The rows stack as they reach the top, like a reverse accordion: each row holds still under the nav while the next
+ * one slides up over it. The row underneath is clipped away along the incoming row's top edge, rather than covered by a
+ * solid block, so the moving blobs behind stay visible. Its progress line fills as it is covered.
+ * Without motion (or on short screens where a row wouldn't fit), they're a plain list.
+ */
+function initRebuild(animate: boolean) {
+  const rows = qa<HTMLElement>('.rrow');
+  const fills = rows.map((r) => q<HTMLElement>('.rrow__bar i', r)!);
+  if (!animate) return;
+  const PIN = () => q('#nav')!.offsetHeight + 24;
+  const last = rows[rows.length - 1];
+
+  const mm = gsap.matchMedia();
+  mm.add('(min-height: 560px)', () => {
+    rows.slice(0, -1).forEach((row) =>
+      ScrollTrigger.create({
+        trigger: row,
+        start: () => `top ${PIN()}px`,
+        endTrigger: last,
+        end: () => `top ${PIN()}px`,
+        pin: true,
+        pinSpacing: false,
+      }),
+    );
+    // Clip each held row to what the next row hasn't covered yet, and fill its line by how much is covered.
+    const update = () => {
+      rows.forEach((row, i) => {
+        const next = rows[i + 1];
+        const top = row.getBoundingClientRect().top;
+        const h = row.offsetHeight;
+        if (!next) {
+          // The last row has nothing to cover it: its line fills as it scrolls on past the pin line.
+          fills[i].style.transform = `scaleX(${gsap.utils.clamp(0, 1, (PIN() - top) / h)})`;
+          return;
+        }
+        const visible = Math.round(gsap.utils.clamp(0, h, next.getBoundingClientRect().top - top - 20));
+        row.style.clipPath = visible >= h ? '' : `inset(0 0 ${h - visible}px 0)`;
+        fills[i].style.transform = `scaleX(${1 - visible / h})`;
+      });
+    };
+    const st = ScrollTrigger.create({ trigger: '.rebuild', start: 'top bottom', end: 'bottom top', onUpdate: update, onRefresh: update });
+    update();
+    return () => {
+      st.kill();
+      rows.forEach((r) => (r.style.clipPath = ''));
+      fills.forEach((f) => (f.style.transform = ''));
+    };
   });
-  panels.forEach((p, i) => {
-    if (i === 0) return;
-    // Out, then in: the two panels never share the stage.
-    tl.to(panels[i - 1], { autoAlpha: 0, y: -50, duration: 0.45, ease: 'power2.in' }, i - 1)
-      .to(p, { autoAlpha: 1, y: 0, duration: 0.55, ease: 'power2.out' }, i - 0.55);
-  });
-  tl.to({}, { duration: 0.5 });
 }
 
 function initPrinciples(animate: boolean) {
@@ -171,10 +195,11 @@ boot({
     initPrinciples(!reduce);
     initTeam(!reduce);
 
-    if (reduce) {
-      initBuilders(false);
-      return;
-    }
+    initBlobBackdrop(q('.rebuild')!, q<HTMLCanvasElement>('.rebuild__fx')!, 'rebuild--fx', FOOTER_BLOBS, [254, 254, 254], reduce, 0.55);
+    // One screen-tall blob layer held on screen through the section (a pin: ScrollSmoother rules out sticky).
+    ScrollTrigger.create({ trigger: '.rebuild', start: 'top top', end: 'bottom bottom', pin: '.rebuild__fx', pinSpacing: false });
+    initRebuild(!reduce);
+    if (reduce) return;
 
     const { tween } = splitReveal('.ahero__title', { by: 'chars', scrollTrigger: false, stagger: 0.03 });
     tween.pause();
@@ -190,14 +215,10 @@ boot({
       window.setTimeout(() => heroTl.progress() < 1 && heroTl.progress(1), 3500);
     });
 
-    splitReveal('.builders__title');
-    fadeUp('.builders__intro, .builders__progress', '.builders__sticky', { y: 24 });
+    rowsReveal();
     stickyPin(q('.thinking__sticky')!, q('.thinking__grid')!, 112);
     splitReveal('.thinking__sticky .h-section');
     fadeUp('.thinking__intro', '.thinking__sticky', { y: 24 });
 
-    gsap.matchMedia().add({ desktop: '(min-width: 901px)', mobile: '(max-width: 900px)' }, (ctx) => {
-      initBuilders((ctx.conditions as { desktop: boolean }).desktop);
-    });
   },
 });
