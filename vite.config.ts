@@ -2,6 +2,8 @@ import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
 
 const pages = ['index', 'product', 'pricing', 'about', 'faq', 'contact', 'sign-in', 'type'];
+/** Ready-made pages served as they are from public/ (not built): /html is a coworker's MCP marketing page, for review. */
+const staticPages = ['html'];
 
 /** Dev-only: serve /product as /product.html so links match the Vercel cleanUrls deploy. */
 function cleanUrls(): Plugin {
@@ -11,7 +13,7 @@ function cleanUrls(): Plugin {
       server.middlewares.use((req, _res, next) => {
         const url = (req.url || '').split('?')[0];
         const name = url.replace(/^\//, '').replace(/\/$/, '');
-        if (name && pages.includes(name)) req.url = `/${name}.html`;
+        if (name && (pages.includes(name) || staticPages.includes(name))) req.url = `/${name}.html`;
         next();
       });
     },
@@ -19,7 +21,7 @@ function cleanUrls(): Plugin {
       server.middlewares.use((req, _res, next) => {
         const url = (req.url || '').split('?')[0];
         const name = url.replace(/^\//, '').replace(/\/$/, '');
-        if (name && pages.includes(name)) req.url = `/${name}.html`;
+        if (name && (pages.includes(name) || staticPages.includes(name))) req.url = `/${name}.html`;
         next();
       });
     },
