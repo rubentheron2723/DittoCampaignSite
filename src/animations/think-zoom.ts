@@ -187,7 +187,8 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
 
   // The team section moves into the stage (wide screens only: its copy needs the room), and its own section goes.
   let scene: TeamScene | null = null;
-  if (team && window.matchMedia('(min-width: 901px)').matches) {
+  // Only where the logo and the full copy fit side by side within one screen; smaller screens keep the normal section.
+  if (team && window.matchMedia('(min-width: 1100px) and (min-height: 760px)').matches) {
     const host = team.closest('section');
     team.classList.add('think__team');
     stage.appendChild(team);
