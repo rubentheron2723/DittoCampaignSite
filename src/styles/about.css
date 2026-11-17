@@ -108,7 +108,7 @@
 .team { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; padding: 120px clamp(20px, 5.556vw, 80px); }
 .team__inner { display: flex; align-items: center; justify-content: space-between; gap: 40px; max-width: 1280px; margin: 0 auto; }
 .team__visual { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; align-self: stretch; }
-.tlogo { display: block; height: min(656px, 70vh); width: auto; aspect-ratio: 165.603 / 193; overflow: visible; }
+.tlogo { display: block; height: min(500px, 54vh); width: auto; aspect-ratio: 165.603 / 193; overflow: visible; }
 .team__copy { flex: none; width: min(524px, 44%); display: flex; flex-direction: column; }
 .team__title { margin: 0 0 20px; font-size: clamp(40px, calc(40px + 24 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; color: #171717; }
 .team__p { margin: 0; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
@@ -120,7 +120,8 @@
   position: absolute; left: 50%; top: 50%; z-index: 2; width: min(1280px, calc(100% - 2 * clamp(20px, 5.556vw, 80px)));
   height: min(656px, calc(100vh - 200px)); transform: translate(-50%, -50%); visibility: hidden;
 }
-.think__team .tlogo { height: 100%; }
+/* A little smaller than Figma's 656 once the copy is beside it, so the mark doesn't overpower it. */
+.think__team .tlogo { height: 76%; }
 .think--team .think__team { visibility: visible; }
 .think__stage > .tflow { visibility: hidden; }
 .think--team .think__stage > .tflow { visibility: visible; }
