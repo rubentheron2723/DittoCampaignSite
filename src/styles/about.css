@@ -103,9 +103,9 @@
 }
 
 /* ---------- A team with unusually high standards (Figma 2395:98) ---------- */
-/* The logomark on the left, the 64/68 title and 20/24 copy at 60% on the right (524 wide). On large screens (at least
-   1100 x 760) it's the last stop of the locked "We think independently" stage (.think__team), sized to the screen's
-   height so the whole copy always fits beside the mark; elsewhere it's its own section, stacked on narrow screens. */
+/* The logomark on the left, the 64/68 title and 20/24 copy at 60% on the right (524 wide); stacked on narrow screens.
+   With the lens running it's the last stop of the locked "We think independently" stage (.think__team), its type scaled
+   (--fit, set by think-zoom.ts) so the whole copy fits within one screen; otherwise it's its own section. */
 .team { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; padding: clamp(72px, 9vw, 120px) clamp(20px, 5.556vw, 80px); }
 .team__inner { display: flex; align-items: center; justify-content: space-between; gap: clamp(32px, 4vw, 64px); max-width: 1280px; margin: 0 auto; }
 .team__visual { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; align-self: stretch; }
@@ -117,15 +117,14 @@
 /* The ribbons and the forming mark (team-logo.ts), drawn over the whole scene in the Figma frame's coordinates. */
 .tflow { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 /* Inside the stage: centred in the screen below the nav, hidden until the scroll reaches it; the last statement fades
-   as it arrives. Type and mark scale with the screen's height, so the full copy fits on any screen tall enough. */
+   as it arrives. The type scales by --fit and the mark by the screen's height, so the full copy fits on any screen. */
 .think__team {
   position: absolute; left: 50%; top: calc(50% + var(--nav-h) / 2); z-index: 2; width: min(1280px, calc(100% - 2 * clamp(20px, 5.556vw, 80px)));
   height: min(656px, calc(100vh - var(--nav-h) - 96px)); transform: translate(-50%, -50%); visibility: hidden;
 }
 .think__team .tlogo { height: min(76%, 50vh); }
-.think__team .team__title { font-size: clamp(36px, 6vh, 64px); }
-.think__team .team__p { font-size: clamp(14px, 1.95vh, 20px); }
-.think__team .team__copy { max-height: 100%; }
+.think__team .team__title { font-size: calc(clamp(32px, calc(32px + 32 * (100vw - 375px) / 1065), 64px) * var(--fit, 1)); margin-bottom: calc(20px * var(--fit, 1)); }
+.think__team .team__p { font-size: calc(clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px) * var(--fit, 1)); }
 .think--team .think__team { visibility: visible; }
 .think__stage > .tflow { visibility: hidden; }
 .think--team .think__stage > .tflow { visibility: visible; }
@@ -134,4 +133,8 @@
   .team__inner { flex-direction: column; align-items: stretch; gap: 40px; }
   .tlogo { height: min(240px, 52vw); }
   .team__copy { width: auto; }
+  /* Stacked in the stage: the copy takes what it needs and the mark fills the rest above it (up to 240). */
+  .think__team { height: calc(100vh - var(--nav-h) - 48px); gap: calc(28px * var(--fit, 1)); }
+  .think__team .team__visual { flex: 1 1 0; min-height: 0; }
+  .think__team .tlogo { height: min(100%, 240px); }
 }
