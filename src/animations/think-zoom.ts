@@ -708,7 +708,6 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   /** Into the team scene: the last statement fades away, then the logo builds and the copy follows. */
   const toTeam = () => {
     index = teamAt;
-    hurried = false;
     // Settle any flight still under way on the last statement, so only the HTML is left to fade.
     flight?.kill();
     pos.v = last;
@@ -722,14 +721,13 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
       return;
     }
     scene!.reset();
-    // Busy through the hand-over, then through the build itself (its length is known once it starts).
-    busyUntil = performance.now() + (HANDOVER + 0.2) * 1000;
+    // Busy through the hand-over and then the build itself, whose length is set once it starts. Until then, held
+    // indefinitely: a short guess left a gap if that start came late (a slow frame), and a swipe in it left the page.
+    busyUntil = Infinity;
     gsap.delayedCall(HANDOVER, () => {
-      let d = scene!.play();
+      const d = scene!.play();
       built = true;
-      // Already scrolled on during the hand-over: build it quickly.
-      if (hurried) d = scene!.hurry();
-      // Held through the build: the page can't be scrolled on until the layout has landed (scrolling hurries it).
+      // Held through the build: the page can't be scrolled on until the layout has landed.
       busyUntil = performance.now() + d * 1000;
     });
   };
@@ -760,16 +758,16 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
     else if (index === teamAt) fromTeam();
     else move(to);
   };
-  /** Whether the logo is building (the first time in), and whether a swipe has hurried it (from the hand-over on). */
+  /** Whether the logo is building (the first time in); set until the build's end, which busy() marks. */
   let building = false;
-  let hurried = false;
   /** Runs the step now, or keeps it for when the current move allows. */
   let waiting: ReturnType<typeof setTimeout> | undefined;
   const flush = () => {
     clearTimeout(waiting);
     if (!pending || !captured) return void (pending = 0);
     const left = busyUntil - performance.now();
-    if (left > 0) return void (waiting = setTimeout(flush, left + 10));
+    // (Checked again at least every second: the end isn't known yet while the logo's build is starting.)
+    if (left > 0) return void (waiting = setTimeout(flush, Math.min(left, 1000) + 10));
     const dir = pending;
     pending = 0;
     step(dir);
@@ -780,15 +778,10 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
       step(dir);
       return;
     }
-    // The first swipe on while the logo builds speeds the build up, so it isn't a wait. That's all that swipe does:
-    // the finished layout still holds rather than the page running straight on past it. Any further swipe is kept
-    // like any other and moves on once the layout has landed (otherwise it was lost, and the page felt stuck).
-    if (dir > 0 && index === teamAt && scene && building && !hurried) {
-      hurried = true;
-      const left = scene.hurry();
-      if (left) busyUntil = Math.min(busyUntil, performance.now() + left * 1000);
-      return;
-    }
+    // While the logo builds (the first time in), scrolling on does nothing: the build always plays out in full, and the
+    // next swipe after it moves on. (Speeding it up, and keeping a swipe for afterwards, let two quick swipes skip
+    // the section almost entirely.)
+    if (dir > 0 && index === teamAt && building) return;
     pending = dir;
     flush();
   };

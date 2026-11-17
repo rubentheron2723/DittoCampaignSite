@@ -99,8 +99,6 @@ function flowSvg() {
 export type TeamScene = {
   /** Plays the whole sequence. Returns its length in seconds. */
   play: () => number;
-  /** Speeds up a build under way (the reader is scrolling on); returns the seconds it still takes. */
-  hurry: () => number;
   /** Fades straight into the finished layout (once it has played, it isn't played again). */
   show: () => void;
   /** Straight to the finished layout (arriving from below). */
@@ -112,9 +110,6 @@ export type TeamScene = {
 /**
  * `root` holds the layout (.team__inner's logo and copy); the flow is drawn over `stage` (the box the scene fills).
  */
-/** How much faster the build runs once the reader scrolls on during it. */
-const HURRY = 3;
-
 export function createTeamScene(root: HTMLElement, stage: HTMLElement = root): TeamScene {
   stage.insertAdjacentHTML('beforeend', flowSvg());
   const svg = stage.lastElementChild as SVGSVGElement;
@@ -209,12 +204,6 @@ export function createTeamScene(root: HTMLElement, stage: HTMLElement = root): T
     return t.duration();
   };
 
-  const hurry = () => {
-    if (!tl || !tl.isActive()) return 0;
-    tl.timeScale(HURRY);
-    return (tl.duration() - tl.time()) / HURRY;
-  };
-
   reset();
-  return { play, hurry, show, finish, reset };
+  return { play, show, finish, reset };
 }
