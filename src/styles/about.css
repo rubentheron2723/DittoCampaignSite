@@ -46,10 +46,17 @@
 .think__item { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .think__title { margin: 0; flex: 1 1 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
 .think__body { margin: 0; flex: none; width: min(524px, 42%); font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
-/* With the lens running, the canvas draws the statements; the list stays for screen readers only. */
 .think--gl .think__stage { height: 100vh; }
 .think--gl .think__lens { display: block; }
-.think--gl .think__list { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* With the lens running, each statement sits centred on the stage, one at a time: the current one is the real text
+   at rest; while it flies (.think--flying) the canvas draws it instead, from these same positions. */
+.think--gl .think__list { position: absolute; inset: 0; max-width: none; margin: 0; padding: 0; display: block; }
+.think--gl .think__item {
+  position: absolute; left: 50%; top: 50%; width: min(1280px, calc(100% - 2 * clamp(20px, 5.556vw, 80px)));
+  transform: translate(-50%, -50%); opacity: 0; pointer-events: none;
+}
+.think--gl .think__item.is-current { opacity: 1; pointer-events: auto; }
+.think--flying .think__item.is-current { opacity: 0; }
 @media (max-width: 760px) {
   .think__item { flex-direction: column; align-items: flex-start; }
   .think__body { width: auto; }

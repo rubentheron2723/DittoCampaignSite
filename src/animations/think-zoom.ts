@@ -10,7 +10,10 @@ import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
  * The section takes over the scroll while it's on screen (see "takes the scroll" below): each gesture moves one
  * statement, and each move plays over a fixed time (Figma's 2 s zoom), however fast the wheel or trackpad goes.
  *
- * The statements are drawn into textures (canvas 2D text, laid out like the HTML) and composited in WebGL2: first
+ * At rest, the statement on screen is the page's own HTML text: crisp, and set exactly as the design system sets it.
+ * Only while one flies does the WebGL version take over: each statement is drawn into a texture word by word at the
+ * HTML's own positions (so its breaks, spacing and size match), in DM Sans fixed at the site's optical size (opsz 16,
+ * which canvas text can't otherwise take), and composited in WebGL2 at the screen's full resolution: first
  * flat into the lens frame, then through the lens onto the screen. The HTML list stays in the page for screen readers
  * and is what shows without WebGL or with reduced motion.
  */
@@ -64,13 +67,6 @@ const sample = (keys: Key[], t: number) => {
   return keys[keys.length - 1].v;
 };
 
-const INK = '#171717';
-const BODY = 'rgba(23, 23, 23, 0.6)';
-
-type Statement = { title: string; body: string };
-/** A drawn statement, where it sits, and the point it zooms about (the middle of its title). */
-type Plate = { tex: WebGLTexture; x: number; y: number; w: number; h: number; px: number; py: number };
-
 const SPRITE_VERT = `#version 300 es
 in vec2 aPos; in vec2 aUv;
 uniform vec2 uSize;
@@ -84,99 +80,82 @@ precision highp float;
 in vec2 vUv; uniform sampler2D uTex; uniform float uAlpha; out vec4 o;
 void main() { o = texture(uTex, vUv) * uAlpha; }`;
 
-/** Lays a statement out as the HTML does (title beside copy, or above it on narrow screens) and draws it. */
-function drawStatement(s: Statement, W: number, H: number, res: number) {
-  const narrow = W < 760;
-  const k = Math.min(1, W / 1440);
-  const gutter = narrow ? 20 : Math.max(20, 80 * k);
-  const rowW = Math.min(1280, W - gutter * 2);
-  const titleSize = narrow ? 40 : Math.max(44, 84 * k);
-  const titleLh = titleSize * (88 / 84);
-  const bodySize = narrow ? 16 : Math.max(16, 20 * k);
-  const bodyLh = bodySize * 1.2;
-  const bodyW = narrow ? rowW : Math.min(524, rowW * 0.42);
-  const titleW = narrow ? rowW : rowW - bodyW - 20;
-  const family = "'DM Sans', sans-serif";
+/** A drawn statement, where it sits, and the point it zooms about (the middle of its title). */
+type Plate = { tex: WebGLTexture; x: number; y: number; w: number; h: number; px: number; py: number };
 
-  const measure = document.createElement('canvas').getContext('2d')!;
-  const wrap = (text: string, font: string, size: number, width: number) => {
-    measure.font = font;
-    if ('letterSpacing' in measure) (measure as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${-0.04 * size}px`;
-    const lines: string[] = [];
-    let line = '';
-    for (const word of text.split(' ')) {
-      const next = line ? `${line} ${word}` : word;
-      if (line && measure.measureText(next).width > width) {
-        lines.push(line);
-        line = word;
-      } else line = next;
+/**
+ * DM Sans with its optical size fixed at the site's 16 (type.css sets opsz with font-variation-settings, which canvas
+ * text ignores; at 84px the variable font would otherwise switch to its tighter display cut). Google Fonts serves an
+ * instance pinned at one opsz; it is registered under its own name so it never replaces the page's font.
+ */
+let canvasFamily: Promise<string> | null = null;
+function loadCanvasFont() {
+  canvasFamily ??= (async () => {
+    try {
+      const css = await (await fetch('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@16,400;16,500;16,700&display=block')).text();
+      const style = document.createElement('style');
+      style.textContent = css.replace(/font-family: 'DM Sans'/g, "font-family: 'DM Sans Canvas'");
+      document.head.appendChild(style);
+      await Promise.all(['400', '500', '700'].map((w) => document.fonts.load(`${w} 40px "DM Sans Canvas"`)));
+      return "'DM Sans Canvas', 'DM Sans', sans-serif";
+    } catch {
+      return "'DM Sans', sans-serif";
     }
-    lines.push(line);
-    return lines;
-  };
-  const titleFont = `700 ${titleSize}px ${family}`;
-  const bodyFont = `400 ${bodySize}px ${family}`;
-  // As the CSS does (text-wrap: balance / pretty): titles break into lines of even length, and the copy never ends
-  // on one word alone.
-  const balanced = (text: string, font: string, size: number, width: number) => {
-    const lines = wrap(text, font, size, width);
-    if (lines.length < 2) return lines;
-    let lo = width * 0.4, hi = width;
-    for (let i = 0; i < 12; i++) {
-      const mid = (lo + hi) / 2;
-      if (wrap(text, font, size, mid).length > lines.length) lo = mid;
-      else hi = mid;
-    }
-    return wrap(text, font, size, hi);
-  };
-  const pretty = (text: string, font: string, size: number, width: number) => {
-    let lines = wrap(text, font, size, width);
-    for (let w = width; lines.length > 1 && !lines[lines.length - 1].includes(' ') && w > width * 0.8; w -= width * 0.02) {
-      lines = wrap(text, font, size, w);
-    }
-    return lines;
-  };
-  const titleLines = balanced(s.title, titleFont, titleSize, titleW);
-  const bodyLines = pretty(s.body, bodyFont, bodySize, bodyW);
-  const titleH = titleLines.length * titleLh;
-  const bodyH = bodyLines.length * bodyLh;
-  const gap = narrow ? 24 : 20;
-  const h = narrow ? titleH + gap + bodyH : Math.max(titleH, bodyH);
-  const w = rowW;
-  // A little room around it: the lens and the glyphs' overhangs.
+  })();
+  return canvasFamily;
+}
+
+/**
+ * Draws a statement exactly where and how the HTML lays it out: every word at its own line box, in the element's
+ * computed size, weight, spacing and colour. (A word broken across lines, at a hyphen, is drawn letter by letter.)
+ */
+function drawFromDom(item: HTMLElement, origin: DOMRect, res: number, family: string) {
   const pad = 24;
+  const box = item.getBoundingClientRect();
   const c = document.createElement('canvas');
-  c.width = Math.ceil((w + pad * 2) * res);
-  c.height = Math.ceil((h + pad * 2) * res);
+  c.width = Math.ceil((box.width + pad * 2) * res);
+  c.height = Math.ceil((box.height + pad * 2) * res);
   const ctx = c.getContext('2d')!;
   ctx.scale(res, res);
-  ctx.translate(pad, pad);
+  ctx.translate(pad - box.left, pad - box.top);
   ctx.textBaseline = 'alphabetic';
-  const draw = (lines: string[], font: string, size: number, lh: number, colour: string, x: number, y: number) => {
-    ctx.font = font;
-    if ('letterSpacing' in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${-0.04 * size}px`;
-    ctx.fillStyle = colour;
-    // DM Sans: ascender 0.992em, descender 0.31em; the baseline sits in the middle of the line box.
-    const base = (lh - size * 1.302) / 2 + size * 0.992;
-    lines.forEach((l, i) => ctx.fillText(l, x, y + i * lh + base));
+  const range = document.createRange();
+  const draw = (node: Text, from: number, to: number, size: number) => {
+    range.setStart(node, from);
+    range.setEnd(node, to);
+    const rects = range.getClientRects();
+    if (rects.length !== 1) {
+      for (let i = from; i < to; i++) draw(node, i, i + 1, size);
+      return;
+    }
+    const r = rects[0];
+    // The text's content box runs from the ascender to the descender (DM Sans: 0.992em and 0.31em).
+    ctx.fillText(node.data.slice(from, to), r.left, r.bottom - size * 0.31);
   };
-  if (narrow) {
-    draw(titleLines, titleFont, titleSize, titleLh, INK, 0, 0);
-    draw(bodyLines, bodyFont, bodySize, bodyLh, BODY, 0, titleH + gap);
-  } else {
-    draw(titleLines, titleFont, titleSize, titleLh, INK, 0, (h - titleH) / 2);
-    draw(bodyLines, bodyFont, bodySize, bodyLh, BODY, w - bodyW, (h - bodyH) / 2);
+  for (const el of qa<HTMLElement>('.think__title, .think__body', item)) {
+    const cs = getComputedStyle(el);
+    const size = parseFloat(cs.fontSize);
+    ctx.font = `${cs.fontWeight} ${cs.fontSize} ${family}`;
+    if ('letterSpacing' in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing;
+    ctx.fillStyle = cs.color;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode() as Text | null; node; node = walker.nextNode() as Text | null) {
+      for (const m of node.data.matchAll(/\S+/g)) draw(node, m.index!, m.index! + m[0].length, size);
+    }
   }
-  // Zoom into the title itself, so the flight passes through its letters (the row's middle is the empty gap
-  // between title and copy, which left the screen blank for most of the zoom).
-  measure.font = titleFont;
-  const titleTextW = Math.max(...titleLines.map((l) => measure.measureText(l).width));
-  const titleTop = narrow ? 0 : (h - titleH) / 2;
-  const left = (W - w) / 2;
-  const top = (H - h) / 2;
+  const title = q('.think__title', item)!.getBoundingClientRect();
+  // Its pivot: the middle of the title's text (the widest line), so the flight passes through the letters.
+  range.selectNodeContents(q('.think__title', item)!);
+  const lines = Array.from(range.getClientRects());
+  const widest = lines.length ? Math.max(...lines.map((r) => r.right)) - title.left : title.width;
   return {
-    canvas: c, x: left - pad, y: top - pad, w: w + pad * 2, h: h + pad * 2,
-    px: left + titleTextW * 0.5, py: top + titleTop + titleH * 0.5,
+    canvas: c,
+    x: box.left - origin.left - pad,
+    y: box.top - origin.top - pad,
+    w: box.width + pad * 2,
+    h: box.height + pad * 2,
+    px: title.left - origin.left + widest / 2,
+    py: title.top - origin.top + title.height / 2,
   };
 }
 
@@ -185,11 +164,9 @@ export function initThinkZoom(animate: boolean) {
   const stage = section && q('.think__stage', section);
   const canvas = section && q<HTMLCanvasElement>('.think__lens', section);
   if (!section || !stage || !canvas || !animate) return;
-  const statements: Statement[] = qa('.think__item', section).map((li) => ({
-    title: q('.think__title', li)!.textContent ?? '',
-    body: q('.think__body', li)!.textContent ?? '',
-  }));
+  const statements = qa<HTMLElement>('.think__item', section);
   if (statements.length < 2) return;
+  let family = "'DM Sans', sans-serif";
 
   const gl = canvas.getContext('webgl2', { premultipliedAlpha: true, alpha: true, antialias: true });
   if (!gl) return;
@@ -253,8 +230,8 @@ export function initThinkZoom(animate: boolean) {
   const layout = () => {
     W = Math.max(1, stage.clientWidth);
     H = Math.max(1, stage.clientHeight);
-    // Soft, fast-moving type: 1.5x is plenty, and keeps the lens pass light enough to hold the frame rate.
-    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    // The screen's own resolution (to 2x): the flying type stays as sharp as the HTML it takes over from.
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     // The lens frame, cover-fitted like the section's 1440 x 1024 design frame.
@@ -263,7 +240,7 @@ export function initThinkZoom(animate: boolean) {
     const oy = (H - 1024 * s) / 2;
     Object.assign(frame, { x: ox + FRAME.x * s, y: oy + FRAME.y * s, w: FRAME.w * s, h: FRAME.h * s });
     const maxTex = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE) as number, 4096);
-    const fs = Math.min(dpr, 1.25, maxTex / frame.w, maxTex / frame.h);
+    const fs = Math.min(dpr, maxTex / frame.w, maxTex / frame.h);
     fw = Math.max(1, Math.round(frame.w * fs));
     fh = Math.max(1, Math.round(frame.h * fs));
     gl.bindTexture(gl.TEXTURE_2D, fboTex);
@@ -277,9 +254,10 @@ export function initThinkZoom(animate: boolean) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     // Text drawn sharper than the screen, so it holds up a little as it grows.
     plates.forEach((p) => gl.deleteTexture(p.tex));
-    const res = Math.min(dpr * 1.5, 2.25);
-    plates = statements.map((st) => {
-      const d = drawStatement(st, W, H, res);
+    const res = Math.min(dpr * 1.5, 3);
+    const origin = stage.getBoundingClientRect();
+    plates = statements.map((item) => {
+      const d = drawFromDom(item, origin, res, family);
       return { tex: texFrom(d.canvas), x: d.x, y: d.y, w: d.w, h: d.h, px: d.px, py: d.py };
     });
   };
@@ -308,7 +286,23 @@ export function initThinkZoom(animate: boolean) {
     return i >= statements.length - 1 ? 0 : pos.v - i;
   };
 
+  /** Whether a statement is in flight: then the canvas shows; otherwise the HTML statement does. */
+  let flying = false;
+  const show = (current: number, inFlight: boolean) => {
+    flying = inFlight;
+    section.classList.toggle('think--flying', inFlight);
+    statements.forEach((el, i) => el.classList.toggle('is-current', i === current));
+  };
+
   const draw = () => {
+    if (!flying) {
+      // At rest the HTML statement is on screen: nothing to draw.
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      return;
+    }
     // 1. The statements, flat, into the lens frame.
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     gl.viewport(0, 0, fw, fh);
@@ -427,7 +421,18 @@ export function initThinkZoom(animate: boolean) {
     flight?.kill();
     const duration = STEP_TIME * Math.min(1, Math.abs(to - pos.v));
     busyUntil = performance.now() + duration * 1000;
-    flight = gsap.to(pos, { v: to, duration, ease: 'none', onUpdate: schedule });
+    show(to, true);
+    flight = gsap.to(pos, {
+      v: to,
+      duration,
+      ease: 'none',
+      onUpdate: schedule,
+      // Landed: the HTML statement takes over again (drawn at the same place, so nothing shifts).
+      onComplete: () => {
+        show(to, false);
+        schedule();
+      },
+    });
   };
   /** Just after letting go, the jump out of the section must not count as entering it again. */
   let releasedAt = -Infinity;
@@ -444,6 +449,7 @@ export function initThinkZoom(animate: boolean) {
     busyUntil = 0;
     index = at;
     pos.v = at;
+    show(at, false);
     schedule();
   };
   const release = (dir: 1 | -1) => {
@@ -506,7 +512,9 @@ export function initThinkZoom(animate: boolean) {
     step(down ? 1 : -1);
   });
 
-  document.fonts.ready.then(() => {
+  show(0, false);
+  Promise.all([document.fonts.ready, loadCanvasFont()]).then(([, f]) => {
+    family = f;
     layout();
     draw();
     st = ScrollTrigger.create({
