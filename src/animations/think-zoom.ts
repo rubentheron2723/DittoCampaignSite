@@ -288,10 +288,14 @@ export function initThinkZoom(animate: boolean) {
 
   /** Whether a statement is in flight: then the canvas shows; otherwise the HTML statement does. */
   let flying = false;
+  // The swap happens in one frame: the canvas is drawn before the HTML text is hidden (taking off), and cleared only
+  // after the HTML is back (landing). Drawing on the next frame instead left one frame with neither: a flash.
   const show = (current: number, inFlight: boolean) => {
     flying = inFlight;
+    if (inFlight) draw();
     section.classList.toggle('think--flying', inFlight);
     statements.forEach((el, i) => el.classList.toggle('is-current', i === current));
+    if (!inFlight) draw();
   };
 
   const draw = () => {
