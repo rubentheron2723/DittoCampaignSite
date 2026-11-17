@@ -36,6 +36,12 @@ const ARRIVE_SCALE = 0.82;
 const SCALE = 20.180792;
 const TURN = (-30 * Math.PI) / 180;
 const EASE = bezier(0.5, 0, 0.5, 1);
+/**
+ * The zoom's own ease: quicker off the mark than Figma's in-out (0.5, 0, 0.5, 1), which barely moved the statement for
+ * the first fifth of a second (1x to 1.07x), so a scroll seemed to pause before anything happened. This one is at
+ * 1.18x by 0.1 s and 1.75x by 0.2 s, and still settles as gently.
+ */
+const ZOOM_EASE = bezier(0.3, 0, 0.4, 1);
 /** The lens: Figma's Lens distortion over a 2062.6 x 1539 frame at (-265, -304) in the 1440 x 1024 section. */
 const FRAME = { x: -265, y: -304, w: 2062.6, h: 1539 };
 /**
@@ -493,7 +499,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
       return a > 0 ? { scale: ARRIVE_SCALE + (1 - ARRIVE_SCALE) * a, turn: 0, alpha: a } : null;
     }
     if (i === statements.length - 1) return { scale: 1, turn: 0, alpha: 1 };
-    const z = EASE(gsap.utils.clamp(0, 1, (local - T.zoomStart) / (T.zoomEnd - T.zoomStart)));
+    const z = ZOOM_EASE(gsap.utils.clamp(0, 1, (local - T.zoomStart) / (T.zoomEnd - T.zoomStart)));
     const f = EASE(gsap.utils.clamp(0, 1, (local - T.fadeOutStart) / (T.zoomEnd - T.fadeOutStart)));
     const alpha = 1 - f;
     return alpha > 0.001 ? { scale: 1 + (SCALE - 1) * z, turn: TURN * z, alpha } : null;
@@ -650,7 +656,8 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   let lastAt = 0;
   /** A gap this long between wheel events starts a new gesture (ms). */
   const QUIET = 180;
-  const THRESHOLD = 30;
+  /** Scroll (px) a gesture takes to count: low, so a gentle trackpad swipe moves the stage as soon as it starts. */
+  const THRESHOLD = 14;
   /** A step asked for while the last is still playing, run when it can (1 down, -1 up, 0 none). */
   let pending: 1 | -1 | 0 = 0;
   /** After a move lands, the statement holds this long before a kept swipe moves on (s): each is seen at rest. */
