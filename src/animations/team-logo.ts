@@ -5,9 +5,10 @@ import { gsap, q, qa } from './gsap';
  * the section settles into its layout (Figma 2395:98).
  *
  *   1. The blue ribbon sweeps in from the top right and the ink one rises from the bottom left, each flowing along its
- *      curve until its head (one half of the mark) reaches the middle of the screen.
- *   2. Their tails drain away into the heads, leaving the mark (the blue half taking on its gradient).
- *   3. A quick, satisfying click: a swell and an elastic settle.
+ *      curve until its head (one half of the mark) reaches the middle of the screen. Each tail follows, catching up so
+ *      that it reaches the mark just as the head arrives: the ribbon is absorbed into its half as it lands.
+ *   2. The blue half takes on its gradient.
+ *   3. Straight away, a quick, satisfying click: a swell and an elastic settle.
  *   4. The mark grows and moves into its place on the left of the layout, and the copy rises in on the right.
  *
  * The ribbons are Figma's own shapes (the strokes outlined), revealed and drained by a wide stroke along each one's
@@ -32,6 +33,13 @@ const RIBBON_FRONT = {
   d: 'M720.85 142.959C716.165 156.391 711.481 169.823 706.796 183.255C701.622 198.09 696.449 212.926 691.275 227.761L690.843 228.73C663.466 298.367 623.539 371.362 552.516 420.884C481.386 470.784 396.753 482.886 325.73 494.159C246.56 504.694 165.442 558.787 161.953 598.944C161.229 604.123 161.712 608.18 162.819 611.984C108.551 614.661 54.2833 617.339 0.0159262 620.016C-0.308833 595.429 4.348 570.93 12.6253 549.188C80.3481 404.827 209.86 381.906 315.111 374.841C460.312 380.753 568.377 333.57 633.908 202.27L633.476 203.239C640.548 189.21 647.62 175.18 654.692 161.15C661.095 148.447 667.498 135.744 673.901 123.041C689.55 129.68 705.2 136.32 720.85 142.959Z',
   spine: 'M60 690C80 610 100 545 140 500C200 445 260 440 320 435C420 425 510 400 556 360C600 320 640 262 662 215C675 185 688 160 697 133C705 100 711 60 711 12',
 };
+
+/**
+ * How far along each centre line a tail drains to (%): where the ribbon is all but gone (its last ~250 px², at the
+ * join, goes as the mark takes over) while its half is still whole (the stroke's round end reaches 120 back). Measured
+ * from the shapes: the lines enter the mark at 81-82%.
+ */
+const DRAIN_TO = 93.5;
 
 /** The blue ribbon's colour where it meets the mark: the blue half arrives in it, then takes on the mark's gradient. */
 const RIBBON_BLUE = '#00B0FF';
@@ -165,31 +173,40 @@ export function createTeamScene(root: HTMLElement, stage: HTMLElement = root): T
       const y = MARK.y + (to.y - MARK.y) * m.p - (MARK.h * (k - Math.pow(to.k, m.p))) / 2;
       setMark(x, y, k);
     };
-    tl = gsap.timeline();
-    tl
-      // 1. The ribbons flow in along their curves and on into the mark, each head growing out of its ribbon; the ink
-      //    one a beat behind.
-      .to(spines[0], { drawSVG: '0% 100%', duration: 1.6, ease: 'power2.inOut' }, 0)
-      .to(spines[1], { drawSVG: '0% 100%', duration: 1.6, ease: 'power2.inOut' }, 0.2)
-      // Both arrived: the unmasked mark takes over, identical, so nothing changes on screen.
-      .set(mark, { autoAlpha: 1 }, 1.8)
-      // 2. The tails drain away into the mark, smoothly, the ink one following.
-      .to(spines[0], { drawSVG: '100% 100%', duration: 1.1, ease: 'power2.inOut' }, 1.8)
-      .to(spines[1], { drawSVG: '100% 100%', duration: 1.1, ease: 'power2.inOut' }, 1.95)
-      // The blue half takes on the mark's gradient as its ribbon leaves it.
-      .to(tint, { opacity: 1, duration: 0.7, ease: 'power1.inOut' }, 2.5)
-      // 3. The click: a quick swell as the last of the tails goes, then an elastic settle.
-      .to(m, { swell: 1.06, duration: 0.1, ease: 'power2.out', onUpdate: apply }, 3.0)
-      .to(m, { swell: 1, duration: 0.65, ease: 'elastic.out(1.1, 0.4)', onUpdate: apply }, 3.1)
+    // Each ribbon's visible stretch along its centre line: tail (a) to head (b), in %.
+    const ends = spines.map(() => ({ a: 0, b: 0 }));
+    const drawn = (i: number) => () => gsap.set(spines[i], { drawSVG: `${ends[i].a}% ${ends[i].b}%` });
+    const FLOW = 1.6;
+    const LAG = 0.2; // the ink ribbon a beat behind the blue
+    const landed = [FLOW, FLOW + LAG];
+    const t = gsap.timeline();
+    tl = t;
+    landed.forEach((end, i) => {
+      t
+        // 1. The head flows in along the curve and on into the mark, its half growing out of the ribbon...
+        .to(ends[i], { b: 100, duration: FLOW, ease: 'power2.inOut', onUpdate: drawn(i) }, end - FLOW)
+        // ...and the tail follows, setting off later and quicker, to reach the mark as the head lands.
+        .to(ends[i], { a: DRAIN_TO, duration: FLOW * 0.62, ease: 'power2.in', onUpdate: drawn(i) }, end - FLOW * 0.62)
+        // Landed: the unmasked half takes over (identical), and the last of the ribbon goes with the mask.
+        .set(mark[i], { autoAlpha: 1 }, end)
+        .set(spines[i], { drawSVG: '100% 100%' }, end);
+    });
+    const click = landed[1] + 0.02;
+    t
+      // 2. The blue half takes on the mark's gradient.
+      .to(tint, { opacity: 1, duration: 0.6, ease: 'power1.inOut' }, landed[0])
+      // 3. The click, straight away: a quick swell, then an elastic settle.
+      .to(m, { swell: 1.06, duration: 0.1, ease: 'power2.out', onUpdate: apply }, click)
+      .to(m, { swell: 1, duration: 0.65, ease: 'elastic.out(1.1, 0.4)', onUpdate: apply }, click + 0.1)
       // 4. Into the layout: the mark grows and moves into the logo's place, then the real logo takes over.
       .add(() => {
         to = target();
-      }, 3.55)
-      .to(m, { p: 1, duration: 1.1, ease: 'expo.inOut', onUpdate: apply }, 3.55)
-      .set(logo, { autoAlpha: 1 }, 4.65)
-      .set(svg, { autoAlpha: 0 }, 4.65)
-      .to(text, { autoAlpha: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.07 }, 4.3);
-    return tl.duration();
+      }, click + 0.55)
+      .to(m, { p: 1, duration: 1.1, ease: 'expo.inOut', onUpdate: apply }, click + 0.55)
+      .set(logo, { autoAlpha: 1 }, click + 1.65)
+      .set(svg, { autoAlpha: 0 }, click + 1.65)
+      .to(text, { autoAlpha: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.07 }, click + 1.3);
+    return t.duration();
   };
 
   const hurry = () => {
