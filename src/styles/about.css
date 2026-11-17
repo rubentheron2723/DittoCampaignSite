@@ -33,6 +33,28 @@
 /* A soft shadow under the block, on a plain layer behind it (a filter on the 3D faces would be redrawn every frame). */
 .glogo::before { content: ''; position: absolute; left: 12%; right: 12%; bottom: -18px; height: 36px; border-radius: 50%; background: rgba(6, 49, 120, 0.18); filter: blur(18px); }
 
+/* ---------- We think independently (Figma 2390:287) ---------- */
+/* One screen on #FDFDFD with the Moving blobs, pinned while the statements fly past through the lens
+   (animations/think-zoom.ts draws them into .think__lens). Without WebGL or with reduced motion, the list shows:
+   each statement a row, the title 84/88 bold beside the copy 20/24 at 60%. */
+.think { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; }
+.think__stage { position: relative; min-height: 100vh; overflow: hidden; }
+.think__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s var(--ease-out); pointer-events: none; }
+.think--fx .think__fx { opacity: 1; }
+.think__lens { position: absolute; inset: 0; width: 100%; height: 100%; display: none; pointer-events: none; }
+.think__list { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 120px clamp(20px, 5.556vw, 80px); list-style: none; display: grid; gap: 80px; }
+.think__item { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.think__title { margin: 0; flex: 1 1 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
+.think__body { margin: 0; flex: none; width: min(524px, 42%); font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
+/* With the lens running, the canvas draws the statements; the list stays for screen readers only. */
+.think--gl .think__stage { height: 100vh; }
+.think--gl .think__lens { display: block; }
+.think--gl .think__list { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 760px) {
+  .think__item { flex-direction: column; align-items: flex-start; }
+  .think__body { width: auto; }
+}
+
 /* ---------- We like rebuilding broken systems (Figma 2390:108) ---------- */
 /* Five rows on #FEFEFE with the Moving blobs behind, 20 apart. Each: a 2px line (10% ink, filling #171717), the number
    84/88 in #00B0FF, then the title 40/44 bold on the left and the copy 16/20 at 60% on the right. */
@@ -57,20 +79,6 @@
 /* Builders */
 
 /* Thinking */
-.thinking { background: linear-gradient(180deg, var(--paper-2), var(--paper)); padding: clamp(96px, 12vw, 180px) 0; }
-.thinking__grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
-.thinking__sticky { position: sticky; top: calc(var(--nav-h) + 40px); }
-.thinking__sticky .h-section { margin-top: 14px; }
-.thinking__intro { margin-top: 22px; max-width: 46ch; }
-.principles { position: relative; display: grid; gap: clamp(40px, 5vw, 72px); padding-left: 56px; }
-.principles__line { position: absolute; left: 10px; top: 12px; bottom: 12px; width: 2px; background: rgba(15, 20, 29, 0.12); }
-.principles__fill { position: absolute; inset: 0; background: var(--blue); transform-origin: top; }
-.principle { position: relative; transition: opacity 0.4s; }
-.principle__dot { position: absolute; left: -52px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 6px var(--paper); transition: background-color 0.3s, transform 0.3s; }
-.principle.is-active .principle__dot { background: var(--blue); transform: scale(1.4); }
-.principle__index { font-size: var(--t-eyebrow-size); line-height: var(--t-eyebrow-lh); letter-spacing: var(--t-eyebrow-ls); font-weight: var(--t-eyebrow-wt); color: var(--blue-deep); }
-.principle__title { font-size: var(--t-h2-size); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-ls); font-weight: var(--t-h2-wt); margin-top: 10px; }
-.principle__body { font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); margin-top: 14px; max-width: 58ch; color: var(--ink-soft); }
 
 /* Team */
 .team { background: linear-gradient(180deg, #000 0%, #052a40 100%); padding: clamp(96px, 12vw, 180px) 0; overflow: clip; }
@@ -86,11 +94,7 @@
 .team__p:first-of-type { margin-top: 26px; }
 
 @media (max-width: 900px) {
-  .thinking__grid, .team__grid { grid-template-columns: 1fr; }
-  .thinking__sticky { position: static; }
-  .principles { padding-left: 40px; }
-  .principle__dot { left: -36px; }
-  .principles__line { left: 2px; }
+  .team__grid { grid-template-columns: 1fr; }
   .team__visual { order: 2; }
 }
 
