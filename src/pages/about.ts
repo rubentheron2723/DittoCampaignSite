@@ -4,10 +4,11 @@ import '../styles/about.css';
 import { builders, hero, team, thinking } from '../content/about';
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
-import { esc, MARK_L, MARK_R } from '../shared/mark';
+import { esc } from '../shared/mark';
 import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, splitReveal } from '../shared/motion';
 import { initThinkZoom } from '../animations/think-zoom';
+import { createTeamScene, teamLogoSvg } from '../animations/team-logo';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { glassLogoHtml, initGlassLogo } from '../shared/glass-logo';
 import { initBlobBackdrop } from '../shared/blob-backdrop';
@@ -84,22 +85,12 @@ function render() {
     </div>
   </section>
 
-  <section class="team" id="team" data-theme="dark">
-    <div class="wrap wrap--wide team__grid">
-      <div class="team__visual" aria-hidden="true">
-        <svg viewBox="-120 -60 864 847" class="team__mark">
-          <path class="mark__l team__half team__half--l" d="${MARK_L}" />
-          <path class="mark__r team__half team__half--r" d="${MARK_R}" />
-        </svg>
-        <ul class="team__obsessions">
-          <li>The performance of the system.</li>
-          <li>The clarity of the interface.</li>
-          <li>The elegance of the workflow.</li>
-        </ul>
-      </div>
+  <section class="team" id="team" data-theme="light">
+    <div class="team__inner">
+      <div class="team__visual">${teamLogoSvg()}</div>
       <div class="team__copy">
-        <h2 class="h-section team__title"><span>${esc(team.titleOne)}</span><span>${esc(team.titleTwo)}</span></h2>
-        ${team.paragraphs.map((p) => `<p class="lead team__p">${esc(p)}</p>`).join('')}
+        <h2 class="team__title">${esc(`${team.titleOne} ${team.titleTwo}`)}</h2>
+        ${team.paragraphs.map((p) => `<p class="team__p">${esc(p)}</p>`).join('')}
       </div>
     </div>
   </section>
@@ -158,16 +149,6 @@ function initRebuild(animate: boolean) {
   });
 }
 
-function initTeam(animate: boolean) {
-  if (!animate) return;
-  // The two halves start apart and lock together as the section scrolls into place.
-  gsap.fromTo('.team__half--l', { x: -140, y: 40, rotate: -6 }, { x: 0, y: 0, rotate: 0, ease: 'none', scrollTrigger: { trigger: '.team', start: 'top 85%', end: 'top 20%', scrub: 0.5 } });
-  gsap.fromTo('.team__half--r', { x: 140, y: -40, rotate: 6 }, { x: 0, y: 0, rotate: 0, ease: 'none', scrollTrigger: { trigger: '.team', start: 'top 85%', end: 'top 20%', scrub: 0.5 } });
-  fadeUp('.team__obsessions li', '.team__obsessions', { y: 20, start: 'top 80%' });
-  splitReveal('.team__title span');
-  fadeUp('.team__p', '.team__copy', { y: 24, start: 'top 70%' });
-}
-
 boot({
   page: 'about',
   render,
@@ -178,8 +159,13 @@ boot({
     });
     initGlassLogo(q('.glogo')!, q('.ahero')!, !reduce);
     initBlobBackdrop(q('.think')!, q<HTMLCanvasElement>('.think__fx')!, 'think--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
-    initThinkZoom(!reduce);
-    initTeam(!reduce);
+    // On wide screens the team section plays inside the "We think independently" stage, as its last stop; elsewhere
+    // it's a normal section that builds its logo once as it comes into view.
+    const inStage = initThinkZoom(!reduce, q<HTMLElement>('.team__inner')!);
+    if (!reduce && !inStage) {
+      const scene = createTeamScene(q('.team')!);
+      ScrollTrigger.create({ trigger: '.team', start: 'top 70%', once: true, onEnter: () => scene.play() });
+    }
 
     initBlobBackdrop(q('.rebuild')!, q<HTMLCanvasElement>('.rebuild__fx')!, 'rebuild--fx', FOOTER_BLOBS, [254, 254, 254], reduce, 0.55);
     // One screen-tall blob layer held on screen through the section (a pin: ScrollSmoother rules out sticky).

@@ -89,21 +89,8 @@
 /* Thinking */
 
 /* Team */
-.team { background: linear-gradient(180deg, #000 0%, #052a40 100%); padding: clamp(96px, 12vw, 180px) 0; overflow: clip; }
-.team__grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
-.team__visual { position: relative; }
-.team__mark { width: min(100%, 420px); margin: 0 auto; overflow: visible; filter: drop-shadow(0 30px 70px rgba(0, 176, 255, 0.35)); }
-.team__half { transform-box: fill-box; transform-origin: center; }
-.team__obsessions { margin: 32px auto 0; max-width: 420px; display: grid; gap: 8px; }
-.team__obsessions li { font-size: var(--t-small-size); line-height: var(--t-small-lh); letter-spacing: var(--t-small-ls); font-weight: var(--t-small-wt); padding: 12px 16px; border-radius: 12px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line-dark); }
-.team__title { margin-top: 14px; }
-.team__title span { display: block; }
-.team__p { margin-top: 18px; color: rgba(231, 239, 244, 0.82); max-width: 56ch; }
-.team__p:first-of-type { margin-top: 26px; }
 
 @media (max-width: 900px) {
-  .team__grid { grid-template-columns: 1fr; }
-  .team__visual { order: 2; }
 }
 
 /* Narrow screens: the glass mark sits under the copy, a little smaller. */
@@ -113,4 +100,29 @@
   .ahero__logo { height: 280px; }
   .glogo { transform: scale(0.72); }
   .ahero__actions { justify-content: flex-start; }
+}
+
+/* ---------- A team with unusually high standards (Figma 2395:98) ---------- */
+/* The logomark large on the left (656 tall at 1440), the 64/68 title and 20/24 copy at 60% on the right (524 wide).
+   On wide screens it's the last stop of the "We think independently" stage (.think__team); elsewhere its own section. */
+.team { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; padding: 120px clamp(20px, 5.556vw, 80px); }
+.team__inner { display: flex; align-items: center; justify-content: space-between; gap: 40px; max-width: 1280px; margin: 0 auto; }
+.team__visual { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; align-self: stretch; }
+.tlogo { display: block; height: min(656px, 70vh); width: auto; aspect-ratio: 165.603 / 193; overflow: visible; }
+.team__copy { flex: none; width: min(524px, 44%); display: flex; flex-direction: column; }
+.team__title { margin: 0 0 20px; font-size: clamp(40px, calc(40px + 24 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; color: #171717; }
+.team__p { margin: 0; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
+.team__p + .team__p { margin-top: 24px; }
+/* Inside the stage: centred over it, hidden until the scroll reaches it; the last statement fades as it arrives. */
+.think__team {
+  position: absolute; left: 50%; top: 50%; z-index: 2; width: min(1280px, calc(100% - 2 * clamp(20px, 5.556vw, 80px)));
+  height: min(656px, calc(100vh - 200px)); transform: translate(-50%, -50%); visibility: hidden;
+}
+.think__team .tlogo { height: 100%; }
+.think--team .think__team { visibility: visible; }
+.think--team .think__item.is-current { opacity: 0; transition: opacity 0.45s ease; }
+@media (max-width: 900px) {
+  .team__inner { flex-direction: column; align-items: stretch; gap: 48px; }
+  .tlogo { height: min(360px, 55vw); }
+  .team__copy { width: auto; }
 }
