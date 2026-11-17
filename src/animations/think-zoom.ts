@@ -5,7 +5,11 @@ import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
  * "We think independently." (Figma 2390:287): the section pins and scrolling flies the reader through its statements.
  * Each one holds, then swells twenty times over and turns 30 degrees as if the camera rushes through it, fading as it
  * passes, and the next statement settles in behind it. All of it is seen through Figma's Lens distortion (0.36 barrel),
- * so the type bends outwards as it grows. Figma's 3.6 s keyframes become each step's share of the scroll.
+ * so the type bends outwards as it grows.
+ *
+ * The scroll chooses the statement; the move between two plays out over a fixed time (Figma's 2 s zoom), however fast
+ * the wheel or trackpad goes. Tied straight to the scroll, a flick of the trackpad covered a whole step at once and
+ * the flight happened in a blink. Scrolling past several statements plays them one after another at the same pace.
  *
  * The statements are drawn into textures (canvas 2D text, laid out like the HTML) and composited in WebGL2: first
  * flat into the lens frame, then through the lens onto the screen. The HTML list stays in the page for screen readers
@@ -13,16 +17,18 @@ import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
  */
 
 /**
- * Timings as fractions of one step. The zoom and fade-out are Figma's (3.6 s); the next statement arrives over a much
- * longer stretch than Figma's 7%, rising out of the depth (from ARRIVE_SCALE) as the last one clears.
+ * Timings as fractions of one move (STEP_TIME). The zoom is Figma's 2 s; the fade-out starts a little into it, and the
+ * next statement arrives over the second half, rising out of the depth (from ARRIVE_SCALE) as the last one clears.
  */
 const T = {
-  zoomStart: 0.2778,
-  zoomEnd: 0.8333,
-  fadeOutStart: 0.45,
-  fadeInStart: 0.55,
-  fadeInEnd: 0.92,
+  zoomStart: 0,
+  zoomEnd: 0.82,
+  fadeOutStart: 0.2,
+  fadeInStart: 0.5,
+  fadeInEnd: 1,
 };
+/** How long one move takes (s): Figma's zoom, 27.8% to 83.3% of 3.6 s. */
+const STEP_TIME = 2;
 const ARRIVE_SCALE = 0.82;
 const SCALE = 20.180792;
 const TURN = (-30 * Math.PI) / 180;
@@ -36,8 +42,10 @@ const DISTORTION = 0.36;
  */
 const LENS_SWELL = 0.95;
 const FRINGE = 0.07;
-/** Scroll per statement, in screen heights. */
-const STEP_SCROLL = 1.4;
+/** Scroll per statement, in screen heights: enough to hold the section while each move plays. */
+const STEP_SCROLL = 0.85;
+/** How far into a statement's stretch of scroll the move to the next one starts. */
+const ADVANCE_AT = 0.3;
 
 const INK = '#171717';
 const BODY = 'rgba(23, 23, 23, 0.6)';
@@ -364,6 +372,21 @@ export function initThinkZoom(animate: boolean) {
   };
 
   const steps = statements.length - 1;
+  // Plays the flight to statement `to` at a steady pace (STEP_TIME for a move), whichever way.
+  let target = 0;
+  let flight: gsap.core.Tween | null = null;
+  const go = (to: number) => {
+    if (to === target) return;
+    target = to;
+    flight?.kill();
+    flight = gsap.to(pos, {
+      v: to,
+      // Passing several at once, each after the first goes a little quicker, so the flight doesn't trail far behind.
+      duration: STEP_TIME * (Math.min(1, Math.abs(to - pos.v)) + Math.max(0, Math.abs(to - pos.v) - 1) * 0.6),
+      ease: 'none',
+      onUpdate: schedule,
+    });
+  };
   document.fonts.ready.then(() => {
     layout();
     draw();
@@ -376,12 +399,14 @@ export function initThinkZoom(animate: boolean) {
       onUpdate: (self) => {
         // Straight from the scroll: ScrollSmoother already smooths it, and a second lag on top made the flight
         // trail the wheel and then play out in a rush once scrolling stopped.
-        pos.v = self.progress * steps;
-        schedule();
+        go(Math.min(steps, Math.floor(self.progress * steps + 1 - ADVANCE_AT)));
       },
       onRefresh: (self) => {
         layout();
-        pos.v = self.progress * steps;
+        // Straight to wherever the scroll already is (a reload partway down), without playing the moves.
+        flight?.kill();
+        target = Math.min(steps, Math.floor(self.progress * steps + 1 - ADVANCE_AT));
+        pos.v = target;
         draw();
       },
     });
