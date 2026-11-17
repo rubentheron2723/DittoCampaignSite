@@ -1,6 +1,6 @@
 /* ---------- Hero (Figma 2387:2) ---------- */
-/* The Pricing hero's sky, glow and haze. "About Ditto." at 164/168 bold, then the copy beside the glass logomark,
-   then two glass buttons centred. */
+/* The Pricing hero's sky, glow and haze. Two equal columns: "About Ditto." at 84/88 bold over the copy on the left,
+   the glass logomark centred in a 460-tall box on the right; then two glass buttons centred. */
 .ahero {
   position: relative; display: flex; align-items: center; min-height: 100vh; min-height: 100lvh;
   padding: calc(var(--nav-h) + 48px) clamp(20px, 5.556vw, 80px) 120px;
@@ -15,9 +15,12 @@
 }
 .ahero__haze { position: absolute; inset: 0; background: linear-gradient(0deg, #fff 0%, rgba(255, 255, 255, 0) 34.289%); }
 .ahero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
-.ahero__title { margin: 0; font-size: var(--t-hero-size); line-height: 1.024; letter-spacing: -0.04em; font-weight: 700; }
-.ahero__row { display: flex; align-items: center; justify-content: space-between; gap: 40px; padding-right: clamp(0px, 11.8vw, 170px); }
-.ahero__copy { display: flex; flex-direction: column; gap: 12px; max-width: 685px; }
+.ahero__title { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
+.ahero__row { display: flex; align-items: center; gap: 40px; }
+.ahero__text { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 40px; }
+.ahero__logo { flex: 1 1 0; min-width: 0; height: 460px; display: flex; align-items: center; justify-content: center; }
+/* Figma's copy is 685 wide in a 620 column: it runs a little past the column's edge, towards the logo. */
+.ahero__copy { display: flex; flex-direction: column; gap: 12px; width: min(685px, calc(100% + 65px)); }
 .ahero__lead { margin: 0; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
 .ahero__body { display: grid; gap: 24px; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; }
 .ahero__body p { margin: 0; }
@@ -90,7 +93,9 @@
 
 /* Narrow screens: the glass mark sits under the copy, a little smaller. */
 @media (max-width: 900px) {
-  .ahero__row { flex-direction: column; align-items: flex-start; padding-right: 0; }
-  .glogo { align-self: center; transform: scale(0.72); margin: -24px 0; }
+  .ahero__row { flex-direction: column; align-items: stretch; }
+  .ahero__copy { width: 100%; }
+  .ahero__logo { height: 280px; }
+  .glogo { transform: scale(0.72); }
   .ahero__actions { justify-content: flex-start; }
 }
