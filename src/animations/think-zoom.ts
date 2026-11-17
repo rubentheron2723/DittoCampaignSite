@@ -12,22 +12,34 @@ import { bezier, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
  * and is what shows without WebGL or with reduced motion.
  */
 
-/** Figma's timings, as fractions of one step (3.6 s). */
+/**
+ * Timings as fractions of one step. The zoom and fade-out are Figma's (3.6 s); the next statement arrives over a much
+ * longer stretch than Figma's 7%, rising out of the depth (from ARRIVE_SCALE) as the last one clears.
+ */
 const T = {
   zoomStart: 0.2778,
   zoomEnd: 0.8333,
   fadeOutStart: 0.4157,
-  fadeInStart: 0.8173,
-  fadeInEnd: 0.8889,
+  fadeInStart: 0.6,
+  fadeInEnd: 0.98,
 };
+const ARRIVE_SCALE = 0.82;
 const SCALE = 20.180792;
 const TURN = (-30 * Math.PI) / 180;
 const EASE = bezier(0.5, 0, 0.5, 1);
 /** The lens: Figma's Lens distortion over a 2062.6 x 1539 frame at (-265, -304) in the 1440 x 1024 section. */
 const FRAME = { x: -265, y: -304, w: 2062.6, h: 1539 };
 const DISTORTION = 0.36;
+/**
+ * At rest the lens is Figma's 0.36, which barely bends type near the middle of the screen. While a statement rushes
+ * past, the lens swells (up to 0.36 + LENS_SWELL) with a touch of colour fringing, so the warp reads as it flies.
+ */
+const LENS_SWELL = 0.95;
+const FRINGE = 0.14;
 /** Scroll per statement, in screen heights. */
-const STEP_SCROLL = 0.9;
+const STEP_SCROLL = 1.8;
+/** How long the flight takes to catch up with the scroll (s): smooths out flicks of the wheel. */
+const CATCH_UP = 1.1;
 
 const INK = '#171717';
 const BODY = 'rgba(23, 23, 23, 0.6)';
@@ -164,7 +176,6 @@ export function initThinkZoom(animate: boolean) {
     amount: U(lensProg, 'uAmount'), chroma: U(lensProg, 'uChroma'), taps: U(lensProg, 'uTaps'),
     inv: U(lensProg, 'uInvKernel'), sum: U(lensProg, 'uWeightSum'),
   };
-  const kn = kernel(0);
 
   const quadVao = gl.createVertexArray();
   const quadBuf = gl.createBuffer();
@@ -248,13 +259,20 @@ export function initThinkZoom(animate: boolean) {
       // Arriving: during the end of the previous step.
       const t = 1 + local;
       const a = EASE(gsap.utils.clamp(0, 1, (t - T.fadeInStart) / (T.fadeInEnd - T.fadeInStart)));
-      return a > 0 ? { scale: 1, turn: 0, alpha: a } : null;
+      return a > 0 ? { scale: ARRIVE_SCALE + (1 - ARRIVE_SCALE) * a, turn: 0, alpha: a } : null;
     }
     if (i === statements.length - 1) return { scale: 1, turn: 0, alpha: 1 };
     const z = EASE(gsap.utils.clamp(0, 1, (local - T.zoomStart) / (T.zoomEnd - T.zoomStart)));
     const f = EASE(gsap.utils.clamp(0, 1, (local - T.fadeOutStart) / (T.zoomEnd - T.fadeOutStart)));
     const alpha = 1 - f;
     return alpha > 0.001 ? { scale: 1 + (SCALE - 1) * z, turn: TURN * z, alpha } : null;
+  };
+  /** How hard the lens is working: 0 at rest, 1 mid-flight. */
+  const swell = () => {
+    const i = Math.floor(pos.v);
+    if (i >= statements.length - 1) return 0;
+    const z = EASE(gsap.utils.clamp(0, 1, (pos.v - i - T.zoomStart) / (T.zoomEnd - T.zoomStart)));
+    return Math.sin(Math.PI * z);
   };
 
   const draw = () => {
@@ -309,8 +327,12 @@ export function initThinkZoom(animate: boolean) {
     gl.uniform2f(lu.screen, canvas.width, canvas.height);
     gl.uniform1f(lu.dpr, canvas.width / W);
     gl.uniform4f(lu.frame, frame.x, frame.y, frame.w, frame.h);
-    gl.uniform1f(lu.amount, DISTORTION);
-    gl.uniform1f(lu.chroma, 0);
+    const w = swell();
+    const amount = DISTORTION + LENS_SWELL * w;
+    const fringe = FRINGE * w;
+    const kn = kernel(fringe);
+    gl.uniform1f(lu.amount, amount);
+    gl.uniform1f(lu.chroma, (1 + Math.abs(amount)) * fringe);
     gl.uniform1i(lu.taps, kn.taps);
     gl.uniform1f(lu.inv, kn.inv);
     gl.uniform1f(lu.sum, kn.sum);
@@ -330,8 +352,7 @@ export function initThinkZoom(animate: boolean) {
       pin: stage,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
-        pos.v = self.progress * steps;
-        draw();
+        gsap.to(pos, { v: self.progress * steps, duration: CATCH_UP, ease: 'power3.out', overwrite: true, onUpdate: draw });
       },
       onRefresh: (self) => {
         layout();
