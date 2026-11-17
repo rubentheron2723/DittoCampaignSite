@@ -160,6 +160,31 @@ function drawFromDom(item: HTMLElement, origin: DOMRect, res: number, family: st
   };
 }
 
+/** The smallest the team copy is scaled to fit the stage (16-20px type at 12-15px). */
+const MIN_FIT = 0.75;
+/**
+ * Scales the team copy in the stage (--fit) so it, and the mark, fit within the screen. Returns whether they do at
+ * MIN_FIT or larger. Side by side only the copy column has to fit; stacked, the copy plus a mark at least 120 tall.
+ */
+function fitTeam(team: HTMLElement): boolean {
+  const copy = q<HTMLElement>('.team__copy', team);
+  if (!copy) return false;
+  const need = () => {
+    const css = getComputedStyle(team);
+    return css.flexDirection === 'column' ? copy.scrollHeight + (parseFloat(css.rowGap) || 0) + 120 : copy.scrollHeight;
+  };
+  let k = 1;
+  // Text rewraps as it shrinks, so settle it over a few passes.
+  for (let i = 0; i < 4; i++) {
+    team.style.setProperty('--fit', k.toFixed(3));
+    const ratio = team.clientHeight / need();
+    if (ratio >= 1) return true;
+    if (k === MIN_FIT) return false;
+    k = Math.max(MIN_FIT, k * ratio * 0.99);
+  }
+  return team.clientHeight >= need();
+}
+
 /**
  * Sets up the section. `team` (the next section's content) joins the stage as its last stop on wide screens, where it
  * builds its logo in the same locked view (team-logo.ts). Returns whether it did.
@@ -185,15 +210,23 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   }
   section.classList.add('think--gl');
 
-  // The team section moves into the stage (wide screens only: its copy needs the room), and its own section goes.
+  // The team section moves into the stage as its last stop, and its own section goes: on any screen where its copy
+  // fits within one screen (scaled down a little if need be). Where even that can't fit, it stays its own section.
   let scene: TeamScene | null = null;
-  // Only where the logo and the full copy fit side by side within one screen; smaller screens keep the normal section.
-  if (team && window.matchMedia('(min-width: 1100px) and (min-height: 760px)').matches) {
+  if (team) {
     const host = team.closest('section');
+    const home = team.parentElement;
+    const next = team.nextSibling;
     team.classList.add('think__team');
     stage.appendChild(team);
-    host?.remove();
-    scene = createTeamScene(team, stage);
+    if (fitTeam(team)) {
+      host?.remove();
+      scene = createTeamScene(team, stage);
+    } else {
+      team.classList.remove('think__team');
+      team.style.removeProperty('--fit');
+      home?.insertBefore(team, next);
+    }
   }
 
   const U = (p: WebGLProgram, n: string) => gl.getUniformLocation(p, n);
@@ -522,13 +555,23 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
       busyUntil = performance.now() + (d + 0.6) * 1000;
     });
   };
-  /** Back up out of it: the scene fades, and the last statement returns. */
+  /** Back up out of it: the team layout fades away, then the last statement fades back in (toTeam in reverse). */
   const fromTeam = () => {
     index = last;
-    section.classList.remove('think--team');
-    busyUntil = performance.now() + HANDOVER * 1000;
-    gsap.delayedCall(HANDOVER, () => (built ? scene!.finish() : scene!.reset()));
+    busyUntil = performance.now() + (HANDOVER + 0.6) * 1000;
     show(last, false);
+    gsap.to(team!, {
+      opacity: 0,
+      duration: HANDOVER,
+      ease: 'power1.out',
+      onComplete: () => {
+        section.classList.remove('think--team');
+        gsap.set(team!, { clearProps: 'opacity' });
+        if (built) scene!.finish();
+        else scene!.reset();
+        gsap.fromTo(statements[last], { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.out', clearProps: 'opacity' });
+      },
+    });
   };
   const step = (dir: 1 | -1) => {
     if (busy()) return;
@@ -598,6 +641,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
       onEnter: () => capture(0),
       onEnterBack: () => capture(steps),
       onRefresh: () => {
+        if (scene && team) fitTeam(team);
         layout();
         draw();
       },
