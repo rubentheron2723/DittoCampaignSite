@@ -1,7 +1,7 @@
 import '../styles/base.css';
 import '../styles/about.css';
 
-import { builders, finalBanner, hero, team, thinking } from '../content/about';
+import { builders, hero, team, thinking } from '../content/about';
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc, MARK_L, MARK_R } from '../shared/mark';
@@ -114,7 +114,7 @@ function render() {
     </div>
   </section>
 
-  ${ctaAndFooter({ lineOne: finalBanner.lineOne, lineTwo: finalBanner.lineTwo, copy: finalBanner.copy, button: finalBanner.button })}`;
+  ${ctaAndFooter()}`;
 }
 
 function initRoutes(animate: boolean, revealed: Promise<void>) {
