@@ -11,6 +11,7 @@
  * World units: the screen is 2 units tall at z = 0 (y from -1 to 1) and
  * `aspect` × 2 wide. Poses are plain objects so GSAP can tween them.
  */
+import { covered } from './cover';
 
 export type CardPose = {
   x: number;
@@ -354,8 +355,13 @@ export function createPaperCards(
   let raf = 0;
   let visible = false;
   const loop = (now: number) => {
+    // Held still under the entry cover (see cover.ts); it resumes as the cover lifts.
+    if (covered(kick)) return void (raf = 0);
     render(now);
     raf = visible ? requestAnimationFrame(loop) : 0;
+  };
+  const kick = () => {
+    if (visible && !raf) raf = requestAnimationFrame(loop);
   };
   new IntersectionObserver(([e]) => {
     visible = e.isIntersecting;

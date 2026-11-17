@@ -1,4 +1,5 @@
 import { gsap } from '../animations/gsap';
+import { uncovered } from './cover';
 
 /**
  * The glass logomark from the About hero (Figma 2388:50): one solid block of glass in the shape of the mark, in CSS 3D.
@@ -135,5 +136,9 @@ export function initGlassLogo(root: HTMLElement, area: HTMLElement, animate: boo
     to.near(0);
   });
 
-  new IntersectionObserver(([entry]) => (entry.isIntersecting ? drift.play() : drift.pause())).observe(root);
+  // Still under the entry cover; it starts drifting as the cover lifts (cover.ts).
+  drift.pause();
+  uncovered().then(() =>
+    new IntersectionObserver(([entry]) => (entry.isIntersecting ? drift.play() : drift.pause())).observe(root),
+  );
 }

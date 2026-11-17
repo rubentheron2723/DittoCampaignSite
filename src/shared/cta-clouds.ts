@@ -11,6 +11,7 @@
  */
 
 import { createBlobsPass, type BlobParams } from './footer-blobs';
+import { covered } from './cover';
 
 type SkyTransform = { x: number; y: number; radius: number; angle: number };
 type Key<T> = { t: number; v: T };
@@ -554,6 +555,8 @@ export function initClouds(
   let raf = 0;
   let visible = false;
   const loop = (now: number) => {
+    // Held still under the entry cover (see cover.ts); it resumes as the cover lifts.
+    if (covered(kick)) return void (raf = 0);
     render(now);
     raf = visible && !reduce ? requestAnimationFrame(loop) : 0;
   };

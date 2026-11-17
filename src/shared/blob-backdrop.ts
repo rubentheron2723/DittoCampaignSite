@@ -1,4 +1,5 @@
 import { createBlobsPass, type BlobParams } from './footer-blobs';
+import { covered } from './cover';
 
 const MAX_DPR = 1.5;
 
@@ -28,8 +29,13 @@ export function initBlobBackdrop(section: HTMLElement, canvas: HTMLCanvasElement
     section.classList.add(fxClass);
   };
   const loop = (now: number) => {
+    // Held still under the entry cover (see cover.ts); it resumes as the cover lifts.
+    if (covered(kick)) return void (raf = 0);
     frame(now);
     raf = visible && !reduce ? requestAnimationFrame(loop) : 0;
+  };
+  const kick = () => {
+    if (visible && !raf) raf = requestAnimationFrame(loop);
   };
   const resize = () => {
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
