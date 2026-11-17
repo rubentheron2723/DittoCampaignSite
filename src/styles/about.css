@@ -33,22 +33,28 @@
 /* A soft shadow under the block, on a plain layer behind it (a filter on the 3D faces would be redrawn every frame). */
 .glogo::before { content: ''; position: absolute; left: 12%; right: 12%; bottom: -18px; height: 36px; border-radius: 50%; background: rgba(6, 49, 120, 0.18); filter: blur(18px); }
 
+/* ---------- We like rebuilding broken systems (Figma 2390:108) ---------- */
+/* Five rows on #FEFEFE with the Moving blobs behind, 20 apart. Each: a 2px line (10% ink, filling #171717), the number
+   84/88 in #00B0FF, then the title 40/44 bold on the left and the copy 16/20 at 60% on the right. */
+.rebuild { position: relative; margin-top: -1px; background: #fefefe; color: #171717; padding: 120px clamp(20px, 5.556vw, 80px); }
+.rebuild__fx { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; opacity: 0; transition: opacity 0.8s var(--ease-out); pointer-events: none; }
+.rebuild--fx .rebuild__fx { opacity: 1; }
+.rebuild__list { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.rrow { display: flex; flex-direction: column; gap: 20px; will-change: clip-path; }
+.rrow__bar { height: 2px; background: rgba(23, 23, 23, 0.1); overflow: hidden; }
+.rrow__bar i { display: block; height: 100%; background: #171717; transform: scaleX(0); transform-origin: 0 50%; }
+.rrow__num { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; }
+.rrow__text { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; }
+.rrow__title { margin: 0; max-width: var(--w, 524px); font-size: clamp(28px, calc(28px + 12 * (100vw - 375px) / 1065), 40px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; }
+.rrow__body { margin: 0; flex: none; width: min(426px, 45%); font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
+@media (max-width: 760px) {
+  .rebuild { padding-top: 80px; padding-bottom: 80px; }
+  .rrow__text { flex-direction: column; gap: 16px; }
+  .rrow__body { width: auto; }
+}
+
 
 /* Builders */
-.builders { background: linear-gradient(180deg, #000 0%, #04253a 100%); }
-.builders__pin { min-height: 100svh; display: grid; align-items: center; padding: calc(var(--nav-h) + 40px) 0 80px; }
-.builders__grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 96px); align-items: center; width: 100%; }
-.builders__title { margin-top: 14px; }
-.builders__intro { margin-top: 22px; color: rgba(231, 239, 244, 0.8); max-width: 52ch; }
-.builders__progress { margin-top: 32px; display: flex; gap: 8px; }
-.builders__progress span { flex: 1; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, 0.14); overflow: hidden; }
-.builders__progress span i { display: block; height: 100%; width: 0; background: var(--blue); transition: width 0.5s var(--ease-out); }
-.builders__progress span.is-active i { width: 100%; }
-.builders__stage { position: relative; display: grid; min-height: 460px; }
-.bpanel { grid-area: 1 / 1; display: grid; align-content: center; gap: 16px; padding: 40px; border-radius: 24px; background: linear-gradient(160deg, #10212f, #081a27); border: 1px solid var(--line-dark); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45); }
-.bpanel__index { font-size: var(--t-eyebrow-size); line-height: var(--t-eyebrow-lh); letter-spacing: var(--t-eyebrow-ls); font-weight: var(--t-eyebrow-wt); color: var(--blue); }
-.bpanel__title { font-size: var(--t-h2-size); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-ls); font-weight: var(--t-h2-wt); }
-.bpanel__body { font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); color: rgba(231, 239, 244, 0.82); }
 
 /* Thinking */
 .thinking { background: linear-gradient(180deg, var(--paper-2), var(--paper)); padding: clamp(96px, 12vw, 180px) 0; }
@@ -80,10 +86,7 @@
 .team__p:first-of-type { margin-top: 26px; }
 
 @media (max-width: 900px) {
-  .builders__grid, .thinking__grid, .team__grid { grid-template-columns: 1fr; }
-  .builders__pin { min-height: auto; padding: 96px 0; }
-  .builders__stage { min-height: auto; gap: 16px; }
-  .bpanel { grid-area: auto; padding: 28px; }
+  .thinking__grid, .team__grid { grid-template-columns: 1fr; }
   .thinking__sticky { position: static; }
   .principles { padding-left: 40px; }
   .principle__dot { left: -36px; }
