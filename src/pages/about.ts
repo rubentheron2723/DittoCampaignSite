@@ -181,7 +181,12 @@ boot({
       .add(tween.play(), 0.05)
       .from('.ahero__lead, .ahero__body p, .ahero__actions', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.5)
       .from('.glogo', { autoAlpha: 0, scale: 0.85, rotateY: -40, duration: 1.6, ease: 'expo.out' }, 0.4);
-    revealed.then(() => heroTl.play());
+    revealed.then(() => {
+      heroTl.play();
+      // The copy must never stay hidden: if frames are starved (a busy machine, a background tab), finish the
+      // entrance outright once it should long be over. Timers still run when animation frames don't.
+      window.setTimeout(() => heroTl.progress() < 1 && heroTl.progress(1), 3500);
+    });
 
     splitReveal('.builders__title');
     fadeUp('.builders__intro, .builders__progress', '.builders__sticky', { y: 24 });

@@ -21,7 +21,7 @@ const PATHS = [
   'M135.495 236H67.0031L128.05 93.0599C131.773 84.1262 134.006 75.1924 134.006 64.7697C134.006 41.5585 119.533 11.437 101.154 0C101.154 0 125.205 0 137.729 0C173.464 0 202.498 29.0348 202.498 64.7697C202.498 75.1924 200.265 84.1262 196.542 93.0599L135.495 236Z',
 ];
 /** Outline slices making the side walls, and the glass's thickness (px) at rest and when hovered. */
-const SLICES = 22;
+const SLICES = 14;
 const DEPTH = { rest: 26, near: 36 };
 /** The most the block turns (degrees) with the pointer at the edge of its reach. */
 const TILT = { x: 20, y: 28 };
@@ -38,7 +38,7 @@ export function glassLogoHtml() {
   const walls = Array.from({ length: SLICES }, (_, i) => {
     const k = i / (SLICES - 1); // 0 = back, 1 = front
     const alpha = (0.1 + k * 0.32).toFixed(3);
-    return svg(both(`fill="none" stroke="rgba(236,246,255,${alpha})" stroke-width="1.6" vector-effect="non-scaling-stroke"`), 'glogo__slice');
+    return svg(both(`fill="none" stroke="rgba(236,246,255,${alpha})" stroke-width="2" vector-effect="non-scaling-stroke"`), 'glogo__slice');
   }).join('');
   const back = svg(
     both(`fill="rgba(254,254,254,0.10)" stroke="rgba(255,255,255,0.45)" stroke-width="1" vector-effect="non-scaling-stroke"`),
