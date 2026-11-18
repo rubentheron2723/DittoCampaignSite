@@ -2,7 +2,7 @@ import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from './gsap';
 import { bezier, capKernel, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
 import { createTeamScene, type TeamScene } from './team-logo';
 import { sdfField } from './sdf';
-import { uncovered } from '../shared/cover';
+import { coverGone } from '../shared/cover';
 
 /**
  * "We think independently." (Figma 2390:287): the section pins and scrolling flies the reader through its statements.
@@ -847,9 +847,9 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   });
 
   show(0, false);
-  // Set up once the entry cover has lifted: drawing the statements (and then their fields) is real work, and the section
-  // is a long way down the page anyway.
-  Promise.all([document.fonts.ready, loadCanvasFont(), uncovered()]).then(([, f]) => {
+  // Set up once the entry cover is fully gone: drawing the statements (and then their fields), pinning and refreshing
+  // ScrollTrigger is real work, which mid-transition made the clouds jump. The section is a long way down anyway.
+  Promise.all([document.fonts.ready, loadCanvasFont(), coverGone()]).then(([, f]) => {
     family = f;
     layout();
     draw();

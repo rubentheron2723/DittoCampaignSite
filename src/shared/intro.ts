@@ -1,4 +1,5 @@
 import { gsap, q, qa } from '../animations/gsap';
+import { markCoverGone } from './cover';
 
 /**
  * The site's entry animation, played on every page load (including each move between pages), from the Figma frames "landing anim" (2364:820, desktop)
@@ -708,6 +709,7 @@ export function playCloudIntro(): Promise<void> {
               onComplete: () => {
                 window.removeEventListener('resize', onResize);
                 intro.style.display = 'none';
+                markCoverGone();
               },
             })
             // The clouds fade in and drift outward into place.
@@ -757,6 +759,7 @@ export function coverAndGo(href: string) {
 export function hideIntro() {
   const intro = q('#intro');
   if (intro) intro.style.display = 'none';
+  markCoverGone();
 }
 
 /** The logomark as drawn in the Figma frame (165.6 × 193). */
