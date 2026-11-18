@@ -10,7 +10,7 @@ import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
 import { initNavFooterMark } from './nav-footer-mark';
 import { flagPageTransition, playPageTransition, takePageTransition } from './page-transition';
-import { liftCover } from './cover';
+import { liftCover, markCoverGone } from './cover';
 
 export type BootContext = {
   reduce: boolean;
@@ -56,6 +56,10 @@ export async function boot({ page, render, init }: Options) {
   if (!reduce) liftCoverIfStuck(limit + 500);
   // The page's animated backgrounds start as the cover lifts, not underneath it (cover.ts).
   revealed.then(liftCover);
+  // And fully gone once its animation is over. They mark it themselves; this is only the backstop, well past their end
+  // (the transition's motion runs 1.2 s, the landing intro's fade 0.8 s after the reveal) so slow frames, which stretch
+  // an animation, don't bring set-up work back into it.
+  revealed.then(() => window.setTimeout(markCoverGone, 2500));
   // The intro's white cover is up (or, with reduced motion, the page itself): the body can take its own colour.
   document.documentElement.classList.remove('booting');
 

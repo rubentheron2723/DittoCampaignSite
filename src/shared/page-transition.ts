@@ -1,5 +1,6 @@
 import { gsap, q } from '../animations/gsap';
 import type { PageId } from '../content/shared';
+import { markCoverGone } from './cover';
 import {
   compile, EASE_PART, FLIP_Y, FULL_VERT, kernel, LENS_FRAG, loadClouds, quad, R210, R_22, TURN,
   type Cloud,
@@ -373,6 +374,7 @@ export function playPageTransition(page: PageId): Promise<void> {
                 renderer?.dispose();
                 intro.style.display = 'none';
                 intro.style.background = '';
+                markCoverGone();
                 intro.classList.remove('intro--page');
               },
             })
