@@ -1,44 +1,91 @@
-.faq-hero__marks { position: absolute; inset: 0; pointer-events: none; }
-.qmark { position: absolute; font-size: clamp(60px, 9vw, 160px); font-weight: 700; color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, 0.18); line-height: 1; }
-.qmark--1 { right: 10%; top: 12%; } .qmark--2 { right: 26%; top: 36%; font-size: clamp(40px, 5vw, 90px); } .qmark--3 { right: 8%; top: 58%; }
-.qmark--4 { right: 36%; top: 70%; font-size: clamp(30px, 4vw, 70px); } .qmark--5 { right: 20%; top: 80%; font-size: clamp(40px, 6vw, 110px); }
-.qmark--6 { right: 42%; top: 14%; font-size: clamp(24px, 3vw, 60px); } .qmark--7 { right: 2%; top: 36%; font-size: clamp(30px, 4vw, 80px); }
-.search { position: relative; display: flex; align-items: center; gap: 12px; margin-top: 32px; max-width: 640px; padding: 8px 10px 8px 18px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); backdrop-filter: blur(10px); transition: border-color 0.3s, box-shadow 0.3s; }
-.search:focus-within { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 176, 255, 0.2); }
-.search svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; opacity: 0.7; }
-.search input { font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); flex: 1; min-width: 0; height: 40px; background: none; border: 0; color: var(--white); outline: none; }
-.search input::placeholder { color: rgba(231, 239, 244, 0.55); }
-.search__count { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); padding: 8px 14px; border-radius: 999px; background: var(--white); color: var(--black); font-variant-numeric: tabular-nums; }
+/* ---------- Hero (Figma 2421:1858) ---------- */
+/* The About, Pricing and Contact heroes' sky (clouds, soft-light glow, white haze at the foot), one screen tall: the
+   84/88 title on two lines, the 24/28 lead and 20/24 support line, then the glass search pill (435 wide, 68 tall). */
+.fhero {
+  --pad: clamp(20px, 5.556vw, 80px);
+  position: relative; display: flex; align-items: center; justify-content: center; min-height: 100vh; min-height: 100lvh;
+  padding: calc(var(--nav-h) + 48px) var(--pad) 120px;
+  background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); color: #fefefe; overflow: clip; text-align: center;
+}
+.fhero__bg { position: absolute; inset: 0; pointer-events: none; }
+.fhero__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); }
+.fhero--sky .fhero__sky { opacity: 1; }
+.fhero__glow {
+  position: absolute; inset: 0; opacity: 0.4; mix-blend-mode: soft-light;
+  background: radial-gradient(134.57% 124.02% at 50% -24.02%, #1e6ef3 0%, #108ff9 25%, #01b0ff 50%, #11b5ff 53.125%, #21baff 56.25%, #41c4ff 62.5%, #60ceff 68.75%, #80d8ff 75%, #c0ebff 87.5%, #fff 100%);
+}
+.fhero__haze { position: absolute; inset: 0; background: linear-gradient(0deg, #fff 0%, rgba(255, 255, 255, 0) 34.289%); }
+.fhero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.fhero__title { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
+.fhero__line { display: block; }
+.fhero__copy { display: flex; flex-direction: column; gap: 12px; }
+.fhero__lead { margin: 0; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
+.fhero__support { margin: 0; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; }
 
-.faq { background: linear-gradient(180deg, var(--paper-2), var(--paper)); padding: clamp(72px, 9vw, 140px) 0 clamp(96px, 12vw, 160px); }
-.faq__grid { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); align-items: start; }
-.faq__rail { position: sticky; top: calc(var(--nav-h) + 24px); }
-.topics { margin-top: 14px; display: grid; gap: 2px; }
-.topics a { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; color: var(--ink-soft); transition: background-color 0.2s, color 0.2s; }
-.topics a em { font-size: var(--t-caption-size); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-ls); font-weight: var(--t-caption-wt); font-style: normal; padding: 2px 8px; border-radius: 999px; background: rgba(15, 20, 29, 0.06); }
-.topics a:hover, .topics a.is-current { color: var(--ink); background: rgba(255, 255, 255, 0.7); }
-.topics a.is-active { color: var(--white); background: #0a0f15; }
-.topics a.is-active em { background: rgba(255, 255, 255, 0.14); }
-.faq__list { display: grid; gap: clamp(48px, 6vw, 80px); }
-.cat__title { font-size: var(--t-h2-size); line-height: var(--t-h2-lh); letter-spacing: var(--t-h2-ls); font-weight: var(--t-h2-wt); margin-bottom: 20px; }
-.cat__items { display: grid; gap: 10px; }
-.qa { border-radius: 16px; background: var(--white); border: 1px solid var(--line-light); overflow: hidden; transition: box-shadow 0.3s, border-color 0.3s; }
-.qa.is-open { border-color: rgba(0, 176, 255, 0.5); box-shadow: 0 20px 50px rgba(6, 49, 73, 0.1); }
-.qa__trigger { font-size: var(--t-h3-size); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-ls); font-weight: var(--t-h3-wt); width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 22px; text-align: left; }
-.qa__icon { position: relative; flex: 0 0 28px; height: 28px; border-radius: 50%; background: var(--paper-2); }
-.qa__icon i { position: absolute; left: 50%; top: 50%; width: 12px; height: 2px; background: var(--ink); translate: -50% -50%; transition: transform 0.4s var(--ease-out); }
-.qa__icon i:last-child { transform: rotate(90deg); }
-.qa.is-open .qa__icon i:last-child { transform: rotate(0deg); }
-.qa.is-open .qa__icon { background: var(--blue); }
-.qa__panel { overflow: hidden; }
-.qa__panel p { font-size: var(--t-body-size); line-height: var(--t-body-lh); letter-spacing: var(--t-body-ls); font-weight: var(--t-body-wt); padding: 0 22px 22px; color: var(--ink-soft); max-width: 70ch; }
-.faq__empty { padding: 32px; border-radius: 16px; background: var(--white); border: 1px dashed var(--line-light); color: var(--ink-soft); }
-.faq__empty a { color: var(--blue-deep); text-decoration: underline; }
+.fsearch { width: min(435px, 100%); }
+.fsearch__pill {
+  display: flex; align-items: center; gap: 8px; height: 68px; padding: 0 20px; border-radius: 999px; cursor: text;
+  background: linear-gradient(-88.16deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.71%);
+  box-shadow: 0 8px 100px rgba(0, 0, 0, 0.1); color: #171717;
+  transition: box-shadow 0.25s var(--ease-out), background-color 0.25s var(--ease-out);
+}
+.fsearch__pill:focus-within { background-color: rgba(255, 255, 255, 0.3); box-shadow: inset 0 0 0 1px #1e6ef3, 0 8px 100px rgba(0, 0, 0, 0.1); }
+.fsearch__icon { flex: none; width: 20px; height: 20px; margin: 0 2px; }
+.fsearch__pill input {
+  flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; background: none; outline: none; -webkit-appearance: none; appearance: none;
+  font: inherit; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717;
+}
+.fsearch__pill input::placeholder { color: rgba(23, 23, 23, 0.4); }
 
+/* ---------- Topics (Figma 2421:2028) ---------- */
+/* #FDFDFD under the Moving blobs. A 398-wide column of pill tabs (20/24, 22/20 padding) beside one topic: its 64/68
+   title, then its questions (40/44) 40 apart, each with a chevron; an open one shows its answer (16/20 at 60%). */
+.ftopics { --pad: clamp(20px, 5.556vw, 80px); position: relative; background: #fdfdfd; color: #171717; }
+.ftopics__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; }
+.ftopics--fx .ftopics__fx { opacity: 1; }
+.ftopics__grid { position: relative; display: grid; grid-template-columns: minmax(240px, 398px) minmax(0, 1fr); gap: 40px; align-items: start; padding: 0 var(--pad); max-width: 1440px; margin: 0 auto; }
+/* A screen tall less the nav, the tabs centred in it (pinned just under the nav while a long topic scrolls). */
+.ftopics__rail { height: calc(100vh - var(--nav-h)); display: flex; align-items: center; }
+.ftabs { width: 100%; display: flex; flex-direction: column; gap: clamp(6px, 1.6vh, 24px); }
+.ftab {
+  display: flex; align-items: center; width: 100%; padding: clamp(10px, 1.6vh, 22px) 20px; border: 0; border-radius: 999px; background: transparent;
+  font: inherit; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717; text-align: left; cursor: pointer;
+  transition: background-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.ftab:hover { background: rgba(179, 179, 179, 0.1); }
+.ftab.is-on { background: rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 0 1px #1e6ef3, 0 8px 20px rgba(0, 0, 0, 0.05); }
+.ftab:focus { outline: none; }
+.ftab:focus-visible { box-shadow: inset 0 0 0 7px rgba(30, 110, 243, 0.2); }
+.ftab.is-on:focus-visible { box-shadow: inset 0 0 0 1px #1e6ef3, inset 0 0 0 7px rgba(30, 110, 243, 0.2), 0 8px 20px rgba(0, 0, 0, 0.05); }
+
+.ftopics__list { min-height: calc(100vh - var(--nav-h)); display: flex; flex-direction: column; justify-content: center; gap: 80px; padding: clamp(48px, 6vw, 96px) 0; }
+.ftopic[hidden] { display: none; }
+.ftopic { display: flex; flex-direction: column; gap: 40px; }
+.ftopic__title { margin: 0; font-size: clamp(36px, calc(36px + 28 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; color: #181818; text-wrap: balance; }
+.ftopic__items { display: flex; flex-direction: column; gap: 40px; }
+.fqa[hidden] { display: none; }
+.fqa__head { margin: 0; }
+.fqa__trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: 20px; width: 100%; padding: 0; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: clamp(22px, calc(22px + 18 * (100vw - 375px) / 1065), 40px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; color: #171717; text-align: left;
+}
+.fqa__trigger:focus { outline: none; }
+.fqa__trigger:focus-visible .fqa__q { border-radius: 8px; box-shadow: 0 0 0 4px rgba(30, 110, 243, 0.2); }
+.fqa__q { min-width: 0; text-wrap: pretty; }
+.fqa__chev { flex: none; transition: transform 0.4s var(--ease-out); }
+.fqa.is-open .fqa__chev { transform: rotate(180deg); }
+.fqa__panel { overflow: hidden; }
+.fqa__panel p { margin: 0; padding: 20px 44px 0 0; font-size: 16px; line-height: 1.25; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); max-width: 72ch; }
+.ftopics__empty { margin: 0; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
+.ftopics__empty a { color: #1e6ef3; text-decoration: underline; }
+
+/* Phones and small tablets: the tabs become a row that scrolls sideways, above the questions. */
 @media (max-width: 900px) {
-  .faq__grid { grid-template-columns: minmax(0, 1fr); }
-  .faq__rail { position: static; min-width: 0; }
-  .topics { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 6px; scrollbar-width: none; }
-  .topics a { white-space: nowrap; flex: 0 0 auto; }
-  .qmark--2, .qmark--4, .qmark--6 { display: none; }
+  .ftopics__grid { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0; }
+  .ftopics__rail { height: auto; margin-top: 0; padding: 48px 0 8px; }
+  .ftabs { flex-direction: row; gap: 8px; overflow-x: auto; padding: 4px var(--pad) 16px; scrollbar-width: none; }
+  .ftabs::-webkit-scrollbar { display: none; }
+  .ftab { flex: none; width: auto; padding: 12px 18px; white-space: nowrap; font-size: 16px; }
+  .ftopics__list { min-height: 0; justify-content: flex-start; gap: 56px; padding: 24px var(--pad) 80px; }
+  .fqa__panel p { padding-right: 0; }
 }

@@ -1,5 +1,5 @@
 /**
- * FAQ copy, lifted verbatim from the production FAQ page.
+ * FAQ copy, lifted verbatim from the production FAQ page (topic titles in sentence case, as in Figma 2421:2028).
  */
 export type FAQItem = {
   q: string;
@@ -13,7 +13,7 @@ export type FAQCategory = {
 
 export const faqCategories: FAQCategory[] = [
   {
-    title: 'Getting Started with Ditto',
+    title: 'Getting started with Ditto',
     items: [
       {
         q: 'How long does implementation take?',
@@ -46,7 +46,7 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    title: 'Training & Onboarding',
+    title: 'Training & onboarding',
     items: [
       {
         q: 'Is training included?',
@@ -67,7 +67,7 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    title: 'Customisation & Workflow Configuration',
+    title: 'Customisation & workflow configuration',
     items: [
       {
         q: 'Can we customise pipelines?',
@@ -88,7 +88,7 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    title: 'Candidate Search, Matching & AI',
+    title: 'Candidate search, matching & AI',
     items: [
       {
         q: 'How accurate is AI search compared to Boolean search?',
@@ -125,7 +125,7 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    title: 'AI & Personas',
+    title: 'AI & personas',
     items: [
       {
         q: 'What are Personas in Ditto?',
@@ -162,7 +162,7 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    title: 'Job Advertising & Candidate Sourcing',
+    title: 'Job advertising & candidate sourcing',
     items: [
       {
         q: 'Can I post to multiple job boards at once?',
@@ -183,7 +183,7 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    title: 'Pipelines, CRM & Team Collaboration',
+    title: 'Pipelines, CRM & team collaboration',
     items: [
       {
         q: 'Can multiple recruiters work on the same role?',
@@ -237,7 +237,7 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    title: 'Support & Customer Success',
+    title: 'Support & customer success',
     items: [
       {
         q: 'What support channels are available?',
@@ -262,7 +262,7 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    title: 'Billing, Contracts & Licensing',
+    title: 'Billing, contracts & licensing',
     items: [
       {
         q: 'What is the notice period?',
@@ -279,7 +279,7 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    title: 'Data Security & Ownership',
+    title: 'Data security & ownership',
     items: [
       {
         q: 'How is candidate data protected?',
@@ -296,7 +296,7 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    title: 'Questions We Often Hear',
+    title: 'Questions we often hear',
     items: [
       {
         q: 'Will onboarding be painful?',
