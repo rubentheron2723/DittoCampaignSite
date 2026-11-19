@@ -694,8 +694,11 @@ export function initThinkZoom(
   const THRESHOLD = 14;
   /** A step asked for while the last is still playing, run when it can (1 down, -1 up, 0 none). */
   let pending: 1 | -1 | 0 = 0;
-  /** After a move lands, the statement holds this long before a kept swipe moves on (s): each is seen at rest. */
-  const HOLD = 0.5;
+  /**
+   * After a move lands, the statement holds this long before a kept swipe moves on (s): each is seen at rest, and
+   * fast scrolling settles between moves rather than running them back to back.
+   */
+  const HOLD = 0.8;
 
   // While the stage holds the scroll the nav stays folded to its mark (see .nav--hold in base.css), and opens fully
   // while the pointer is up in its strip.
