@@ -35,11 +35,11 @@ export const productHero = {
 /** "Day in the life" (Figma 2407:6): a recruiter's day, stage by stage, starting with the time and the stage. */
 export const dayInTheLife = {
   stages: ['Source', 'Engage', 'Place'],
-  /** `after`: comes after the app window (and its chat), arriving as the window fades. */
+  /** `group`: how many of the stage's screens come before it (1: after the app window and its chat). */
   moments: [
     { time: '08:30', stage: 'Source' },
-    { time: '11:50', stage: 'Engage', after: true },
-  ] as { time: string; stage: string; after?: boolean }[],
+    { time: '11:50', stage: 'Engage', group: 1 },
+  ] as { time: string; stage: string; group?: number }[],
   /** What the recruiter asks once the window zooms in on the chat, and what comes back. */
   chat: {
     request: 'I need a few good examples of a Senior Product Designer. Use my LinkedIn connections to find one.',
@@ -57,6 +57,29 @@ export const dayInTheLife = {
       { name: 'Liam Chen', role: 'Lead Product Designer', company: 'Brightline', link: '1st connection', match: 92, hue: 196 },
       { name: 'Sofia Marques', role: 'Product Designer II', company: 'Kestrel Labs', link: '2nd · 9 mutual', match: 88, hue: 250 },
     ],
+  },
+  /**
+   * Engage (after 11:50): just the chat this time, the sourcing conversation above, where the recruiter takes Ditto
+   * up on its offer.
+   */
+  engage: {
+    request: 'Yes please. Keep it warm, mention the Senior Product Designer role and find us a time to talk.',
+    steps: [
+      'Reading Amara’s profile and recent posts',
+      'Checking your calendar for next week',
+      'Drafting the message in your voice',
+      'Holding a slot for a call',
+    ],
+    answer: 'Here’s your message to Amara:',
+    draft: {
+      to: 'Amara Okafor',
+      via: 'LinkedIn message',
+      body: 'Hi Amara, your recent post on scaling design systems really stood out. I’m hiring a Senior Product Designer for a fast-growing fintech team, and your work at Northwind is exactly the craft they’re after. Would you be open to a 20-minute call next Thursday at 14:00?',
+      slot: 'Thu 14:00 · 20 min held',
+      send: 'Send',
+      sent: 'Sent',
+    },
+    followUp: 'Sent. I’ll nudge her if there’s no reply in 3 days.',
   },
   /** The assistant window the first moment opens on. */
   app: {
