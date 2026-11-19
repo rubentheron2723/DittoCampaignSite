@@ -2,14 +2,14 @@ import '../styles/base.css';
 import '../styles/think.css';
 import '../styles/product.css';
 
-import { dayInTheLife, featureActs, finalFeaturesCta, productHero, trust, type ActContent } from '../content/product';
+import { dayInTheLife, finalFeaturesCta, productHero, trust } from '../content/product';
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
 import { initThinkZoom, type StageScene } from '../animations/think-zoom';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from '../animations/gsap';
-import { fadeUp, splitReveal } from '../shared/motion';
+import { splitReveal } from '../shared/motion';
 import { initTrust } from '../animations/reveals';
 
 /* ---------- Render ---------- */
@@ -261,56 +261,6 @@ function day() {
   </section>`;
 }
 
-function act(a: ActContent, i: number) {
-  const theme = i % 2 === 0 ? 'light' : 'dark';
-  return `
-  <section class="act act--${a.id} act--${theme}" id="${a.id}" data-theme="${theme}" data-act="${a.id}">
-    <div class="wrap wrap--wide">
-      <header class="act__intro">
-        <h2 class="h-section act__title">${esc(a.headline)}</h2>
-        <p class="lead act__lead">${esc(a.intro)}</p>
-      </header>
-    </div>
-
-    <div class="deck">
-      <div class="deck__pin">
-        <div class="wrap wrap--wide deck__grid">
-          <aside class="deck__index" aria-hidden="true">
-            <p class="deck__count"><b>01</b> / ${String(a.features.length).padStart(2, '0')}</p>
-            <ol class="deck__list">
-              ${a.features.map((f, j) => `<li data-i="${j}"><i>${String(j + 1).padStart(2, '0')}</i><span>${esc(f.navLabel ?? f.title)}</span></li>`).join('')}
-            </ol>
-          </aside>
-          <div class="deck__stack">
-            ${a.features
-              .map(
-                (f, j) => `<article class="fcard" data-i="${j}">
-                  <div class="fcard__top"><span class="fcard__index">${String(j + 1).padStart(2, '0')}</span><span class="fcard__act">${esc(a.label)}</span></div>
-                  <h3 class="fcard__title">${esc(f.title)}</h3>
-                  <p class="fcard__teaser">${esc(f.teaser)}</p>
-                  <p class="fcard__body">${esc(f.body)}</p>
-                  ${f.supportNote ? `<p class="fcard__note">${esc(f.supportNote)}</p>` : ''}
-                  <ul class="fcard__chips">${f.chips.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
-                </article>`,
-              )
-              .join('')}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="wrap wrap--wide">
-      <div class="act__cta">
-        <div>
-          <h3 class="act__cta-title">${esc(a.ctaTitle)}</h3>
-          <p class="muted">${esc(a.ctaBody)}</p>
-        </div>
-        <a class="btn ${theme === 'light' ? 'btn--solid' : 'btn--light'} btn--lg" href="/contact" data-magnetic>Book a demo</a>
-      </div>
-    </div>
-  </section>`;
-}
-
 /** "Trusted by leading recruitment teams since 2016.": headline, copy, counting stats and the client-type ticker. */
 function trustSection() {
   const ticker = [...trust.ticker, ...trust.ticker].map((t) => `<span>${esc(t)}</span>`).join('');
@@ -338,19 +288,9 @@ function trustSection() {
 
 function render() {
   const main = document.getElementById('main')!;
-  document.getElementById('chrome')!.insertAdjacentHTML(
-    'beforeend',
-    `<div class="act-bar" id="act-bar" aria-hidden="true">
-      <div class="act-bar__inner">
-        ${featureActs.map((a) => `<a href="#${a.id}" data-act="${a.id}"><em>${esc(a.actNumber)}</em>${esc(a.label)}</a>`).join('')}
-        <span class="act-bar__line"></span>
-      </div>
-    </div>`,
-  );
   main.innerHTML = [
     hero(),
     day(),
-    ...featureActs.map(act),
     trustSection(),
     ctaAndFooter({ lineOne: finalFeaturesCta.title.replace(' recruitment business?', ''), lineTwo: 'recruitment business?', copy: finalFeaturesCta.body }),
   ].join('');
@@ -782,77 +722,6 @@ function chatScene(screen: HTMLElement): StageScene {
   return sceneControls(tl, scroller);
 }
 
-function initDeck(section: HTMLElement, horizontal: boolean) {
-  const pin = q('.deck__pin', section)!;
-  const cards = qa<HTMLElement>('.fcard', section);
-  const items = qa<HTMLElement>('.deck__list li', section);
-  const count = q('.deck__count b', section)!;
-  const n = cards.length;
-
-  let current = -1;
-  const setCurrent = (i: number) => {
-    if (i === current) return;
-    current = i;
-    items.forEach((li, j) => li.classList.toggle('is-active', j === i));
-    gsap.fromTo(count, { yPercent: 40, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.35 });
-    count.textContent = String(i + 1).padStart(2, '0');
-  };
-
-  if (!horizontal) {
-    cards.forEach((c) => fadeUp(c, c, { y: 50 }));
-    return;
-  }
-
-  // Queued cards wait below the stack; only the next one is allowed to peek.
-  gsap.set(cards.slice(1), { yPercent: 115, rotate: 3, transformOrigin: 'bottom center', autoAlpha: 0 });
-  gsap.set(cards[1], { autoAlpha: 1 });
-
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: pin,
-      start: 'top top',
-      end: () => `+=${n * 70}%`,
-      pin: true,
-      scrub: 0.6,
-      anticipatePin: 1,
-      invalidateOnRefresh: true,
-      onUpdate: (self) => setCurrent(Math.min(n - 1, Math.round(self.progress * (n - 1)))),
-    },
-  });
-
-  cards.forEach((card, i) => {
-    if (i === 0) return;
-    tl.to(cards[i - 1], { scale: 0.94, y: -28, autoAlpha: 0.35, duration: 1, ease: 'power2.inOut' }, i - 1)
-      .to(card, { yPercent: 0, rotate: 0, autoAlpha: 1, duration: 1, ease: 'power2.out' }, i - 1);
-    if (i >= 2) tl.to(cards[i - 2], { autoAlpha: 0, duration: 0.4 }, i - 1);
-    if (cards[i + 1]) tl.to(cards[i + 1], { autoAlpha: 1, duration: 0.3 }, i - 0.4);
-  });
-  tl.to({}, { duration: 0.4 }); // settle
-
-  setCurrent(0);
-}
-
-function initActBar() {
-  const bar = q('#act-bar')!;
-  const links = qa<HTMLAnchorElement>('a', bar);
-  const line = q('.act-bar__line', bar)!;
-  const moveLine = (a: HTMLElement) => gsap.to(line, { x: a.offsetLeft, width: a.offsetWidth, duration: 0.5, ease: 'expo.out' });
-
-  ScrollTrigger.create({ trigger: '.act--source', start: 'top 60%', endTrigger: '.cta', end: 'top 40%', toggleClass: { targets: bar, className: 'act-bar--visible' } });
-  featureActs.forEach((a) => {
-    ScrollTrigger.create({
-      trigger: `#${a.id}`,
-      start: 'top 50%',
-      end: 'bottom 50%',
-      onToggle: (self) => {
-        if (!self.isActive) return;
-        links.forEach((l) => l.classList.toggle('is-active', l.dataset.act === a.id));
-        moveLine(links.find((l) => l.dataset.act === a.id)!);
-      },
-    });
-  });
-}
-
 boot({
   page: 'product',
   render,
@@ -873,11 +742,7 @@ boot({
       ],
       onStop: (el) => tab(el.dataset.stage ?? ''),
     });
-    initActBar();
-    const acts = qa<HTMLElement>('.act');
-
     if (reduce) {
-      acts.forEach((s) => initDeck(s, false));
       initTrust(false);
       return;
     }
@@ -895,17 +760,6 @@ boot({
       window.setTimeout(() => heroTl.progress() < 1 && heroTl.progress(1), 3500);
     });
 
-    acts.forEach((s) => {
-      splitReveal(q('.act__title', s)!, { by: 'words' });
-      fadeUp(q('.act__lead', s)!, undefined, { y: 24 });
-      fadeUp(q('.act__cta', s)!, undefined, { y: 30 });
-    });
-
-    gsap.matchMedia().add({ desktop: '(min-width: 901px)', mobile: '(max-width: 900px)' }, (ctx) => {
-      const { desktop } = ctx.conditions as { desktop: boolean };
-      acts.forEach((s) => initDeck(s, desktop));
-    });
-    // After the acts' pinned decks, so it's measured below them.
     initTrust(true);
   },
 });
