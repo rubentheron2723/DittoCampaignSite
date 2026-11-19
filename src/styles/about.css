@@ -99,7 +99,7 @@
   .ahero__copy { width: 100%; }
   .ahero__logo { height: 280px; }
   .glogo { transform: scale(0.72); }
-  .ahero__actions { justify-content: flex-start; }
+  .ahero__actions { justify-content: center; }
 }
 
 /* ---------- A team with unusually high standards (Figma 2395:98) ---------- */
