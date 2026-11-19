@@ -80,20 +80,10 @@ export const dayInTheLife = {
     ],
     followUp: 'That’s the role filled, from first search to placement. Nice work today, Jane.',
   },
-  /** The assistant window the first moment opens on. */
+  /** The assistant's chat, as Source opens on it. */
   app: {
     greeting: 'Good morning, Jane',
     prompt: 'How can we help you today?',
-    nav: ['New', 'Search', 'Projects', 'Artifacts', 'Scheduled', 'Customize'],
-    /** `dot`: a task's marker, filled while it has news ('new') or an outline ('seen'). */
-    pinned: [{ label: 'Ask Ditto' }, { label: 'Candidate source from LinkedIn', dot: 'new' }],
-    chats: [
-      { label: 'Candidate source from Indeed', dot: 'seen' },
-      { label: 'Candidate source from Company Referral', dot: 'seen' },
-      { label: 'Candidate source from Job Fair', dot: 'seen' },
-      { label: 'Candidate source from Recruiting Agency', dot: 'seen' },
-      { label: 'Candidate source from Glassdoor', dot: 'new' },
-    ] as { label: string; dot?: 'new' | 'seen' }[],
     modes: ['Chat', 'Cowork'],
     model: 'Copus 6.7',
     size: 'Large',
