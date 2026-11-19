@@ -357,6 +357,45 @@ const BAND_TOP = 150;
 const BAND_FOOT = 24;
 
 /**
+ * A scene's timeline as a stop of the lens stage. Scrolling on while it plays speeds it up, but gently: easing up to
+ * twice its pace (a jump to 5x made fast scrolling flash through it). Back up, it rewinds at twice its pace.
+ */
+const HURRY = 2;
+function sceneControls(tl: gsap.core.Timeline): StageScene {
+  const pace = (to: number, d = 0) => {
+    gsap.killTweensOf(tl, 'timeScale');
+    if (d) gsap.to(tl, { timeScale: to, duration: d, ease: 'power1.inOut' });
+    else tl.timeScale(to);
+  };
+  return {
+    play: () => {
+      pace(1);
+      tl.play(0);
+      return tl.duration();
+    },
+    back: () => {
+      pace(HURRY);
+      tl.reverse();
+      return tl.time() / HURRY;
+    },
+    hurry: () => {
+      if (!tl.isActive() || tl.reversed()) return 0;
+      if (tl.timeScale() < HURRY) pace(HURRY, 0.6);
+      // (A little over, for the ease up to pace.)
+      return (tl.duration() - tl.time()) / HURRY + 0.3;
+    },
+    finish: () => {
+      pace(1);
+      tl.pause().progress(1);
+    },
+    reset: () => {
+      pace(1);
+      tl.pause().progress(0);
+    },
+  };
+}
+
+/**
  * Engage's chat (engageChat): it arrives as 11:50 flies, the sourcing conversation already above; then the recruiter
  * types a reply and sends it, Ditto works through its steps, and the message it drafted streams into a card, which is
  * sent. Like chatScene, a stop of the lens stage of its own.
@@ -479,23 +518,7 @@ function engageScene(screen: HTMLElement): StageScene {
     tl.invalidate().time(t, true);
   });
 
-  return {
-    play: () => {
-      tl.timeScale(1).play(0);
-      return tl.duration();
-    },
-    back: () => {
-      tl.timeScale(3).reverse();
-      return tl.time() / 3;
-    },
-    hurry: () => {
-      if (!tl.isActive() || tl.reversed()) return 0;
-      tl.timeScale(5);
-      return (tl.duration() - tl.time()) / 5;
-    },
-    finish: () => void tl.pause().progress(1),
-    reset: () => void tl.pause().progress(0),
-  };
+  return sceneControls(tl);
 }
 
 /**
@@ -649,23 +672,7 @@ function chatScene(screen: HTMLElement): StageScene {
     tl.time(t, true);
   });
 
-  return {
-    play: () => {
-      tl.timeScale(1).play(0);
-      return tl.duration();
-    },
-    back: () => {
-      tl.timeScale(3).reverse();
-      return tl.time() / 3;
-    },
-    hurry: () => {
-      if (!tl.isActive() || tl.reversed()) return 0;
-      tl.timeScale(5);
-      return (tl.duration() - tl.time()) / 5;
-    },
-    finish: () => void tl.pause().progress(1),
-    reset: () => void tl.pause().progress(0),
-  };
+  return sceneControls(tl);
 }
 
 function initDeck(section: HTMLElement, horizontal: boolean) {
