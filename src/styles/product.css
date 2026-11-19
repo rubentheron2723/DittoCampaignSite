@@ -316,3 +316,25 @@
 .app__copy-btn > * { grid-area: 1 / 1; display: flex; align-items: center; justify-content: center; gap: 4px; }
 .app__copied-label { visibility: hidden; color: #1e6ef3; }
 .app__copied-label .app__tick { visibility: inherit; width: 12px; height: 12px; }
+
+/* The Engage message as it stands in Place's conversation so far: written out, and copied. */
+.app__draft.is-past { visibility: visible; }
+.app__draft.is-past .app__copy-label { visibility: hidden; }
+.app__draft.is-past .app__copied-label { visibility: visible; }
+
+/* Place's placement card: who, for whom and the Placed badge, then its facts. */
+.app__placed {
+  visibility: hidden; display: grid; gap: 12px; padding: 14px 16px; border-radius: 16px;
+  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.85) 56%, rgba(255, 255, 255, 0.4) 100%);
+  border: 1px solid rgba(4, 92, 255, 0.12); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+}
+.app__placed-head { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 12px; }
+.app__badge {
+  display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; color: #1e6ef3; font-weight: 500;
+  background: rgba(30, 110, 243, 0.08); border: 1px solid rgba(30, 110, 243, 0.3); visibility: hidden;
+}
+.app__badge .app__tick { visibility: inherit; width: 12px; height: 12px; }
+.app__facts { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid rgba(4, 92, 255, 0.1); }
+.app__facts li { display: grid; grid-template-columns: 72px 1fr; gap: 8px; visibility: hidden; }
+.app__facts span { color: rgba(23, 23, 23, 0.5); }
+.app__facts b { font-weight: 400; }

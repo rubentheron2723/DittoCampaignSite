@@ -82,39 +82,35 @@ const stepList = (steps: string[]) => `<ol class="app__steps">
       .join('')}
   </ol>`;
 
+/** The message Ditto drafted for Amara (Engage). Its text streams in over a hidden copy that holds its size; `past`
+ *  shows it done (Place, where it's part of the conversation so far). */
+function draftCard(past = false) {
+  const d = dayInTheLife.engage.draft;
+  return `<div class="app__draft${past ? ' is-past' : ''}">
+    <p class="app__draft-head"><span>To <b>${esc(d.to)}</b></span></p>
+    <p class="app__draft-body"><span class="app__draft-ghost">${esc(d.body)}</span><span class="app__draft-text">${past ? esc(d.body) : ''}</span></p>
+    <div class="app__draft-foot">
+      <span class="app__slot">${icon('scheduled')}${esc(d.slot)}</span>
+      <b class="app__copy-btn"><span class="app__copy-label">${COPY}${esc(d.copy)}</span><span class="app__copied-label">${TICK}${esc(d.copied)}</span></b>
+    </div>
+  </div>`;
+}
+
 /**
- * Engage (Figma 2415:2 on): just the chat, at the size the first one zoomed to, with the sourcing conversation above
- * (its request, Ditto's top match and its offer). The recruiter takes it up (engageScene): a new request, Ditto's
- * steps, then the message it drafted, which streams in and is sent. Laid out by engageScene to fill the stage.
+ * Engage and Place (Figma 2415:2, 2415:177): just the chat, at the size the first one zoomed to, with the
+ * conversation so far above (`past`, ending in its .app__offer). The recruiter's next request is typed and sent, and
+ * Ditto's reply (`reply`: its steps and what it made) comes in (laterScene). Laid out by laterScene to fill the stage.
  */
-function engageChat() {
-  const c = dayInTheLife.chat;
-  const e = dayInTheLife.engage;
+function laterChat(stage: string, past: string, request: string, reply: string) {
   const a = dayInTheLife.app;
-  return `<div class="day__screen day__screen--chat" aria-hidden="true"><div class="app app--bare">
+  return `<div class="day__screen day__screen--chat" data-chat="${esc(stage)}" aria-hidden="true"><div class="app app--bare">
     <div class="app__chat">
       <div class="app__thread"><div class="app__scroll">
-        <div class="app__me is-past"><p>${esc(c.request)}</p></div>
+        ${past}
+        <div class="app__me"><p>${esc(request)}</p></div>
         <div class="app__reply">
-          <p class="app__by is-past"><i class="app__orb"></i>${esc(c.by)}</p>
-          <p class="app__answer is-past">${esc(c.answer)}</p>
-          <ul class="app__people">${person(c.people[0], ' is-past')}</ul>
-          <p class="app__answer is-past app__offer">${esc(c.followUp)}</p>
-        </div>
-        <div class="app__me"><p>${esc(e.request)}</p></div>
-        <div class="app__reply">
-          <p class="app__by"><i class="app__orb"></i>${esc(c.by)}</p>
-          ${stepList(e.steps)}
-          <p class="app__answer">${esc(e.answer)}</p>
-          <div class="app__draft">
-            <p class="app__draft-head"><span>To <b>${esc(e.draft.to)}</b></span></p>
-            <p class="app__draft-body"><span class="app__draft-ghost">${esc(e.draft.body)}</span><span class="app__draft-text"></span></p>
-            <div class="app__draft-foot">
-              <span class="app__slot">${icon('scheduled')}${esc(e.draft.slot)}</span>
-              <b class="app__copy-btn"><span class="app__copy-label">${COPY}${esc(e.draft.copy)}</span><span class="app__copied-label">${TICK}${esc(e.draft.copied)}</span></b>
-            </div>
-          </div>
-          <p class="app__answer">${esc(e.followUp)}</p>
+          <p class="app__by"><i class="app__orb"></i>${esc(dayInTheLife.chat.by)}</p>
+          ${reply}
         </div>
       </div></div>
       <div class="app__ask">
@@ -125,6 +121,57 @@ function engageChat() {
       </div>
     </div>
   </div></div>`;
+}
+
+/** Engage: the sourcing conversation above (its request, the top match and Ditto's offer); the reply drafts a message. */
+function engageChat() {
+  const c = dayInTheLife.chat;
+  const e = dayInTheLife.engage;
+  return laterChat(
+    'Engage',
+    `<div class="app__me is-past"><p>${esc(c.request)}</p></div>
+    <div class="app__reply">
+      <p class="app__by is-past"><i class="app__orb"></i>${esc(c.by)}</p>
+      <p class="app__answer is-past">${esc(c.answer)}</p>
+      <ul class="app__people">${person(c.people[0], ' is-past')}</ul>
+      <p class="app__answer is-past app__offer">${esc(c.followUp)}</p>
+    </div>`,
+    e.request,
+    `${stepList(e.steps)}
+    <p class="app__answer">${esc(e.answer)}</p>
+    ${draftCard()}
+    <p class="app__answer">${esc(e.followUp)}</p>`,
+  );
+}
+
+/** Place: the Engage conversation above (the reply, the copied message); the next request logs the placement. */
+function placeChat() {
+  const c = dayInTheLife.chat;
+  const e = dayInTheLife.engage;
+  const p = dayInTheLife.place;
+  const amara = c.people[0];
+  return laterChat(
+    'Place',
+    `<div class="app__me is-past"><p>${esc(e.request)}</p></div>
+    <div class="app__reply">
+      <p class="app__by is-past"><i class="app__orb"></i>${esc(c.by)}</p>
+      <p class="app__answer is-past">${esc(e.answer)}</p>
+      ${draftCard(true)}
+      <p class="app__answer is-past app__offer">${esc(e.followUp)}</p>
+    </div>`,
+    p.request,
+    `${stepList(p.steps)}
+    <p class="app__answer">${esc(p.answer)}</p>
+    <div class="app__placed">
+      <div class="app__placed-head">
+        <span class="app__avatar" style="--hue: ${amara.hue}">${esc(initials(amara.name))}</span>
+        <span class="app__who"><b>${esc(amara.name)}</b><span>${esc(amara.role)} · ${esc(p.client)}</span></span>
+        <span class="app__badge">${TICK}${esc(p.status)}</span>
+      </div>
+      <ul class="app__facts">${p.facts.map((f) => `<li><span>${esc(f.label)}</span><b>${esc(f.value)}</b></li>`).join('')}</ul>
+    </div>
+    <p class="app__answer">${esc(p.followUp)}</p>`,
+  );
 }
 
 /** The assistant window (Figma 2413:860): a 1024 x 768 desktop app, scaled to fit by think-zoom.ts. */
@@ -209,6 +256,7 @@ function day() {
       </ol>
       ${appWindow()}
       ${engageChat()}
+      ${placeChat()}
     </div>
   </section>`;
 }
@@ -422,12 +470,20 @@ function sceneControls(tl: gsap.core.Timeline, keep?: HTMLElement, start: () => 
   };
 }
 
+type LaterResult = {
+  tl: gsap.core.Timeline;
+  /** When Ditto's steps are done. */
+  at: number;
+  reply: HTMLElement;
+  follow: (el: HTMLElement, at: number) => void;
+};
+
 /**
- * Engage's chat (engageChat): it arrives as 11:50 flies, the sourcing conversation already above; then the recruiter
- * types a reply and sends it, Ditto works through its steps, and the message it drafted streams into a card, which is
- * sent. Like chatScene, a stop of the lens stage of its own.
+ * A later chat (laterChat): it arrives as its moment flies, the conversation so far above; then the recruiter's
+ * request is typed into the composer and sent, Ditto works through its steps, and `result` plays what it made. Like
+ * chatScene, a stop of the lens stage of its own; once played, back up scrolls to where it arrived.
  */
-function engageScene(screen: HTMLElement): StageScene {
+function laterScene(screen: HTMLElement, request: string, result: (r: LaterResult) => void): StageScene {
   const stage = screen.closest<HTMLElement>('.think__stage')!;
   const convo = q<HTMLElement>('.app--bare', screen)!;
   const thread = q<HTMLElement>('.app__thread', convo)!;
@@ -435,7 +491,6 @@ function engageScene(screen: HTMLElement): StageScene {
   const box = q<HTMLElement>('.app__box', convo)!;
   const field = q<HTMLElement>('.app__field', box)!;
   const text = q<HTMLElement>('.app__text', box)!;
-  const e = dayInTheLife.engage;
 
   /** At the first chat's size, from the band's top to its foot. */
   const layout = () => {
@@ -454,11 +509,11 @@ function engageScene(screen: HTMLElement): StageScene {
   settle();
 
   const tl = gsap.timeline({ paused: true });
-  const follow = (el: HTMLElement, at: number) => tl.to(scroller, { y: () => reach(el), duration: 0.6, ease: 'power2.out' }, at);
+  const follow = (el: HTMLElement, at: number) => void tl.to(scroller, { y: () => reach(el), duration: 0.6, ease: 'power2.out' }, at);
 
-  // 1. The reply, typed into the composer (its end kept in view).
+  // 1. The request, typed into the composer (its end kept in view).
   const typing = { n: 0 };
-  const typeTime = e.request.length / 32;
+  const typeTime = request.length / 32;
   tl.to(box, { borderColor: 'rgba(81, 142, 243, 1)', duration: 0.3 }, 0)
     .to(q('.app__prompt', box), { autoAlpha: 0, duration: 0.15 }, 0.2)
     .fromTo(q('.app__caret', box), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, 0.2)
@@ -466,18 +521,18 @@ function engageScene(screen: HTMLElement): StageScene {
       typing,
       { n: 0 },
       {
-        n: e.request.length,
+        n: request.length,
         duration: typeTime,
         ease: 'none',
         onUpdate: () => {
-          text.textContent = e.request.slice(0, Math.round(typing.n));
+          text.textContent = request.slice(0, Math.round(typing.n));
           field.scrollLeft = field.scrollWidth;
         },
       },
       0.3,
     );
 
-  // 2. Sent: the composer empties and the reply pops up as a bubble.
+  // 2. Sent: the composer empties and the request pops up as a bubble.
   const sent = 0.3 + typeTime + 0.35;
   const me = qa<HTMLElement>('.app__me:not(.is-past)', scroller)[0];
   const reply = me.nextElementSibling as HTMLElement;
@@ -506,36 +561,8 @@ function engageScene(screen: HTMLElement): StageScene {
       .fromTo(q('.app__step-done', s), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 }, at + STEP - 0.1);
   });
 
-  // 4. The message it drafted, streaming in (its card already its full size), then sent.
-  const doneAt = workAt + 0.3 + steps.length * STEP + 0.2;
-  const [lead, last] = qa<HTMLElement>('.app__answer', reply);
-  const draft = q<HTMLElement>('.app__draft', reply)!;
-  const draftText = q<HTMLElement>('.app__draft-text', draft)!;
-  const stream = { n: 0 };
-  const streamAt = doneAt + 0.6;
-  const streamTime = e.draft.body.length / 110;
-  follow(lead, doneAt);
-  follow(draft, doneAt + 0.3);
-  tl.fromTo(lead, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, doneAt)
-    .fromTo(draft, { autoAlpha: 0, y: 18, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: 'expo.out' }, doneAt + 0.3)
-    .fromTo(
-      stream,
-      { n: 0 },
-      {
-        n: e.draft.body.length,
-        duration: streamTime,
-        ease: 'none',
-        onUpdate: () => void (draftText.textContent = e.draft.body.slice(0, Math.round(stream.n))),
-      },
-      streamAt,
-    );
-  const sendAt = streamAt + streamTime + 0.6;
-  const btn = q<HTMLElement>('.app__copy-btn', draft)!;
-  tl.to(btn, { scale: 0.92, duration: 0.12, ease: 'power2.out', yoyo: true, repeat: 1 }, sendAt)
-    .to(q('.app__copy-label', btn), { autoAlpha: 0, duration: 0.2 }, sendAt + 0.1)
-    .fromTo(q('.app__copied-label', btn), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, sendAt + 0.2)
-    .fromTo(last, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, sendAt + 0.6);
-  follow(last, sendAt + 0.6);
+  // 4. What it made.
+  result({ tl, at: workAt + 0.3 + steps.length * STEP + 0.2, reply, follow });
 
   // A new stage size re-lays it out, wherever the scene is.
   ScrollTrigger.addEventListener('refresh', () => {
@@ -545,8 +572,60 @@ function engageScene(screen: HTMLElement): StageScene {
     tl.invalidate().time(t, true);
   });
 
-  // Once played, back up scrolls to where it arrived (the sourcing conversation), as the Source chat does.
   return sceneControls(tl, scroller, () => reach(offer));
+}
+
+/** Engage's result: the message drafted for Amara streams into its card (already its full size), and is copied. */
+function engageScene(screen: HTMLElement): StageScene {
+  const e = dayInTheLife.engage;
+  return laterScene(screen, e.request, ({ tl, at, reply, follow }) => {
+    const [lead, last] = qa<HTMLElement>('.app__answer', reply);
+    const draft = q<HTMLElement>('.app__draft', reply)!;
+    const draftText = q<HTMLElement>('.app__draft-text', draft)!;
+    const stream = { n: 0 };
+    const streamAt = at + 0.6;
+    const streamTime = e.draft.body.length / 110;
+    follow(lead, at);
+    follow(draft, at + 0.3);
+    tl.fromTo(lead, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, at)
+      .fromTo(draft, { autoAlpha: 0, y: 18, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: 'expo.out' }, at + 0.3)
+      .fromTo(
+        stream,
+        { n: 0 },
+        {
+          n: e.draft.body.length,
+          duration: streamTime,
+          ease: 'none',
+          onUpdate: () => void (draftText.textContent = e.draft.body.slice(0, Math.round(stream.n))),
+        },
+        streamAt,
+      );
+    const copyAt = streamAt + streamTime + 0.6;
+    const btn = q<HTMLElement>('.app__copy-btn', draft)!;
+    tl.to(btn, { scale: 0.92, duration: 0.12, ease: 'power2.out', yoyo: true, repeat: 1 }, copyAt)
+      .to(q('.app__copy-label', btn), { autoAlpha: 0, duration: 0.2 }, copyAt + 0.1)
+      .fromTo(q('.app__copied-label', btn), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, copyAt + 0.2)
+      .fromTo(last, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, copyAt + 0.6);
+    follow(last, copyAt + 0.6);
+  });
+}
+
+/** Place's result: the placement card comes in, its Placed badge pops, and its facts follow one by one. */
+function placeScene(screen: HTMLElement): StageScene {
+  return laterScene(screen, dayInTheLife.place.request, ({ tl, at, reply, follow }) => {
+    const [lead, last] = qa<HTMLElement>('.app__answer', reply);
+    const card = q<HTMLElement>('.app__placed', reply)!;
+    const facts = qa<HTMLElement>('.app__facts li', card);
+    follow(lead, at);
+    follow(card, at + 0.3);
+    tl.fromTo(lead, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, at)
+      .fromTo(card, { autoAlpha: 0, y: 18, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: 'expo.out' }, at + 0.3)
+      .fromTo(q('.app__badge', card), { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.6, ease: 'back.out(2.2)' }, at + 0.9)
+      .fromTo(facts, { autoAlpha: 0, x: -10 }, { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out', stagger: 0.25 }, at + 1.2);
+    const lastAt = at + 1.2 + facts.length * 0.25 + 0.6;
+    tl.fromTo(last, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, lastAt);
+    follow(last, lastAt);
+  });
 }
 
 /**
@@ -784,11 +863,13 @@ boot({
     });
     const tab = initDayTabs(!reduce);
     const screen = q<HTMLElement>('.day__screen:not(.day__screen--chat)')!;
-    const chat = q<HTMLElement>('.day__screen--chat')!;
+    const engage = q<HTMLElement>('[data-chat="Engage"]')!;
+    const place = q<HTMLElement>('[data-chat="Place"]')!;
     initThinkZoom(!reduce, {
       screens: [
         { el: screen, scenes: [chatScene(screen)] },
-        { el: chat, scenes: [engageScene(chat)], fill: true },
+        { el: engage, scenes: [engageScene(engage)], fill: true },
+        { el: place, scenes: [placeScene(place)], fill: true },
       ],
       onStop: (el) => tab(el.dataset.stage ?? ''),
     });
