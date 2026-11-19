@@ -43,7 +43,7 @@ const COPY = `<svg class="app__copy-icon" viewBox="0 0 16 16" width="12" height=
 const TICK = `<svg class="app__tick" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#1e6ef3"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 /**
- * The conversation the chat zooms in on (played by chatScene): the request as a bubble, Ditto's steps as it works,
+ * Source's conversation (played by sourceScene): the request as a bubble, Ditto's steps as it works,
  * then the people it found. All of it waits hidden until played.
  */
 type Person = (typeof dayInTheLife.chat.people)[number];
@@ -174,62 +174,39 @@ function placeChat() {
   );
 }
 
-/** The assistant window (Figma 2413:860): a 1024 x 768 desktop app, scaled to fit by think-zoom.ts. */
-function appWindow() {
+/**
+ * Source (Figma 2420:2): just the chat, as 08:30 flies: the greeting, the prompt box and its buttons, with the
+ * conversation to come waiting hidden (thread). Played by sourceScene; laid out by fitChat, like the later chats.
+ */
+function sourceChat() {
   const a = dayInTheLife.app;
-  const row = (r: { label: string; dot?: string }) =>
-    `<li class="app__row">${r.dot ? `<i class="app__dot app__dot--${r.dot}"></i>` : ''}<span>${esc(r.label)}</span></li>`;
-  return `<div class="day__screen" aria-hidden="true"><div class="app">
-    <div class="app__bar"><i></i><i></i><i></i></div>
-    <div class="app__body">
-      <aside class="app__side">
-        <div class="app__tools">
-          <span class="app__tools-l">${icon('sidebar')}${icon('back')}${icon('forward', 'app__icon--flip')}</span>
-          <span class="app__tools-r"><b class="app__chip is-on">${icon('chat')}</b><b class="app__chip">${icon('code')}</b></span>
-        </div>
-        <ul class="app__nav">
-          ${a.nav.map((n, i) => `<li class="app__row${i === 0 ? ' is-on' : ''}">${icon(['new', 'search', 'projects', 'artifacts', 'scheduled', 'customize'][i])}<span>${esc(n)}</span></li>`).join('')}
-        </ul>
-        <div class="app__group">
-          <p class="app__head">Pinned ${icon('chev', 'app__icon--sm')}</p>
-          <ul>${a.pinned.map(row).join('')}</ul>
-        </div>
-        <div class="app__group">
-          <p class="app__head"><span>Chats and tasks ${icon('chev', 'app__icon--sm')}</span>${icon('filter')}</p>
-          <ul>${a.chats.map(row).join('')}</ul>
-          <p class="app__more">View all</p>
-        </div>
-      </aside>
-      <div class="app__main">
-        <div class="app__top"></div>
-        <div class="app__chat">
-          <p class="app__hello">${esc(a.greeting)}</p>
-          <div class="app__ask">
-            <div class="app__box">
-              <p class="app__field"><span class="app__prompt">${esc(a.prompt)}</span><span class="app__typed"><span class="app__text"></span><i class="app__caret"></i></span></p>
-              <div class="app__controls">
-                <span class="app__modes">${icon('new')}${a.modes.map((m, i) => `<b class="app__chip${i === 0 ? ' is-on' : ''}">${esc(m)}</b>`).join('')}</span>
-                <span class="app__model"><b>${esc(a.model)}</b><em>${esc(a.size)}</em>${icon('mic')}${icon('send', 'app__send')}</span>
-              </div>
-              <span class="app__line">${icon('new')}<span>${esc(a.prompt)}</span>${icon('mic')}</span>
-              <p class="app__under"><b>${esc(a.model)}</b><em>${esc(a.size)}</em></p>
-            </div>
-            <div class="app__actions">
-              ${a.actions.map((t, i) => `<span class="app__btn">${icon(['write', 'learn', 'code', 'career'][i])}${esc(t)}</span>`).join('')}
-            </div>
+  return `<div class="day__screen day__screen--chat" data-chat="Source" aria-hidden="true"><div class="app app--bare app--intro">
+    <div class="app__chat">
+      <p class="app__hello">${esc(a.greeting)}</p>
+      <div class="app__ask">
+        <div class="app__box">
+          <p class="app__field"><span class="app__prompt">${esc(a.prompt)}</span><span class="app__typed"><span class="app__text"></span><i class="app__caret"></i></span></p>
+          <div class="app__controls">
+            <span class="app__modes">${icon('new')}${a.modes.map((m, i) => `<b class="app__chip${i === 0 ? ' is-on' : ''}">${esc(m)}</b>`).join('')}</span>
+            <span class="app__model"><b>${esc(a.model)}</b><em>${esc(a.size)}</em>${icon('mic')}${icon('send', 'app__send')}</span>
           </div>
-          ${thread()}
+          <span class="app__line">${icon('new')}<span>${esc(a.prompt)}</span>${icon('mic')}</span>
+          <p class="app__under"><b>${esc(a.model)}</b><em>${esc(a.size)}</em></p>
+        </div>
+        <div class="app__actions">
+          ${a.actions.map((t, i) => `<span class="app__btn">${icon(['write', 'learn', 'code', 'career'][i])}${esc(t)}</span>`).join('')}
         </div>
       </div>
+      ${thread()}
     </div>
   </div></div>`;
 }
 
 /**
  * "Day in the life" (Figma 2407:6, 2420:2, 2415:2): the About lens stage (think.css, think-zoom.ts) with a recruiter's
- * day for its statements: the time, then the stage of the work. 08:30 flies off through the lens into the app window;
- * the next swipe zooms in on its chat, which takes a request and answers it (chatScene); the one after fades the
- * window as 11:50 arrives through the lens, and the toggle moves on to Engage.
+ * day for its statements: the time, then the stage of the work. Each time flies off through the lens into a chat
+ * (Source, Engage, Place); the next swipe plays a request in it, and the one after fades it as the next time arrives,
+ * the toggle moving on with it.
  */
 function day() {
   const d = dayInTheLife;
@@ -254,7 +231,7 @@ function day() {
           )
           .join('')}
       </ol>
-      ${appWindow()}
+      ${sourceChat()}
       ${engageChat()}
       ${placeChat()}
     </div>
@@ -338,11 +315,26 @@ function initDayTabs(animate: boolean) {
   };
 }
 
-/** The chat's size on screen (times its design size): by the stage's width alone, up to 1.5x, so it reads anywhere. */
-const chatScale = (W: number) => Math.max(0.3, Math.min(1.5, (W - 64) / 560));
+/**
+ * The chats' size on screen (times their design size), by the stage's width alone so they read at any height: up to
+ * 1.5x on a wide screen, and on a phone about 1.1x (rather than shrinking the desktop layout to fit, the chat narrows).
+ */
+const chatScale = (W: number) => (W < 640 ? Math.min(1.15, Math.max(1, W / 340)) : Math.min(1.5, Math.max(1, (W - 64) / 560)));
 /** The band the chat is framed in: below the toggle, and 24 above the stage's foot. */
 const BAND_TOP = 150;
 const BAND_FOOT = 24;
+
+/**
+ * A chat's size and place: bottom-anchored in the band, at chatScale times its design size, its height the band's,
+ * and as wide as fits (560 design px at most), so on a phone it is the screen's width less a 16 px margin each side.
+ */
+function fitChat(stage: HTMLElement, convo: HTMLElement) {
+  const W = stage.clientWidth;
+  const k = chatScale(W);
+  convo.style.width = `${Math.min(560, (W - 32) / k)}px`;
+  convo.style.height = `${(stage.clientHeight - BAND_TOP - BAND_FOOT) / k}px`;
+  convo.style.transform = `translateX(-50%) scale(${k})`;
+}
 
 /**
  * A scene's timeline as a stop of the lens stage. Scrolling on while it plays speeds it up, but gently: easing up to
@@ -421,7 +413,7 @@ type LaterResult = {
 /**
  * A later chat (laterChat): it arrives as its moment flies, the conversation so far above; then the recruiter's
  * request is typed into the composer and sent, Ditto works through its steps, and `result` plays what it made. Like
- * chatScene, a stop of the lens stage of its own; once played, back up scrolls to where it arrived.
+ * sourceScene, a stop of the lens stage of its own; once played, back up scrolls to where it arrived.
  */
 function laterScene(screen: HTMLElement, request: string, result: (r: LaterResult) => void): StageScene {
   const stage = screen.closest<HTMLElement>('.think__stage')!;
@@ -432,12 +424,7 @@ function laterScene(screen: HTMLElement, request: string, result: (r: LaterResul
   const field = q<HTMLElement>('.app__field', box)!;
   const text = q<HTMLElement>('.app__text', box)!;
 
-  /** At the first chat's size, from the band's top to its foot. */
-  const layout = () => {
-    const k = chatScale(stage.clientWidth);
-    convo.style.height = `${(stage.clientHeight - BAND_TOP - BAND_FOOT) / k}px`;
-    convo.style.transform = `translateX(-50%) scale(${k})`;
-  };
+  const layout = () => fitChat(stage, convo);
   /** The conversation's offset that brings `el` into view above the box. */
   const reach = (el: HTMLElement) => -Math.max(0, el.offsetTop + el.offsetHeight + 16 - thread.clientHeight);
   const offer = q<HTMLElement>('.app__offer', scroller)!;
@@ -569,44 +556,22 @@ function placeScene(screen: HTMLElement): StageScene {
 }
 
 /**
- * Figma 2420:2 and on: the window zooms in on its chat (its frame and sidebar falling away), the request is typed and
- * sent, the box drops to the foot of the chat as the request pops up as a bubble, Ditto works through its steps (a
+ * Source's chat (sourceChat, Figma 2420:2 and on): the request is typed and sent, the box drops to the foot of the
+ * chat as it closes up into the composer and the request pops up as a bubble, Ditto works through its steps (a
  * spinner each, then a tick), and the people it found come in. A stop of the lens stage of its own (see StageScene).
  */
-function chatScene(screen: HTMLElement): StageScene {
-  const app = q<HTMLElement>('.app', screen)!;
+function sourceScene(screen: HTMLElement): StageScene {
   const stage = screen.closest<HTMLElement>('.think__stage')!;
-  const chat = q<HTMLElement>('.app__chat', app)!;
+  const convo = q<HTMLElement>('.app--bare', screen)!;
+  const chat = q<HTMLElement>('.app__chat', convo)!;
   const ask = q<HTMLElement>('.app__ask', chat)!;
   const box = q<HTMLElement>('.app__box', chat)!;
   const text = q<HTMLElement>('.app__text', chat)!;
   const thread = q<HTMLElement>('.app__thread', chat)!;
   const scroller = q<HTMLElement>('.app__scroll', chat)!;
   const request = dayInTheLife.chat.request;
+  fitChat(stage, convo);
 
-  /*
-   * The camera. The chat is shown at `k` times its design size, set by the stage's width alone (up to 1.5x), so it
-   * reads at any height. It is framed in the band between the toggle and the stage's foot: first centred there (the
-   * greeting and the box), then, as the box drops on sending, lowered with it until the chat's foot meets the band's
-   * (`low`) when the whole chat is taller than the band. The conversation then scrolls up as it grows, like a chat.
-   */
-  const fit = () => parseFloat(screen.dataset.fit || '1') || 1;
-  const cam = () => {
-    const W = stage.clientWidth;
-    const H = stage.clientHeight;
-    const k = chatScale(W);
-    const foot = H - BAND_FOOT;
-    const mid = (BAND_TOP + foot) / 2;
-    const low = Math.min(mid, foot - (k * chat.offsetHeight) / 2);
-    return { k, z: k / fit(), f: fit(), H, mid, low };
-  };
-  const dx = () => chat.offsetLeft + chat.offsetWidth / 2 - app.offsetWidth / 2;
-  const dy = () => chat.offsetTop + chat.offsetHeight / 2 - app.offsetHeight / 2;
-  /** The window's own offset (before its fit) that puts the chat's middle at `y` on the stage. */
-  const yFor = (y: number) => {
-    const c = cam();
-    return -dy() * c.z + (y - c.H / 2) / c.f;
-  };
   /**
    * Once the conversation starts the box becomes Figma's composer (2425:61): one 48-tall row (+, the prompt, the mic)
    * with the model named under it (8 below, 16 tall). Keep in step with the thread's foot in product.css.
@@ -618,13 +583,6 @@ function chatScene(screen: HTMLElement): StageScene {
    * it shrinks, the centred column it sits in moves down by half the difference.)
    */
   const drop = () => chat.clientHeight - 24 - UNDER - COMPACT - (ask.offsetTop + (box.offsetHeight - COMPACT) / 2);
-  /** The conversation starts just below the band's top as the camera ends up. */
-  const place = () => {
-    const c = cam();
-    const chatTop = c.low - (c.k * chat.offsetHeight) / 2;
-    thread.style.top = `${Math.max(0, (BAND_TOP - chatTop) / c.k) + 4}px`;
-  };
-  place();
 
   const typing = { n: 0 };
   const TYPE_RATE = 32; // characters a second
@@ -632,25 +590,12 @@ function chatScene(screen: HTMLElement): StageScene {
   /** Scrolls the conversation so `el` (just shown) is in view above the box. */
   const follow = (el: HTMLElement, at: number) =>
     tl.to(scroller, { y: () => -Math.max(0, el.offsetTop + el.offsetHeight + 16 - thread.clientHeight), duration: 0.6, ease: 'power2.out' }, at);
-  const zoomTw = gsap.fromTo(
-    app,
-    { x: 0, y: 0, scale: 1 },
-    { x: () => -dx() * cam().z, y: () => yFor(cam().mid), scale: () => cam().z, duration: 1.5, ease: 'power3.inOut' },
-  );
 
-  // 1. The zoom, the window falling away around the chat.
-  tl.add(zoomTw, 0)
-    .to(qa('.app__bar, .app__side, .app__top', app), { autoAlpha: 0, duration: 0.8, ease: 'power1.out' }, 0.15)
-    .to(app, { backgroundColor: 'rgba(253, 253, 253, 0)', borderColor: 'rgba(151, 151, 151, 0)', duration: 0.8, ease: 'power1.out' }, 0.15)
-    .to(q('.app__main', app), { backgroundColor: 'rgba(30, 110, 243, 0)', duration: 0.8, ease: 'power1.out' }, 0.15)
-    // Its frame gone, the window no longer clips (the box's soft shadow ran into its edge).
-    .set(app, { overflow: 'visible' }, 0.95)
-    .to(box, { borderColor: 'rgba(81, 142, 243, 1)', duration: 0.4, ease: 'power1.out' }, 1.2);
-
-  // 2. Typing.
-  const typeAt = 1.6;
+  // 1. Typing, into the box (in focus).
+  const typeAt = 0.5;
   const typeTime = request.length / TYPE_RATE;
-  tl.to(q('.app__prompt', box), { autoAlpha: 0, duration: 0.15 }, typeAt - 0.1)
+  tl.to(box, { borderColor: 'rgba(81, 142, 243, 1)', duration: 0.4, ease: 'power1.out' }, 0)
+    .to(q('.app__prompt', box), { autoAlpha: 0, duration: 0.15 }, typeAt - 0.1)
     .fromTo(q('.app__caret', box), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, typeAt - 0.1)
     .fromTo(
       typing,
@@ -664,7 +609,7 @@ function chatScene(screen: HTMLElement): StageScene {
       typeAt,
     );
 
-  // 3. Sent: the box empties and drops, the greeting and the buttons go, the request pops up as a bubble.
+  // 2. Sent: the box empties and drops, the greeting and the buttons go, the request pops up as a bubble.
   const sent = typeAt + typeTime + 0.35;
   tl.to(q('.app__send', box), { scale: 0.78, duration: 0.12, ease: 'power2.out', yoyo: true, repeat: 1 }, sent)
     // The prompt's contents give way to the composer's single row as the box closes up around it.
@@ -674,11 +619,10 @@ function chatScene(screen: HTMLElement): StageScene {
     .to(q('.app__actions', chat), { autoAlpha: 0, y: 12, duration: 0.35, ease: 'power2.in' }, sent + 0.1)
     .to(ask, { y: drop, duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
     .to(box, { height: COMPACT, duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
-    .to(app, { y: () => yFor(cam().low), duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
     .to(box, { borderColor: 'rgba(81, 142, 243, 0.35)', duration: 0.6 }, sent + 0.6)
     .fromTo(q('.app__me', chat), { autoAlpha: 0, scale: 0.5, y: 24 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.7, ease: 'back.out(1.7)' }, sent + 0.6);
 
-  // 4. Ditto at work: a step at a time, each spinning until it's done.
+  // 3. Ditto at work: a step at a time, each spinning until it's done.
   const workAt = sent + 1.3;
   const STEP = 0.95;
   tl.fromTo(q('.app__by', chat), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' }, workAt);
@@ -693,7 +637,7 @@ function chatScene(screen: HTMLElement): StageScene {
   });
   const steps = qa('.app__step', chat).length;
 
-  // 5. The answer, and the people it found.
+  // 4. The answer, and the people it found.
   const doneAt = workAt + 0.3 + steps * STEP + 0.2;
   const [lead, followUp] = qa<HTMLElement>('.app__answer', chat);
   const people = qa<HTMLElement>('.app__person', chat);
@@ -710,12 +654,12 @@ function chatScene(screen: HTMLElement): StageScene {
     )
     .fromTo(followUp, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, followAt);
 
-  // A new stage size re-frames it, wherever the scene is: back to the start (its recorded values), then on again
+  // A new stage size re-lays it out, wherever the scene is: back to the start (its recorded values), then on again
   // with everything measured afresh.
   ScrollTrigger.addEventListener('refresh', () => {
     const t = tl.time();
     tl.progress(0, true).invalidate();
-    place();
+    fitChat(stage, convo);
     tl.time(t, true);
   });
 
@@ -731,12 +675,10 @@ boot({
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
     const tab = initDayTabs(!reduce);
-    const screen = q<HTMLElement>('.day__screen:not(.day__screen--chat)')!;
-    const engage = q<HTMLElement>('[data-chat="Engage"]')!;
-    const place = q<HTMLElement>('[data-chat="Place"]')!;
+    const [source, engage, place] = ['Source', 'Engage', 'Place'].map((s) => q<HTMLElement>(`[data-chat="${s}"]`)!);
     initThinkZoom(!reduce, {
       screens: [
-        { el: screen, scenes: [chatScene(screen)] },
+        { el: source, scenes: [sourceScene(source)], fill: true },
         { el: engage, scenes: [engageScene(engage)], fill: true },
         { el: place, scenes: [placeScene(place)], fill: true },
       ],

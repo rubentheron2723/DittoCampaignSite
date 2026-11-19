@@ -50,7 +50,6 @@
 /* Without the lens (reduced motion, no WebGL) the stage is a plain section: the toggle, the time, then the window. */
 .day:not(.think--gl) .think__stage { display: flex; flex-direction: column; align-items: center; padding: 140px var(--pad, 20px) 120px; }
 .day:not(.think--gl) .think__list { padding: 0 0 60px; }
-.day:not(.think--gl) .day__screen { max-width: 100%; overflow: hidden; }
 /* The flying time (the lens canvas) passes over the window arriving behind it. */
 .think--gl.day .think__lens { z-index: 2; }
 .think--gl.day .day__screen { position: absolute; left: 50%; top: 50%; z-index: 0; visibility: hidden; transform-origin: 50% 50%; will-change: transform, opacity; }
@@ -59,51 +58,23 @@
 .think--gl.day .day__screen--chat { width: 100%; height: 100%; }
 .day:not(.think--gl) .day__screen--chat { display: none; }
 
-/* The app window (Figma 2413:860) */
-.app {
-  --line: rgba(4, 92, 255, 0.5);
-  position: relative; flex: none; width: 1024px; height: 768px; display: flex; flex-direction: column; overflow: hidden; text-align: left;
-  background: #fdfdfd; border: 0.5px solid #979797; border-radius: 16px; color: #171717;
-  font-size: 12px; line-height: 16px; letter-spacing: -0.04em;
-}
+/* The chat (the assistant's, Figma 2420:2 on): DM Sans 12/16 in #171717. Each of Day in the life's chats is one of
+   these, laid out as .app--bare below. */
+.app { --line: rgba(4, 92, 255, 0.5); position: relative; text-align: left; color: #171717; font-size: 12px; line-height: 16px; letter-spacing: -0.04em; }
 .app ul { list-style: none; margin: 0; padding: 0; }
 .app p { margin: 0; }
-.app__bar { flex: none; display: flex; gap: 8px; padding: 24px; background: linear-gradient(rgba(30, 110, 243, 0.05), rgba(30, 110, 243, 0.05)), #e2e3e3; }
-.app__bar i { width: 16px; height: 16px; border-radius: 50%; border: 0.5px solid rgba(93, 93, 93, 0.5); background: #ff5f57; }
-.app__bar i:nth-child(2) { background: #efba48; }
-.app__bar i:nth-child(3) { background: #24c73d; }
-.app__body { flex: 1 1 0; min-height: 0; display: flex; }
 .app__icon { display: block; flex: none; width: 16px; height: 16px; }
-.app__icon--sm { width: 12px; height: 12px; }
-.app__icon--flip { transform: rotate(180deg); }
-.app__side { flex: none; width: 256px; display: flex; flex-direction: column; gap: 16px; padding: 8px; overflow: hidden; background: rgba(30, 110, 243, 0.05); border-right: 1px solid var(--line); }
-.app__tools { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; }
-.app__tools-l, .app__tools-r { display: flex; align-items: center; gap: 8px; }
-.app__tools-r { gap: 4px; }
 .app__chip { display: inline-flex; align-items: center; padding: 4px; border-radius: 24px; border: 1px solid transparent; font-weight: 400; }
 .app__chip.is-on { border-color: #1e6ef3; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18); }
-.app__nav { display: grid; gap: 4px; }
-.app__row { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
-.app__row.is-on { background: rgba(255, 255, 255, 0.1); border-color: #1e6ef3; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18); }
-.app__group { display: grid; gap: 4px; }
-.app__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px; font-size: 10px; line-height: 12px; }
-.app__head:not(:has(span)) { justify-content: flex-start; }
-.app__head span { display: flex; align-items: center; gap: 4px; }
-.app__dot { flex: none; width: 6px; height: 6px; border-radius: 50%; }
-.app__dot--new { background: #01b1ff; }
-.app__dot--seen { border: 1px solid var(--line); }
-.app__more { padding: 8px 16px; font-size: 10px; line-height: 12px; color: rgba(23, 23, 23, 0.5); }
-.app__main { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; background: rgba(30, 110, 243, 0.02); }
-.app__top { flex: none; height: 40px; border-bottom: 1px solid var(--line); }
 .app__chat { position: relative; flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; padding: 4px; }
 .app__hello { font-size: 40px; line-height: 44px; letter-spacing: -0.04em; font-weight: 700; text-align: center; }
 .app__ask { display: flex; flex-direction: column; align-items: center; gap: 24px; }
 .app__box {
   border: 1px solid rgba(81, 142, 243, 0);
-  width: 435px; height: 120px; display: flex; flex-direction: column; justify-content: space-between; padding: 16px 20px; border-radius: 24px;
+  width: 435px; max-width: 100%; height: 120px; display: flex; flex-direction: column; justify-content: space-between; padding: 16px 20px; border-radius: 24px;
   background: linear-gradient(-89deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.71%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.1);
 }
-/* The composer it becomes once the conversation starts (Figma 2425:61; shown by chatScene). */
+/* The composer it becomes once the conversation starts (Figma 2425:61; shown by sourceScene). */
 .app__box { position: relative; }
 .app__line {
   position: absolute; inset: 0; display: flex; align-items: center; gap: 8px; padding: 0 20px;
@@ -218,9 +189,22 @@
   position: absolute; left: 50%; bottom: 24px; width: 560px; height: 600px; transform-origin: 50% 100%;
   border: 0; border-radius: 0; background: none; overflow: visible;
 }
+.app--bare { container-type: inline-size; }
 .app--bare .app__chat { position: relative; display: block; height: 100%; padding: 0; }
-.app--bare .app__thread { top: 0; }
-.app--bare .app__ask { position: absolute; left: 50%; bottom: 48px; transform: translateX(-50%); }
+.app--bare .app__thread { top: 0; left: 0; right: 0; width: auto; transform: none; }
+.app--bare .app__ask { position: absolute; left: 0; right: 0; bottom: 48px; }
+/* Source's chat starts as the greeting over the prompt box and its buttons, centred (sourceScene drops the box). */
+.app--intro .app__chat { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+.app--intro .app__ask { position: static; width: 100%; }
+.app__actions { flex-wrap: wrap; justify-content: center; }
+/* On a phone the chat is the screen's width (fitChat): the greeting smaller, the conversation nearer the edges. */
+@container (max-width: 480px) {
+  .app__hello { font-size: 32px; line-height: 36px; }
+  .app__thread { padding: 0 6px; }
+  .app__me { max-width: 88%; }
+  .app__placed-head { grid-template-columns: 32px 1fr; }
+  .app__badge { grid-column: 1 / -1; justify-self: start; }
+}
 .app__box--compact { height: 48px; padding: 0; border-color: rgba(81, 142, 243, 0.35); }
 .app__box--compact .app__line, .app__box--compact .app__under { visibility: visible; }
 .app__field--line { flex: 1 1 0; min-width: 0; overflow: hidden; white-space: nowrap; }
