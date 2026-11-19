@@ -359,9 +359,22 @@ const BAND_FOOT = 24;
 /**
  * A scene's timeline as a stop of the lens stage. Scrolling on while it plays speeds it up, but gently: easing up to
  * twice its pace (a jump to 5x made fast scrolling flash through it). Back up, it rewinds at twice its pace.
+ *
+ * With `keep` (the conversation's scroller), once it has played it isn't rewound: back up, the conversation scrolls
+ * to its start (and the stage goes on from the played scene, as it stands); on again, it scrolls back to its end. A
+ * new visit to the section (a reset) plays it afresh.
  */
 const HURRY = 2;
-function sceneControls(tl: gsap.core.Timeline): StageScene {
+const SCROLL_BACK = 0.9;
+function sceneControls(tl: gsap.core.Timeline, keep?: HTMLElement): StageScene {
+  /** Played, and scrolled back up: the conversation's end, to scroll back to. */
+  let end: number | null = null;
+  /** (Its own tween, replaced each time: overwriting by target would also cut the timeline's own scrolling.) */
+  let scrolling: gsap.core.Tween | null = null;
+  const scrollTo = (y: number) => {
+    scrolling?.kill();
+    scrolling = gsap.to(keep!, { y, duration: SCROLL_BACK, ease: 'power2.inOut' });
+  };
   const pace = (to: number, d = 0) => {
     gsap.killTweensOf(tl, 'timeScale');
     if (d) gsap.to(tl, { timeScale: to, duration: d, ease: 'power1.inOut' });
@@ -369,11 +382,21 @@ function sceneControls(tl: gsap.core.Timeline): StageScene {
   };
   return {
     play: () => {
+      if (keep && end !== null) {
+        scrollTo(end);
+        end = null;
+        return SCROLL_BACK;
+      }
       pace(1);
       tl.play(0);
       return tl.duration();
     },
     back: () => {
+      if (keep && tl.progress() === 1) {
+        if (end === null) end = Number(gsap.getProperty(keep, 'y'));
+        scrollTo(0);
+        return SCROLL_BACK;
+      }
       pace(HURRY);
       tl.reverse();
       return tl.time() / HURRY;
@@ -385,10 +408,14 @@ function sceneControls(tl: gsap.core.Timeline): StageScene {
       return (tl.duration() - tl.time()) / HURRY + 0.3;
     },
     finish: () => {
+      end = null;
+      scrolling?.kill();
       pace(1);
       tl.pause().progress(1);
     },
     reset: () => {
+      end = null;
+      scrolling?.kill();
       pace(1);
       tl.pause().progress(0);
     },
@@ -672,7 +699,7 @@ function chatScene(screen: HTMLElement): StageScene {
     tl.time(t, true);
   });
 
-  return sceneControls(tl);
+  return sceneControls(tl, scroller);
 }
 
 function initDeck(section: HTMLElement, horizontal: boolean) {
