@@ -237,16 +237,21 @@ function fitTeam(team: HTMLElement): boolean {
 }
 
 /**
- * Sets up the section. `team` (the next section's content) joins the stage as its last stop on wide screens, where it
- * builds its logo in the same locked view (team-logo.ts). Returns whether it did.
+ * Sets up the section. Its last stop can be one of:
+ *   - `team` (About: the next section's content), which joins the stage where it fits and builds its logo in the same
+ *     locked view (team-logo.ts);
+ *   - `screen` (Product: the app window), already in the stage: it arrives behind the last statement as that one
+ *     flies, exactly as a next statement would (rising out of the depth), but as live HTML, fitted to the screen.
+ * Returns whether the team joined the stage.
  */
-export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
+export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; screen?: HTMLElement } = {}): boolean {
+  const { team, screen } = opts;
   const section = q('.think');
   const stage = section && q('.think__stage', section);
   const canvas = section && q<HTMLCanvasElement>('.think__lens', section);
   if (!section || !stage || !canvas || !animate) return false;
   const statements = qa<HTMLElement>('.think__item', section);
-  if (statements.length < 2) return false;
+  if (statements.length + (screen ? 1 : 0) < 2) return false;
   let family = "'DM Sans', sans-serif";
 
   // No multisampling: everything reaching the screen is one full-screen pass, which it would only slow down.
@@ -319,6 +324,9 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   let W = 1, H = 1, dpr = 1, fw = 1, fh = 1;
   const frame = { x: 0, y: 0, w: 1, h: 1 };
   const verts = new Float32Array(24);
+  /** The screen's place in the steps (after the statements), and its scale to fit the stage. */
+  const screenAt = screen ? statements.length : -1;
+  let screenFit = 1;
 
   const texFrom = (src: HTMLCanvasElement) => {
     const tex = gl.createTexture()!;
@@ -336,6 +344,9 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   const layout = () => {
     W = Math.max(1, stage.clientWidth);
     H = Math.max(1, stage.clientHeight);
+    // The screen at its design size (Figma's 1024 x 768 in a 1440 x 1024 frame: 208 either side, 120 above and below),
+    // scaled down to keep those margins on a smaller stage.
+    if (screen) screenFit = Math.min(1, (W - 160) / screen.offsetWidth, (H - 240) / screen.offsetHeight);
     // The screen's own resolution (to 2x): the flying type stays as sharp as the HTML it takes over from.
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(W * dpr);
@@ -446,7 +457,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
       const a = EASE(gsap.utils.clamp(0, 1, (t - T.fadeInStart) / (T.fadeInEnd - T.fadeInStart)));
       return a > 0 ? { scale: ARRIVE_SCALE + (1 - ARRIVE_SCALE) * a, turn: 0, alpha: a } : null;
     }
-    if (i === statements.length - 1) return { scale: 1, turn: 0, alpha: 1 };
+    if (i === statements.length - 1 && !screen) return { scale: 1, turn: 0, alpha: 1 };
     const z = ZOOM_EASE(gsap.utils.clamp(0, 1, (local - T.zoomStart) / (T.zoomEnd - T.zoomStart)));
     const f = EASE(gsap.utils.clamp(0, 1, (local - T.fadeOutStart) / (T.zoomEnd - T.fadeOutStart)));
     const alpha = 1 - f;
@@ -455,7 +466,16 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   /** How far through the current move the flight is (0 at rest on a statement). */
   const moveAt = () => {
     const i = Math.floor(pos.v);
-    return i >= statements.length - 1 ? 0 : pos.v - i;
+    return i >= steps ? 0 : pos.v - i;
+  };
+  /** The screen: arriving as a statement would over the end of the last move, then at rest at full size. */
+  const placeScreen = () => {
+    if (!screen) return;
+    const local = Math.min(0, pos.v - screenAt);
+    const a = local < -1 ? 0 : EASE(gsap.utils.clamp(0, 1, (1 + local - T.fadeInStart) / (T.fadeInEnd - T.fadeInStart)));
+    screen.style.opacity = String(a);
+    screen.style.visibility = a > 0 ? 'visible' : 'hidden';
+    screen.style.transform = `translate(-50%, -50%) scale(${screenFit * (ARRIVE_SCALE + (1 - ARRIVE_SCALE) * a)})`;
   };
 
   /** Whether a statement is in flight: then the canvas shows; otherwise the HTML statement does. */
@@ -471,6 +491,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   };
 
   const draw = () => {
+    placeScreen();
     if (!flying) {
       // At rest the HTML statement is on screen: nothing to draw.
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -571,7 +592,7 @@ export function initThinkZoom(animate: boolean, team?: HTMLElement): boolean {
   /** The last stop: the team scene when it's in the stage, otherwise the last statement. */
   const last = statements.length - 1;
   const teamAt = scene ? statements.length : -1;
-  const steps = scene ? teamAt : last;
+  const steps = scene ? teamAt : screen ? screenAt : last;
   /** How long fading the last statement out takes before the logo starts building (s). */
   const HANDOVER = 0.45;
 

@@ -1,4 +1,5 @@
 import '../styles/base.css';
+import '../styles/think.css';
 import '../styles/about.css';
 
 import { builders, hero, team, thinking } from '../content/about';
@@ -184,7 +185,7 @@ boot({
     initBlobBackdrop(q('.think')!, q<HTMLCanvasElement>('.think__fx')!, 'think--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
     // On wide screens the team section plays inside the "We think independently" stage, as its last stop; elsewhere
     // it's a normal section that builds its logo once as it comes into view.
-    const inStage = initThinkZoom(!reduce, q<HTMLElement>('.team__inner')!);
+    const inStage = initThinkZoom(!reduce, { team: q<HTMLElement>('.team__inner')! });
     if (!reduce && !inStage) {
       const scene = createTeamScene(q('.team')!);
       ScrollTrigger.create({ trigger: '.team', start: 'top 70%', once: true, onEnter: () => scene.play() });

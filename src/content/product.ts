@@ -24,12 +24,37 @@ export type ActContent = {
   features: ActFeature[];
 };
 
-export const featuresHeroContent = {
-  headlineLineOne: 'Recruitment software',
-  headlineLineOneTwo: 'for teams that scale',
-  headlineLineTwo: 'One platform for sourcing, engagement, and placements across your full hiring workflow.',
-  subhead:
-    'A complete system for agencies and hiring teams that need speed, visibility, and control.',
+/** The hero (Figma 2398:532). */
+export const productHero = {
+  title: ['Recruitment software', 'for teams that scale.'],
+  lead: 'One platform for sourcing, engagement, and placements across your full hiring workflow.',
+  support: 'A complete system for agencies and hiring teams that need speed, visibility, and control.',
+  cta: 'Day in the life',
+};
+
+/** "Day in the life" (Figma 2407:6): a recruiter's day, stage by stage, starting with the time and the stage. */
+export const dayInTheLife = {
+  stages: ['Source', 'Engage', 'Place'],
+  moments: [{ time: '08:30', stage: 'Source' }],
+  /** The assistant window the first moment opens on. */
+  app: {
+    greeting: 'Good morning, Jane',
+    prompt: 'How can we help you today?',
+    nav: ['New', 'Search', 'Projects', 'Artifacts', 'Scheduled', 'Customize'],
+    /** `dot`: a task's marker, filled while it has news ('new') or an outline ('seen'). */
+    pinned: [{ label: 'Ask Ditto' }, { label: 'Candidate source from LinkedIn', dot: 'new' }],
+    chats: [
+      { label: 'Candidate source from Indeed', dot: 'seen' },
+      { label: 'Candidate source from Company Referral', dot: 'seen' },
+      { label: 'Candidate source from Job Fair', dot: 'seen' },
+      { label: 'Candidate source from Recruiting Agency', dot: 'seen' },
+      { label: 'Candidate source from Glassdoor', dot: 'new' },
+    ] as { label: string; dot?: 'new' | 'seen' }[],
+    modes: ['Chat', 'Cowork'],
+    model: 'Copus 6.7',
+    size: 'Large',
+    actions: ['Write', 'Learn', 'Code', 'Career chat'],
+  },
 };
 
 export const featureActs: ActContent[] = [
