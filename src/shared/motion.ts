@@ -13,7 +13,9 @@ export function splitReveal(
   opts: { trigger?: Element | string; start?: string; by?: 'words' | 'chars'; stagger?: number; delay?: number; scrollTrigger?: boolean } = {},
 ) {
   const by = opts.by ?? 'words';
-  const split = SplitText.create(target, { type: `lines,${by}`, mask: 'lines', linesClass: 'split-line' });
+  // By letter, the letters are grouped into words as well: on their own they let a line break mid-word (on a phone,
+  // "Recruitme / nt").
+  const split = SplitText.create(target, { type: by === 'chars' ? 'lines,words,chars' : 'lines,words', mask: 'lines', linesClass: 'split-line' });
   const pieces = by === 'chars' ? split.chars : split.words;
   const vars: gsap.TweenVars = {
     yPercent: 110,
