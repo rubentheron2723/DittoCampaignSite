@@ -297,15 +297,20 @@
   background: linear-gradient(-81deg, rgba(255, 255, 255, 0.85) 56%, rgba(255, 255, 255, 0.4) 100%);
   border: 1px solid rgba(4, 92, 255, 0.12); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
 }
-.app__draft-head { display: flex; align-items: center; justify-content: space-between; color: rgba(23, 23, 23, 0.6); }
+.app__draft-head { color: rgba(23, 23, 23, 0.6); }
 .app__draft-head b { color: #171717; font-weight: 600; }
-.app__draft-head em { font-style: normal; font-size: 10px; line-height: 12px; color: #1e6ef3; }
-.app__draft-body { display: grid; line-height: 18px; }
+/* The text to copy: set apart as a block, since it's pasted into LinkedIn by hand (the chat can't send it). */
+.app__draft-body { display: grid; line-height: 18px; padding: 10px 12px; border-radius: 12px; background: rgba(30, 110, 243, 0.04); border: 1px solid rgba(4, 92, 255, 0.08); }
 .app__draft-body > * { grid-area: 1 / 1; }
 .app__draft-ghost { visibility: hidden; }
 .app__draft-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(4, 92, 255, 0.1); }
 .app__slot { display: flex; align-items: center; gap: 6px; color: rgba(23, 23, 23, 0.6); }
-.app__send-btn { display: grid; padding: 6px 14px; border-radius: 999px; background: linear-gradient(135deg, #1e6ef3 0%, #00b0ff 100%); color: #fff; font-weight: 500; }
-.app__send-btn > * { grid-area: 1 / 1; display: flex; align-items: center; justify-content: center; gap: 4px; }
-.app__sent-label { visibility: hidden; }
-.app__sent-label .app__tick { visibility: inherit; width: 12px; height: 12px; }
+/* Copy, which turns to Copied: glass, like the app's other buttons. */
+.app__copy-btn {
+  display: grid; padding: 6px 12px; border-radius: 999px; font-weight: 400; color: #171717;
+  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); border: 1px solid #1e6ef3;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+}
+.app__copy-btn > * { grid-area: 1 / 1; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.app__copied-label { visibility: hidden; color: #1e6ef3; }
+.app__copied-label .app__tick { visibility: inherit; width: 12px; height: 12px; }

@@ -38,6 +38,8 @@ function hero() {
 /** A 16px icon from Figma's app mockup. */
 const icon = (name: string, cls = '') => `<img class="app__icon${cls ? ` ${cls}` : ''}" src="/product/app/${name}.svg" alt="" width="16" height="16" />`;
 
+/** Two overlapping sheets: copy. */
+const COPY = `<svg class="app__copy-icon" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 3.5v-.5a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
 const TICK = `<svg class="app__tick" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#1e6ef3"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 /**
@@ -105,11 +107,11 @@ function engageChat() {
           ${stepList(e.steps)}
           <p class="app__answer">${esc(e.answer)}</p>
           <div class="app__draft">
-            <p class="app__draft-head"><span>To <b>${esc(e.draft.to)}</b></span><em>${esc(e.draft.via)}</em></p>
+            <p class="app__draft-head"><span>To <b>${esc(e.draft.to)}</b></span></p>
             <p class="app__draft-body"><span class="app__draft-ghost">${esc(e.draft.body)}</span><span class="app__draft-text"></span></p>
             <div class="app__draft-foot">
               <span class="app__slot">${icon('scheduled')}${esc(e.draft.slot)}</span>
-              <b class="app__send-btn"><span class="app__send-label">${esc(e.draft.send)}</span><span class="app__sent-label">${TICK}${esc(e.draft.sent)}</span></b>
+              <b class="app__copy-btn"><span class="app__copy-label">${COPY}${esc(e.draft.copy)}</span><span class="app__copied-label">${TICK}${esc(e.draft.copied)}</span></b>
             </div>
           </div>
           <p class="app__answer">${esc(e.followUp)}</p>
@@ -462,10 +464,10 @@ function engageScene(screen: HTMLElement): StageScene {
       streamAt,
     );
   const sendAt = streamAt + streamTime + 0.6;
-  const btn = q<HTMLElement>('.app__send-btn', draft)!;
+  const btn = q<HTMLElement>('.app__copy-btn', draft)!;
   tl.to(btn, { scale: 0.92, duration: 0.12, ease: 'power2.out', yoyo: true, repeat: 1 }, sendAt)
-    .to(q('.app__send-label', btn), { autoAlpha: 0, duration: 0.2 }, sendAt + 0.1)
-    .fromTo(q('.app__sent-label', btn), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, sendAt + 0.2)
+    .to(q('.app__copy-label', btn), { autoAlpha: 0, duration: 0.2 }, sendAt + 0.1)
+    .fromTo(q('.app__copied-label', btn), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, sendAt + 0.2)
     .fromTo(last, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, sendAt + 0.6);
   follow(last, sendAt + 0.6);
 

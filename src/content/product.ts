@@ -73,13 +73,12 @@ export const dayInTheLife = {
     answer: 'Here’s your message to Amara:',
     draft: {
       to: 'Amara Okafor',
-      via: 'LinkedIn message',
       body: 'Hi Amara, your recent post on scaling design systems really stood out. I’m hiring a Senior Product Designer for a fast-growing fintech team, and your work at Northwind is exactly the craft they’re after. Would you be open to a 20-minute call next Thursday at 14:00?',
       slot: 'Thu 14:00 · 20 min held',
-      send: 'Send',
-      sent: 'Sent',
+      copy: 'Copy',
+      copied: 'Copied',
     },
-    followUp: 'Sent. I’ll nudge her if there’s no reply in 3 days.',
+    followUp: 'Paste it into LinkedIn when you’re ready. I’ll remind you to follow up if there’s no reply in 3 days.',
   },
   /** The assistant window the first moment opens on. */
   app: {
