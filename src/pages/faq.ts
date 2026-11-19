@@ -75,9 +75,8 @@ function render() {
                 ${c.items
                   .map((it, i) => {
                     const id = `${slug(c.title)}-${i}`;
-                    const open = i === 0;
-                    return `<article class="fqa${open ? ' is-open' : ''}" data-q="${esc(it.q.toLowerCase())}" data-a="${esc(it.a.toLowerCase())}">
-                      <h3 class="fqa__head"><button type="button" class="fqa__trigger" id="${id}" aria-expanded="${open}" aria-controls="${id}-a"><span class="fqa__q">${esc(it.q)}</span>${CHEV}</button></h3>
+                    return `<article class="fqa" data-q="${esc(it.q.toLowerCase())}" data-a="${esc(it.a.toLowerCase())}">
+                      <h3 class="fqa__head"><button type="button" class="fqa__trigger" id="${id}" aria-expanded="false" aria-controls="${id}-a"><span class="fqa__q">${esc(it.q)}</span>${CHEV}</button></h3>
                       <div class="fqa__panel" id="${id}-a" role="region" aria-labelledby="${id}"><p>${esc(it.a)}</p></div>
                     </article>`;
                   })
