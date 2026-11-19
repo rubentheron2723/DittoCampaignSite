@@ -93,6 +93,16 @@
   width: 435px; height: 120px; display: flex; flex-direction: column; justify-content: space-between; padding: 16px 20px; border-radius: 24px;
   background: linear-gradient(-89deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.71%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.1);
 }
+/* The composer it becomes once the conversation starts (Figma 2425:61; shown by chatScene). */
+.app__box { position: relative; }
+.app__line {
+  position: absolute; inset: 0; display: flex; align-items: center; gap: 8px; padding: 0 20px;
+  color: rgba(23, 23, 23, 0.4); visibility: hidden;
+}
+.app__line > span { flex: 1 1 0; }
+.app__under { position: absolute; right: 8px; top: calc(100% + 8px); display: flex; gap: 4px; visibility: hidden; }
+.app__under b { font-weight: 400; }
+.app__under em { font-style: normal; color: rgba(23, 23, 23, 0.5); }
 .app__field { display: grid; }
 .app__field > * { grid-area: 1 / 1; }
 .app__prompt { color: rgba(23, 23, 23, 0.4); }
@@ -108,7 +118,7 @@
    toggle (its top set by chatScene). It scrolls up as it grows, fading out at its top and foot; the side padding
    keeps the cards' shadows inside its clip. */
 .app__thread {
-  position: absolute; left: 50%; top: 24px; bottom: 120px; width: 560px; padding: 0 40px; transform: translateX(-50%);
+  position: absolute; left: 50%; top: 24px; bottom: 116px; width: 560px; padding: 0 40px; transform: translateX(-50%);
   overflow: hidden; pointer-events: none;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 12px), transparent 100%);
   mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 12px), transparent 100%);

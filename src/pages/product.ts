@@ -115,6 +115,8 @@ function appWindow() {
                 <span class="app__modes">${icon('new')}${a.modes.map((m, i) => `<b class="app__chip${i === 0 ? ' is-on' : ''}">${esc(m)}</b>`).join('')}</span>
                 <span class="app__model"><b>${esc(a.model)}</b><em>${esc(a.size)}</em>${icon('mic')}${icon('send', 'app__send')}</span>
               </div>
+              <span class="app__line">${icon('new')}<span>${esc(a.prompt)}</span>${icon('mic')}</span>
+              <p class="app__under"><b>${esc(a.model)}</b><em>${esc(a.size)}</em></p>
             </div>
             <div class="app__actions">
               ${a.actions.map((t, i) => `<span class="app__btn">${icon(['write', 'learn', 'code', 'career'][i])}${esc(t)}</span>`).join('')}
@@ -313,14 +315,17 @@ function chatScene(screen: HTMLElement): StageScene {
     const c = cam();
     return -dy() * c.z + (y - c.H / 2) / c.f;
   };
-  /** The box's height once the conversation starts (from 120): a composer, not a prompt. Keep in step with the
-   *  thread's foot in product.css (24 + this + 20). */
-  const COMPACT = 76;
   /**
-   * How far the ask box drops, to 24 above the chat's foot, at its compact height. (Measured at its full height: as it
-   * shrinks, the centred column it sits in moves down by half the difference.)
+   * Once the conversation starts the box becomes Figma's composer (2425:61): one 48-tall row (+, the prompt, the mic)
+   * with the model named under it (8 below, 16 tall). Keep in step with the thread's foot in product.css.
    */
-  const drop = () => chat.clientHeight - 24 - COMPACT - (ask.offsetTop + (box.offsetHeight - COMPACT) / 2);
+  const COMPACT = 48;
+  const UNDER = 24;
+  /**
+   * How far the box drops, so the model line under it ends 24 above the chat's foot. (Measured at its full height: as
+   * it shrinks, the centred column it sits in moves down by half the difference.)
+   */
+  const drop = () => chat.clientHeight - 24 - UNDER - COMPACT - (ask.offsetTop + (box.offsetHeight - COMPACT) / 2);
   /** The conversation starts just below the band's top as the camera ends up. */
   const place = () => {
     const c = cam();
@@ -370,12 +375,13 @@ function chatScene(screen: HTMLElement): StageScene {
   // 3. Sent: the box empties and drops, the greeting and the buttons go, the request pops up as a bubble.
   const sent = typeAt + typeTime + 0.35;
   tl.to(q('.app__send', box), { scale: 0.78, duration: 0.12, ease: 'power2.out', yoyo: true, repeat: 1 }, sent)
-    .to(q('.app__typed', box), { autoAlpha: 0, duration: 0.2 }, sent + 0.15)
-    .to(q('.app__prompt', box), { autoAlpha: 1, duration: 0.3 }, sent + 0.5)
+    // The prompt's contents give way to the composer's single row as the box closes up around it.
+    .to(qa('.app__field, .app__controls', box), { autoAlpha: 0, duration: 0.2 }, sent + 0.15)
+    .fromTo(qa('.app__line, .app__under', box), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: 'power1.out', stagger: 0.1 }, sent + 0.75)
     .to(q('.app__hello', chat), { autoAlpha: 0, y: -24, duration: 0.45, ease: 'power2.in' }, sent + 0.1)
     .to(q('.app__actions', chat), { autoAlpha: 0, y: 12, duration: 0.35, ease: 'power2.in' }, sent + 0.1)
     .to(ask, { y: drop, duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
-    .to(box, { height: COMPACT, paddingTop: 12, paddingBottom: 12, duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
+    .to(box, { height: COMPACT, duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
     .to(app, { y: () => yFor(cam().low), duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
     .to(box, { borderColor: 'rgba(81, 142, 243, 0.35)', duration: 0.6 }, sent + 0.6)
     .fromTo(q('.app__me', chat), { autoAlpha: 0, scale: 0.5, y: 24 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.7, ease: 'back.out(1.7)' }, sent + 0.6);
