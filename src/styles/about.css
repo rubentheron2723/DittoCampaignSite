@@ -33,34 +33,7 @@
 /* A soft shadow under the block, on a plain layer behind it (a filter on the 3D faces would be redrawn every frame). */
 .glogo::before { content: ''; position: absolute; left: 12%; right: 12%; bottom: -18px; height: 36px; border-radius: 50%; background: rgba(6, 49, 120, 0.18); filter: blur(18px); }
 
-/* ---------- We think independently (Figma 2390:287) ---------- */
-/* One screen on #FDFDFD with the Moving blobs, pinned while the statements fly past through the lens
-   (animations/think-zoom.ts draws them into .think__lens). Without WebGL or with reduced motion, the list shows:
-   each statement a row, the title 84/88 bold beside the copy 20/24 at 60%. */
-.think { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; }
-.think__stage { position: relative; min-height: 100vh; overflow: hidden; }
-.think__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s var(--ease-out); pointer-events: none; }
-.think--fx .think__fx { opacity: 1; }
-.think__lens { position: absolute; inset: 0; width: 100%; height: 100%; display: none; pointer-events: none; }
-.think__list { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 120px clamp(20px, 5.556vw, 80px); list-style: none; display: grid; gap: 80px; }
-.think__item { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-.think__title { margin: 0; flex: 1 1 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
-.think__body { margin: 0; flex: none; width: min(524px, 42%); font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
-.think--gl .think__stage { height: 100vh; }
-.think--gl .think__lens { display: block; }
-/* With the lens running, each statement sits centred on the stage, one at a time: the current one is the real text
-   at rest; while it flies (.think--flying) the canvas draws it instead, from these same positions. */
-.think--gl .think__list { position: absolute; inset: 0; max-width: none; margin: 0; padding: 0; display: block; }
-.think--gl .think__item {
-  position: absolute; left: 50%; top: 50%; width: min(1280px, calc(100% - 2 * clamp(20px, 5.556vw, 80px)));
-  transform: translate(-50%, -50%); opacity: 0; pointer-events: none;
-}
-.think--gl .think__item.is-current { opacity: 1; pointer-events: auto; }
-.think--flying .think__item.is-current { opacity: 0; }
-@media (max-width: 760px) {
-  .think__item { flex-direction: column; align-items: flex-start; }
-  .think__body { width: auto; }
-}
+/* We think independently (Figma 2390:287): the stage itself is in think.css, shared with Product. */
 
 /* ---------- We like rebuilding broken systems (Figma 2390:108) ---------- */
 /* Five rows on #FEFEFE with the Moving blobs behind, 20 apart. Each: a 2px line (10% ink, filling #171717), the number

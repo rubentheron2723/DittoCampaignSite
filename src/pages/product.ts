@@ -1,32 +1,110 @@
 import '../styles/base.css';
+import '../styles/think.css';
 import '../styles/product.css';
 
-import { featureActs, featuresHeroContent, finalFeaturesCta, trust, type ActContent } from '../content/product';
+import { dayInTheLife, featureActs, finalFeaturesCta, productHero, trust, type ActContent } from '../content/product';
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
-import { esc, markSvg } from '../shared/mark';
+import { esc } from '../shared/mark';
+import { initThinkZoom } from '../animations/think-zoom';
+import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, splitReveal } from '../shared/motion';
 import { initTrust } from '../animations/reveals';
 
 /* ---------- Render ---------- */
 function hero() {
-  const h = featuresHeroContent;
+  const h = productHero;
   return `
-  <section class="page-hero product-hero" data-theme="dark">
-    <div class="product-hero__ghosts" aria-hidden="true"><span>01</span><span>02</span><span>03</span></div>
-    <div class="page-hero__mark">${markSvg()}</div>
-    <div class="wrap wrap--wide">
-      <div class="page-hero__inner">
-        <h1 class="h-display product-hero__title"><span>${esc(h.headlineLineOne)}</span><span>${esc(h.headlineLineOneTwo)}</span></h1>
-        <p class="h-sub">${esc(h.headlineLineTwo)}</p>
-        <p class="lead">${esc(h.subhead)}</p>
-        <div class="act-jump" role="list">
-          ${featureActs
-            .map((a) => `<a role="listitem" href="#${a.id}" class="act-jump__item"><em>${esc(a.actNumber)}</em><b>${esc(a.label)}</b><span>${a.features.length} capabilities</span></a>`)
-            .join('')}
+  <section class="phero" data-theme="dark">
+    <div class="phero__bg" aria-hidden="true">
+      <canvas class="phero__sky"></canvas>
+      <div class="phero__glow"></div>
+      <div class="phero__haze"></div>
+    </div>
+    <div class="phero__inner">
+      <div class="phero__text">
+        <h1 class="phero__title">${h.title.map((l) => `<span class="phero__line">${esc(l)}</span>`).join(' ')}</h1>
+        <div class="phero__copy">
+          <p class="phero__lead">${esc(h.lead)}</p>
+          <p class="phero__support">${esc(h.support)}</p>
         </div>
       </div>
+      <div class="phero__actions"><a class="gbtn gbtn--lg" href="#day" data-magnetic>${esc(h.cta)}</a></div>
+    </div>
+  </section>`;
+}
+
+/** A 16px icon from Figma's app mockup. */
+const icon = (name: string, cls = '') => `<img class="app__icon${cls ? ` ${cls}` : ''}" src="/product/app/${name}.svg" alt="" width="16" height="16" />`;
+
+/** The assistant window (Figma 2413:860): a 1024 x 768 desktop app, scaled to fit by think-zoom.ts. */
+function appWindow() {
+  const a = dayInTheLife.app;
+  const row = (r: { label: string; dot?: string }) =>
+    `<li class="app__row">${r.dot ? `<i class="app__dot app__dot--${r.dot}"></i>` : ''}<span>${esc(r.label)}</span></li>`;
+  return `<div class="app" aria-hidden="true">
+    <div class="app__bar"><i></i><i></i><i></i></div>
+    <div class="app__body">
+      <aside class="app__side">
+        <div class="app__tools">
+          <span class="app__tools-l">${icon('sidebar')}${icon('back')}${icon('forward', 'app__icon--flip')}</span>
+          <span class="app__tools-r"><b class="app__chip is-on">${icon('chat')}</b><b class="app__chip">${icon('code')}</b></span>
+        </div>
+        <ul class="app__nav">
+          ${a.nav.map((n, i) => `<li class="app__row${i === 0 ? ' is-on' : ''}">${icon(['new', 'search', 'projects', 'artifacts', 'scheduled', 'customize'][i])}<span>${esc(n)}</span></li>`).join('')}
+        </ul>
+        <div class="app__group">
+          <p class="app__head">Pinned ${icon('chev', 'app__icon--sm')}</p>
+          <ul>${a.pinned.map(row).join('')}</ul>
+        </div>
+        <div class="app__group">
+          <p class="app__head"><span>Chats and tasks ${icon('chev', 'app__icon--sm')}</span>${icon('filter')}</p>
+          <ul>${a.chats.map(row).join('')}</ul>
+          <p class="app__more">View all</p>
+        </div>
+      </aside>
+      <div class="app__main">
+        <div class="app__top"></div>
+        <div class="app__chat">
+          <p class="app__hello">${esc(a.greeting)}</p>
+          <div class="app__ask">
+            <div class="app__box">
+              <p class="app__prompt">${esc(a.prompt)}</p>
+              <div class="app__controls">
+                <span class="app__modes">${icon('new')}${a.modes.map((m, i) => `<b class="app__chip${i === 0 ? ' is-on' : ''}">${esc(m)}</b>`).join('')}</span>
+                <span class="app__model"><b>${esc(a.model)}</b><em>${esc(a.size)}</em>${icon('mic')}${icon('send')}</span>
+              </div>
+            </div>
+            <div class="app__actions">
+              ${a.actions.map((t, i) => `<span class="app__btn">${icon(['write', 'learn', 'code', 'career'][i])}${esc(t)}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/**
+ * "Day in the life" (Figma 2407:6): the About lens stage (think.css, think-zoom.ts) with a recruiter's day for its
+ * statements: the time, then the stage of the work. The first one flies off through the lens into the app window.
+ */
+function day() {
+  const d = dayInTheLife;
+  return `
+  <section class="think day" id="day" data-theme="light">
+    <div class="think__stage">
+      <canvas class="think__lens" aria-hidden="true"></canvas>
+      <div class="day__tabs" role="list" aria-label="Stages of the day">
+        ${d.stages.map((s, i) => `<span role="listitem" class="day__tab${i === 0 ? ' is-on' : ''}">${esc(s)}</span>`).join('')}
+      </div>
+      <ol class="think__list">
+        ${d.moments
+          .map((m, i) => `<li class="think__item"><${i ? 'h3' : 'h2'} class="think__title">${esc(m.time)}</${i ? 'h3' : 'h2'}><p class="think__body">${esc(m.stage)}</p></li>`)
+          .join('')}
+      </ol>
+      ${appWindow()}
     </div>
   </section>`;
 }
@@ -119,6 +197,7 @@ function render() {
   );
   main.innerHTML = [
     hero(),
+    day(),
     ...featureActs.map(act),
     trustSection(),
     ctaAndFooter({ lineOne: finalFeaturesCta.title.replace(' recruitment business?', ''), lineTwo: 'recruitment business?', copy: finalFeaturesCta.body }),
@@ -195,14 +274,17 @@ function initActBar() {
       },
     });
   });
-  // Hero ghosts drift.
-  gsap.to('.product-hero__ghosts span', { yPercent: -30, ease: 'none', stagger: 0.1, scrollTrigger: { trigger: '.product-hero', start: 'top top', end: 'bottom top', scrub: true } });
 }
 
 boot({
   page: 'product',
   render,
   init: ({ reduce, revealed }) => {
+    // The same sky as the About and Contact heroes (Figma's Product hero uses identical Clouds and Moving blobs).
+    initClouds(q('.phero')!, q<HTMLCanvasElement>('.phero__sky')!, 'phero--sky', reduce, SKY_HERO, {
+      bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
+    });
+    initThinkZoom(!reduce, { screen: q<HTMLElement>('.day .app')! });
     initActBar();
     const acts = qa<HTMLElement>('.act');
 
@@ -212,17 +294,18 @@ boot({
       return;
     }
 
-    // Hero entrance.
-    const { tween } = splitReveal('.product-hero__title span', { by: 'chars', scrollTrigger: false, stagger: 0.015 });
+    // Hero entrance: the title by letter, then the copy and the button.
+    const { tween } = splitReveal('.phero__title', { by: 'chars', scrollTrigger: false, stagger: 0.025 });
     tween.pause();
     const heroTl = gsap
       .timeline({ paused: true, defaults: { ease: 'expo.out' } })
       .add(tween.play(), 0.05)
-      .from('.product-hero .h-sub, .product-hero .lead', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.5)
-      .from('.act-jump__item', { y: 30, autoAlpha: 0, duration: 0.9, stagger: 0.08 }, 0.8)
-      .from('.product-hero__ghosts span', { autoAlpha: 0, y: 60, duration: 1.6, stagger: 0.12, ease: 'power3.out' }, 0.2)
-      .from('.page-hero__mark', { autoAlpha: 0, scale: 0.9, duration: 1.6 }, 0.2);
-    revealed.then(() => heroTl.play());
+      .from('.phero__lead, .phero__support, .phero__actions', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.5);
+    revealed.then(() => {
+      heroTl.play();
+      // Never leave the copy hidden if frames are starved.
+      window.setTimeout(() => heroTl.progress() < 1 && heroTl.progress(1), 3500);
+    });
 
     acts.forEach((s) => {
       splitReveal(q('.act__title', s)!, { by: 'words' });
