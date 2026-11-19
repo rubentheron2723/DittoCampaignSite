@@ -238,7 +238,7 @@ function day() {
   </section>`;
 }
 
-/** "Trusted by leading recruitment teams since 2016.": headline, copy, counting stats and the client-type ticker. */
+/** "Trusted by leading recruitment teams since 2016.": headline, copy and the client-type ticker. */
 function trustSection() {
   const ticker = [...trust.ticker, ...trust.ticker].map((t) => `<span>${esc(t)}</span>`).join('');
   return `
@@ -246,18 +246,6 @@ function trustSection() {
     <div class="trust__inner">
       <h2 class="trust__title">${esc(trust.headline)}</h2>
       <p class="trust__body">${esc(trust.body)}</p>
-      <div class="stats">
-        ${trust.stats
-          .map(
-            (s) => `<div class="stat">
-              <span class="stat__value" data-count="${s.value}" data-format="${s.format ?? 'int'}">${s.format === 'year' ? '2000' : '0'}</span>${
-                s.suffix ? `<span class="stat__suffix">${esc(s.suffix)}</span>` : ''
-              }
-              <span class="stat__label">${esc(s.label)}</span>
-            </div>`,
-          )
-          .join('')}
-      </div>
     </div>
     <div class="ticker" aria-hidden="true"><div class="ticker__row">${ticker}</div></div>
   </section>`;

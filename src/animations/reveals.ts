@@ -22,34 +22,7 @@ export function initTrust(animate: boolean) {
       scrollTrigger: enter(title),
     });
     gsap.from('.trust__body', { y: 30, autoAlpha: 0, duration: 1, scrollTrigger: enter(q('.trust__body')!, 'top 85%') });
-    gsap.from('.stat', {
-      y: 40,
-      autoAlpha: 0,
-      duration: 1,
-      stagger: 0.08,
-      scrollTrigger: enter(q('.stats')!, 'top 80%'),
-    });
   }
-
-  // Counters.
-  qa<HTMLElement>('.stat__value').forEach((el) => {
-    const target = Number(el.dataset.count);
-    const isYear = el.dataset.format === 'year';
-    const obj = { v: isYear ? 2000 : 0 };
-    const render = () => (el.textContent = isYear ? String(Math.round(obj.v)) : String(Math.round(obj.v)));
-    if (!animate) {
-      obj.v = target;
-      render();
-      return;
-    }
-    gsap.to(obj, {
-      v: target,
-      duration: isYear ? 1.8 : 1.4,
-      ease: 'power3.out',
-      onUpdate: render,
-      scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
-    });
-  });
 
   // Ticker: endless, speeds up with scroll velocity.
   const row = q('.ticker__row', section)!;
