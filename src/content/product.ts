@@ -35,7 +35,29 @@ export const productHero = {
 /** "Day in the life" (Figma 2407:6): a recruiter's day, stage by stage, starting with the time and the stage. */
 export const dayInTheLife = {
   stages: ['Source', 'Engage', 'Place'],
-  moments: [{ time: '08:30', stage: 'Source' }],
+  /** `after`: comes after the app window (and its chat), arriving as the window fades. */
+  moments: [
+    { time: '08:30', stage: 'Source' },
+    { time: '11:50', stage: 'Engage', after: true },
+  ] as { time: string; stage: string; after?: boolean }[],
+  /** What the recruiter asks once the window zooms in on the chat, and what comes back. */
+  chat: {
+    request: 'I need a few good examples of a Senior Product Designer. Use my LinkedIn connections to find one.',
+    by: 'Ditto',
+    steps: [
+      'Connecting to your LinkedIn',
+      'Reading 1,284 connections',
+      'Matching against the Senior Product Designer brief',
+      'Ranking the strongest fits',
+    ],
+    answer: 'Here are 3 strong fits from your network:',
+    followUp: 'Amara’s the closest match. Want me to draft an intro?',
+    people: [
+      { name: 'Amara Okafor', role: 'Senior Product Designer', company: 'Northwind', link: '2nd · 14 mutual', match: 96, hue: 214 },
+      { name: 'Liam Chen', role: 'Lead Product Designer', company: 'Brightline', link: '1st connection', match: 92, hue: 196 },
+      { name: 'Sofia Marques', role: 'Product Designer II', company: 'Kestrel Labs', link: '2nd · 9 mutual', match: 88, hue: 250 },
+    ],
+  },
   /** The assistant window the first moment opens on. */
   app: {
     greeting: 'Good morning, Jane',
