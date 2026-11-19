@@ -313,8 +313,14 @@ function chatScene(screen: HTMLElement): StageScene {
     const c = cam();
     return -dy() * c.z + (y - c.H / 2) / c.f;
   };
-  /** How far the ask box drops, to 24 above the chat's foot. */
-  const drop = () => chat.clientHeight - 24 - box.offsetHeight - ask.offsetTop;
+  /** The box's height once the conversation starts (from 120): a composer, not a prompt. Keep in step with the
+   *  thread's foot in product.css (24 + this + 20). */
+  const COMPACT = 76;
+  /**
+   * How far the ask box drops, to 24 above the chat's foot, at its compact height. (Measured at its full height: as it
+   * shrinks, the centred column it sits in moves down by half the difference.)
+   */
+  const drop = () => chat.clientHeight - 24 - COMPACT - (ask.offsetTop + (box.offsetHeight - COMPACT) / 2);
   /** The conversation starts just below the band's top as the camera ends up. */
   const place = () => {
     const c = cam();
@@ -369,6 +375,7 @@ function chatScene(screen: HTMLElement): StageScene {
     .to(q('.app__hello', chat), { autoAlpha: 0, y: -24, duration: 0.45, ease: 'power2.in' }, sent + 0.1)
     .to(q('.app__actions', chat), { autoAlpha: 0, y: 12, duration: 0.35, ease: 'power2.in' }, sent + 0.1)
     .to(ask, { y: drop, duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
+    .to(box, { height: COMPACT, paddingTop: 12, paddingBottom: 12, duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
     .to(app, { y: () => yFor(cam().low), duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
     .to(box, { borderColor: 'rgba(81, 142, 243, 0.35)', duration: 0.6 }, sent + 0.6)
     .fromTo(q('.app__me', chat), { autoAlpha: 0, scale: 0.5, y: 24 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.7, ease: 'back.out(1.7)' }, sent + 0.6);

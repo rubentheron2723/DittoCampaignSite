@@ -108,7 +108,7 @@
    toggle (its top set by chatScene). It scrolls up as it grows, fading out at its top and foot; the side padding
    keeps the cards' shadows inside its clip. */
 .app__thread {
-  position: absolute; left: 50%; top: 24px; bottom: 164px; width: 560px; padding: 0 40px; transform: translateX(-50%);
+  position: absolute; left: 50%; top: 24px; bottom: 120px; width: 560px; padding: 0 40px; transform: translateX(-50%);
   overflow: hidden; pointer-events: none;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 12px), transparent 100%);
   mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 12px), transparent 100%);
