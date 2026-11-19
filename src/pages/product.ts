@@ -190,7 +190,7 @@ function day() {
   <section class="think day" id="day" data-theme="light">
     <div class="think__stage">
       <canvas class="think__lens" aria-hidden="true"></canvas>
-      <nav class="day__tabs" aria-label="Stages of the day">
+      <nav class="day__tabs" aria-label="Stages of the day" data-peek-stop>
         <i class="day__pill" aria-hidden="true"></i>
         ${d.stages
           .map((s, i) => {

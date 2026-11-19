@@ -30,10 +30,12 @@
 .day .think__item { flex-direction: column; justify-content: center; align-items: center; gap: 20px; text-align: center; }
 .day .think__title { flex: none; }
 .day .think__body { width: auto; }
+/* While the site nav opens over the stage (.think--peek, think-zoom.ts) the toggle slides down clear of it. */
 .day__tabs {
-  position: absolute; z-index: 3; left: 50%; top: 52px; transform: translateX(-50%); display: flex; gap: 8px; padding: 16px 20px; border-radius: 999px; isolation: isolate;
+  position: absolute; z-index: 3; left: 50%; top: 52px; transform: translateX(-50%); transition: transform 0.5s var(--ease-out); display: flex; gap: 8px; padding: 16px 20px; border-radius: 999px; isolation: isolate;
   background: linear-gradient(-73deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1);
 }
+.think--peek .day__tabs { transform: translate(-50%, var(--peek-shift, 0px)); }
 .day__tab {
   position: relative; padding: 8px 20px; border: 0; border-radius: 999px; background: none; cursor: pointer;
   font: inherit; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; white-space: nowrap;

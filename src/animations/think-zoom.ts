@@ -702,20 +702,35 @@ export function initThinkZoom(
 
   // While the stage holds the scroll the nav stays folded to its mark (see .nav--hold in base.css), and opens fully
   // while the pointer is up in its strip.
+  //
+  // Something of the stage's own up there (`data-peek-stop`: Product's toggle) is kept clear of it: the nav only opens
+  // above it, and while open the stage gets .think--peek with --peek-shift, how far that thing must move down to clear
+  // the nav's strip (so it slides out from under the nav, and from under the pointer, which closes the nav again once
+  // it leaves the strip).
   const nav = document.getElementById('nav');
+  const stop = q<HTMLElement>('[data-peek-stop]', stage);
+  const peek = (on: boolean) => {
+    nav?.classList.toggle('nav--peek', on);
+    section.classList.toggle('think--peek', on);
+  };
   const holdNav = (on: boolean) => {
     nav?.classList.toggle('nav--hold', on);
-    if (!on) nav?.classList.remove('nav--peek');
+    if (!on) peek(false);
   };
   window.addEventListener(
     'pointermove',
     (e) => {
       if (!captured || !nav || e.pointerType === 'touch') return;
-      nav.classList.toggle('nav--peek', e.clientY < nav.offsetHeight + 24);
+      const strip = nav.offsetHeight + 24;
+      // (offsetTop: where it sits unmoved; the stage is pinned at the top of the screen.)
+      const stopTop = stop ? stop.offsetTop : Infinity;
+      if (stop) section.style.setProperty('--peek-shift', `${Math.max(0, strip + 4 - stopTop)}px`);
+      const open = nav.classList.contains('nav--peek');
+      peek(e.clientY < (open ? strip : Math.min(strip, stopTop)));
     },
     { passive: true },
   );
-  document.documentElement.addEventListener('pointerleave', () => nav?.classList.remove('nav--peek'));
+  document.documentElement.addEventListener('pointerleave', () => peek(false));
 
   const smoother = () => ScrollSmoother.get();
   const freeze = (on: boolean) => {
