@@ -34,7 +34,12 @@
   position: absolute; z-index: 3; left: 50%; top: 52px; transform: translateX(-50%); display: flex; gap: 8px; padding: 16px 20px; border-radius: 999px; isolation: isolate;
   background: linear-gradient(-73deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1);
 }
-.day__tab { position: relative; padding: 8px 20px; border-radius: 999px; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; white-space: nowrap; }
+.day__tab {
+  position: relative; padding: 8px 20px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  font: inherit; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; white-space: nowrap;
+}
+.day__tab:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 2px; }
+.day__tab[aria-disabled='true'] { cursor: default; }
 /* The on tab's glass, one pill that slides between them (placed by initDayTabs). */
 .day__pill {
   position: absolute; z-index: -1; left: 0; top: 16px; bottom: 16px; width: 0; border-radius: 999px;
@@ -48,6 +53,9 @@
 .think--gl.day .think__lens { z-index: 2; }
 .think--gl.day .day__screen { position: absolute; left: 50%; top: 50%; z-index: 0; visibility: hidden; transform-origin: 50% 50%; will-change: transform, opacity; }
 .think--gl.day .app { will-change: transform; }
+/* Engage's chat fills the stage (it isn't scaled to fit); without the lens it isn't shown. */
+.think--gl.day .day__screen--chat { width: 100%; height: 100%; }
+.day:not(.think--gl) .day__screen--chat { display: none; }
 
 /* The app window (Figma 2413:860) */
 .app {
@@ -264,3 +272,40 @@
 @media (max-width: 560px) {
   .stats { gap: 16px; }
 }
+
+/* ---------- Engage's chat (Figma 2415:2 on): just the chat, at the zoomed chat's size ---------- */
+/* Bottom-anchored in the stage and scaled by engageScene (which also sets its height to the band), so its composer
+   sits where the first chat's ended up. */
+.app.app--bare {
+  position: absolute; left: 50%; bottom: 24px; width: 560px; height: 600px; transform-origin: 50% 100%;
+  border: 0; border-radius: 0; background: none; overflow: visible;
+}
+.app--bare .app__chat { position: relative; display: block; height: 100%; padding: 0; }
+.app--bare .app__thread { top: 0; }
+.app--bare .app__ask { position: absolute; left: 50%; bottom: 48px; transform: translateX(-50%); }
+.app__box--compact { height: 48px; padding: 0; border-color: rgba(81, 142, 243, 0.35); }
+.app__box--compact .app__line, .app__box--compact .app__under { visibility: visible; }
+.app__field--line { flex: 1 1 0; min-width: 0; overflow: hidden; white-space: nowrap; }
+.app__field--line .app__typed { color: #171717; }
+/* The conversation so far shows from the start. */
+.app__me.is-past, .app__by.is-past, .app__answer.is-past, .app__person.is-past { visibility: visible; }
+
+/* The message Ditto drafts: who it's to, the text (streamed over a hidden copy that holds its size), the slot it
+   held and the send button. */
+.app__draft {
+  visibility: hidden; display: grid; gap: 10px; padding: 14px 16px; border-radius: 16px;
+  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.85) 56%, rgba(255, 255, 255, 0.4) 100%);
+  border: 1px solid rgba(4, 92, 255, 0.12); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+}
+.app__draft-head { display: flex; align-items: center; justify-content: space-between; color: rgba(23, 23, 23, 0.6); }
+.app__draft-head b { color: #171717; font-weight: 600; }
+.app__draft-head em { font-style: normal; font-size: 10px; line-height: 12px; color: #1e6ef3; }
+.app__draft-body { display: grid; line-height: 18px; }
+.app__draft-body > * { grid-area: 1 / 1; }
+.app__draft-ghost { visibility: hidden; }
+.app__draft-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(4, 92, 255, 0.1); }
+.app__slot { display: flex; align-items: center; gap: 6px; color: rgba(23, 23, 23, 0.6); }
+.app__send-btn { display: grid; padding: 6px 14px; border-radius: 999px; background: linear-gradient(135deg, #1e6ef3 0%, #00b0ff 100%); color: #fff; font-weight: 500; }
+.app__send-btn > * { grid-area: 1 / 1; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.app__sent-label { visibility: hidden; }
+.app__sent-label .app__tick { visibility: inherit; width: 12px; height: 12px; }

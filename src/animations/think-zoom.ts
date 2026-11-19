@@ -253,25 +253,28 @@ export type StageScene = {
  * Sets up the section. Its last stop can be one of:
  *   - `team` (About: the next section's content), which joins the stage where it fits and builds its logo in the same
  *     locked view (team-logo.ts);
- *   - `screen` (Product: the app window), already in the stage: it arrives behind the last statement as that one
- *     flies, exactly as a next statement would (rising out of the depth), but as live HTML, fitted to the screen
- *     (its scale is left in its `data-fit`). After it come its `scenes`, a stop each, and then any statements marked
- *     `data-after`, which arrive through the lens as the screen fades.
- * `onStop` hears of every stop reached, with the statement it belongs to (the last one at or before it).
+ *   - `screens` (Product: the app window, then its chat), already in the stage. Each arrives behind the statement
+ *     before it as that one flies, exactly as a next statement would (rising out of the depth), but as live HTML,
+ *     fitted to the screen (its scale left in its `data-fit`; `fill` ones are the stage's own size and aren't
+ *     scaled). After each come its `scenes`, a stop each. Statements belong after the screen numbered in their
+ *     `data-group` (0, the default: before the first), and arrive through the lens as the screen before them fades.
+ * `onStop` hears of every stop reached, with the statement it belongs to (the last one at or before it). A
+ * `think:go` event on the section, with a statement as its detail, takes the stage to it.
  * Returns whether the team joined the stage.
  */
+export type StageScreen = { el: HTMLElement; scenes?: StageScene[]; fill?: boolean };
 export function initThinkZoom(
   animate: boolean,
-  opts: { team?: HTMLElement; screen?: HTMLElement; scenes?: StageScene[]; onStop?: (statement: HTMLElement) => void } = {},
+  opts: { team?: HTMLElement; screens?: StageScreen[]; onStop?: (statement: HTMLElement) => void } = {},
 ): boolean {
-  const { team, screen, onStop } = opts;
-  const scenes = screen ? (opts.scenes ?? []) : [];
+  const { team, onStop } = opts;
+  const screens = opts.screens ?? [];
   const section = q('.think');
   const stage = section && q('.think__stage', section);
   const canvas = section && q<HTMLCanvasElement>('.think__lens', section);
   if (!section || !stage || !canvas || !animate) return false;
   const statements = qa<HTMLElement>('.think__item', section);
-  if (statements.length + (screen ? 1 : 0) < 2) return false;
+  if (statements.length + screens.length < 2) return false;
   let family = "'DM Sans', sans-serif";
 
   // No multisampling: everything reaching the screen is one full-screen pass, which it would only slow down.
@@ -345,16 +348,29 @@ export function initThinkZoom(
   const frame = { x: 0, y: 0, w: 1, h: 1 };
   const verts = new Float32Array(24);
   /**
-   * The stops in order: the statements, the screen, its scenes, then the statements after it. `screenAt` is the
+   * The stops in order: each group of statements, then the screen after it and that screen's scenes. `screenAt` is a
    * screen's stop and `screenEnd` its last scene's; `stopOf` is a statement's stop.
    */
-  const before = screen ? statements.filter((el) => !('after' in el.dataset)).length : statements.length;
-  const screenAt = screen ? before : -1;
-  const screenEnd = screen ? screenAt + scenes.length : -1;
-  const stopOf = (i: number) => (i < before ? i : screenEnd + 1 + (i - before));
-  const sceneAt = (stop: number) => (screen && stop > screenAt && stop <= screenEnd ? scenes[stop - screenAt - 1] : null);
-  /** The screen's scale to fit the stage. */
-  let screenFit = 1;
+  const stops: { scene?: StageScene }[] = [];
+  const statementStop: number[] = [];
+  const screenAt: number[] = [];
+  const screenEnd: number[] = [];
+  for (let g = 0; g <= screens.length; g++) {
+    statements.forEach((el, i) => {
+      if (Number(el.dataset.group ?? 0) !== g) return;
+      statementStop[i] = stops.length;
+      stops.push({});
+    });
+    if (g === screens.length) break;
+    screenAt[g] = stops.length;
+    stops.push({});
+    (screens[g].scenes ?? []).forEach((scene) => stops.push({ scene }));
+    screenEnd[g] = stops.length - 1;
+  }
+  const stopOf = (i: number) => statementStop[i];
+  const sceneAt = (stop: number) => stops[stop]?.scene ?? null;
+  /** Each screen's scale to fit the stage. */
+  const screenFit = screens.map(() => 1);
 
   const texFrom = (src: HTMLCanvasElement) => {
     const tex = gl.createTexture()!;
@@ -374,10 +390,10 @@ export function initThinkZoom(
     H = Math.max(1, stage.clientHeight);
     // The screen at its design size (Figma's 1024 x 768 in a 1440 x 1024 frame: 208 either side, 120 above and below),
     // scaled down to keep those margins on a smaller stage.
-    if (screen) {
-      screenFit = Math.min(1, (W - 160) / screen.offsetWidth, (H - 240) / screen.offsetHeight);
-      screen.dataset.fit = String(screenFit);
-    }
+    screens.forEach((s, k) => {
+      screenFit[k] = s.fill ? 1 : Math.min(1, (W - 160) / s.el.offsetWidth, (H - 240) / s.el.offsetHeight);
+      s.el.dataset.fit = String(screenFit[k]);
+    });
     // The screen's own resolution (to 2x): the flying type stays as sharp as the HTML it takes over from.
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(W * dpr);
@@ -488,7 +504,7 @@ export function initThinkZoom(
       const a = EASE(gsap.utils.clamp(0, 1, (t - T.fadeInStart) / (T.fadeInEnd - T.fadeInStart)));
       return a > 0 ? { scale: ARRIVE_SCALE + (1 - ARRIVE_SCALE) * a, turn: 0, alpha: a } : null;
     }
-    if (i === statements.length - 1 && !screen) return { scale: 1, turn: 0, alpha: 1 };
+    if (i === statements.length - 1 && !screens.length) return { scale: 1, turn: 0, alpha: 1 };
     const z = ZOOM_EASE(gsap.utils.clamp(0, 1, (local - T.zoomStart) / (T.zoomEnd - T.zoomStart)));
     const f = EASE(gsap.utils.clamp(0, 1, (local - T.fadeOutStart) / (T.zoomEnd - T.fadeOutStart)));
     const alpha = 1 - f;
@@ -504,22 +520,22 @@ export function initThinkZoom(
    * scenes; leaving, it fades over the first half of the move on (as the next statement starts to arrive), growing
    * a little as if passed.
    */
-  const placeScreen = () => {
-    if (!screen) return;
-    const local = pos.v - screenAt;
-    let a: number, scale: number;
-    if (local < 0) {
-      a = local < -1 ? 0 : EASE(gsap.utils.clamp(0, 1, (1 + local - T.fadeInStart) / (T.fadeInEnd - T.fadeInStart)));
-      scale = ARRIVE_SCALE + (1 - ARRIVE_SCALE) * a;
-    } else {
-      const out = EASE(gsap.utils.clamp(0, 1, (pos.v - screenEnd) / T.fadeInStart));
-      a = 1 - out;
-      scale = 1 + 0.08 * out;
-    }
-    screen.style.opacity = String(a);
-    screen.style.visibility = a > 0 ? 'visible' : 'hidden';
-    screen.style.transform = `translate(-50%, -50%) scale(${screenFit * scale})`;
-  };
+  const placeScreen = () =>
+    screens.forEach(({ el }, k) => {
+      const local = pos.v - screenAt[k];
+      let a: number, scale: number;
+      if (local < 0) {
+        a = local < -1 ? 0 : EASE(gsap.utils.clamp(0, 1, (1 + local - T.fadeInStart) / (T.fadeInEnd - T.fadeInStart)));
+        scale = ARRIVE_SCALE + (1 - ARRIVE_SCALE) * a;
+      } else {
+        const out = EASE(gsap.utils.clamp(0, 1, (pos.v - screenEnd[k]) / T.fadeInStart));
+        a = 1 - out;
+        scale = 1 + 0.08 * out;
+      }
+      el.style.opacity = String(a);
+      el.style.visibility = a > 0 ? 'visible' : 'hidden';
+      el.style.transform = `translate(-50%, -50%) scale(${screenFit[k] * scale})`;
+    });
 
   /** Whether a statement is in flight: then the canvas shows; otherwise the HTML statement does. */
   let flying = false;
@@ -637,10 +653,10 @@ export function initThinkZoom(
     });
   };
 
-  /** The last stop: the team scene when it's in the stage, otherwise the last statement (or the screen's last scene). */
+  /** The last stop: the team scene when it's in the stage, otherwise the last statement or scene. */
   const last = statements.length - 1;
   const teamAt = scene ? statements.length : -1;
-  const steps = scene ? teamAt : screen ? Math.max(screenEnd, stopOf(last)) : last;
+  const steps = scene ? teamAt : stops.length - 1;
   /** How long fading the last statement out takes before the logo starts building (s). */
   const HANDOVER = 0.45;
 
@@ -758,13 +774,16 @@ export function initThinkZoom(
       pos.v = at;
       section.classList.remove('think--team');
       scene?.reset();
-      // The screen's scenes as they'd be by now: played up to here, not yet beyond.
-      for (let k = scenes.length - 1; k >= 0; k--) if (screenAt + 1 + k > at) scenes[k].reset();
-      scenes.forEach((s, k) => screenAt + 1 + k <= at && s.finish());
+      settleScenes(at);
       show(at, false);
     }
     schedule();
   };
+  /** The screens' scenes as they'd be at a stop: played up to it, not yet beyond (the later ones reset first). */
+  function settleScenes(at: number) {
+    for (let k = stops.length - 1; k > at; k--) stops[k].scene?.reset();
+    for (let k = 0; k <= at && k < stops.length; k++) stops[k].scene?.finish();
+  }
   const release = (dir: 1 | -1) => {
     if (!captured || !st) return;
     captured = false;
@@ -822,7 +841,7 @@ export function initThinkZoom(
       },
     });
   };
-  /** Into one of the screen's scenes, or back out of it: played on the screen, which stays where it is. */
+  /** Into one of a screen's scenes, or back out of it: played on the screen, which stays where it is. */
   const toScene = (to: number, s: StageScene, dir: 1 | -1) => {
     index = to;
     flight?.kill();
@@ -881,6 +900,32 @@ export function initThinkZoom(
     pending = dir;
     flush();
   };
+
+  /**
+   * Straight to a stop (Product's toggle): arriving as if from the stop before it, with the scenes settled to match.
+   * From outside the section, the page goes to it and it opens there.
+   */
+  const goTo = (to: number) => {
+    if (!st || scene || to < 0 || to > steps) return;
+    if (!captured) {
+      releasedAt = -Infinity;
+      capture(to);
+      return;
+    }
+    if (to === index) return;
+    pending = 0;
+    flight?.kill();
+    settleScenes(to - 1);
+    pos.v = to - 1;
+    index = to - 1;
+    const into = sceneAt(to);
+    if (into) toScene(to, into, 1);
+    else move(to);
+  };
+  section.addEventListener('think:go', (e) => {
+    const i = statements.indexOf((e as CustomEvent<HTMLElement>).detail);
+    if (i >= 0) goTo(stopOf(i));
+  });
 
   window.addEventListener(
     'wheel',

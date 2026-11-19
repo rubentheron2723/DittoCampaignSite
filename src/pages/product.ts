@@ -8,7 +8,7 @@ import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
 import { initThinkZoom, type StageScene } from '../animations/think-zoom';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
-import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
+import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, splitReveal } from '../shared/motion';
 import { initTrust } from '../animations/reveals';
 
@@ -44,36 +44,83 @@ const TICK = `<svg class="app__tick" viewBox="0 0 16 16" width="14" height="14" 
  * The conversation the chat zooms in on (played by chatScene): the request as a bubble, Ditto's steps as it works,
  * then the people it found. All of it waits hidden until played.
  */
+type Person = (typeof dayInTheLife.chat.people)[number];
+const initials = (n: string) => n.split(' ').map((w) => w[0]).join('');
+const person = (p: Person, cls = '') => `<li class="app__person${cls}">
+    <span class="app__avatar" style="--hue: ${p.hue}">${esc(initials(p.name))}</span>
+    <span class="app__who"><b>${esc(p.name)}</b><span>${esc(p.role)} · ${esc(p.company)}</span><em>${esc(p.link)}</em></span>
+    <span class="app__match"><b>${p.match}%</b>match</span>
+  </li>`;
+
 function thread() {
   const c = dayInTheLife.chat;
-  const initials = (n: string) => n.split(' ').map((w) => w[0]).join('');
   return `<div class="app__thread"><div class="app__scroll">
     <div class="app__me"><p>${esc(c.request)}</p></div>
     <div class="app__reply">
       <p class="app__by"><i class="app__orb"></i>${esc(c.by)}</p>
-      <ol class="app__steps">
-        ${c.steps
-          .map(
-            (t) => `<li class="app__step">
-              <span class="app__state"><i class="app__spin"></i>${TICK}</span>
-              <span class="app__step-text"><span class="app__step-live">${esc(t)}</span><span class="app__step-done">${esc(t)}</span></span>
-            </li>`,
-          )
-          .join('')}
-      </ol>
+      ${stepList(c.steps)}
       <p class="app__answer">${esc(c.answer)}</p>
       <ul class="app__people">
-        ${c.people
-          .map(
-            (p) => `<li class="app__person">
-              <span class="app__avatar" style="--hue: ${p.hue}">${esc(initials(p.name))}</span>
-              <span class="app__who"><b>${esc(p.name)}</b><span>${esc(p.role)} · ${esc(p.company)}</span><em>${esc(p.link)}</em></span>
-              <span class="app__match"><b>${p.match}%</b>match</span>
-            </li>`,
-          )
-          .join('')}
+        ${c.people.map((p) => person(p)).join('')}
       </ul>
       <p class="app__answer">${esc(c.followUp)}</p>
+    </div>
+  </div></div>`;
+}
+
+/** Ditto's steps as it works: a spinner each, then a tick (played by the scenes). */
+const stepList = (steps: string[]) => `<ol class="app__steps">
+    ${steps
+      .map(
+        (t) => `<li class="app__step">
+          <span class="app__state"><i class="app__spin"></i>${TICK}</span>
+          <span class="app__step-text"><span class="app__step-live">${esc(t)}</span><span class="app__step-done">${esc(t)}</span></span>
+        </li>`,
+      )
+      .join('')}
+  </ol>`;
+
+/**
+ * Engage (Figma 2415:2 on): just the chat, at the size the first one zoomed to, with the sourcing conversation above
+ * (its request, Ditto's top match and its offer). The recruiter takes it up (engageScene): a new request, Ditto's
+ * steps, then the message it drafted, which streams in and is sent. Laid out by engageScene to fill the stage.
+ */
+function engageChat() {
+  const c = dayInTheLife.chat;
+  const e = dayInTheLife.engage;
+  const a = dayInTheLife.app;
+  return `<div class="day__screen day__screen--chat" aria-hidden="true"><div class="app app--bare">
+    <div class="app__chat">
+      <div class="app__thread"><div class="app__scroll">
+        <div class="app__me is-past"><p>${esc(c.request)}</p></div>
+        <div class="app__reply">
+          <p class="app__by is-past"><i class="app__orb"></i>${esc(c.by)}</p>
+          <p class="app__answer is-past">${esc(c.answer)}</p>
+          <ul class="app__people">${person(c.people[0], ' is-past')}</ul>
+          <p class="app__answer is-past app__offer">${esc(c.followUp)}</p>
+        </div>
+        <div class="app__me"><p>${esc(e.request)}</p></div>
+        <div class="app__reply">
+          <p class="app__by"><i class="app__orb"></i>${esc(c.by)}</p>
+          ${stepList(e.steps)}
+          <p class="app__answer">${esc(e.answer)}</p>
+          <div class="app__draft">
+            <p class="app__draft-head"><span>To <b>${esc(e.draft.to)}</b></span><em>${esc(e.draft.via)}</em></p>
+            <p class="app__draft-body"><span class="app__draft-ghost">${esc(e.draft.body)}</span><span class="app__draft-text"></span></p>
+            <div class="app__draft-foot">
+              <span class="app__slot">${icon('scheduled')}${esc(e.draft.slot)}</span>
+              <b class="app__send-btn"><span class="app__send-label">${esc(e.draft.send)}</span><span class="app__sent-label">${TICK}${esc(e.draft.sent)}</span></b>
+            </div>
+          </div>
+          <p class="app__answer">${esc(e.followUp)}</p>
+        </div>
+      </div></div>
+      <div class="app__ask">
+        <div class="app__box app__box--compact">
+          <span class="app__line">${icon('new')}<span class="app__field app__field--line"><span class="app__prompt">${esc(a.prompt)}</span><span class="app__typed"><span class="app__text"></span><i class="app__caret"></i></span></span>${icon('mic')}</span>
+          <p class="app__under"><b>${esc(a.model)}</b><em>${esc(a.size)}</em></p>
+        </div>
+      </div>
     </div>
   </div></div>`;
 }
@@ -141,19 +188,25 @@ function day() {
   <section class="think day" id="day" data-theme="light">
     <div class="think__stage">
       <canvas class="think__lens" aria-hidden="true"></canvas>
-      <div class="day__tabs" role="list" aria-label="Stages of the day">
+      <nav class="day__tabs" aria-label="Stages of the day">
         <i class="day__pill" aria-hidden="true"></i>
-        ${d.stages.map((s, i) => `<span role="listitem" class="day__tab${i === 0 ? ' is-on' : ''}" data-stage="${esc(s)}">${esc(s)}</span>`).join('')}
-      </div>
+        ${d.stages
+          .map((s, i) => {
+            const live = d.moments.some((m) => m.stage === s);
+            return `<button type="button" class="day__tab${i === 0 ? ' is-on' : ''}" data-stage="${esc(s)}"${i === 0 ? ' aria-current="step"' : ''}${live ? '' : ' aria-disabled="true"'}>${esc(s)}</button>`;
+          })
+          .join('')}
+      </nav>
       <ol class="think__list">
         ${d.moments
           .map(
             (m, i) =>
-              `<li class="think__item" data-stage="${esc(m.stage)}"${m.after ? ' data-after' : ''}><${i ? 'h3' : 'h2'} class="think__title">${esc(m.time)}</${i ? 'h3' : 'h2'}><p class="think__body">${esc(m.stage)}</p></li>`,
+              `<li class="think__item" data-stage="${esc(m.stage)}"${m.group ? ` data-group="${m.group}"` : ''}><${i ? 'h3' : 'h2'} class="think__title">${esc(m.time)}</${i ? 'h3' : 'h2'}><p class="think__body">${esc(m.stage)}</p></li>`,
           )
           .join('')}
       </ol>
       ${appWindow()}
+      ${engageChat()}
     </div>
   </section>`;
 }
@@ -254,7 +307,10 @@ function render() {
 }
 
 /* ---------- Animate ---------- */
-/** The Source / Engage / Place toggle: its glass pill slides to the stage of the statement on screen. */
+/**
+ * The Source / Engage / Place toggle: its glass pill slides to the stage of the statement on screen, and each is a
+ * button to that stage's first statement (one with none yet is disabled).
+ */
 function initDayTabs(animate: boolean) {
   const tabs = qa<HTMLElement>('.day__tab');
   const pill = q<HTMLElement>('.day__pill');
@@ -264,13 +320,179 @@ function initDayTabs(animate: boolean) {
   place(on, 0);
   // Fonts settling can shift the tabs.
   document.fonts.ready.then(() => place(on, 0));
+
+  tabs.forEach((t) =>
+    t.addEventListener('click', () => {
+      const day = q<HTMLElement>('.day');
+      const target = qa<HTMLElement>('.day .think__item').find((el) => el.dataset.stage === t.dataset.stage);
+      if (!day || !target || t.getAttribute('aria-disabled') === 'true') return;
+      if (day.classList.contains('think--gl')) day.dispatchEvent(new CustomEvent('think:go', { detail: target }));
+      else {
+        // Without the lens the statements are plain rows: scroll to it.
+        const sm = ScrollSmoother.get();
+        if (sm) sm.scrollTo(target, true, 'center center');
+        else target.scrollIntoView({ behavior: animate ? 'smooth' : 'auto', block: 'center' });
+      }
+    }),
+  );
+
   return (stage: string) => {
     const t = tabs.find((x) => x.dataset.stage === stage);
     if (!t || t === on) return;
     on.classList.remove('is-on');
+    on.removeAttribute('aria-current');
     t.classList.add('is-on');
+    t.setAttribute('aria-current', 'step');
     on = t;
     place(t, animate ? 0.8 : 0);
+  };
+}
+
+/** The chat's size on screen (times its design size): by the stage's width alone, up to 1.5x, so it reads anywhere. */
+const chatScale = (W: number) => Math.max(0.3, Math.min(1.5, (W - 64) / 560));
+/** The band the chat is framed in: below the toggle, and 24 above the stage's foot. */
+const BAND_TOP = 150;
+const BAND_FOOT = 24;
+
+/**
+ * Engage's chat (engageChat): it arrives as 11:50 flies, the sourcing conversation already above; then the recruiter
+ * types a reply and sends it, Ditto works through its steps, and the message it drafted streams into a card, which is
+ * sent. Like chatScene, a stop of the lens stage of its own.
+ */
+function engageScene(screen: HTMLElement): StageScene {
+  const stage = screen.closest<HTMLElement>('.think__stage')!;
+  const convo = q<HTMLElement>('.app--bare', screen)!;
+  const thread = q<HTMLElement>('.app__thread', convo)!;
+  const scroller = q<HTMLElement>('.app__scroll', convo)!;
+  const box = q<HTMLElement>('.app__box', convo)!;
+  const field = q<HTMLElement>('.app__field', box)!;
+  const text = q<HTMLElement>('.app__text', box)!;
+  const e = dayInTheLife.engage;
+
+  /** At the first chat's size, from the band's top to its foot. */
+  const layout = () => {
+    const k = chatScale(stage.clientWidth);
+    convo.style.height = `${(stage.clientHeight - BAND_TOP - BAND_FOOT) / k}px`;
+    convo.style.transform = `translateX(-50%) scale(${k})`;
+  };
+  /** The conversation's offset that brings `el` into view above the box. */
+  const reach = (el: HTMLElement) => -Math.max(0, el.offsetTop + el.offsetHeight + 16 - thread.clientHeight);
+  const offer = q<HTMLElement>('.app__offer', scroller)!;
+  /** Laid out, and scrolled to the end of the conversation so far. */
+  const settle = () => {
+    layout();
+    gsap.set(scroller, { y: reach(offer) });
+  };
+  settle();
+
+  const tl = gsap.timeline({ paused: true });
+  const follow = (el: HTMLElement, at: number) => tl.to(scroller, { y: () => reach(el), duration: 0.6, ease: 'power2.out' }, at);
+
+  // 1. The reply, typed into the composer (its end kept in view).
+  const typing = { n: 0 };
+  const typeTime = e.request.length / 32;
+  tl.to(box, { borderColor: 'rgba(81, 142, 243, 1)', duration: 0.3 }, 0)
+    .to(q('.app__prompt', box), { autoAlpha: 0, duration: 0.15 }, 0.2)
+    .fromTo(q('.app__caret', box), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, 0.2)
+    .fromTo(
+      typing,
+      { n: 0 },
+      {
+        n: e.request.length,
+        duration: typeTime,
+        ease: 'none',
+        onUpdate: () => {
+          text.textContent = e.request.slice(0, Math.round(typing.n));
+          field.scrollLeft = field.scrollWidth;
+        },
+      },
+      0.3,
+    );
+
+  // 2. Sent: the composer empties and the reply pops up as a bubble.
+  const sent = 0.3 + typeTime + 0.35;
+  const me = qa<HTMLElement>('.app__me:not(.is-past)', scroller)[0];
+  const reply = me.nextElementSibling as HTMLElement;
+  tl.to(q('.app__typed', box), { autoAlpha: 0, duration: 0.2 }, sent)
+    // (Scrolled back to its start, or the placeholder shows only its end.)
+    .to(field, { scrollLeft: 0, duration: 0.01 }, sent + 0.25)
+    .to(q('.app__prompt', box), { autoAlpha: 1, duration: 0.3 }, sent + 0.3)
+    .to(box, { borderColor: 'rgba(81, 142, 243, 0.35)', duration: 0.6 }, sent + 0.3)
+    .fromTo(me, { autoAlpha: 0, scale: 0.5, y: 24 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.7, ease: 'back.out(1.7)' }, sent + 0.3);
+  follow(me, sent + 0.2);
+
+  // 3. Ditto at work.
+  const workAt = sent + 1.1;
+  const STEP = 0.95;
+  const by = q<HTMLElement>('.app__by', reply)!;
+  follow(by, workAt);
+  tl.fromTo(by, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' }, workAt);
+  const steps = qa<HTMLElement>('.app__step', reply);
+  steps.forEach((s, i) => {
+    const at = workAt + 0.3 + i * STEP;
+    follow(s, at);
+    tl.fromTo(s, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out' }, at)
+      .to(q('.app__spin', s), { autoAlpha: 0, duration: 0.15 }, at + STEP - 0.1)
+      .fromTo(q('.app__tick', s), { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: 'back.out(2.5)' }, at + STEP - 0.1)
+      .to(q('.app__step-live', s), { autoAlpha: 0, duration: 0.25 }, at + STEP - 0.1)
+      .fromTo(q('.app__step-done', s), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 }, at + STEP - 0.1);
+  });
+
+  // 4. The message it drafted, streaming in (its card already its full size), then sent.
+  const doneAt = workAt + 0.3 + steps.length * STEP + 0.2;
+  const [lead, last] = qa<HTMLElement>('.app__answer', reply);
+  const draft = q<HTMLElement>('.app__draft', reply)!;
+  const draftText = q<HTMLElement>('.app__draft-text', draft)!;
+  const stream = { n: 0 };
+  const streamAt = doneAt + 0.6;
+  const streamTime = e.draft.body.length / 110;
+  follow(lead, doneAt);
+  follow(draft, doneAt + 0.3);
+  tl.fromTo(lead, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, doneAt)
+    .fromTo(draft, { autoAlpha: 0, y: 18, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: 'expo.out' }, doneAt + 0.3)
+    .fromTo(
+      stream,
+      { n: 0 },
+      {
+        n: e.draft.body.length,
+        duration: streamTime,
+        ease: 'none',
+        onUpdate: () => void (draftText.textContent = e.draft.body.slice(0, Math.round(stream.n))),
+      },
+      streamAt,
+    );
+  const sendAt = streamAt + streamTime + 0.6;
+  const btn = q<HTMLElement>('.app__send-btn', draft)!;
+  tl.to(btn, { scale: 0.92, duration: 0.12, ease: 'power2.out', yoyo: true, repeat: 1 }, sendAt)
+    .to(q('.app__send-label', btn), { autoAlpha: 0, duration: 0.2 }, sendAt + 0.1)
+    .fromTo(q('.app__sent-label', btn), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, sendAt + 0.2)
+    .fromTo(last, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, sendAt + 0.6);
+  follow(last, sendAt + 0.6);
+
+  // A new stage size re-lays it out, wherever the scene is.
+  ScrollTrigger.addEventListener('refresh', () => {
+    const t = tl.time();
+    tl.progress(0, true);
+    settle();
+    tl.invalidate().time(t, true);
+  });
+
+  return {
+    play: () => {
+      tl.timeScale(1).play(0);
+      return tl.duration();
+    },
+    back: () => {
+      tl.timeScale(3).reverse();
+      return tl.time() / 3;
+    },
+    hurry: () => {
+      if (!tl.isActive() || tl.reversed()) return 0;
+      tl.timeScale(5);
+      return (tl.duration() - tl.time()) / 5;
+    },
+    finish: () => void tl.pause().progress(1),
+    reset: () => void tl.pause().progress(0),
   };
 }
 
@@ -296,13 +518,11 @@ function chatScene(screen: HTMLElement): StageScene {
    * greeting and the box), then, as the box drops on sending, lowered with it until the chat's foot meets the band's
    * (`low`) when the whole chat is taller than the band. The conversation then scrolls up as it grows, like a chat.
    */
-  const BAND_TOP = 150;
-  const BAND_FOOT = 24;
   const fit = () => parseFloat(screen.dataset.fit || '1') || 1;
   const cam = () => {
     const W = stage.clientWidth;
     const H = stage.clientHeight;
-    const k = Math.max(0.3, Math.min(1.5, (W - 64) / 560));
+    const k = chatScale(W);
     const foot = H - BAND_FOOT;
     const mid = (BAND_TOP + foot) / 2;
     const low = Math.min(mid, foot - (k * chat.offsetHeight) / 2);
@@ -526,8 +746,15 @@ boot({
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
     const tab = initDayTabs(!reduce);
-    const screen = q<HTMLElement>('.day__screen')!;
-    initThinkZoom(!reduce, { screen, scenes: [chatScene(screen)], onStop: (el) => tab(el.dataset.stage ?? '') });
+    const screen = q<HTMLElement>('.day__screen:not(.day__screen--chat)')!;
+    const chat = q<HTMLElement>('.day__screen--chat')!;
+    initThinkZoom(!reduce, {
+      screens: [
+        { el: screen, scenes: [chatScene(screen)] },
+        { el: chat, scenes: [engageScene(chat)], fill: true },
+      ],
+      onStop: (el) => tab(el.dataset.stage ?? ''),
+    });
     initActBar();
     const acts = qa<HTMLElement>('.act');
 
