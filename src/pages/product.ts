@@ -361,12 +361,12 @@ const BAND_FOOT = 24;
  * twice its pace (a jump to 5x made fast scrolling flash through it). Back up, it rewinds at twice its pace.
  *
  * With `keep` (the conversation's scroller), once it has played it isn't rewound: back up, the conversation scrolls
- * to its start (and the stage goes on from the played scene, as it stands); on again, it scrolls back to its end. A
- * new visit to the section (a reset) plays it afresh.
+ * to its start (`start`, where it sat before playing; 0 by default) and the stage goes on from the played scene, as
+ * it stands; on again, it scrolls back to its end. A new visit to the section (a reset) plays it afresh.
  */
 const HURRY = 2;
 const SCROLL_BACK = 0.9;
-function sceneControls(tl: gsap.core.Timeline, keep?: HTMLElement): StageScene {
+function sceneControls(tl: gsap.core.Timeline, keep?: HTMLElement, start: () => number = () => 0): StageScene {
   /** Played, and scrolled back up: the conversation's end, to scroll back to. */
   let end: number | null = null;
   /** (Its own tween, replaced each time: overwriting by target would also cut the timeline's own scrolling.) */
@@ -394,7 +394,7 @@ function sceneControls(tl: gsap.core.Timeline, keep?: HTMLElement): StageScene {
     back: () => {
       if (keep && tl.progress() === 1) {
         if (end === null) end = Number(gsap.getProperty(keep, 'y'));
-        scrollTo(0);
+        scrollTo(start());
         return SCROLL_BACK;
       }
       pace(HURRY);
@@ -545,7 +545,8 @@ function engageScene(screen: HTMLElement): StageScene {
     tl.invalidate().time(t, true);
   });
 
-  return sceneControls(tl);
+  // Once played, back up scrolls to where it arrived (the sourcing conversation), as the Source chat does.
+  return sceneControls(tl, scroller, () => reach(offer));
 }
 
 /**
