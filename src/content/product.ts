@@ -39,6 +39,7 @@ export const dayInTheLife = {
   moments: [
     { time: '08:30', stage: 'Source' },
     { time: '11:50', stage: 'Engage', group: 1 },
+    { time: '15:30', stage: 'Place', group: 2 },
   ] as { time: string; stage: string; group?: number }[],
   /** What the recruiter asks once the window zooms in on the chat, and what comes back. */
   chat: {
@@ -79,6 +80,28 @@ export const dayInTheLife = {
       copied: 'Copied',
     },
     followUp: 'Paste it into LinkedIn when you’re ready. I’ll remind you to follow up if there’s no reply in 3 days.',
+  },
+  /**
+   * Place (after 15:30, Figma 2415:177): the chat again, the Engage conversation above. Amara has said yes, and Ditto
+   * logs the placement. The client is the "fast-growing fintech team" from the message.
+   */
+  place: {
+    request: 'Amara accepted Lumen Pay’s offer! Log the placement and get the invoice ready.',
+    steps: [
+      'Moving Amara to Placed in your pipeline',
+      'Pulling the fee terms from the Lumen Pay agreement',
+      'Drafting the invoice',
+      'Scheduling check-ins for her first 90 days',
+    ],
+    answer: 'Done. Here’s the placement:',
+    client: 'Lumen Pay',
+    status: 'Placed',
+    facts: [
+      { label: 'Starts', value: 'Mon 4 January' },
+      { label: 'Fee', value: '20% of first-year salary · invoice drafted' },
+      { label: 'Check-ins', value: 'Weeks 1, 4 and 12' },
+    ],
+    followUp: 'That’s the role filled, from first search to placement. Nice work today, Jane.',
   },
   /** The assistant window the first moment opens on. */
   app: {
