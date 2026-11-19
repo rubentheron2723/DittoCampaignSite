@@ -859,6 +859,16 @@ export function initThinkZoom(
     step(dir);
   };
   const request = (dir: 1 | -1) => {
+    // A scene still playing (judged by the scene, not the clock, which runs ahead when frames are slow): a swipe on
+    // hurries it to its end, where it then holds, rather than leaving it.
+    const playing = sceneAt(index);
+    if (dir > 0 && playing) {
+      const left = playing.hurry();
+      if (left > 0) {
+        busyUntil = performance.now() + (left + HOLD) * 1000;
+        return;
+      }
+    }
     if (!busy()) {
       pending = 0;
       step(dir);
@@ -868,15 +878,6 @@ export function initThinkZoom(
     // next swipe after it moves on. (Speeding it up, and keeping a swipe for afterwards, let two quick swipes skip
     // the section almost entirely.)
     if (dir > 0 && index === teamAt && building) return;
-    // Likewise a scene still playing: a swipe on hurries it to its end (where it then holds), rather than leaving it.
-    const playing = sceneAt(index);
-    if (dir > 0 && playing) {
-      const left = playing.hurry();
-      if (left > 0) {
-        busyUntil = performance.now() + (left + HOLD) * 1000;
-        return;
-      }
-    }
     pending = dir;
     flush();
   };

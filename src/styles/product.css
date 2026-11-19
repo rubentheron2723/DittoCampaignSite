@@ -104,11 +104,16 @@
 @keyframes app-caret { 50% { background: transparent; } }
 .app__send { transform-origin: 50% 50%; }
 
-/* The conversation (Figma 2420:2 on): above the box once it has dropped to the chat's foot. */
+/* The conversation (Figma 2420:2 on): above the box once it has dropped to the chat's foot, from just below the
+   toggle (its top set by chatScene). It scrolls up as it grows, fading out at its top and foot; the side padding
+   keeps the cards' shadows inside its clip. */
 .app__thread {
-  position: absolute; left: 50%; top: 24px; width: 480px; transform: translateX(-50%);
-  display: flex; flex-direction: column; gap: 20px; pointer-events: none;
+  position: absolute; left: 50%; top: 24px; bottom: 164px; width: 560px; padding: 0 40px; transform: translateX(-50%);
+  overflow: hidden; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 12px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 12px), transparent 100%);
 }
+.app__scroll { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px 0 16px; }
 .app__me, .app__by, .app__step, .app__answer, .app__person { visibility: hidden; }
 .app__me {
   align-self: flex-end; max-width: 340px; padding: 10px 14px; border-radius: 18px 18px 4px 18px; transform-origin: 100% 100%;
