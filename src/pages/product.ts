@@ -6,7 +6,7 @@ import { dayInTheLife, featureActs, finalFeaturesCta, productHero, trust, type A
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
-import { initThinkZoom } from '../animations/think-zoom';
+import { initThinkZoom, type StageScene } from '../animations/think-zoom';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, splitReveal } from '../shared/motion';
@@ -38,12 +38,52 @@ function hero() {
 /** A 16px icon from Figma's app mockup. */
 const icon = (name: string, cls = '') => `<img class="app__icon${cls ? ` ${cls}` : ''}" src="/product/app/${name}.svg" alt="" width="16" height="16" />`;
 
+const TICK = `<svg class="app__tick" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#1e6ef3"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/**
+ * The conversation the chat zooms in on (played by chatScene): the request as a bubble, Ditto's steps as it works,
+ * then the people it found. All of it waits hidden until played.
+ */
+function thread() {
+  const c = dayInTheLife.chat;
+  const initials = (n: string) => n.split(' ').map((w) => w[0]).join('');
+  return `<div class="app__thread">
+    <div class="app__me"><p>${esc(c.request)}</p></div>
+    <div class="app__reply">
+      <p class="app__by"><i class="app__orb"></i>${esc(c.by)}</p>
+      <ol class="app__steps">
+        ${c.steps
+          .map(
+            (t) => `<li class="app__step">
+              <span class="app__state"><i class="app__spin"></i>${TICK}</span>
+              <span class="app__step-text"><span class="app__step-live">${esc(t)}</span><span class="app__step-done">${esc(t)}</span></span>
+            </li>`,
+          )
+          .join('')}
+      </ol>
+      <p class="app__answer">${esc(c.answer)}</p>
+      <ul class="app__people">
+        ${c.people
+          .map(
+            (p) => `<li class="app__person">
+              <span class="app__avatar" style="--hue: ${p.hue}">${esc(initials(p.name))}</span>
+              <span class="app__who"><b>${esc(p.name)}</b><span>${esc(p.role)} · ${esc(p.company)}</span><em>${esc(p.link)}</em></span>
+              <span class="app__match"><b>${p.match}%</b>match</span>
+            </li>`,
+          )
+          .join('')}
+      </ul>
+      <p class="app__answer">${esc(c.followUp)}</p>
+    </div>
+  </div>`;
+}
+
 /** The assistant window (Figma 2413:860): a 1024 x 768 desktop app, scaled to fit by think-zoom.ts. */
 function appWindow() {
   const a = dayInTheLife.app;
   const row = (r: { label: string; dot?: string }) =>
     `<li class="app__row">${r.dot ? `<i class="app__dot app__dot--${r.dot}"></i>` : ''}<span>${esc(r.label)}</span></li>`;
-  return `<div class="app" aria-hidden="true">
+  return `<div class="day__screen" aria-hidden="true"><div class="app">
     <div class="app__bar"><i></i><i></i><i></i></div>
     <div class="app__body">
       <aside class="app__side">
@@ -70,25 +110,28 @@ function appWindow() {
           <p class="app__hello">${esc(a.greeting)}</p>
           <div class="app__ask">
             <div class="app__box">
-              <p class="app__prompt">${esc(a.prompt)}</p>
+              <p class="app__field"><span class="app__prompt">${esc(a.prompt)}</span><span class="app__typed"><span class="app__text"></span><i class="app__caret"></i></span></p>
               <div class="app__controls">
                 <span class="app__modes">${icon('new')}${a.modes.map((m, i) => `<b class="app__chip${i === 0 ? ' is-on' : ''}">${esc(m)}</b>`).join('')}</span>
-                <span class="app__model"><b>${esc(a.model)}</b><em>${esc(a.size)}</em>${icon('mic')}${icon('send')}</span>
+                <span class="app__model"><b>${esc(a.model)}</b><em>${esc(a.size)}</em>${icon('mic')}${icon('send', 'app__send')}</span>
               </div>
             </div>
             <div class="app__actions">
               ${a.actions.map((t, i) => `<span class="app__btn">${icon(['write', 'learn', 'code', 'career'][i])}${esc(t)}</span>`).join('')}
             </div>
           </div>
+          ${thread()}
         </div>
       </div>
     </div>
-  </div>`;
+  </div></div>`;
 }
 
 /**
- * "Day in the life" (Figma 2407:6): the About lens stage (think.css, think-zoom.ts) with a recruiter's day for its
- * statements: the time, then the stage of the work. The first one flies off through the lens into the app window.
+ * "Day in the life" (Figma 2407:6, 2420:2, 2415:2): the About lens stage (think.css, think-zoom.ts) with a recruiter's
+ * day for its statements: the time, then the stage of the work. 08:30 flies off through the lens into the app window;
+ * the next swipe zooms in on its chat, which takes a request and answers it (chatScene); the one after fades the
+ * window as 11:50 arrives through the lens, and the toggle moves on to Engage.
  */
 function day() {
   const d = dayInTheLife;
@@ -97,11 +140,15 @@ function day() {
     <div class="think__stage">
       <canvas class="think__lens" aria-hidden="true"></canvas>
       <div class="day__tabs" role="list" aria-label="Stages of the day">
-        ${d.stages.map((s, i) => `<span role="listitem" class="day__tab${i === 0 ? ' is-on' : ''}">${esc(s)}</span>`).join('')}
+        <i class="day__pill" aria-hidden="true"></i>
+        ${d.stages.map((s, i) => `<span role="listitem" class="day__tab${i === 0 ? ' is-on' : ''}" data-stage="${esc(s)}">${esc(s)}</span>`).join('')}
       </div>
       <ol class="think__list">
         ${d.moments
-          .map((m, i) => `<li class="think__item"><${i ? 'h3' : 'h2'} class="think__title">${esc(m.time)}</${i ? 'h3' : 'h2'}><p class="think__body">${esc(m.stage)}</p></li>`)
+          .map(
+            (m, i) =>
+              `<li class="think__item" data-stage="${esc(m.stage)}"${m.after ? ' data-after' : ''}><${i ? 'h3' : 'h2'} class="think__title">${esc(m.time)}</${i ? 'h3' : 'h2'}><p class="think__body">${esc(m.stage)}</p></li>`,
+          )
           .join('')}
       </ol>
       ${appWindow()}
@@ -205,6 +252,155 @@ function render() {
 }
 
 /* ---------- Animate ---------- */
+/** The Source / Engage / Place toggle: its glass pill slides to the stage of the statement on screen. */
+function initDayTabs(animate: boolean) {
+  const tabs = qa<HTMLElement>('.day__tab');
+  const pill = q<HTMLElement>('.day__pill');
+  if (!pill || !tabs.length) return () => {};
+  let on = tabs.find((t) => t.classList.contains('is-on')) ?? tabs[0];
+  const place = (t: HTMLElement, d: number) => gsap.to(pill, { x: t.offsetLeft, width: t.offsetWidth, duration: d, ease: 'expo.inOut', overwrite: true });
+  place(on, 0);
+  // Fonts settling can shift the tabs.
+  document.fonts.ready.then(() => place(on, 0));
+  return (stage: string) => {
+    const t = tabs.find((x) => x.dataset.stage === stage);
+    if (!t || t === on) return;
+    on.classList.remove('is-on');
+    t.classList.add('is-on');
+    on = t;
+    place(t, animate ? 0.8 : 0);
+  };
+}
+
+/**
+ * Figma 2420:2 and on: the window zooms in on its chat (its frame and sidebar falling away), the request is typed and
+ * sent, the box drops to the foot of the chat as the request pops up as a bubble, Ditto works through its steps (a
+ * spinner each, then a tick), and the people it found come in. A stop of the lens stage of its own (see StageScene).
+ */
+function chatScene(screen: HTMLElement): StageScene {
+  const app = q<HTMLElement>('.app', screen)!;
+  const stage = screen.closest<HTMLElement>('.think__stage')!;
+  const chat = q<HTMLElement>('.app__chat', app)!;
+  const ask = q<HTMLElement>('.app__ask', chat)!;
+  const box = q<HTMLElement>('.app__box', chat)!;
+  const text = q<HTMLElement>('.app__text', chat)!;
+  const request = dayInTheLife.chat.request;
+
+  /*
+   * The zoom: the chat's middle to the middle of the stage (a little below, clear of the toggle), at up to 1.24x its
+   * design size (and no more than the stage holds), whatever the window's own fit.
+   */
+  const fit = () => parseFloat(screen.dataset.fit || '1') || 1;
+  const zoom = () => {
+    const k = Math.min(1.24, (stage.clientWidth - 40) / 620, (stage.clientHeight - 200) / chat.offsetHeight);
+    return Math.max(1.05, k / fit());
+  };
+  const dx = () => chat.offsetLeft + chat.offsetWidth / 2 - app.offsetWidth / 2;
+  const dy = () => chat.offsetTop + chat.offsetHeight / 2 - app.offsetHeight / 2;
+  /** How far below the middle the chat sits (stage px), clear of the toggle. */
+  const DROP = 30;
+  /** How far the ask box drops, to 24 above the chat's foot. */
+  const drop = () => chat.clientHeight - 24 - box.offsetHeight - ask.offsetTop;
+
+  const typing = { n: 0 };
+  const TYPE_RATE = 32; // characters a second
+  const tl = gsap.timeline({ paused: true });
+  const zoomTw = gsap.fromTo(
+    app,
+    { x: 0, y: 0, scale: 1 },
+    // (DROP is in the stage's px, the window's own scale undone.)
+    { x: () => -dx() * zoom(), y: () => -dy() * zoom() + DROP / fit(), scale: zoom, duration: 1.5, ease: 'power3.inOut' },
+  );
+
+  // 1. The zoom, the window falling away around the chat.
+  tl.add(zoomTw, 0)
+    .to(qa('.app__bar, .app__side, .app__top', app), { autoAlpha: 0, duration: 0.8, ease: 'power1.out' }, 0.15)
+    .to(app, { backgroundColor: 'rgba(253, 253, 253, 0)', borderColor: 'rgba(151, 151, 151, 0)', duration: 0.8, ease: 'power1.out' }, 0.15)
+    .to(q('.app__main', app), { backgroundColor: 'rgba(30, 110, 243, 0)', duration: 0.8, ease: 'power1.out' }, 0.15)
+    // Its frame gone, the window no longer clips (the box's soft shadow ran into its edge).
+    .set(app, { overflow: 'visible' }, 0.95)
+    .to(box, { borderColor: 'rgba(81, 142, 243, 1)', duration: 0.4, ease: 'power1.out' }, 1.2);
+
+  // 2. Typing.
+  const typeAt = 1.6;
+  const typeTime = request.length / TYPE_RATE;
+  tl.to(q('.app__prompt', box), { autoAlpha: 0, duration: 0.15 }, typeAt - 0.1)
+    .fromTo(q('.app__caret', box), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, typeAt - 0.1)
+    .fromTo(
+      typing,
+      { n: 0 },
+      {
+        n: request.length,
+        duration: typeTime,
+        ease: 'none',
+        onUpdate: () => void (text.textContent = request.slice(0, Math.round(typing.n))),
+      },
+      typeAt,
+    );
+
+  // 3. Sent: the box empties and drops, the greeting and the buttons go, the request pops up as a bubble.
+  const sent = typeAt + typeTime + 0.35;
+  tl.to(q('.app__send', box), { scale: 0.78, duration: 0.12, ease: 'power2.out', yoyo: true, repeat: 1 }, sent)
+    .to(q('.app__typed', box), { autoAlpha: 0, duration: 0.2 }, sent + 0.15)
+    .to(q('.app__prompt', box), { autoAlpha: 1, duration: 0.3 }, sent + 0.5)
+    .to(q('.app__hello', chat), { autoAlpha: 0, y: -24, duration: 0.45, ease: 'power2.in' }, sent + 0.1)
+    .to(q('.app__actions', chat), { autoAlpha: 0, y: 12, duration: 0.35, ease: 'power2.in' }, sent + 0.1)
+    .to(ask, { y: drop, duration: 0.9, ease: 'expo.inOut' }, sent + 0.2)
+    .to(box, { borderColor: 'rgba(81, 142, 243, 0.35)', duration: 0.6 }, sent + 0.6)
+    .fromTo(q('.app__me', chat), { autoAlpha: 0, scale: 0.5, y: 24 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.7, ease: 'back.out(1.7)' }, sent + 0.6);
+
+  // 4. Ditto at work: a step at a time, each spinning until it's done.
+  const workAt = sent + 1.3;
+  const STEP = 0.95;
+  tl.fromTo(q('.app__by', chat), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' }, workAt);
+  qa<HTMLElement>('.app__step', chat).forEach((s, i) => {
+    const at = workAt + 0.3 + i * STEP;
+    tl.fromTo(s, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out' }, at)
+      .to(q('.app__spin', s), { autoAlpha: 0, duration: 0.15 }, at + STEP - 0.1)
+      .fromTo(q('.app__tick', s), { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: 'back.out(2.5)' }, at + STEP - 0.1)
+      .to(q('.app__step-live', s), { autoAlpha: 0, duration: 0.25 }, at + STEP - 0.1)
+      .fromTo(q('.app__step-done', s), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 }, at + STEP - 0.1);
+  });
+  const steps = qa('.app__step', chat).length;
+
+  // 5. The answer, and the people it found.
+  const doneAt = workAt + 0.3 + steps * STEP + 0.2;
+  const [lead, followUp] = qa('.app__answer', chat);
+  tl.fromTo(lead, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, doneAt)
+    .fromTo(
+      qa('.app__person', chat),
+      { autoAlpha: 0, y: 18, scale: 0.97 },
+      { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: 'expo.out', stagger: 0.16 },
+      doneAt + 0.35,
+    )
+    .fromTo(followUp, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, doneAt + 0.35 + 0.16 * dayInTheLife.chat.people.length + 0.4);
+
+  // A new stage size re-fits the zoom, wherever the scene is.
+  ScrollTrigger.addEventListener('refresh', () => {
+    const t = tl.time();
+    zoomTw.invalidate();
+    tl.time(t + 0.001, true).time(t, true);
+  });
+
+  return {
+    play: () => {
+      tl.timeScale(1).play(0);
+      return tl.duration();
+    },
+    back: () => {
+      tl.timeScale(3).reverse();
+      return tl.time() / 3;
+    },
+    hurry: () => {
+      if (!tl.isActive() || tl.reversed()) return 0;
+      tl.timeScale(5);
+      return (tl.duration() - tl.time()) / 5;
+    },
+    finish: () => void tl.pause().progress(1),
+    reset: () => void tl.pause().progress(0),
+  };
+}
+
 function initDeck(section: HTMLElement, horizontal: boolean) {
   const pin = q('.deck__pin', section)!;
   const cards = qa<HTMLElement>('.fcard', section);
@@ -284,7 +480,9 @@ boot({
     initClouds(q('.phero')!, q<HTMLCanvasElement>('.phero__sky')!, 'phero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
-    initThinkZoom(!reduce, { screen: q<HTMLElement>('.day .app')! });
+    const tab = initDayTabs(!reduce);
+    const screen = q<HTMLElement>('.day__screen')!;
+    initThinkZoom(!reduce, { screen, scenes: [chatScene(screen)], onStop: (el) => tab(el.dataset.stage ?? '') });
     initActBar();
     const acts = qa<HTMLElement>('.act');
 

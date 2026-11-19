@@ -237,15 +237,35 @@ function fitTeam(team: HTMLElement): boolean {
 }
 
 /**
+ * A stop after the screen, played on the screen itself (Product: the chat zooming in and running a request). Entering
+ * it plays it and returns how long it holds the stage (s); `back` plays it out again going up; `hurry` speeds a play
+ * under way to its end (a swipe during it) and returns the time left; `finish` and `reset` jump to its end or start.
+ */
+export type StageScene = {
+  play(): number;
+  back(): number;
+  hurry(): number;
+  finish(): void;
+  reset(): void;
+};
+
+/**
  * Sets up the section. Its last stop can be one of:
  *   - `team` (About: the next section's content), which joins the stage where it fits and builds its logo in the same
  *     locked view (team-logo.ts);
  *   - `screen` (Product: the app window), already in the stage: it arrives behind the last statement as that one
- *     flies, exactly as a next statement would (rising out of the depth), but as live HTML, fitted to the screen.
+ *     flies, exactly as a next statement would (rising out of the depth), but as live HTML, fitted to the screen
+ *     (its scale is left in its `data-fit`). After it come its `scenes`, a stop each, and then any statements marked
+ *     `data-after`, which arrive through the lens as the screen fades.
+ * `onStop` hears of every stop reached, with the statement it belongs to (the last one at or before it).
  * Returns whether the team joined the stage.
  */
-export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; screen?: HTMLElement } = {}): boolean {
-  const { team, screen } = opts;
+export function initThinkZoom(
+  animate: boolean,
+  opts: { team?: HTMLElement; screen?: HTMLElement; scenes?: StageScene[]; onStop?: (statement: HTMLElement) => void } = {},
+): boolean {
+  const { team, screen, onStop } = opts;
+  const scenes = screen ? (opts.scenes ?? []) : [];
   const section = q('.think');
   const stage = section && q('.think__stage', section);
   const canvas = section && q<HTMLCanvasElement>('.think__lens', section);
@@ -324,8 +344,16 @@ export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; scre
   let W = 1, H = 1, dpr = 1, fw = 1, fh = 1;
   const frame = { x: 0, y: 0, w: 1, h: 1 };
   const verts = new Float32Array(24);
-  /** The screen's place in the steps (after the statements), and its scale to fit the stage. */
-  const screenAt = screen ? statements.length : -1;
+  /**
+   * The stops in order: the statements, the screen, its scenes, then the statements after it. `screenAt` is the
+   * screen's stop and `screenEnd` its last scene's; `stopOf` is a statement's stop.
+   */
+  const before = screen ? statements.filter((el) => !('after' in el.dataset)).length : statements.length;
+  const screenAt = screen ? before : -1;
+  const screenEnd = screen ? screenAt + scenes.length : -1;
+  const stopOf = (i: number) => (i < before ? i : screenEnd + 1 + (i - before));
+  const sceneAt = (stop: number) => (screen && stop > screenAt && stop <= screenEnd ? scenes[stop - screenAt - 1] : null);
+  /** The screen's scale to fit the stage. */
   let screenFit = 1;
 
   const texFrom = (src: HTMLCanvasElement) => {
@@ -346,7 +374,10 @@ export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; scre
     H = Math.max(1, stage.clientHeight);
     // The screen at its design size (Figma's 1024 x 768 in a 1440 x 1024 frame: 208 either side, 120 above and below),
     // scaled down to keep those margins on a smaller stage.
-    if (screen) screenFit = Math.min(1, (W - 160) / screen.offsetWidth, (H - 240) / screen.offsetHeight);
+    if (screen) {
+      screenFit = Math.min(1, (W - 160) / screen.offsetWidth, (H - 240) / screen.offsetHeight);
+      screen.dataset.fit = String(screenFit);
+    }
     // The screen's own resolution (to 2x): the flying type stays as sharp as the HTML it takes over from.
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(W * dpr);
@@ -448,8 +479,8 @@ export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; scre
   /** Where the scroll is: a step number (0 = the first statement settled) with a fraction. */
   const pos = { v: 0 };
   const stateOf = (i: number) => {
-    // The statement's own step runs from i (arriving) to i + 1 (leaving).
-    const local = pos.v - i;
+    // The statement's own step runs from its stop (arriving) to the next (leaving).
+    const local = pos.v - stopOf(i);
     if (local < -1 || local > 1) return null;
     if (local < 0) {
       // Arriving: during the end of the previous step.
@@ -468,14 +499,26 @@ export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; scre
     const i = Math.floor(pos.v);
     return i >= steps ? 0 : pos.v - i;
   };
-  /** The screen: arriving as a statement would over the end of the last move, then at rest at full size. */
+  /**
+   * The screen: arriving as a statement would over the end of the last move, then at rest at full size through its
+   * scenes; leaving, it fades over the first half of the move on (as the next statement starts to arrive), growing
+   * a little as if passed.
+   */
   const placeScreen = () => {
     if (!screen) return;
-    const local = Math.min(0, pos.v - screenAt);
-    const a = local < -1 ? 0 : EASE(gsap.utils.clamp(0, 1, (1 + local - T.fadeInStart) / (T.fadeInEnd - T.fadeInStart)));
+    const local = pos.v - screenAt;
+    let a: number, scale: number;
+    if (local < 0) {
+      a = local < -1 ? 0 : EASE(gsap.utils.clamp(0, 1, (1 + local - T.fadeInStart) / (T.fadeInEnd - T.fadeInStart)));
+      scale = ARRIVE_SCALE + (1 - ARRIVE_SCALE) * a;
+    } else {
+      const out = EASE(gsap.utils.clamp(0, 1, (pos.v - screenEnd) / T.fadeInStart));
+      a = 1 - out;
+      scale = 1 + 0.08 * out;
+    }
     screen.style.opacity = String(a);
     screen.style.visibility = a > 0 ? 'visible' : 'hidden';
-    screen.style.transform = `translate(-50%, -50%) scale(${screenFit * (ARRIVE_SCALE + (1 - ARRIVE_SCALE) * a)})`;
+    screen.style.transform = `translate(-50%, -50%) scale(${screenFit * scale})`;
   };
 
   /** Whether a statement is in flight: then the canvas shows; otherwise the HTML statement does. */
@@ -486,7 +529,12 @@ export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; scre
     flying = inFlight;
     if (inFlight) draw();
     section.classList.toggle('think--flying', inFlight);
-    statements.forEach((el, i) => el.classList.toggle('is-current', i === current));
+    statements.forEach((el, i) => el.classList.toggle('is-current', stopOf(i) === current));
+    if (onStop) {
+      let owner = statements[0];
+      statements.forEach((el, i) => stopOf(i) <= current && (owner = el));
+      onStop(owner);
+    }
     if (!inFlight) draw();
   };
 
@@ -589,10 +637,10 @@ export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; scre
     });
   };
 
-  /** The last stop: the team scene when it's in the stage, otherwise the last statement. */
+  /** The last stop: the team scene when it's in the stage, otherwise the last statement (or the screen's last scene). */
   const last = statements.length - 1;
   const teamAt = scene ? statements.length : -1;
-  const steps = scene ? teamAt : screen ? screenAt : last;
+  const steps = scene ? teamAt : screen ? Math.max(screenEnd, stopOf(last)) : last;
   /** How long fading the last statement out takes before the logo starts building (s). */
   const HANDOVER = 0.45;
 
@@ -710,6 +758,9 @@ export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; scre
       pos.v = at;
       section.classList.remove('think--team');
       scene?.reset();
+      // The screen's scenes as they'd be by now: played up to here, not yet beyond.
+      for (let k = scenes.length - 1; k >= 0; k--) if (screenAt + 1 + k > at) scenes[k].reset();
+      scenes.forEach((s, k) => screenAt + 1 + k <= at && s.finish());
       show(at, false);
     }
     schedule();
@@ -771,12 +822,26 @@ export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; scre
       },
     });
   };
+  /** Into one of the screen's scenes, or back out of it: played on the screen, which stays where it is. */
+  const toScene = (to: number, s: StageScene, dir: 1 | -1) => {
+    index = to;
+    flight?.kill();
+    pos.v = to;
+    show(to, false);
+    schedule();
+    const d = dir > 0 ? s.play() : s.back();
+    busyUntil = performance.now() + (d + (dir > 0 ? HOLD : 0)) * 1000;
+  };
   const step = (dir: 1 | -1) => {
     const to = index + dir;
+    const into = dir > 0 ? sceneAt(to) : null;
+    const outOf = dir < 0 ? sceneAt(index) : null;
     if (to < 0) release(-1);
     else if (to > steps) release(1);
     else if (to === teamAt) toTeam();
     else if (index === teamAt) fromTeam();
+    else if (into) toScene(to, into, 1);
+    else if (outOf) toScene(to, outOf, -1);
     else move(to);
   };
   /** Whether the logo is building (the first time in); set until the build's end, which busy() marks. */
@@ -803,6 +868,15 @@ export function initThinkZoom(animate: boolean, opts: { team?: HTMLElement; scre
     // next swipe after it moves on. (Speeding it up, and keeping a swipe for afterwards, let two quick swipes skip
     // the section almost entirely.)
     if (dir > 0 && index === teamAt && building) return;
+    // Likewise a scene still playing: a swipe on hurries it to its end (where it then holds), rather than leaving it.
+    const playing = sceneAt(index);
+    if (dir > 0 && playing) {
+      const left = playing.hurry();
+      if (left > 0) {
+        busyUntil = performance.now() + (left + HOLD) * 1000;
+        return;
+      }
+    }
     pending = dir;
     flush();
   };

@@ -31,23 +31,28 @@
 .day .think__title { flex: none; }
 .day .think__body { width: auto; }
 .day__tabs {
-  position: absolute; z-index: 3; left: 50%; top: 52px; transform: translateX(-50%); display: flex; gap: 8px; padding: 16px 20px; border-radius: 999px;
+  position: absolute; z-index: 3; left: 50%; top: 52px; transform: translateX(-50%); display: flex; gap: 8px; padding: 16px 20px; border-radius: 999px; isolation: isolate;
   background: linear-gradient(-73deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1);
 }
-.day__tab { padding: 8px 20px; border-radius: 999px; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; white-space: nowrap; }
-.day__tab.is-on { background: linear-gradient(-80deg, rgba(255, 255, 255, 0.6) 0.27885%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25); }
+.day__tab { position: relative; padding: 8px 20px; border-radius: 999px; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; white-space: nowrap; }
+/* The on tab's glass, one pill that slides between them (placed by initDayTabs). */
+.day__pill {
+  position: absolute; z-index: -1; left: 0; top: 16px; bottom: 16px; width: 0; border-radius: 999px;
+  background: linear-gradient(-80deg, rgba(255, 255, 255, 0.6) 0.27885%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25);
+}
 /* Without the lens (reduced motion, no WebGL) the stage is a plain section: the toggle, the time, then the window. */
 .day:not(.think--gl) .think__stage { display: flex; flex-direction: column; align-items: center; padding: 140px var(--pad, 20px) 120px; }
 .day:not(.think--gl) .think__list { padding: 0 0 60px; }
-.day:not(.think--gl) .app { max-width: 100%; }
+.day:not(.think--gl) .day__screen { max-width: 100%; overflow: hidden; }
 /* The flying time (the lens canvas) passes over the window arriving behind it. */
 .think--gl.day .think__lens { z-index: 2; }
-.think--gl.day .app { position: absolute; left: 50%; top: 50%; z-index: 0; visibility: hidden; transform-origin: 50% 50%; will-change: transform, opacity; }
+.think--gl.day .day__screen { position: absolute; left: 50%; top: 50%; z-index: 0; visibility: hidden; transform-origin: 50% 50%; will-change: transform, opacity; }
+.think--gl.day .app { will-change: transform; }
 
 /* The app window (Figma 2413:860) */
 .app {
   --line: rgba(4, 92, 255, 0.5);
-  flex: none; width: 1024px; height: 768px; display: flex; flex-direction: column; overflow: hidden; text-align: left;
+  position: relative; flex: none; width: 1024px; height: 768px; display: flex; flex-direction: column; overflow: hidden; text-align: left;
   background: #fdfdfd; border: 0.5px solid #979797; border-radius: 16px; color: #171717;
   font-size: 12px; line-height: 16px; letter-spacing: -0.04em;
 }
@@ -80,14 +85,74 @@
 .app__more { padding: 8px 16px; font-size: 10px; line-height: 12px; color: rgba(23, 23, 23, 0.5); }
 .app__main { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; background: rgba(30, 110, 243, 0.02); }
 .app__top { flex: none; height: 40px; border-bottom: 1px solid var(--line); }
-.app__chat { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; padding: 4px; }
+.app__chat { position: relative; flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; padding: 4px; }
 .app__hello { font-size: 40px; line-height: 44px; letter-spacing: -0.04em; font-weight: 700; text-align: center; }
 .app__ask { display: flex; flex-direction: column; align-items: center; gap: 24px; }
 .app__box {
+  border: 1px solid rgba(81, 142, 243, 0);
   width: 435px; height: 120px; display: flex; flex-direction: column; justify-content: space-between; padding: 16px 20px; border-radius: 24px;
   background: linear-gradient(-89deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.71%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.1);
 }
+.app__field { display: grid; }
+.app__field > * { grid-area: 1 / 1; }
 .app__prompt { color: rgba(23, 23, 23, 0.4); }
+.app__typed { display: block; }
+.app__caret {
+  display: inline-block; width: 1px; height: 14px; margin-left: 1px; vertical-align: -2px; background: #1e6ef3;
+  visibility: hidden; animation: app-caret 1s steps(1) infinite;
+}
+@keyframes app-caret { 50% { background: transparent; } }
+.app__send { transform-origin: 50% 50%; }
+
+/* The conversation (Figma 2420:2 on): above the box once it has dropped to the chat's foot. */
+.app__thread {
+  position: absolute; left: 50%; top: 24px; width: 480px; transform: translateX(-50%);
+  display: flex; flex-direction: column; gap: 20px; pointer-events: none;
+}
+.app__me, .app__by, .app__step, .app__answer, .app__person { visibility: hidden; }
+.app__me {
+  align-self: flex-end; max-width: 340px; padding: 10px 14px; border-radius: 18px 18px 4px 18px; transform-origin: 100% 100%;
+  background: linear-gradient(135deg, #1e6ef3 0%, #00b0ff 100%); color: #fff; box-shadow: 0 8px 30px rgba(30, 110, 243, 0.25);
+}
+.app__reply { display: flex; flex-direction: column; gap: 14px; }
+.app__by { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.app__orb {
+  width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9fdcff 0%, #00b0ff 45%, #1e6ef3 100%);
+  box-shadow: 0 0 0 0 rgba(0, 176, 255, 0.4); animation: app-orb 1.6s ease-in-out infinite;
+}
+@keyframes app-orb { 50% { box-shadow: 0 0 0 5px rgba(0, 176, 255, 0); transform: scale(0.9); } }
+.app__steps { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.app__step { display: flex; align-items: center; gap: 8px; }
+.app__state { position: relative; flex: none; width: 14px; height: 14px; }
+.app__state > * { position: absolute; inset: 0; }
+.app__spin { border-radius: 50%; border: 1.5px solid rgba(30, 110, 243, 0.2); border-top-color: #1e6ef3; animation: app-spin 0.8s linear infinite; }
+.app__tick { visibility: hidden; }
+@keyframes app-spin { to { transform: rotate(360deg); } }
+.app__step-text { display: grid; }
+.app__step-text > * { grid-area: 1 / 1; }
+/* Working: the words shimmer, as a model's do while it thinks. */
+.app__step-live {
+  background: linear-gradient(90deg, #171717 0%, #171717 35%, #8fb6f7 50%, #171717 65%, #171717 100%) 0 0 / 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: app-shimmer 1.6s linear infinite;
+}
+@keyframes app-shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+.app__step-done { visibility: hidden; color: rgba(23, 23, 23, 0.5); }
+.app__people { display: grid; gap: 8px; }
+.app__person {
+  display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border-radius: 16px;
+  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.8) 56%, rgba(255, 255, 255, 0.3) 100%); border: 1px solid rgba(4, 92, 255, 0.12);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+}
+.app__avatar {
+  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0;
+  background: linear-gradient(135deg, hsl(var(--hue) 90% 62%), hsl(calc(var(--hue) + 25) 85% 45%));
+}
+.app__who { display: grid; gap: 1px; min-width: 0; }
+.app__who b { font-size: 13px; font-weight: 600; }
+.app__who span { color: rgba(23, 23, 23, 0.6); }
+.app__who em { font-style: normal; font-size: 10px; line-height: 12px; color: #1e6ef3; }
+.app__match { display: grid; justify-items: end; font-size: 10px; line-height: 12px; color: rgba(23, 23, 23, 0.5); }
+.app__match b { font-size: 16px; line-height: 20px; font-weight: 700; color: #1e6ef3; }
 .app__controls { display: flex; align-items: center; justify-content: space-between; }
 .app__modes, .app__model { display: flex; align-items: center; gap: 4px; }
 .app__modes .app__chip { padding: 4px 8px; }
