@@ -270,7 +270,7 @@
   background: rgba(30, 110, 243, 0.08); border: 1px solid rgba(30, 110, 243, 0.3); visibility: hidden;
 }
 .app__badge .app__tick { visibility: inherit; width: 12px; height: 12px; }
-.app__facts { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid rgba(4, 92, 255, 0.1); }
+.app__facts { display: grid; gap: 10px; padding-top: 12px; border-top: 1px solid rgba(4, 92, 255, 0.1); }
 .app__facts li { display: grid; grid-template-columns: 72px 1fr; gap: 8px; visibility: hidden; }
 .app__facts span { color: rgba(23, 23, 23, 0.5); }
 .app__facts b { font-weight: 400; }
