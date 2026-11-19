@@ -204,7 +204,7 @@ function sourceChat() {
 
 /**
  * "Day in the life" (Figma 2407:6, 2420:2, 2415:2): the About lens stage (think.css, think-zoom.ts) with a recruiter's
- * day for its statements: the time, then the stage of the work. Each time flies off through the lens into a chat
+ * day for its statements: the stage of the work, with its time beneath. Each statement flies off through the lens into a chat
  * (Source, Engage, Place); the next swipe plays a request in it, and the one after fades it as the next time arrives,
  * the toggle moving on with it.
  */
@@ -227,7 +227,7 @@ function day() {
         ${d.moments
           .map(
             (m, i) =>
-              `<li class="think__item" data-stage="${esc(m.stage)}"${m.group ? ` data-group="${m.group}"` : ''}><${i ? 'h3' : 'h2'} class="think__title">${esc(m.time)}</${i ? 'h3' : 'h2'}><p class="think__body">${esc(m.stage)}</p></li>`,
+              `<li class="think__item" data-stage="${esc(m.stage)}"${m.group ? ` data-group="${m.group}"` : ''}><${i ? 'h3' : 'h2'} class="think__title">${esc(m.stage)}</${i ? 'h3' : 'h2'}><p class="think__body">${esc(m.time)}</p></li>`,
           )
           .join('')}
       </ol>
