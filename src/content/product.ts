@@ -96,17 +96,11 @@ export const finalFeaturesCta = {
   body: 'Book a guided demo and see why high-performing recruiters run on Ditto.',
 };
 
-/** "Trusted by leading recruitment teams since 2016." (moved from the home page): headline, copy, stats and ticker. */
+/** "Trusted by leading recruitment teams since 2016." (moved from the home page): headline, copy and ticker. */
 export const trust = {
   headline: 'Trusted by leading recruitment teams since 2016.',
   body:
     'Ditto powers recruitment agencies and hiring teams across multiple markets, providing the infrastructure behind modern recruitment operations. From independent agencies to large, listed organisations, teams rely on Ditto to manage sourcing, communication, and placements while keeping their entire recruitment engine running smoothly.',
-  stats: [
-    { value: 2016, label: 'Backing the industry since', format: 'year' as const },
-    { value: 10, suffix: '+', label: 'Years in high-volume recruitment' },
-    { value: 1, label: 'Seat minimum. Start with one licence.' },
-    { value: 0, label: 'Long-term contracts. Month to month.' },
-  ],
   ticker: [
     'Listed groups',
     'Independent agencies',
