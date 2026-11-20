@@ -702,11 +702,11 @@ export function initThinkZoom(
   const HOLD = 0.35;
   /**
    * A gesture that starts while the stage holds the scroll and goes this far lets go of the section in its direction
-   * (wheel/trackpad px, or a share of the screen for a touch swipe): a quick way past for anyone not reading it.
+   * (wheel/trackpad px): a quick way past for anyone not reading it. Not on touch: a phone swipe is long anyway, and
+   * fast swipes skipped the whole section; there every swipe is one step.
    * The gesture that brought the page here never counts, so a fast scroll in can't skip the section by accident.
    */
   const ESCAPE_WHEEL = 1100;
-  const ESCAPE_TOUCH = () => Math.max(220, window.innerHeight * 0.32);
   /** The current gesture's travel, and the gesture that was under way as the stage took hold. */
   let travel = 0;
   let arrivedOn = -1;
@@ -783,7 +783,6 @@ export function initThinkZoom(
     acc = 0;
     pending = 0;
     arrivedOn = gesture;
-    touchArrived = true;
     // The gesture that scrolled the page here (and its inertia) has done its job.
     used = gesture;
     // Stop at the section's top, a pixel inside so the pin counts as active (the stage is pinned there, so the page
@@ -991,17 +990,13 @@ export function initThinkZoom(
     { passive: false },
   );
   let touchY = 0;
-  let touchFrom = 0;
   /** Whether this touch has already stepped: one swipe, one step. */
   let touchUsed = false;
-  /** Whether this touch was already under way as the stage took hold (it then can't let go of it). */
-  let touchArrived = false;
   window.addEventListener(
     'touchstart',
     (e) => {
-      touchY = touchFrom = e.touches[0].clientY;
+      touchY = e.touches[0].clientY;
       touchUsed = false;
-      touchArrived = false;
     },
     { passive: true },
   );
@@ -1010,13 +1005,6 @@ export function initThinkZoom(
     (e) => {
       if (!captured) return;
       e.preventDefault();
-      // A long swipe lets go of the section.
-      const swept = touchFrom - e.touches[0].clientY;
-      if (!touchArrived && Math.abs(swept) > ESCAPE_TOUCH()) {
-        pending = 0;
-        touchArrived = true;
-        return release(swept > 0 ? 1 : -1);
-      }
       const dy = touchY - e.touches[0].clientY;
       if (!touchUsed && Math.abs(dy) > 40) {
         touchUsed = true;
