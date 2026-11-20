@@ -77,7 +77,9 @@ export async function boot({ page, render, init }: Options) {
       // Touch is smoothed lightly too. Unsmoothed (smoothTouch: false), the content's JS transform trails the phone's own
       // scroll by a frame here and there, and pinned sections (Home's sideways Source / Engage / Place) visibly jump.
       smoothTouch: 0.1,
-      normalizeScroll: false,
+      // Touch-only devices scroll on the JS thread. Left to iOS Safari, the address bar hides and shows as you scroll,
+      // resizing the screen under the smoother: the page shifted up and black showed below it. Desktop is unchanged.
+      normalizeScroll: ScrollTrigger.isTouch === 1,
     });
     smoother.paused(true);
     revealed.then(() => smoother!.paused(false));
