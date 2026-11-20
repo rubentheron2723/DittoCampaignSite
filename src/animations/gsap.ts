@@ -2,15 +2,13 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollSmoother } from 'gsap/ScrollSmoother';
 import { SplitText } from 'gsap/SplitText';
-import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
-import { Flip } from 'gsap/Flip';
-import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
-import { Draggable } from 'gsap/Draggable';
-import { InertiaPlugin } from 'gsap/InertiaPlugin';
-import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
 
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText, DrawSVGPlugin, MotionPathPlugin, Flip, ScrambleTextPlugin, Draggable, InertiaPlugin, MorphSVGPlugin);
+/*
+ * Only the plugins every page uses are loaded here (this file is in every page's shared bundle). The rest are
+ * registered where they're needed, so other pages don't download them: DrawSVG in flow.ts and team-logo.ts,
+ * Draggable in pricing.ts.
+ */
+gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText);
 
 gsap.defaults({ ease: 'power3.out', duration: 0.9 });
 
@@ -24,4 +22,4 @@ export const q = <T extends Element = HTMLElement>(sel: string, root: ParentNode
 export const qa = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) =>
   Array.from(root.querySelectorAll<T>(sel));
 
-export { gsap, ScrollTrigger, ScrollSmoother, SplitText, Flip, MotionPathPlugin, Draggable };
+export { gsap, ScrollTrigger, ScrollSmoother, SplitText };

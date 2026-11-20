@@ -1,4 +1,7 @@
 import { gsap, q, qa, ScrollTrigger } from './gsap';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
+
+gsap.registerPlugin(DrawSVGPlugin);
 
 /** Marquee speed along the slant, in pixels per second. */
 const SPEED = 85;

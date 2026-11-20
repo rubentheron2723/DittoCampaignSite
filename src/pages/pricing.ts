@@ -8,9 +8,12 @@ import { boot } from '../shared/boot';
 import { FOOTER_BLOBS } from '../shared/footer-blobs';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
-import { Draggable, gsap, q, qa, ScrollTrigger } from '../animations/gsap';
+import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
+import { Draggable } from 'gsap/Draggable';
 import { fadeUp, rollNumber, splitReveal } from '../shared/motion';
 import { initPricingCards } from '../animations/pricing-cards';
+
+gsap.registerPlugin(Draggable);
 
 /* ---------- Render ---------- */
 /**

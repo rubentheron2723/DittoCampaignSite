@@ -1,4 +1,7 @@
 import { gsap, q, qa } from './gsap';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
+
+gsap.registerPlugin(DrawSVGPlugin);
 
 /**
  * "A team with unusually high standards." The logomark is formed by two ribbons flowing into it (Figma 2395:24), then
