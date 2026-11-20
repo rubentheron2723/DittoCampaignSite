@@ -314,6 +314,13 @@ const chatScale = (W: number) => (W < 640 ? Math.min(1.15, Math.max(1, W / 340))
 /** The band the chat is framed in: below the toggle, and 24 above the stage's foot. */
 const BAND_TOP = 150;
 const BAND_FOOT = 24;
+/**
+ * On touch phones iOS Safari's bottom toolbar floats over the page (the stage runs under it), so the chat stands
+ * clear of it: its composer would otherwise sit behind the toolbar.
+ */
+const PHONE_FOOT = 96;
+const phoneToolbar = window.matchMedia('(pointer: coarse) and (max-width: 900px)');
+const bandFoot = () => (phoneToolbar.matches ? PHONE_FOOT : BAND_FOOT);
 
 /**
  * A chat's size and place: bottom-anchored in the band, at chatScale times its design size, its height the band's,
@@ -323,7 +330,8 @@ function fitChat(stage: HTMLElement, convo: HTMLElement) {
   const W = stage.clientWidth;
   const k = chatScale(W);
   convo.style.width = `${Math.min(560, (W - 32) / k)}px`;
-  convo.style.height = `${(stage.clientHeight - BAND_TOP - BAND_FOOT) / k}px`;
+  convo.style.height = `${(stage.clientHeight - BAND_TOP - bandFoot()) / k}px`;
+  convo.style.bottom = `${bandFoot()}px`;
   convo.style.transform = `translateX(-50%) scale(${k})`;
 }
 
