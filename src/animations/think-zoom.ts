@@ -758,7 +758,22 @@ export function initThinkZoom(
   };
   const freeze = (on: boolean) => {
     const sm = smoother();
-    if (!sm) return void (document.documentElement.style.overflow = on ? 'hidden' : '');
+    if (!sm) {
+      // Native scroll (touch devices, reduced motion): overflow hidden stops the page and any momentum still carrying
+      // it; on touch, no panning at all, and the guard puts back anything that slips through.
+      const root = document.documentElement;
+      root.style.overflow = on ? 'hidden' : '';
+      if (!touchOnly) return;
+      root.style.touchAction = on ? 'none' : '';
+      if (on) {
+        heldAt = window.scrollY;
+        window.addEventListener('scroll', guard, { passive: true });
+      } else {
+        heldAt = null;
+        window.removeEventListener('scroll', guard);
+      }
+      return;
+    }
     if (!touchOnly) return void sm.paused(on);
     const root = document.documentElement;
     if (on) {

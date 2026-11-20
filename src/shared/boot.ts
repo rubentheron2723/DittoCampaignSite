@@ -68,23 +68,28 @@ export async function boot({ page, render, init }: Options) {
   await document.fonts.ready;
 
   let smoother: ScrollSmoother | null = null;
-  if (!reduce) {
+  // Touch-only devices (phones, tablets without a pointer) scroll natively, with the browser's own momentum: no smoothing
+  // layer. Smoothing touch on top of iOS's scroll (lightly, then on the JS thread to stop its toolbar resizing the
+  // screen under it) was the root of the jitter, the black gaps and the hairlines; native scroll has none of them.
+  // Desktop, and hybrids with a mouse, keep the smooth scroll.
+  const native = ScrollTrigger.isTouch === 1;
+  document.documentElement.classList.toggle('smooth', !reduce && !native);
+  if (!reduce && !native) {
     smoother = ScrollSmoother.create({
       wrapper: '#smooth-wrapper',
       content: '#smooth-content',
       smooth: 1.1,
       effects: true,
-      // Touch is smoothed lightly too. Unsmoothed (smoothTouch: false), the content's JS transform trails the phone's own
-      // scroll by a frame here and there, and pinned sections (Home's sideways Source / Engage / Place) visibly jump.
       smoothTouch: 0.1,
-      // Touch-only devices scroll on the JS thread. Left to iOS Safari, the address bar hides and shows as you scroll,
-      // resizing the screen under the smoother: the page shifted up and black showed below it. Desktop is unchanged.
-      // allowNestedScroll: rows that scroll sideways (the FAQ's and legal pages' tab rows on phones) still take a swipe;
-      // without it the normaliser claimed every drag for the page's own scroll.
-      normalizeScroll: ScrollTrigger.isTouch === 1 ? { allowNestedScroll: true, debounce: true } : false,
+      normalizeScroll: false,
     });
     smoother.paused(true);
     revealed.then(() => smoother!.paused(false));
+  } else if (!reduce) {
+    // Native: held still under the entry cover, as the smoother is.
+    const root = document.documentElement;
+    root.style.overflow = 'hidden';
+    revealed.then(() => (root.style.overflow = ''));
   }
   // Keyboard focus landing off screen (tabbing down a page): the smoother glides there, rather than the browser
   // jumping its own scroll underneath it. Content still waiting to fade in then plays as it comes into view.
