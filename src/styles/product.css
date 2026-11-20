@@ -253,3 +253,71 @@
 .app__facts b { font-weight: 400; }
 /* Touch screens: the day's stage tabs get a 44px tap area. */
 @media (pointer: coarse) { .day__tab { min-height: 44px; } }
+
+/* ---------- Features (drafted from the production product page, in the site's glass style) ---------- */
+/* #FDFDFD under the Moving blobs. A centred 84px title and 24px lead, the glass Source / Engage / Place switch (as the
+   day section's), then one stage: its 40px headline and intro beside each other, its features as glass cards three
+   to a row, and a demo link. */
+.feats { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; padding: clamp(96px, 10vw, 160px) clamp(20px, 5.556vw, 80px); overflow: clip; }
+.feats__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s var(--ease-out); pointer-events: none; }
+.feats--fx .feats__fx { opacity: 1; }
+.feats__inner { position: relative; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: clamp(40px, 4vw, 56px); }
+.feats__head { display: grid; gap: 20px; text-align: center; max-width: 880px; }
+.feats__title { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
+.feats__lead { margin: 0; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; color: rgba(23, 23, 23, 0.7); }
+
+.feats__tabs {
+  position: relative; display: flex; gap: 8px; padding: 16px 20px; border-radius: 999px; isolation: isolate;
+  background: linear-gradient(-73deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1);
+}
+.feats__tab {
+  position: relative; min-height: 36px; padding: 8px 20px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  font: inherit; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; white-space: nowrap;
+}
+.feats__tab:focus { outline: none; }
+.feats__tab:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 2px; }
+.feats__pill {
+  position: absolute; z-index: -1; left: 0; top: 16px; bottom: 16px; width: 0; border-radius: 999px;
+  background: linear-gradient(-80deg, rgba(255, 255, 255, 0.6) 0.27885%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25);
+}
+
+.feats__act { width: 100%; display: flex; flex-direction: column; gap: 32px; }
+.feats__act[hidden] { display: none; }
+.feats__intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 40px; align-items: end; }
+.feats__headline { margin: 0; font-size: clamp(28px, calc(28px + 12 * (100vw - 375px) / 1065), 40px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; text-wrap: balance; }
+.feats__copy { margin: 0; font-size: clamp(16px, calc(16px + 2 * (100vw - 375px) / 1065), 18px); line-height: 1.33; letter-spacing: -0.02em; color: rgba(23, 23, 23, 0.6); }
+
+.feats__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.fcard {
+  display: flex; flex-direction: column; gap: 12px; padding: 28px; border-radius: 24px;
+  background: linear-gradient(-84deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+.fcard:hover { transform: translateY(-3px); box-shadow: 0 8px 60px rgba(0, 0, 0, 0.14); }
+.fcard__title { margin: 0; font-size: clamp(20px, calc(20px + 2 * (100vw - 375px) / 1065), 22px); line-height: 1.18; letter-spacing: -0.04em; font-weight: 700; }
+.fcard__body { margin: 0; font-size: 16px; line-height: 1.35; letter-spacing: -0.02em; color: rgba(23, 23, 23, 0.65); }
+.fcard__note { margin: 0; font-size: 14px; line-height: 1.3; letter-spacing: -0.02em; color: #1e6ef3; }
+.fcard__chips { list-style: none; margin: auto 0 0; padding: 8px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.fcard__chips li { padding: 5px 12px; border-radius: 999px; font-size: 13px; line-height: 16px; letter-spacing: -0.02em; color: #1e6ef3; background: rgba(30, 110, 243, 0.07); border: 1px solid rgba(30, 110, 243, 0.2); }
+
+.feats__cta {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 28px; border-radius: 24px;
+  background: linear-gradient(-84deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1);
+}
+.feats__cta-title { margin: 0; font-size: 20px; line-height: 1.2; letter-spacing: -0.04em; font-weight: 700; }
+.feats__cta-body { margin: 6px 0 0; font-size: 16px; line-height: 1.3; letter-spacing: -0.02em; color: rgba(23, 23, 23, 0.6); }
+.feats__cta .gbtn { align-self: center; flex: none; height: 44px; }
+
+@media (max-width: 1100px) {
+  .feats__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .feats__intro { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .feats__grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .fcard { padding: 22px; }
+  .feats__tabs { padding: 10px 12px; }
+  .feats__pill { top: 10px; bottom: 10px; }
+  .feats__tab { padding: 8px 16px; }
+  .feats__cta { flex-direction: column; align-items: flex-start; }
+  .feats__cta .gbtn { align-self: flex-start; }
+}
