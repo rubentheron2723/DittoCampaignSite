@@ -300,7 +300,35 @@ function featuresSection() {
   </section>`;
 }
 
-/** The stage switch: the glass pill slides to the chosen stage, whose features swap in (arrow keys move along). */
+/*
+ * The cards' entrance: Home's Practical AI flight (animations/ai.ts), in CSS 3D. Each card comes up from far below and
+ * behind, tumbling back side up; rushes past nearer the camera, edge-on; then settles into its place. One after
+ * another, a row's three in Practical AI's spread (its startPose and midPose). It plays as the section scrolls into
+ * view and on every switch of stage.
+ */
+const flightStart = (i: number) => {
+  const c = i % 3;
+  return { y: 420, z: -700, rotationX: -75, rotationY: 200 - c * 50, rotationZ: (c - 1) * 35, opacity: 0 };
+};
+const flightMid = (i: number) => {
+  const c = i % 3;
+  return { y: 70, z: 240, rotationX: 18, rotationY: 95 - c * 15, rotationZ: (1 - c) * 14, opacity: 1 };
+};
+function flyIn(cards: HTMLElement[]) {
+  gsap.killTweensOf(cards);
+  const tl = gsap.timeline({ onComplete: () => void gsap.set(cards, { clearProps: 'transform,opacity' }) });
+  cards.forEach((card, i) => {
+    const at = i * 0.09;
+    tl.fromTo(card, flightStart(i), { ...flightMid(i), duration: 0.45, ease: 'power1.in' }, at).to(
+      card,
+      { y: 0, z: 0, rotationX: 0, rotationY: 0, rotationZ: 0, duration: 0.6, ease: 'power3.out' },
+      at + 0.45,
+    );
+  });
+  return tl;
+}
+
+/** The stage switch: the glass pill slides to the chosen stage, whose features fly in (arrow keys move along). */
 function initFeatures(animate: boolean) {
   const tabs = qa<HTMLButtonElement>('.feats__tab');
   const pill = q<HTMLElement>('.feats__pill')!;
@@ -325,8 +353,8 @@ function initFeatures(animate: boolean) {
     place(t, animate ? 0.7 : 0);
     from.hidden = true;
     to.hidden = false;
-    if (animate) gsap.fromTo(qa('.fcard', to), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'expo.out', stagger: 0.05 });
     ScrollTrigger.refresh();
+    if (animate) flyIn(qa<HTMLElement>('.fcard', to));
   };
   tabs.forEach((t, i) => {
     t.addEventListener('click', () => pick(t));
@@ -338,6 +366,20 @@ function initFeatures(animate: boolean) {
       next.focus();
       pick(next);
     });
+  });
+
+  // As the cards scroll into view they fly in; scrolled back above, they wait (hidden) to fly in again.
+  if (!animate) return;
+  const shown = () => qa<HTMLElement>('.fcard', acts.find((a) => a.dataset.act === on.dataset.act)!);
+  gsap.set(qa<HTMLElement>('.fcard'), { opacity: 0 });
+  ScrollTrigger.create({
+    trigger: '.fcards',
+    start: 'top 80%',
+    onEnter: () => flyIn(shown()),
+    onLeaveBack: () => {
+      gsap.killTweensOf(shown());
+      gsap.set(shown(), { opacity: 0 });
+    },
   });
 }
 
@@ -785,10 +827,9 @@ boot({
       return;
     }
 
-    // Features: the title by word, then the lead and the switch, then the first stage's cards rise in turn.
+    // Features: the title by word, then the lead and the switch (the cards fly in: initFeatures).
     splitReveal('.feats__title', { by: 'words' });
     fadeUp('.feats__lead, .feats__tabs', '.feats__head', { y: 24, stagger: 0.08 });
-    fadeUp('.feats__act:not([hidden]) .fcard', '.feats__act:not([hidden])', { y: 40, stagger: 0.06 });
 
     // Hero entrance: the title by letter, then the copy and the button.
     const { tween } = splitReveal('.phero__title', { by: 'chars', scrollTrigger: false, stagger: 0.025 });

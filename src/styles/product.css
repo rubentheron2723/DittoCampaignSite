@@ -292,7 +292,8 @@
 .feats__act[hidden] { display: none; }
 /* Home's Practical AI cards (home.css .aicard): white, a soft deep shadow, the 84px blue number above a 24px bold title
    and 20px copy; the second card in Ditto's blue gradient. Three to a row. */
-.fcards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.fcards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; perspective: 1400px; }
+/* (The perspective is for their flight in: product.ts flyIn.) */
 .fcard {
   position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-height: clamp(240px, 22.64vw, 326px);
   padding: clamp(24px, 2.778vw, 40px); border-radius: 24px; background: #fff; box-shadow: 0 8px 100px rgba(0, 0, 0, 0.18);
