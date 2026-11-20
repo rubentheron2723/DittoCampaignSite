@@ -13,8 +13,8 @@ import type { BlobParams } from '../shared/footer-blobs';
 
 /*
  * FAQ (Figma 2421:1858 hero, 2421:2028 topics). The hero is the About / Pricing / Contact sky with the search pill;
- * below it, a column of topic tabs beside one topic's questions at a time. Searching shows the matching questions
- * from every topic instead, and picking a tab clears the search.
+ * below it, a column of topic tabs beside every topic's questions in one list. The tabs jump to a topic and light
+ * up the one being read; searching narrows the list to the matching questions (picking a tab clears the search).
  */
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -56,21 +56,21 @@ function render() {
     <canvas class="ftopics__fx" aria-hidden="true"></canvas>
     <div class="ftopics__grid">
       <div class="ftopics__rail">
-        <div class="ftabs" role="tablist" aria-label="FAQ topics" aria-orientation="vertical">
+        <nav class="ftabs" aria-label="FAQ topics">
           ${faqCategories
             .map(
               (c, i) =>
-                `<button type="button" class="ftab${i === 0 ? ' is-on' : ''}" role="tab" id="tab-${slug(c.title)}" aria-controls="${slug(c.title)}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-cat="${slug(c.title)}">${esc(c.title)}</button>`,
+                `<a class="ftab${i === 0 ? ' is-on' : ''}" href="#${slug(c.title)}" data-cat="${slug(c.title)}"${i === 0 ? ' aria-current="true"' : ''}>${esc(c.title)}</a>`,
             )
             .join('')}
-        </div>
+        </nav>
       </div>
 
       <div class="ftopics__list">
         ${faqCategories
           .map(
-            (c, ci) => `<section class="ftopic" id="${slug(c.title)}" data-cat="${slug(c.title)}" role="tabpanel" aria-labelledby="tab-${slug(c.title)}"${ci ? ' hidden' : ''}>
-              <h2 class="ftopic__title">${esc(c.title)}</h2>
+            (c) => `<section class="ftopic" id="${slug(c.title)}" data-cat="${slug(c.title)}" aria-labelledby="${slug(c.title)}-title">
+              <h2 class="ftopic__title" id="${slug(c.title)}-title">${esc(c.title)}</h2>
               <div class="ftopic__items">
                 ${c.items
                   .map((it, i) => {
@@ -117,18 +117,47 @@ function initAccordion(animate: boolean) {
 }
 
 /* ---------- Tabs + search ---------- */
-function initTopics(animate: boolean, scrollToList: () => void) {
+function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean) => void) {
   const input = q<HTMLInputElement>('#faq-search')!;
   const form = q<HTMLFormElement>('#faq-search-form')!;
   const summaryEl = q('#faq-summary')!;
   const empty = q('#faq-empty')!;
   const list = q<HTMLElement>('.ftopics__list')!;
-  const tabs = qa<HTMLButtonElement>('.ftab');
+  const row = q<HTMLElement>('.ftabs')!;
+  const tabs = qa<HTMLAnchorElement>('.ftab');
   const topics = qa<HTMLElement>('.ftopic');
-  let active = tabs[0].dataset.cat!;
+  const topicOf = (tab: HTMLElement) => topics.find((t) => t.dataset.cat === tab.dataset.cat)!;
   let term = '';
 
-  /** Shows the active topic, or every topic's matches while searching. */
+  /** Lights a topic's tab (and, on phones, brings it to the middle of the sideways row). */
+  let active = '';
+  const light = (cat: string) => {
+    if (cat === active) return;
+    active = cat;
+    tabs.forEach((b) => {
+      const on = b.dataset.cat === cat;
+      b.classList.toggle('is-on', on);
+      if (on) b.setAttribute('aria-current', 'true');
+      else b.removeAttribute('aria-current');
+      if (on && row.scrollWidth > row.clientWidth) {
+        const left = b.offsetLeft - (row.clientWidth - b.offsetWidth) / 2;
+        row.scrollTo({ left: Math.max(0, left), behavior: animate ? 'smooth' : 'auto' });
+      }
+    });
+  };
+  light(tabs[0].dataset.cat!);
+
+  // The topic crossing the upper part of the screen is the one being read.
+  topics.forEach((t) =>
+    ScrollTrigger.create({
+      trigger: t,
+      start: 'top 45%',
+      end: 'bottom 45%',
+      onToggle: (self) => self.isActive && light(t.dataset.cat!),
+    }),
+  );
+
+  /** Narrows every topic to the questions matching the search (a topic with none drops out). */
   const show = () => {
     let matches = 0;
     topics.forEach((t) => {
@@ -138,20 +167,15 @@ function initTopics(animate: boolean, scrollToList: () => void) {
         it.hidden = !on;
         if (on) shown++;
       });
-      const on = term ? shown > 0 : t.dataset.cat === active;
-      t.hidden = !on;
-      if (on) matches += shown;
+      t.hidden = shown === 0;
+      matches += shown;
     });
     empty.hidden = !term || matches > 0;
     summaryEl.textContent = term ? `${matches} ${matches === 1 ? 'answer matches' : 'answers match'} “${input.value.trim()}”.` : summary;
-    tabs.forEach((b) => {
-      const on = !term && b.dataset.cat === active;
-      b.classList.toggle('is-on', on);
-      b.setAttribute('aria-selected', String(on));
-    });
+    tabs.forEach((b) => b.classList.toggle('is-empty', !!term && topicOf(b).hidden));
   };
 
-  /** Swaps what the list shows: out, change, back in (the title rising, then the questions). */
+  /** Swaps what the list shows: out, change, back in. */
   let swapping: gsap.core.Timeline | null = null;
   const swap = (change: () => void) => {
     swapping?.progress(1);
@@ -167,43 +191,29 @@ function initTopics(animate: boolean, scrollToList: () => void) {
       .add(() => {
         change();
         show();
+        ScrollTrigger.refresh();
       })
       .fromTo(list, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'expo.out' });
   };
 
-  const row = q<HTMLElement>('.ftabs')!;
-  const pick = (tab: HTMLButtonElement) => {
-    tabs.forEach((b) => (b.tabIndex = b === tab ? 0 : -1));
-    // On phones the tabs are a sideways row: bring the picked one to its middle.
-    if (row.scrollWidth > row.clientWidth) {
-      const left = tab.offsetLeft - (row.clientWidth - tab.offsetWidth) / 2;
-      row.scrollTo({ left: Math.max(0, left), behavior: animate ? 'smooth' : 'auto' });
-    }
-    if (tab.dataset.cat === active && !term) return;
-    swap(() => {
-      active = tab.dataset.cat!;
-      term = '';
-      input.value = '';
-    });
-    scrollToList();
-  };
-
-  tabs.forEach((tab, i) => {
-    tab.addEventListener('click', () => pick(tab));
-    // Arrow keys move along the tabs (and pick, as tabs do); Home and End jump to the ends.
-    tab.addEventListener('keydown', (e) => {
-      const to =
-        e.key === 'ArrowDown' || e.key === 'ArrowRight' ? (i + 1) % tabs.length
-        : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? (i - 1 + tabs.length) % tabs.length
-        : e.key === 'Home' ? 0
-        : e.key === 'End' ? tabs.length - 1
-        : -1;
-      if (to < 0) return;
+  tabs.forEach((tab) =>
+    tab.addEventListener('click', (e) => {
+      // Ours, not boot's same-page link handler (which would put the title under the nav).
       e.preventDefault();
-      tabs[to].focus();
-      pick(tabs[to]);
-    });
-  });
+      e.stopPropagation();
+      // A topic the search has hidden comes back with the rest: picking a tab clears the search.
+      if (term) {
+        swapping?.progress(1);
+        term = '';
+        input.value = '';
+        show();
+        ScrollTrigger.refresh();
+      }
+      light(tab.dataset.cat!);
+      goTo(topicOf(tab), animate);
+      history.replaceState(null, '', `#${tab.dataset.cat}`);
+    }),
+  );
 
   let typing = 0;
   input.addEventListener('input', () => {
@@ -216,17 +226,18 @@ function initTopics(animate: boolean, scrollToList: () => void) {
   });
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    scrollToList();
+    const first = topics.find((t) => !t.hidden);
+    if (first) goTo(first, animate);
   });
 
   // Deep-link to a topic: /faq#billing-contracts-licensing
-  const hash = window.location.hash.slice(1);
-  const match = tabs.find((t) => t.dataset.cat === hash);
-  if (match) {
-    active = hash;
-    tabs.forEach((b) => (b.tabIndex = b === match ? 0 : -1));
-    show();
-  }
+  return () => {
+    const match = tabs.find((t) => t.dataset.cat === window.location.hash.slice(1));
+    if (match) {
+      light(match.dataset.cat!);
+      goTo(topicOf(match), false);
+    }
+  };
 }
 
 /** The topics backdrop: #FDFDFD, rippled by the Moving blobs. */
@@ -243,19 +254,39 @@ boot({
     initAccordion(!reduce);
 
     const section = q<HTMLElement>('#faq')!;
-    // Brings the list into view only when its top has scrolled away (picking from the pinned tabs further down).
-    const scrollToList = () => {
-      const top = section.getBoundingClientRect().top;
+    const rail = q<HTMLElement>('.ftopics__rail')!;
+    const grid = q<HTMLElement>('.ftopics__grid')!;
+    const phone = window.matchMedia('(max-width: 900px)');
+    let entrance: gsap.core.Tween | undefined;
+    /** Scrolls a topic's title to the top of the tabs (on phones, just under the pinned row of tabs). */
+    const goTo = (topic: HTMLElement, smooth: boolean) => {
+      // The list's rise-in would otherwise be measured mid-way (its 40px off still applied) and the scroll fall short.
+      entrance?.progress(1);
       const nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
-      if (top > nav && top < window.innerHeight * 0.5) return;
-      if (smoother) smoother.scrollTo(section, true, `top ${nav}px`);
-      else section.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+      const gap = phone.matches ? rail.offsetHeight + 24 : parseFloat(getComputedStyle(rail).paddingTop) || 0;
+      const at = nav + gap;
+      // As a number: a smooth scrollTo given the element and a position drops the position's offset.
+      if (smoother) smoother.scrollTo(smoother.offset(topic, `top ${at}px`), smooth);
+      else window.scrollTo({ top: topic.getBoundingClientRect().top + window.scrollY - at, behavior: smooth ? 'smooth' : 'auto' });
     };
-    initTopics(!reduce, scrollToList);
-    if (reduce) return;
+    const deepLink = initTopics(!reduce, goTo);
+    revealed.then(() => requestAnimationFrame(deepLink));
 
-    // The tabs stay beside the questions as a long topic scrolls by.
-    stickyPin(q('.ftopics__rail')!, q('.ftopics__grid')!, 72);
+    // The tabs stay beside the questions (on phones, above them) as the topics scroll by.
+    stickyPin(rail, grid, 72);
+    gsap.matchMedia().add('(max-width: 900px)', () => {
+      ScrollTrigger.create({
+        trigger: rail,
+        start: 'top 72px',
+        endTrigger: grid,
+        end: () => `bottom ${rail.offsetHeight + 72}px`,
+        pin: true,
+        pinSpacing: false,
+        invalidateOnRefresh: true,
+        toggleClass: { targets: rail, className: 'is-pinned' },
+      });
+    });
+    if (reduce) return;
 
     const { tween } = splitReveal('.fhero__title', { by: 'chars', scrollTrigger: false, stagger: 0.025 });
     tween.pause();
@@ -278,7 +309,7 @@ boot({
       clearProps: 'transform,opacity,visibility',
       scrollTrigger: { trigger: section, start: 'top 70%' },
     });
-    gsap.from('.ftopics__list', {
+    entrance = gsap.from('.ftopics__list', {
       y: 40,
       autoAlpha: 0,
       duration: 1,
