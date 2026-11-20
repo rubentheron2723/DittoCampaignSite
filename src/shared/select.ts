@@ -176,8 +176,25 @@ export function initSelects(root: ParentNode, animate: boolean) {
         }
       }
     });
+    // Only a tap picks: a touch that scrolled the list (or moved the finger) ends without choosing, so the list stays
+    // open to choose from.
+    let pressY = 0;
+    let pressScroll = 0;
+    let dragged = false;
+    list.addEventListener('pointerdown', (e) => {
+      pressY = e.clientY;
+      pressScroll = list.scrollTop;
+      dragged = false;
+    });
+    list.addEventListener('pointermove', (e) => {
+      if (Math.abs(e.clientY - pressY) > 8) dragged = true;
+    });
+    list.addEventListener('scroll', () => {
+      if (Math.abs(list.scrollTop - pressScroll) > 4) dragged = true;
+    });
     options.forEach((o, i) => {
       o.addEventListener('click', () => {
+        if (dragged) return void (dragged = false);
         pick(i);
         close();
       });

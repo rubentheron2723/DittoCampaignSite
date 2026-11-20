@@ -34,7 +34,7 @@ function render(doc: LegalDoc) {
       <div class="fhero__haze"></div>
     </div>
     <div class="fhero__inner">
-      <h1 class="fhero__title"><span class="fhero__line">${esc(doc.titleOne)}</span> <span class="fhero__line">${esc(doc.titleTwo)}</span></h1>
+      <h1 class="fhero__title"><span class="fhero__line">${esc(doc.titleOne)}</span>${doc.titleTwo ? ` <span class="fhero__line">${esc(doc.titleTwo)}</span>` : ''}</h1>
       <div class="fhero__copy">
         <p class="fhero__lead">${esc(doc.lead)}</p>
         <p class="fhero__support">Last updated ${esc(doc.updated)}</p>

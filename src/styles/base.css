@@ -36,7 +36,7 @@ html { background-color: #1e6ef3; }
    showing). Once the bar hides as you scroll, the screen is taller than the wrapper and a strip of the black page base
    showed under it, as if the page had shifted up. The large viewport covers the screen either way. */
 @supports (height: 100lvh) {
-  #smooth-wrapper { height: 100lvh !important; }
+  html.smooth #smooth-wrapper { height: 100lvh !important; }
 }
 body {
   font-family: var(--t-family), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;

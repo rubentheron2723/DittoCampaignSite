@@ -2,8 +2,8 @@ import type { LegalDoc } from './legal';
 
 /** The Privacy Policy, lifted verbatim from the production page (ditto.work/privacy). */
 export const privacy: LegalDoc = {
-  "titleOne": "Privacy",
-  "titleTwo": "policy.",
+  "titleOne": "Privacy policy.",
+  "titleTwo": "",
   "lead": "How we collect, use, and protect your data.",
   "updated": "15 March 2026",
   "sections": [
