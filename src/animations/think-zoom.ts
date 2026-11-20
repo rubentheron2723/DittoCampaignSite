@@ -395,7 +395,8 @@ export function initThinkZoom(
       s.el.dataset.fit = String(screenFit[k]);
     });
     // The screen's own resolution (to 2x): the flying type stays as sharp as the HTML it takes over from.
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // On touch screens (phones, smaller GPUs, more contexts on the page) 1.5 is plenty.
+    dpr = Math.min(window.devicePixelRatio || 1, window.matchMedia('(pointer: coarse)').matches ? 1.5 : 2);
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     // The lens frame, cover-fitted like the section's 1440 x 1024 design frame.

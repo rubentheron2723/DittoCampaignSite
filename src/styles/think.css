@@ -13,7 +13,7 @@
 .think__item { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .think__title { margin: 0; flex: 1 1 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
 .think__body { margin: 0; flex: none; width: min(524px, 42%); font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
-.think--gl .think__stage { height: 100vh; }
+.think--gl .think__stage { height: 100vh; height: 100svh; }
 .think--gl .think__lens { display: block; }
 /* With the lens running, each statement sits centred on the stage, one at a time: the current one is the real text
    at rest; while it flies (.think--flying) the canvas draws it instead, from these same positions. */

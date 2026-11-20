@@ -37,9 +37,11 @@ export function fadeUp(targets: gsap.DOMTarget, trigger?: Element | string, vars
   const first = gsap.utils.toArray<Element>(targets)[0];
   if (!first) return null;
   const { start, ...rest } = vars;
+  // Opacity, not autoAlpha: content waiting to fade in (a form's fields, say) can still be reached with Tab, and boot.ts
+  // scrolls to it when it takes focus.
   return gsap.from(targets, {
     y: 36,
-    autoAlpha: 0,
+    opacity: 0,
     duration: 1,
     ease: 'expo.out',
     stagger: 0.08,

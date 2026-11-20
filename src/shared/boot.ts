@@ -73,11 +73,24 @@ export async function boot({ page, render, init }: Options) {
       content: '#smooth-content',
       smooth: 1.1,
       effects: true,
-      smoothTouch: 0.1,
+      // Touch scrolls natively: smoothing it on top of the browser's own scroll jittered as the address bar moved.
+      smoothTouch: false,
       normalizeScroll: false,
     });
     smoother.paused(true);
     revealed.then(() => smoother!.paused(false));
+  }
+  // Keyboard focus landing off screen (tabbing down a page): the smoother glides there, rather than the browser
+  // jumping its own scroll underneath it. Content still waiting to fade in then plays as it comes into view.
+  if (smoother) {
+    const content = q('#smooth-content')!;
+    document.addEventListener('focusin', (e) => {
+      const el = e.target;
+      if (!(el instanceof HTMLElement) || !content.contains(el) || !el.matches(':focus-visible')) return;
+      const r = el.getBoundingClientRect();
+      const nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
+      if (r.top < nav || r.bottom > window.innerHeight) smoother!.scrollTo(el, true, 'center center');
+    });
   }
 
   const ctx: BootContext = { reduce, smoother, revealed };
@@ -251,13 +264,13 @@ function initLinks(ctx: BootContext) {
       e.preventDefault();
       closeMenu();
       if (ctx.smoother) ctx.smoother.scrollTo(target, true, 'top 0px');
-      else target.scrollIntoView({ behavior: 'smooth' });
+      else target.scrollIntoView({ behavior: ctx.reduce ? 'auto' : 'smooth' });
       return;
     }
     if (samePage && !url.hash) {
       e.preventDefault();
       closeMenu();
-      ctx.smoother ? ctx.smoother.scrollTo(0, true) : window.scrollTo({ top: 0, behavior: 'smooth' });
+      ctx.smoother ? ctx.smoother.scrollTo(0, true) : window.scrollTo({ top: 0, behavior: ctx.reduce ? 'auto' : 'smooth' });
       return;
     }
     if (ctx.reduce) return; // plain navigation
@@ -303,8 +316,25 @@ function initMenu(ctx: BootContext) {
     last.addEventListener('animationend', () => link.classList.remove('is-waving'));
   });
 
+  menuSmoother = ctx.smoother;
   toggle.addEventListener('click', () => (menuOpen ? closeMenu() : openMenu()));
   window.addEventListener('keydown', (e) => e.key === 'Escape' && closeMenu());
+  // Widened past the phone layout (the menu is hidden there): close it, or the page stays locked.
+  window.matchMedia('(min-width: 901px)').addEventListener('change', (e) => e.matches && closeMenu());
+}
+
+let menuSmoother: ScrollSmoother | null = null;
+/** The page behind the open menu: not scrollable, not reachable by Tab or a screen reader. */
+let pausedBefore = false;
+function lockPage(lock: boolean) {
+  const page = q('#smooth-wrapper');
+  if (page) page.inert = lock;
+  if (!menuSmoother) return;
+  // Leave the scroll as it was found: something else (a held stage) may have paused it already.
+  if (lock) {
+    pausedBefore = menuSmoother.paused();
+    menuSmoother.paused(true);
+  } else if (!pausedBefore) menuSmoother.paused(false);
 }
 
 let menuFx = false;
@@ -318,16 +348,27 @@ function openMenu() {
   }
   menuOpen = true;
   document.body.classList.add('menu-open');
-  q('#menu-toggle')?.setAttribute('aria-expanded', 'true');
+  const toggle = q('#menu-toggle');
+  toggle?.setAttribute('aria-expanded', 'true');
+  toggle?.setAttribute('aria-label', 'Close menu');
   q('#menu')?.setAttribute('aria-hidden', 'false');
+  lockPage(true);
   menuTl?.timeScale(1).play();
+  // Focus goes into the menu (to its first link) once it has opened far enough to be seen.
+  gsap.delayedCall(0.35, () => menuOpen && q<HTMLElement>('#menu .menu__links a')?.focus({ preventScroll: true }));
 }
 
 export function closeMenu() {
   if (!menuOpen) return;
   menuOpen = false;
   document.body.classList.remove('menu-open');
-  q('#menu-toggle')?.setAttribute('aria-expanded', 'false');
-  q('#menu')?.setAttribute('aria-hidden', 'true');
+  const toggle = q<HTMLElement>('#menu-toggle');
+  toggle?.setAttribute('aria-expanded', 'false');
+  toggle?.setAttribute('aria-label', 'Open menu');
+  const menu = q('#menu');
+  menu?.setAttribute('aria-hidden', 'true');
+  // Focus was in the menu: back to the button that opened it.
+  if (menu?.contains(document.activeElement)) toggle?.focus({ preventScroll: true });
+  lockPage(false);
   menuTl?.timeScale(1.6).reverse();
 }

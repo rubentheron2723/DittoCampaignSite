@@ -1,8 +1,8 @@
-import { finePointer, gsap, qa } from './gsap';
+import { finePointer, gsap, prefersReducedMotion, qa } from './gsap';
 
 /** Buttons lean toward the pointer and spring back. Fine pointers only. */
 export function initMagnetic(root: ParentNode = document) {
-  if (!finePointer()) return;
+  if (!finePointer() || prefersReducedMotion()) return;
   qa<HTMLElement>('[data-magnetic]', root).forEach((btn) => {
     const xTo = gsap.quickTo(btn, 'x', { duration: 0.5, ease: 'power3.out' });
     const yTo = gsap.quickTo(btn, 'y', { duration: 0.5, ease: 'power3.out' });
@@ -21,7 +21,7 @@ export function initMagnetic(root: ParentNode = document) {
 
 /** 3D tilt for cards. */
 export function initTilt(root: ParentNode = document) {
-  if (!finePointer()) return;
+  if (!finePointer() || prefersReducedMotion()) return;
   qa<HTMLElement>('[data-tilt]', root).forEach((card) => {
     const rx = gsap.quickTo(card, 'rotationX', { duration: 0.6, ease: 'power3.out' });
     const ry = gsap.quickTo(card, 'rotationY', { duration: 0.6, ease: 'power3.out' });

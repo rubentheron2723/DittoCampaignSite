@@ -26,15 +26,17 @@ export function initTrust(animate: boolean) {
 
   // Ticker: endless, speeds up with scroll velocity.
   const row = q('.ticker__row', section)!;
-  const loop = gsap.to(row, { xPercent: -50, duration: 36, ease: 'none', repeat: -1 });
-  if (animate) {
-    ScrollTrigger.create({
-      onUpdate: (self) => {
-        const v = Math.min(4, 1 + Math.abs(self.getVelocity()) / 900);
-        gsap.to(loop, { timeScale: v, duration: 0.5, overwrite: true });
-      },
-    });
-  }
+  // Still with reduced motion; otherwise it runs only while on screen.
+  if (!animate) return;
+  const loop = gsap.to(row, { xPercent: -50, duration: 36, ease: 'none', repeat: -1, paused: true });
+  const speed = gsap.quickTo(loop, 'timeScale', { duration: 0.5 });
+  ScrollTrigger.create({
+    trigger: q('.ticker', section) ?? section,
+    start: 'top bottom',
+    end: 'bottom top',
+    onToggle: (self) => (self.isActive ? loop.play() : loop.pause()),
+    onUpdate: (self) => speed(Math.min(4, 1 + Math.abs(self.getVelocity()) / 900)),
+  });
 }
 
 /* ---------- CTA ---------- */

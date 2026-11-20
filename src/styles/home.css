@@ -57,7 +57,7 @@
 /* The panels sit above the shared marquee, which sits above the background; the background slides with the panels. */
 .flow__strip { position: relative; z-index: 2; display: flex; width: max-content; }
 .fpanel {
-  position: relative; width: 100vw; height: 100vh; overflow: clip;
+  position: relative; width: 100vw; height: 100vh; height: 100svh; overflow: clip;
   display: flex; align-items: center; gap: 20px;
   padding: clamp(80px, 11.72vh, 120px) clamp(24px, 2.778vw, 40px);
 }
@@ -118,6 +118,8 @@
   .fpanel { flex-direction: column; align-items: stretch; justify-content: center; gap: 16px; padding: calc(var(--nav-h) + 16px) var(--gutter) clamp(32px, 6vh, 56px); }
   .fpanel__copy { flex: none; }
   .fpanel__art { order: -1; flex: 0 1 auto; width: 100%; height: min(36vh, 320px); aspect-ratio: auto; }
+  /* Short phones (an iPhone SE): a smaller illustration, so the copy under it isn't cut off. */
+  @media (max-height: 700px) { .fpanel__art { height: min(26svh, 220px); } }
 }
 
 /* Reduced motion: no sideways scroll; the panels stack and keep their full-screen layout, each with its own band. */

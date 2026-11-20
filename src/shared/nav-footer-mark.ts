@@ -31,8 +31,16 @@ export function initNavFooterMark() {
   const lean = (f: number) => -9 * Math.sin(Math.PI * f);
   let state: 'home' | 'flying' | 'landed' = 'home';
 
+  // The nav mark is fixed, so its box (and the nav's colour) is read once as the flight sets off, not every frame.
+  let from = { left: 0, top: 0, width: 0 };
+  let fromColor = '#fefefe';
   const setState = (next: typeof state) => {
     if (next === state) return;
+    if (next === 'flying') {
+      const r = brandMark.getBoundingClientRect();
+      from = { left: r.left, top: r.top, width: r.width };
+      fromColor = getComputedStyle(nav).color;
+    }
     state = next;
     nav.classList.toggle('nav--footer', next !== 'home');
     brandMark.style.opacity = next === 'home' ? '' : '0';
@@ -47,14 +55,14 @@ export function initNavFooterMark() {
     if (p >= 1) return setState('landed');
     setState('flying');
     const f = ease(p);
-    // Both ends are measured live: the nav mark is fixed, the footer's moves with the scroll.
-    const a = brandMark.getBoundingClientRect();
+    // The footer's end is measured live (it moves with the scroll); the nav's was read at take-off.
+    const a = from;
     const b = target.getBoundingClientRect();
     const x = a.left + (b.left - a.left) * f;
     const y = a.top + (b.top - a.top) * f;
     const scale = (a.width + (b.width - a.width) * f) / w;
     // The nav's colour at rest (dark over light sections, white over dark ones) into the footer's white.
-    fly.style.color = gsap.utils.interpolate(getComputedStyle(nav).color, '#fefefe', f);
+    fly.style.color = gsap.utils.interpolate(fromColor, '#fefefe', f);
     // Leaning about its own centre.
     const [cx, cy] = [(w * scale) / 2, (h * scale) / 2];
     fly.style.transform = `translate(${x + cx}px, ${y + cy}px) rotate(${lean(f)}deg) translate(${-cx}px, ${-cy}px) scale(${scale})`;

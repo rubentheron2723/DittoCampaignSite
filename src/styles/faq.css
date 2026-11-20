@@ -42,6 +42,9 @@
   color: #fff; background: rgba(255, 255, 255, 0.2); transition: background-color 0.2s var(--ease-out), transform 0.2s var(--ease-out);
 }
 .fsearch__clear[hidden] { display: none; }
+/* A 44px tap area around the 32px circle. */
+.fsearch__clear { position: relative; }
+.fsearch__clear::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
 .fsearch__clear:hover { background: rgba(255, 255, 255, 0.35); }
 .fsearch__clear:active { transform: scale(0.92); }
 .fsearch__clear:focus { outline: none; }
@@ -92,6 +95,8 @@
 .fqa__trigger.is-waving .fqa__word span { animation: wave-lift 0.38s ease-in-out calc(var(--i) * 14ms) both; }
 .fqa.is-open .fqa__chev { transform: rotate(180deg); }
 .fqa__panel { overflow: hidden; }
+/* Collapsed from the first paint (GSAP takes over when one opens), so the answers never flash open on load. */
+.fqa:not(.is-open) > .fqa__panel { height: 0; visibility: hidden; }
 .fqa__panel p { margin: 0; padding: 20px 44px 0 0; font-size: 16px; line-height: 1.25; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); max-width: 72ch; }
 /* No matches: a glass card with the search icon, what was searched, and two ways on. */
 .fempty[hidden] { display: none; }
@@ -116,7 +121,8 @@
   .ftopics__grid { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 40px 0 0; }
   /* Pinned under the nav as a frosted strip over the questions scrolling beneath. */
   .ftopics__rail { position: relative; z-index: 3; padding: 8px 0 0; transition: background-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out); }
-  .ftopics__rail.is-pinned { background: rgba(253, 253, 253, 0.96); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 1px 0 rgba(23, 23, 23, 0.06); }
+  /* Solid: a blur under a nearly opaque strip barely showed, yet was redrawn every scroll frame. */
+  .ftopics__rail.is-pinned { background: #fdfdfd; box-shadow: 0 1px 0 rgba(23, 23, 23, 0.06); }
   /* The strip reaches up behind the nav too, so no question shows through above the tabs. */
   .ftopics__rail.is-pinned::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: var(--nav-h); background: #fdfdfd; }
   .ftabs { flex-direction: row; gap: 8px; overflow-x: auto; padding: 4px var(--pad) 12px; scrollbar-width: none; }

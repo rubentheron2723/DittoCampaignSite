@@ -53,7 +53,17 @@ const GRADIENT = {
   ] as const,
 };
 
-const MAX_DPR = 2;
+/** 1.5 at most: the footer is a full screen or more of two shader passes, on screen with the CTA's sky. */
+const MAX_DPR = 1.5;
+
+/** Uniform locations, looked up once per program rather than every frame. */
+const locations = new WeakMap<WebGLProgram, Map<string, WebGLUniformLocation | null>>();
+function uniformOf(gl: WebGL2RenderingContext, program: WebGLProgram, name: string) {
+  let map = locations.get(program);
+  if (!map) locations.set(program, (map = new Map()));
+  if (!map.has(name)) map.set(name, gl.getUniformLocation(program, name));
+  return map.get(name)!;
+}
 
 /** Pointer ripple slots, and how fast a ring spreads (shader units = footer heights per second). */
 const RIPPLES = 16;
@@ -437,7 +447,7 @@ export function initFooterBlobs(reduce: boolean) {
   let last: { x: number; y: number; t: number } | null = null;
 
   const setUniforms = (program: WebGLProgram, loop: [number, number]) => {
-    const loc = (n: string) => gl.getUniformLocation(program, n);
+    const loc = (n: string) => uniformOf(gl, program, n);
     gl.uniform1f(loc('uFrequency'), u.frequency);
     gl.uniform1f(loc('uThreshold'), u.threshold);
     gl.uniform1f(loc('uSoftness'), u.softness);
@@ -537,10 +547,10 @@ export function initFooterBlobs(reduce: boolean) {
     setUniforms(compositeProgram, loop);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, inputTex);
-    gl.uniform1i(gl.getUniformLocation(compositeProgram, 'uInput'), 0);
+    gl.uniform1i(uniformOf(gl, compositeProgram, 'uInput'), 0);
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, fieldTex);
-    gl.uniform1i(gl.getUniformLocation(compositeProgram, 'uField'), 1);
+    gl.uniform1i(uniformOf(gl, compositeProgram, 'uField'), 1);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   };
 
@@ -628,7 +638,7 @@ export function createBlobsPass(gl: WebGL2RenderingContext, params: BlobParams, 
   const start = performance.now();
 
   const setUniforms = (program: WebGLProgram, loop: [number, number]) => {
-    const loc = (n: string) => gl.getUniformLocation(program, n);
+    const loc = (n: string) => uniformOf(gl, program, n);
     gl.uniform1f(loc('uFrequency'), u.frequency);
     gl.uniform1f(loc('uThreshold'), u.threshold);
     gl.uniform1f(loc('uSoftness'), u.softness);
@@ -679,13 +689,13 @@ export function createBlobsPass(gl: WebGL2RenderingContext, params: BlobParams, 
       gl.viewport(0, 0, width, height);
       gl.useProgram(compositeProgram);
       setUniforms(compositeProgram, loop);
-      gl.uniform1f(gl.getUniformLocation(compositeProgram, 'uFlipInput'), 1);
+      gl.uniform1f(uniformOf(gl, compositeProgram, 'uFlipInput'), 1);
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, input);
-      gl.uniform1i(gl.getUniformLocation(compositeProgram, 'uInput'), 0);
+      gl.uniform1i(uniformOf(gl, compositeProgram, 'uInput'), 0);
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, fieldTex);
-      gl.uniform1i(gl.getUniformLocation(compositeProgram, 'uField'), 1);
+      gl.uniform1i(uniformOf(gl, compositeProgram, 'uField'), 1);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       gl.activeTexture(gl.TEXTURE0);
     },

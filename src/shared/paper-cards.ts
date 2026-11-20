@@ -286,7 +286,8 @@ export function createPaperCards(
   };
 
   const resize = () => {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // 1.5 at most: the canvas spans a whole section and is multisampled, so DPR 2 cost a lot for little.
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
     const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
     if (w !== canvas.width || h !== canvas.height) {

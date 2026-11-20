@@ -25,6 +25,10 @@ boot({
     }
 
     const heroTl = initHero();
-    revealed.then(() => heroTl.play());
+    revealed.then(() => {
+      heroTl.play();
+      // Never leave the copy hidden if frames are starved.
+      window.setTimeout(() => heroTl.progress() < 1 && heroTl.progress(1), 3500);
+    });
   },
 });

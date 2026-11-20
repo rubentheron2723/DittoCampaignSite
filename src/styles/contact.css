@@ -85,7 +85,7 @@ input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: n
 .form.is-sending .form__submit { opacity: 0.8; cursor: default; }
 .form__success { display: none; position: absolute; inset: 0; place-content: center; justify-items: center; text-align: center; gap: 16px; padding: 40px; }
 .form__success-mark { width: 64px; margin-bottom: 12px; filter: drop-shadow(0 20px 40px rgba(0, 176, 255, 0.35)); }
-.form__success-title { margin: 0; font-size: clamp(32px, calc(32px + 32 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; }
+.form__success-title { outline: none; margin: 0; font-size: clamp(32px, calc(32px + 32 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; }
 .form__success-copy { margin: 0; font-size: 20px; line-height: 24px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
 
 /* Dropdowns (shared/select.ts). The panel: white, 36 corners, 16 × 20 inside, options 8 apart. */
@@ -164,4 +164,10 @@ input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: n
   .cnext__top { gap: 48px; }
   .cnext__steps { gap: 28px; }
   .cnext__step { align-items: flex-start; }
+}
+
+/* Touch screens: the dialling-code chip gets a 44px tap area without changing how it looks. */
+@media (pointer: coarse) {
+  .select--chip .select__button { position: relative; }
+  .select--chip .select__button::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 44px; translate: 0 -50%; }
 }
