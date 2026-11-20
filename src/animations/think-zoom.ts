@@ -32,8 +32,8 @@ const T = {
   fadeInStart: 0.5,
   fadeInEnd: 1,
 };
-/** How long one move takes (s): Figma's zoom, 27.8% to 83.3% of 3.6 s. */
-const STEP_TIME = 2;
+/** How long one move takes (s). Figma's zoom runs 2 s; quicker here so stepping through doesn't feel like a wait. */
+const STEP_TIME = 1.2;
 const ARRIVE_SCALE = 0.82;
 const SCALE = 20.180792;
 const TURN = (-30 * Math.PI) / 180;
@@ -699,7 +699,17 @@ export function initThinkZoom(
    * After a move lands, the statement holds this long before a kept swipe moves on (s): each is seen at rest, and
    * fast scrolling settles between moves rather than running them back to back.
    */
-  const HOLD = 0.8;
+  const HOLD = 0.35;
+  /**
+   * A gesture that starts while the stage holds the scroll and goes this far lets go of the section in its direction
+   * (wheel/trackpad px, or a share of the screen for a touch swipe): a quick way past for anyone not reading it.
+   * The gesture that brought the page here never counts, so a fast scroll in can't skip the section by accident.
+   */
+  const ESCAPE_WHEEL = 1100;
+  const ESCAPE_TOUCH = () => Math.max(220, window.innerHeight * 0.32);
+  /** The current gesture's travel, and the gesture that was under way as the stage took hold. */
+  let travel = 0;
+  let arrivedOn = -1;
 
   // While the stage holds the scroll the nav stays folded to its mark (see .nav--hold in base.css), and opens fully
   // while the pointer is up in its strip.
@@ -772,6 +782,8 @@ export function initThinkZoom(
     captured = true;
     acc = 0;
     pending = 0;
+    arrivedOn = gesture;
+    touchArrived = true;
     // The gesture that scrolled the page here (and its inertia) has done its job.
     used = gesture;
     // Stop at the section's top, a pixel inside so the pin counts as active (the stage is pinned there, so the page
@@ -956,6 +968,7 @@ export function initThinkZoom(
       if (now - lastAt > QUIET || (lastAbs < peak * 0.5 && d > lastAbs * 1.6 + 4)) {
         gesture++;
         acc = 0;
+        travel = 0;
         peak = 0;
       }
       peak = Math.max(peak, d);
@@ -963,6 +976,11 @@ export function initThinkZoom(
       lastAt = now;
       if (!captured) return;
       e.preventDefault();
+      travel += e.deltaY;
+      if (gesture !== arrivedOn && Math.abs(travel) > ESCAPE_WHEEL) {
+        pending = 0;
+        return release(travel > 0 ? 1 : -1);
+      }
       if (gesture === used) return;
       acc += e.deltaY;
       if (Math.abs(acc) > THRESHOLD) {
@@ -973,13 +991,17 @@ export function initThinkZoom(
     { passive: false },
   );
   let touchY = 0;
+  let touchFrom = 0;
   /** Whether this touch has already stepped: one swipe, one step. */
   let touchUsed = false;
+  /** Whether this touch was already under way as the stage took hold (it then can't let go of it). */
+  let touchArrived = false;
   window.addEventListener(
     'touchstart',
     (e) => {
-      touchY = e.touches[0].clientY;
+      touchY = touchFrom = e.touches[0].clientY;
       touchUsed = false;
+      touchArrived = false;
     },
     { passive: true },
   );
@@ -988,6 +1010,13 @@ export function initThinkZoom(
     (e) => {
       if (!captured) return;
       e.preventDefault();
+      // A long swipe lets go of the section.
+      const swept = touchFrom - e.touches[0].clientY;
+      if (!touchArrived && Math.abs(swept) > ESCAPE_TOUCH()) {
+        pending = 0;
+        touchArrived = true;
+        return release(swept > 0 ? 1 : -1);
+      }
       const dy = touchY - e.touches[0].clientY;
       if (!touchUsed && Math.abs(dy) > 40) {
         touchUsed = true;
@@ -999,6 +1028,8 @@ export function initThinkZoom(
   );
   window.addEventListener('keydown', (e) => {
     if (!captured) return;
+    // Home and End leave the section for the page's top or bottom (the browser's own jump then carries on).
+    if (e.key === 'End' || e.key === 'Home') return release(e.key === 'End' ? 1 : -1);
     const down = ['ArrowDown', 'PageDown', ' ', 'Spacebar'].includes(e.key);
     const up = ['ArrowUp', 'PageUp'].includes(e.key);
     if (!down && !up) return;
