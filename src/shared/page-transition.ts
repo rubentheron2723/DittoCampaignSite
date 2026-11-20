@@ -29,6 +29,8 @@ const SWEEP: Record<PageId, number> = {
   faq: 180, // in from the right, off to the left
   contact: 90, // down from the top
   signin: -FIGMA_HEADING, // off towards the bottom left
+  privacy: 180 + FIGMA_HEADING, // off towards the bottom right
+  terms: FIGMA_HEADING + 90, // off towards the top right, steeper than About
 };
 
 const DURATION = 1.2;

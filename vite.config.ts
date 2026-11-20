@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
 
-const pages = ['index', 'product', 'pricing', 'about', 'faq', 'contact', 'sign-in', 'type'];
+const pages = ['index', 'product', 'pricing', 'about', 'faq', 'contact', 'sign-in', 'privacy', 'terms', 'type'];
 /** Ready-made pages served as they are from public/ (not built): /mcp is a coworker's MCP marketing page and /story their product vision story, both for review. */
 const staticPages = ['mcp', 'story'];
 

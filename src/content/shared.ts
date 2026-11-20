@@ -1,4 +1,4 @@
-export type PageId = 'home' | 'product' | 'pricing' | 'about' | 'faq' | 'contact' | 'signin';
+export type PageId = 'home' | 'product' | 'pricing' | 'about' | 'faq' | 'contact' | 'signin' | 'privacy' | 'terms';
 
 export const nav: { id: PageId; label: string; href: string }[] = [
   { id: 'product', label: 'Product', href: '/product' },
@@ -13,13 +13,14 @@ export const appUrl = 'https://app.ditto.work';
 export const signInUrl = '/sign-in';
 
 /** Footer columns, as laid out in the Figma footer (node 2396:311): Company and Info on the first row, Community and
- * Account on the second. */
+ * Account on the second; Legal (Privacy, Terms) below them. */
 export const footer = {
   columns: [
     { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Product', href: '/product' }] },
     { title: 'Info', links: [{ label: 'Pricing', href: '/pricing' }, { label: 'FAQ', href: '/faq' }, { label: 'Contact', href: '/contact' }] },
     { title: 'Community', links: [{ label: 'Facebook', href: 'https://www.facebook.com/DittoHire/' }, { label: 'LinkedIn', href: 'https://www.linkedin.com/company/dittohire/' }] },
     { title: 'Account', links: [{ label: 'Sign in', href: signInUrl }, { label: 'Book a demo', href: '/contact' }] },
+    { title: 'Legal', links: [{ label: 'Privacy', href: '/privacy' }, { label: 'Terms', href: '/terms' }] },
   ],
 };
 
