@@ -132,7 +132,14 @@ function initRebuild(animate: boolean) {
   const last = rows[rows.length - 1];
 
   const mm = gsap.matchMedia();
-  mm.add('(min-height: 560px)', () => {
+  // Phones scroll them as a plain list: holding each row and re-masking it every frame wasn't smooth there. Each row's
+  // line fills as it passes up the screen (a transform, nothing more).
+  mm.add('(max-width: 900px), (max-height: 559px)', () => {
+    fills.forEach((fill, i) =>
+      gsap.fromTo(fill, { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: { trigger: rows[i], start: 'top 75%', end: 'top 25%', scrub: true } }),
+    );
+  });
+  mm.add('(min-height: 560px) and (min-width: 901px)', () => {
     // A row taller than the room under the nav (a narrow phone, stacked copy) would be cut off while held: then
     // they stay a plain list.
     if (Math.max(...rows.map((r) => r.offsetHeight)) > window.innerHeight - PIN() - 40) return;

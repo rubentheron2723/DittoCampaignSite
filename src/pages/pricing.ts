@@ -290,7 +290,11 @@ boot({
     initBlobBackdrop(q('.pfield')!, q<HTMLCanvasElement>('.pfield__fx')!, 'pfield--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
     // The blob layer is one screen tall and held on screen through both sections (a pin, as ScrollSmoother rules out
     // position: sticky), so the blobs neither repeat nor restart at the join.
-    ScrollTrigger.create({ trigger: '.pfield', start: 'top top', end: 'bottom bottom', pin: '.pfield__fx', pinSpacing: false });
+    // Phones: no pin. Moving the canvas against the scroll every frame jittered there, so it sits behind the first screen of
+    // the calculator and fades out (pricing.css).
+    gsap.matchMedia().add('(min-width: 901px)', () => {
+      ScrollTrigger.create({ trigger: '.pfield', start: 'top top', end: 'bottom bottom', pin: '.pfield__fx', pinSpacing: false });
+    });
     initCalculator(!reduce);
     if (reduce) return;
 
