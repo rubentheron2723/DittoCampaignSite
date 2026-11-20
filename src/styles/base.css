@@ -29,6 +29,9 @@ html { -webkit-text-size-adjust: 100%; }
    wherever a browser still bounces. */
 html, body { overscroll-behavior-y: none; }
 html { background-color: #1e6ef3; }
+/* Under the sections, a light base rather than the black body: where a pinned section and the next sit a sub-pixel
+   apart on phones, the hairline between them showed black. */
+#smooth-content { background: #fdfdfd; }
 /* ScrollSmoother pins its wrapper with an inline height: 100%, which on iOS stays the short viewport (address bar
    showing). Once the bar hides as you scroll, the screen is taller than the wrapper and a strip of the black page base
    showed under it, as if the page had shifted up. The large viewport covers the screen either way. */
@@ -280,6 +283,13 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
   min-height: 100vh; min-height: 100lvh; padding: clamp(120px, 12vw, 180px) 0;
   background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); color: var(--white); overflow: clip;
 }
+/* The band's top few pixels in its haze's own colour, over the sky: on phones a sub-pixel offset between the section
+   and the pinned one above left the sky's blue showing as a thin line along the join. */
+.cta::before {
+  content: ''; position: absolute; z-index: 1; left: 0; right: 0; top: 0; height: 3px; pointer-events: none;
+  background: #fefefe;
+}
+.cta--from-dark::before { background: var(--cta-from); }
 .cta__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; }
 .cta--sky .cta__sky { opacity: 1; }
 /* Figma 2378:1159: white haze at the top (from the section above) and the footer's #00B0FF at the bottom, so the
