@@ -41,6 +41,10 @@
 .pfield { position: relative; margin-top: -1px; background: #fdfdfd; }
 .pfield__fx { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; display: block; pointer-events: none; opacity: 0; transition: opacity 0.8s var(--ease-out); }
 .pfield--fx .pfield__fx { opacity: 1; }
+/* Phones: the blobs stay put behind the calculator's first screen (not pinned through both sections), fading out below. */
+@media (max-width: 900px) {
+  .pfield__fx { -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%); mask-image: linear-gradient(180deg, #000 70%, transparent 100%); }
+}
 .calc {
   position: relative; z-index: 1; color: #171717;
   display: flex; flex-direction: column; gap: 40px;
