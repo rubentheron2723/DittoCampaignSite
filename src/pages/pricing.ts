@@ -146,6 +146,8 @@ function initCalculator(animate: boolean) {
     `${sym()}${n.toLocaleString('en-US', { minimumFractionDigits: decimals ? 2 : 0, maximumFractionDigits: decimals ? 2 : 0 })}`;
   const dur = animate ? 0.7 : 0;
 
+  let rateRoll: gsap.core.Tween | undefined;
+  let totalRoll: gsap.core.Tween | undefined;
   function update() {
     const tier = tierForUsers(users);
     const monthlyRate = tier.rates ? tier.rates[currency] : 0;
@@ -161,12 +163,19 @@ function initCalculator(animate: boolean) {
     quote.classList.toggle('quote--enterprise', !tier.rates);
     cards.forEach((c) => c.classList.toggle('is-active', c.dataset.label === tier.label));
 
+    // A roll still running (a fast drag into Enterprise) would write its number over "Custom", and two rolls on one
+    // figure fight: each new one replaces the last.
+    rateRoll?.kill();
+    totalRoll?.kill();
     if (tier.rates) {
-      rollNumber(el.rate, rate, (n) => money(n, !Number.isInteger(rate)), dur);
-      rollNumber(el.total, Math.round(total), (n) => money(Math.round(n)), dur);
+      rateRoll = rollNumber(el.rate, rate, (n) => money(n, !Number.isInteger(rate)), dur);
+      totalRoll = rollNumber(el.total, Math.round(total), (n) => money(Math.round(n)), dur);
     } else {
       el.rate.textContent = 'Custom';
       el.total.textContent = 'Let’s talk';
+      // Rolling back to a price starts from nothing rather than a stale figure.
+      delete el.rate.dataset.value;
+      delete el.total.dataset.value;
     }
   }
 

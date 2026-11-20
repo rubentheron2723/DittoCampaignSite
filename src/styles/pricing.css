@@ -86,6 +86,8 @@
 /* On wide screens it sits under the price, at the right edge of the content. */
 @media (min-width: 1440px) {
   .calc > .calc__cta { align-self: flex-end; margin-right: max(0px, calc((100% - 1280px) / 2)); }
+  /* The button is right under the price here, so the Enterprise note keeps its room (hidden until needed). */
+  .quote .quote__enterprise { position: static; }
 }
 /* Solid blue pill (Figma): #1E6EF3 into #00B0FF, white 20/24 text, a blue glow. */
 .bbtn {
