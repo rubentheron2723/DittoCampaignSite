@@ -255,9 +255,10 @@ function trustSection() {
 }
 
 /**
- * "Everything in one system": the product's features by stage. A glass Source / Engage / Place switch over one stage at
- * a time: its headline and intro, its features as glass cards (title, what it does, a note where there is one, three
- * tags), and a demo link. Drafted from the production product page's content in the site's own style.
+ * "Everything in one system": the product's features by stage, in the Pricing page's "From first call" layout. A glass
+ * Source / Engage / Place switch over one stage at a time, its features as numbered rows in a centred column: a big
+ * blue number beside the feature's title, what it does, and a note where there is one. Content from the production
+ * product page.
  */
 function featuresSection() {
   const f = features;
@@ -281,26 +282,20 @@ function featuresSection() {
       ${f.acts
         .map(
           (a, i) => `<div class="feats__act" id="feats-${a.id}" role="tabpanel" aria-labelledby="feats-tab-${a.id}" data-act="${a.id}"${i ? ' hidden' : ''}>
-            <div class="feats__intro">
-              <h3 class="feats__headline">${esc(a.headline)}</h3>
-              <p class="feats__copy">${esc(a.intro)}</p>
-            </div>
-            <ul class="feats__grid">
+            <ol class="fsteps">
               ${a.features
                 .map(
-                  (ft) => `<li class="fcard">
-                    <h4 class="fcard__title">${esc(ft.title)}</h4>
-                    <p class="fcard__body">${esc(ft.body)}</p>
-                    ${ft.supportNote ? `<p class="fcard__note">${esc(ft.supportNote)}</p>` : ''}
-                    <ul class="fcard__chips">${ft.chips.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
+                  (ft, k) => `<li class="fstep">
+                    <span class="fstep__num" aria-hidden="true">${String(k + 1).padStart(2, '0')}</span>
+                    <div class="fstep__body">
+                      <h3>${esc(ft.title)}</h3>
+                      <p>${esc(ft.body)}</p>
+                      ${ft.supportNote ? `<p class="fstep__note">${esc(ft.supportNote)}</p>` : ''}
+                    </div>
                   </li>`,
                 )
                 .join('')}
-            </ul>
-            <div class="feats__cta">
-              <div><p class="feats__cta-title">${esc(a.ctaTitle)}</p><p class="feats__cta-body">${esc(a.ctaBody)}</p></div>
-              <a class="gbtn" href="/contact">Book a demo</a>
-            </div>
+            </ol>
           </div>`,
         )
         .join('')}
@@ -333,10 +328,7 @@ function initFeatures(animate: boolean) {
     place(t, animate ? 0.7 : 0);
     from.hidden = true;
     to.hidden = false;
-    if (animate) {
-      gsap.fromTo(q('.feats__intro', to), { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'expo.out' });
-      gsap.fromTo(qa('.fcard', to), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'expo.out', stagger: 0.05, delay: 0.05 });
-    }
+    if (animate) gsap.fromTo(qa('.fstep', to), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'expo.out', stagger: 0.06 });
     ScrollTrigger.refresh();
   };
   tabs.forEach((t, i) => {
@@ -356,8 +348,8 @@ function render() {
   const main = document.getElementById('main')!;
   main.innerHTML = [
     hero(),
-    featuresSection(),
     day(),
+    featuresSection(),
     trustSection(),
     ctaAndFooter({ lineOne: finalFeaturesCta.title.replace(' recruitment business?', ''), lineTwo: 'recruitment business?', copy: finalFeaturesCta.body }),
   ].join('');
@@ -792,10 +784,10 @@ boot({
       return;
     }
 
-    // Features: the title by word, then the lead and the switch, then the first stage's cards rise in turn.
+    // Features: the title by word, then the lead and the switch, then the first stage's rows rise in turn.
     splitReveal('.feats__title', { by: 'words' });
     fadeUp('.feats__lead, .feats__tabs', '.feats__head', { y: 24, stagger: 0.08 });
-    fadeUp('.feats__act:not([hidden]) .feats__intro, .feats__act:not([hidden]) .fcard, .feats__act:not([hidden]) .feats__cta', '.feats__grid', { y: 30, stagger: 0.05 });
+    fadeUp('.feats__act:not([hidden]) .fstep', '.feats__act:not([hidden])', { y: 40, stagger: 0.1 });
 
     // Hero entrance: the title by letter, then the copy and the button.
     const { tween } = splitReveal('.phero__title', { by: 'chars', scrollTrigger: false, stagger: 0.025 });
