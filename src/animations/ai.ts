@@ -276,7 +276,6 @@ export function initAI(animate: boolean) {
         end: narrow ? '+=220%' : '+=180%',
         pin: true,
         scrub: 1.2,
-        anticipatePin: 1,
         invalidateOnRefresh: true,
         // Measure this pin before the triggers that use the whole section (nav theme, reveals) measure it.
         refreshPriority: 1,

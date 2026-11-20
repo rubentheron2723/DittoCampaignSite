@@ -74,8 +74,9 @@ export async function boot({ page, render, init }: Options) {
       content: '#smooth-content',
       smooth: 1.1,
       effects: true,
-      // Touch scrolls natively: smoothing it on top of the browser's own scroll jittered as the address bar moved.
-      smoothTouch: false,
+      // Touch is smoothed lightly too. Unsmoothed (smoothTouch: false), the content's JS transform trails the phone's own
+      // scroll by a frame here and there, and pinned sections (Home's sideways Source / Engage / Place) visibly jump.
+      smoothTouch: 0.1,
       normalizeScroll: false,
     });
     smoother.paused(true);

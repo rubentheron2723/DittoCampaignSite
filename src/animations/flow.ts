@@ -41,7 +41,6 @@ export function initFlow(animate: boolean) {
       end: () => `+=${distance()}`,
       pin: true,
       scrub: 0.8,
-      anticipatePin: 1,
       invalidateOnRefresh: true,
       // Measured before the AI section's pin below (priority 1) and everything else that depends on this length.
       refreshPriority: 2,
