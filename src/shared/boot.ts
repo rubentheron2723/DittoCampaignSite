@@ -41,10 +41,11 @@ export async function boot({ page, render, init }: Options) {
   renderChrome(page);
   render();
 
-  // Curtain first, so the page never flashes unstyled content. A fresh visit or reload plays the landing intro;
-  // arriving from another page of the site plays the page transition instead.
-  // Following a link here, or going back or forward to this page, is a move within the site.
-  const moved = takePageTransition() || cameBackOrForward();
+  // Curtain first, so the page never flashes unstyled content. The landing intro plays once per visit (the tab's
+  // session): on its first page. Everything after that (a link, back or forward, a reload) gets the shorter page
+  // transition instead.
+  const moved = takePageTransition() || cameBackOrForward() || introSeen();
+  if (!moved && !reduce) markIntroSeen();
   const cover = reduce ? Promise.resolve((hideCurtain(), hideIntro())) : moved ? playPageTransition(page) : playCloudIntro();
   // Failsafe: the cover must never stay up. If the animation stalls or throws (a blocked image, a lost WebGL context,
   // a browser shield), the page is shown anyway after a little longer than the animation would take.
@@ -278,6 +279,24 @@ function initLinks(ctx: BootContext) {
     flagPageTransition();
     coverAndGo(url.pathname + url.hash);
   });
+}
+
+/* ---------- Landing intro, once per visit ---------- */
+const INTRO_KEY = 'ditto:intro-seen';
+/** Whether this tab's visit has already played the landing intro. */
+function introSeen() {
+  try {
+    return sessionStorage.getItem(INTRO_KEY) === '1';
+  } catch {
+    return false; // Storage blocked: play it.
+  }
+}
+function markIntroSeen() {
+  try {
+    sessionStorage.setItem(INTRO_KEY, '1');
+  } catch {
+    /* Storage blocked: it plays again next time, as before. */
+  }
 }
 
 /* ---------- Mobile menu ---------- */
