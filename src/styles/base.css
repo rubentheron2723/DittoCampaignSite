@@ -216,18 +216,31 @@ svg { display: block; }
 .nav__cta:hover { filter: brightness(1.08); }
 .menu-toggle { display: none; position: relative; z-index: 2; width: 40px; height: 40px; border-radius: 50%; flex-direction: column; justify-content: center; align-items: center; gap: 6px; }
 .menu-toggle span { display: block; width: 20px; height: 2px; background: currentColor; border-radius: 2px; transition: transform 0.3s var(--ease-out); }
-body.menu-open .menu-toggle { color: var(--white); }
 body.menu-open .menu-toggle span:first-child { transform: translateY(4px) rotate(45deg); }
 body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate(-45deg); }
 
 /* Mobile menu */
-.menu { position: fixed; inset: 0; z-index: 58; display: flex; flex-direction: column; justify-content: center; padding: calc(var(--nav-h) + 24px) var(--gutter) 40px; color: var(--white); visibility: hidden; }
-.menu__bg { position: absolute; inset: 0; background: var(--dark-grad); }
-.menu__links { position: relative; display: grid; gap: 6px; }
-.menu__links a { font-size: var(--t-h1-size); line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); font-weight: var(--t-h1-wt); display: flex; align-items: baseline; gap: 16px; }
-.menu__links a em { font-size: var(--t-eyebrow-size); line-height: var(--t-eyebrow-lh); letter-spacing: var(--t-eyebrow-ls); font-weight: var(--t-eyebrow-wt); font-style: normal; color: var(--blue); }
-.menu__links a[aria-current='page'] { color: var(--blue); }
-.menu__foot { position: relative; margin-top: 40px; display: flex; flex-wrap: wrap; gap: 12px; }
+.menu { position: fixed; inset: 0; z-index: 58; display: flex; flex-direction: column; justify-content: space-between; padding: calc(var(--nav-h) + 24px) 16px 24px; color: #171717; visibility: hidden; }
+.menu__bg { position: absolute; inset: 0; background: #fff; overflow: hidden; }
+/* The Moving blobs (Figma's edges-only blobs, threshold 27.5): started on the menu's first opening (boot.ts). */
+.menu__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); }
+.menu--fx .menu__fx { opacity: 1; }
+/* The pages, 40/44 bold, 16 apart, in the middle of the screen. */
+.menu__links { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin: auto 0; }
+.menu__links a { font-size: 40px; line-height: 44px; letter-spacing: -0.04em; font-weight: 700; color: #171717; }
+.menu__links a[aria-current='page'] { color: #1e6ef3; }
+/* Two glass pills at the foot, centred: white-to-clear glass, and a clear 10% white one. */
+.menu__foot { position: relative; display: flex; justify-content: center; gap: 20px; }
+.menu__btn {
+  display: inline-flex; align-items: center; padding: 12px 16px; border-radius: 999px; font-size: 12px; line-height: 16px; letter-spacing: -0.04em; color: #171717; white-space: nowrap;
+  background: linear-gradient(-80.6deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 10px rgba(0, 0, 0, 0.05);
+}
+.menu__btn--clear { background: rgba(255, 255, 255, 0.1); color: #0f141d; }
+/* While it's open the nav sits on white: dark logo and close button, no glass, no "Book a demo" (it's in the menu). */
+body.menu-open .nav { color: #171717; }
+body.menu-open .nav::before { opacity: 0; }
+body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
+.nav__cta { transition: color 0.35s var(--ease-out), filter 0.2s, opacity 0.3s var(--ease-out); }
 
 /* Text for screen readers only. */
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

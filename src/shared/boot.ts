@@ -4,8 +4,9 @@ import type { PageId } from '../content/shared';
 import { renderChrome } from './chrome';
 import { hideCurtain } from './curtain';
 import { coverAndGo, hideIntro, playCloudIntro } from './intro';
-import { initFooterBlobs } from './footer-blobs';
-import { initCtaClouds } from './cta-clouds';
+import { initFooterBlobs, type BlobParams } from './footer-blobs';
+import { initBlobBackdrop } from './blob-backdrop';
+import { HERO_BUBBLES, initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
 import { initNavFooterMark } from './nav-footer-mark';
@@ -270,26 +271,42 @@ function initLinks(ctx: BootContext) {
 let menuTl: gsap.core.Timeline | null = null;
 let menuOpen = false;
 
+/** The menu's Moving blobs: the hero's, with Figma's threshold for this frame (27.5). */
+const MENU_BLOBS: BlobParams = { ...HERO_BUBBLES, threshold: 27.5 };
+let menuReduce = false;
+
 function initMenu(ctx: BootContext) {
+  menuReduce = ctx.reduce;
   const toggle = q<HTMLButtonElement>('#menu-toggle')!;
   const menu = q('#menu')!;
   const links = qa('.menu__links a', menu);
   const foot = q('.menu__foot', menu)!;
 
-  gsap.set(menu, { autoAlpha: 0 });
+  // Closed, it's out of the layout (display: none), so its blobs stop drawing; they start on the first opening.
+  gsap.set(menu, { autoAlpha: 0, display: 'none' });
   menuTl = gsap
     .timeline({ paused: true, defaults: { ease: 'expo.out' } })
-    .set(menu, { autoAlpha: 1 })
+    .set(menu, { autoAlpha: 1, display: 'flex' })
     .fromTo('.menu__bg', { clipPath: 'circle(0% at calc(100% - 40px) 36px)' }, { clipPath: 'circle(150% at calc(100% - 40px) 36px)', duration: 0.9, ease: 'expo.inOut' }, 0)
     .from(links, { yPercent: 110, autoAlpha: 0, duration: 0.8, stagger: 0.06 }, 0.3)
     .from(foot, { y: 20, autoAlpha: 0, duration: 0.6 }, 0.55);
+  // Fully closed: out of the layout again, so the blobs' canvas stops drawing (they only draw while on screen).
+  menuTl.eventCallback('onReverseComplete', () => gsap.set(menu, { display: 'none' }));
   if (ctx.reduce) menuTl.duration(0.01);
 
   toggle.addEventListener('click', () => (menuOpen ? closeMenu() : openMenu()));
   window.addEventListener('keydown', (e) => e.key === 'Escape' && closeMenu());
 }
 
+let menuFx = false;
 function openMenu() {
+  if (!menuFx) {
+    menuFx = true;
+    const menu = q('#menu')!;
+    // Shown first, so the canvas has its size when the backdrop measures it.
+    gsap.set(menu, { display: 'flex' });
+    initBlobBackdrop(menu, q<HTMLCanvasElement>('.menu__fx', menu)!, 'menu--fx', MENU_BLOBS, [255, 255, 255], menuReduce, 0.6);
+  }
   menuOpen = true;
   document.body.classList.add('menu-open');
   q('#menu-toggle')?.setAttribute('aria-expanded', 'true');
