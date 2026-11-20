@@ -118,6 +118,9 @@
   .fpanel { flex-direction: column; align-items: stretch; justify-content: center; gap: 16px; padding: calc(var(--nav-h) + 16px) var(--gutter) clamp(32px, 6vh, 56px); }
   .fpanel__copy { flex: none; }
   .fpanel__art { order: -1; flex: 0 1 auto; width: 100%; height: min(36vh, 320px); aspect-ratio: auto; }
+  /* No side fade on phones: masking a layer that slides sideways is redrawn every frame, and at 5% white the lines'
+     cut edge hardly shows at this size. */
+  .fpanel__words { -webkit-mask-image: none; mask-image: none; }
   /* Short phones (an iPhone SE): a smaller illustration, so the copy under it isn't cut off. */
   @media (max-height: 700px) { .fpanel__art { height: min(26svh, 220px); } }
 }
