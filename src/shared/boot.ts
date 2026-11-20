@@ -79,7 +79,9 @@ export async function boot({ page, render, init }: Options) {
       smoothTouch: 0.1,
       // Touch-only devices scroll on the JS thread. Left to iOS Safari, the address bar hides and shows as you scroll,
       // resizing the screen under the smoother: the page shifted up and black showed below it. Desktop is unchanged.
-      normalizeScroll: ScrollTrigger.isTouch === 1,
+      // allowNestedScroll: rows that scroll sideways (the FAQ's and legal pages' tab rows on phones) still take a swipe;
+      // without it the normaliser claimed every drag for the page's own scroll.
+      normalizeScroll: ScrollTrigger.isTouch === 1 ? { allowNestedScroll: true, debounce: true } : false,
     });
     smoother.paused(true);
     revealed.then(() => smoother!.paused(false));

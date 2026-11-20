@@ -760,13 +760,18 @@ export function initThinkZoom(
     const sm = smoother();
     if (!sm) return void (document.documentElement.style.overflow = on ? 'hidden' : '');
     if (!touchOnly) return void sm.paused(on);
+    const root = document.documentElement;
     if (on) {
       sm.normalizer?.disable();
+      // And no native panning at all while held: left to Safari, a drag could still hide or show its toolbar, resizing
+      // the screen under the smoother (black showed below the page). Taps aren't affected by touch-action.
+      root.style.touchAction = 'none';
       heldAt = window.scrollY;
       window.addEventListener('scroll', guard, { passive: true });
     } else {
       heldAt = null;
       window.removeEventListener('scroll', guard);
+      root.style.touchAction = '';
       sm.normalizer?.enable();
     }
   };
