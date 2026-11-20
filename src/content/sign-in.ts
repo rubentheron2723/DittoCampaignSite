@@ -67,6 +67,7 @@ export const errors = {
   firstName: 'Enter your name',
   lastName: 'Enter your surname',
   confirm: 'Passwords don’t match',
+  match: 'Passwords match',
   code: 'Enter the 6-digit code from the email',
 };
 
