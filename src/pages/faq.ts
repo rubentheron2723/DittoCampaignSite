@@ -38,6 +38,7 @@ function waveQuestion(text: string) {
 const TOPIC_BLOBS: BlobParams = { ...HERO_BUBBLES, threshold: 27.5 };
 
 const SEARCH = `<svg class="fsearch__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+const CROSS = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
 const CHEV = `<svg class="fqa__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 function render() {
@@ -60,6 +61,7 @@ function render() {
           ${SEARCH}
           <span class="sr-only">Search questions</span>
           <input id="faq-search" type="search" placeholder="Search questions" autocomplete="off" enterkeyhint="search" />
+          <button type="button" class="fsearch__clear" id="faq-clear" aria-label="Clear search" hidden>${CROSS}</button>
         </label>
       </form>
     </div>
@@ -98,7 +100,15 @@ function render() {
             </section>`,
           )
           .join('')}
-        <p class="ftopics__empty" id="faq-empty" hidden>No matches. Try a different word, or <a href="/contact">ask us directly</a>.</p>
+        <div class="fempty" id="faq-empty" hidden>
+          <span class="fempty__icon" aria-hidden="true">${SEARCH}</span>
+          <h2 class="fempty__title">No answers for “<span id="faq-empty-term"></span>”</h2>
+          <p class="fempty__body">Try a shorter or different word, or pick a topic. Still stuck? Ask us and we’ll answer it directly.</p>
+          <div class="fempty__actions">
+            <button type="button" class="gbtn" id="faq-empty-clear">Clear search</button>
+            <a class="fempty__ask" href="/contact">Ask us directly</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -153,6 +163,8 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
   const form = q<HTMLFormElement>('#faq-search-form')!;
   const summaryEl = q('#faq-summary')!;
   const empty = q('#faq-empty')!;
+  const emptyTerm = q('#faq-empty-term')!;
+  const clearBtn = q<HTMLButtonElement>('#faq-clear')!;
   const list = q<HTMLElement>('.ftopics__list')!;
   const row = q<HTMLElement>('.ftabs')!;
   const tabs = qa<HTMLAnchorElement>('.ftab');
@@ -207,7 +219,7 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
     });
     empty.hidden = !term || matches > 0;
     summaryEl.textContent = term ? `${matches} ${matches === 1 ? 'answer matches' : 'answers match'} “${input.value.trim()}”.` : summary;
-    tabs.forEach((b) => b.classList.toggle('is-empty', !!term && topicOf(b).hidden));
+    emptyTerm.textContent = input.value.trim();
   };
 
   /** Swaps what the list shows: out, change, back in. */
@@ -241,6 +253,7 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
         swapping?.progress(1);
         term = '';
         input.value = '';
+        clearBtn.hidden = true;
         show();
         ScrollTrigger.refresh();
       }
@@ -250,8 +263,29 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
     }),
   );
 
+  /** Empties the search and brings every topic back. */
+  const clear = () => {
+    window.clearTimeout(typing);
+    input.value = '';
+    clearBtn.hidden = true;
+    if (term) swap(() => (term = ''));
+    input.focus();
+  };
+  clearBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    clear();
+  });
+  q('#faq-empty-clear')!.addEventListener('click', clear);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && input.value) {
+      e.preventDefault();
+      clear();
+    }
+  });
+
   let typing = 0;
   input.addEventListener('input', () => {
+    clearBtn.hidden = !input.value;
     window.clearTimeout(typing);
     // Results settle a moment after the last key, so the list doesn't flicker on every letter.
     typing = window.setTimeout(() => {

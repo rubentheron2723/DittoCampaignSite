@@ -35,13 +35,24 @@
   flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; background: none; outline: none; -webkit-appearance: none; appearance: none;
   font: inherit; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #fff; caret-color: #fff;
 }
+.fsearch__pill input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+/* Clears the search: a small glass circle at the pill's far right, shown once something's typed. */
+.fsearch__clear {
+  flex: none; display: grid; place-items: center; width: 32px; height: 32px; margin-right: -6px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  color: #fff; background: rgba(255, 255, 255, 0.2); transition: background-color 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+}
+.fsearch__clear[hidden] { display: none; }
+.fsearch__clear:hover { background: rgba(255, 255, 255, 0.35); }
+.fsearch__clear:active { transform: scale(0.92); }
+.fsearch__clear:focus { outline: none; }
+.fsearch__clear:focus-visible { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6); }
 .fsearch__pill input::placeholder { color: rgba(255, 255, 255, 0.8); opacity: 1; }
 
 /* ---------- Topics (Figma 2421:2028) ---------- */
 /* #FDFDFD under the Moving blobs. A 398-wide column of pill tabs (20/24) beside every topic in turn: its 64/68 title,
    then its questions (40/44) 40 apart, each with a chevron; an open one shows its answer (16/20 at 60%). The tabs'
    first pill and the first title share one top line (--top). */
-.ftopics { --pad: clamp(20px, 5.556vw, 80px); --top: clamp(32px, 4.5vh, 64px); position: relative; background: #fdfdfd; color: #171717; }
+.ftopics { --pad: clamp(20px, 5.556vw, 80px); --top: clamp(32px, 4.5vh, 64px); position: relative; padding-bottom: clamp(120px, 12vw, 200px); background: #fdfdfd; color: #171717; }
 .ftopics__fx { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; will-change: transform; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; }
 .ftopics--fx .ftopics__fx { opacity: 1; }
 .ftopics__grid { position: relative; display: grid; grid-template-columns: minmax(240px, 398px) minmax(0, 1fr); gap: 40px; align-items: start; padding: 0 var(--pad); max-width: 1440px; margin: 0 auto; }
@@ -55,7 +66,6 @@
 }
 .ftab:hover { background: rgba(179, 179, 179, 0.1); }
 .ftab.is-on { background: rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 0 1px #1e6ef3, 0 8px 20px rgba(0, 0, 0, 0.05); }
-.ftab.is-empty { opacity: 0.35; }
 .ftab:focus { outline: none; }
 .ftab:focus-visible { box-shadow: inset 0 0 0 7px rgba(30, 110, 243, 0.2); }
 .ftab.is-on:focus-visible { box-shadow: inset 0 0 0 1px #1e6ef3, inset 0 0 0 7px rgba(30, 110, 243, 0.2), 0 8px 20px rgba(0, 0, 0, 0.05); }
@@ -83,8 +93,23 @@
 .fqa.is-open .fqa__chev { transform: rotate(180deg); }
 .fqa__panel { overflow: hidden; }
 .fqa__panel p { margin: 0; padding: 20px 44px 0 0; font-size: 16px; line-height: 1.25; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); max-width: 72ch; }
-.ftopics__empty { margin: 0; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
-.ftopics__empty a { color: #1e6ef3; text-decoration: underline; }
+/* No matches: a glass card with the search icon, what was searched, and two ways on. */
+.fempty[hidden] { display: none; }
+.fempty {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 16px; max-width: 560px; padding: clamp(28px, 3vw, 40px); border-radius: 32px;
+  background: linear-gradient(-84deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1);
+}
+.fempty__icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; color: #fff; background: linear-gradient(-80deg, #1e6ef3 0.875%, #00b0ff 100%); box-shadow: 0 8px 40px rgba(30, 110, 243, 0.3); }
+.fempty__icon svg { width: 24px; height: 24px; }
+.fempty__title { margin: 4px 0 0; font-size: clamp(24px, calc(24px + 8 * (100vw - 375px) / 1065), 32px); line-height: 1.125; letter-spacing: -0.04em; font-weight: 700; color: #171717; overflow-wrap: anywhere; }
+.fempty__body { margin: 0; font-size: 16px; line-height: 1.25; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
+.fempty__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.fempty__actions .gbtn { height: 44px; box-shadow: 0 1px 30px rgba(0, 0, 0, 0.12); }
+.fempty__ask {
+  display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border-radius: 999px; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #fff;
+  background: linear-gradient(-80deg, #1e6ef3 0.875%, #00b0ff 100%); box-shadow: 0 8px 40px rgba(30, 110, 243, 0.3); transition: filter 0.2s;
+}
+.fempty__ask:hover { filter: brightness(1.06); }
 
 /* Phones and small tablets: the tabs become a row that scrolls sideways, above the questions. */
 @media (max-width: 900px) {
