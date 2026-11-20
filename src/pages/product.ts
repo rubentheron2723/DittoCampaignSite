@@ -245,7 +245,6 @@ function trustSection() {
   const ticker = [...trust.ticker, ...trust.ticker].map((t) => `<span>${esc(t)}</span>`).join('');
   return `
   <section class="trust" id="trust" data-theme="light">
-    <canvas class="trust__fx" aria-hidden="true"></canvas>
     <div class="trust__inner">
       <h2 class="trust__title">${esc(trust.headline)}</h2>
       <p class="trust__body">${esc(trust.body)}</p>
@@ -255,16 +254,14 @@ function trustSection() {
 }
 
 /**
- * "Everything in one system": the product's features by stage, in the Pricing page's "From first call" layout. A glass
- * Source / Engage / Place switch over one stage at a time, its features as numbered rows in a centred column: a big
- * blue number beside the feature's title, what it does, and a note where there is one. Content from the production
- * product page.
+ * "Everything in one system": the product's features by stage. A glass Source / Engage / Place switch over one stage
+ * at a time, its features as Home's Practical AI cards (white, a big blue number, the title and what it does, a note
+ * where there is one; the second card blue), three to a row. Content from the production product page.
  */
 function featuresSection() {
   const f = features;
   return `
   <section class="feats" id="features" data-theme="light">
-    <canvas class="feats__fx" aria-hidden="true"></canvas>
     <div class="feats__inner">
       <header class="feats__head">
         <h2 class="feats__title">${esc(f.title)}</h2>
@@ -282,20 +279,20 @@ function featuresSection() {
       ${f.acts
         .map(
           (a, i) => `<div class="feats__act" id="feats-${a.id}" role="tabpanel" aria-labelledby="feats-tab-${a.id}" data-act="${a.id}"${i ? ' hidden' : ''}>
-            <ol class="fsteps">
+            <ul class="fcards">
               ${a.features
                 .map(
-                  (ft, k) => `<li class="fstep">
-                    <span class="fstep__num" aria-hidden="true">${String(k + 1).padStart(2, '0')}</span>
-                    <div class="fstep__body">
+                  (ft, k) => `<li class="fcard">
+                    <span class="fcard__index" aria-hidden="true">${String(k + 1).padStart(2, '0')}</span>
+                    <div class="fcard__text">
                       <h3>${esc(ft.title)}</h3>
                       <p>${esc(ft.body)}</p>
-                      ${ft.supportNote ? `<p class="fstep__note">${esc(ft.supportNote)}</p>` : ''}
+                      ${ft.supportNote ? `<p class="fcard__note">${esc(ft.supportNote)}</p>` : ''}
                     </div>
                   </li>`,
                 )
                 .join('')}
-            </ol>
+            </ul>
           </div>`,
         )
         .join('')}
@@ -328,7 +325,7 @@ function initFeatures(animate: boolean) {
     place(t, animate ? 0.7 : 0);
     from.hidden = true;
     to.hidden = false;
-    if (animate) gsap.fromTo(qa('.fstep', to), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'expo.out', stagger: 0.06 });
+    if (animate) gsap.fromTo(qa('.fcard', to), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'expo.out', stagger: 0.05 });
     ScrollTrigger.refresh();
   };
   tabs.forEach((t, i) => {
@@ -349,8 +346,8 @@ function render() {
   main.innerHTML = [
     hero(),
     day(),
-    featuresSection(),
-    trustSection(),
+    // Features and trust share one Moving blobs layer (two canvases showed a seam where their patterns met).
+    `<div class="pfield"><canvas class="pfield__fx" aria-hidden="true"></canvas><i class="pfield__fade" aria-hidden="true"></i>${featuresSection()}${trustSection()}</div>`,
     ctaAndFooter({ lineOne: finalFeaturesCta.title.replace(' recruitment business?', ''), lineTwo: 'recruitment business?', copy: finalFeaturesCta.body }),
   ].join('');
 }
@@ -765,9 +762,13 @@ boot({
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
     // The day section's #FDFDFD under the Moving blobs, as on the About and Pricing pages.
-    initBlobBackdrop(q('.trust')!, q<HTMLCanvasElement>('.trust__fx')!, 'trust--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
     // The features on the page's #FDFDFD under the Moving blobs (drawn at 30 fps: it's a reading section).
-    initBlobBackdrop(q('.feats')!, q<HTMLCanvasElement>('.feats__fx')!, 'feats--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55, 30);
+    // Features and trust: one blob layer, a screen tall and held on screen through both on wider screens (as on Pricing);
+    // on phones it stays put behind their start and fades out (a pin moved against the scroll jittered there).
+    initBlobBackdrop(q('.pfield')!, q<HTMLCanvasElement>('.pfield__fx')!, 'pfield--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55, 30);
+    gsap.matchMedia().add('(min-width: 901px)', () => {
+      ScrollTrigger.create({ trigger: '.pfield', start: 'top top', end: 'bottom bottom', pin: '.pfield__fx', pinSpacing: false });
+    });
     initFeatures(!reduce);
     const tab = initDayTabs(!reduce);
     const [source, engage, place] = ['Source', 'Engage', 'Place'].map((s) => q<HTMLElement>(`[data-chat="${s}"]`)!);
@@ -784,10 +785,10 @@ boot({
       return;
     }
 
-    // Features: the title by word, then the lead and the switch, then the first stage's rows rise in turn.
+    // Features: the title by word, then the lead and the switch, then the first stage's cards rise in turn.
     splitReveal('.feats__title', { by: 'words' });
     fadeUp('.feats__lead, .feats__tabs', '.feats__head', { y: 24, stagger: 0.08 });
-    fadeUp('.feats__act:not([hidden]) .fstep', '.feats__act:not([hidden])', { y: 40, stagger: 0.1 });
+    fadeUp('.feats__act:not([hidden]) .fcard', '.feats__act:not([hidden])', { y: 40, stagger: 0.06 });
 
     // Hero entrance: the title by letter, then the copy and the button.
     const { tween } = splitReveal('.phero__title', { by: 'chars', scrollTrigger: false, stagger: 0.025 });
