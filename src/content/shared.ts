@@ -1,7 +1,11 @@
-export type PageId = 'home' | 'product' | 'pricing' | 'about' | 'faq' | 'contact' | 'signin' | 'privacy' | 'terms';
+export type PageId = 'home' | 'product' | 'ai' | 'pricing' | 'about' | 'faq' | 'contact' | 'signin' | 'privacy' | 'terms';
 
-export const nav: { id: PageId; label: string; href: string }[] = [
+/** The "New" tag beside AI assistant in the nav and menu. Switch it off here once it's no longer news. */
+export const showNewTag = true;
+
+export const nav: { id: PageId; label: string; href: string; isNew?: boolean }[] = [
   { id: 'product', label: 'Product', href: '/product' },
+  { id: 'ai', label: 'AI assistant', href: '/ai-assistant', isNew: true },
   { id: 'pricing', label: 'Pricing', href: '/pricing' },
   { id: 'about', label: 'About', href: '/about' },
   { id: 'faq', label: 'FAQ', href: '/faq' },
@@ -16,7 +20,7 @@ export const signInUrl = '/sign-in';
  * Account on the second; Legal (Privacy, Terms) beside Company and Info. */
 export const footer = {
   columns: [
-    { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Product', href: '/product' }] },
+    { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Product', href: '/product' }, { label: 'AI assistant', href: '/ai-assistant' }] },
     { title: 'Info', links: [{ label: 'Pricing', href: '/pricing' }, { label: 'FAQ', href: '/faq' }, { label: 'Contact', href: '/contact' }] },
     { title: 'Follow', links: [{ label: 'Facebook', href: 'https://www.facebook.com/DittoHire/' }, { label: 'LinkedIn', href: 'https://www.linkedin.com/company/dittohire/' }] },
     { title: 'Account', links: [{ label: 'Sign in', href: signInUrl }, { label: 'Book a demo', href: '/contact' }] },

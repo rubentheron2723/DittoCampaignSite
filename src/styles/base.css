@@ -231,6 +231,13 @@ svg { display: block; }
 .nav__links { gap: 16px; }
 .nav__links a, .nav__signin { font-size: 16px; line-height: 20px; font-weight: 400; transition: opacity 0.2s; }
 .nav__links a:hover, .nav__signin:hover { opacity: 0.6; }
+/* The small "New" tag beside AI assistant (switched off in content/shared.ts). Blue on white, white on blue. */
+.new-tag {
+  display: inline-flex; align-items: center; height: 18px; padding: 0 7px; margin-left: 6px; border-radius: 999px; vertical-align: 2px;
+  font-size: 11px; line-height: 1; font-weight: 600; letter-spacing: 0; color: #1e6ef3; background: #fff;
+}
+.nav--on-light .new-tag { color: #fff; background: #1e6ef3; }
+.menu__links .new-tag { height: 22px; padding: 0 9px; margin-left: 10px; vertical-align: 12px; font-size: 13px; color: #fff; background: #1e6ef3; }
 .nav__actions { gap: 16px; }
 /* Glass pill, 36 tall: light glass with ink text over dark sections (Figma 2378:262); over light sections (2378:372)
    a white-to-clear glass with Figma's small Glass effect (frost 4, light from -45deg at 80%): a light backdrop blur and
