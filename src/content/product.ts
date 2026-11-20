@@ -91,10 +91,6 @@ export const dayInTheLife = {
   },
 };
 
-export const finalFeaturesCta = {
-  title: 'Ready to scale your recruitment business?',
-  body: 'Book a guided demo and see why high-performing recruiters run on Ditto.',
-};
 
 /** "Trusted by leading recruitment teams since 2016." (moved from the home page): headline, copy and ticker. */
 export const trust = {
