@@ -52,6 +52,9 @@ body[data-page='signin'] .nav { display: none; }
 /* Errors (Figma 2385:862) in orange under the pill; empty, they take no space. */
 .sfield__error { margin: 0; color: #fa5a02; }
 .sfield__error:empty { display: none; }
+/* The confirmation's "Passwords match", in blue. */
+.sfield.is-ok .sfield__error { color: #1e6ef3; }
+.sfield.is-invalid .sfield__box { border-color: #fa5a02; }
 
 .sform__row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .scheck { position: relative; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }

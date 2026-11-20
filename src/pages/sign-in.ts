@@ -118,35 +118,59 @@ function render() {
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * A form's checks: each field's own (a message when it's wrong, '' when right). Errors show on a first submit, then
- * each field re-checks as it's corrected. Returns whether it all passed (focusing the first field that didn't).
+ * A form's checks: each field's own (a message when it's wrong, '' when right). A field is checked as you leave it
+ * (once it has something in it), and from then on as you type; everything is checked on submit. A password and its
+ * confirmation are checked together: the confirmation as soon as it's as long as the password, again whenever the
+ * password changes, and "Passwords match" shows once they do. Returns whether it all passed (focusing the first field
+ * that didn't).
  */
 function checker(el: HTMLElement, checks: Record<string, () => string>) {
   const input = (name: string) => q<HTMLInputElement>(`[data-field="${name}"] .sfield__input`, el)!;
-  let tried = false;
+  const names = Object.keys(checks);
+  const touched = new Set<string>();
+  const paired = names.includes('password') && names.includes('confirm');
   const validate = (name: string) => {
     const message = checks[name]();
     const f = q(`[data-field="${name}"]`, el)!;
-    q('.sfield__error', f)!.textContent = message;
+    const ok = !message && name === 'confirm' && paired && input('confirm').value ? errors.match : '';
+    q('.sfield__error', f)!.textContent = message || ok;
     f.classList.toggle('is-invalid', !!message);
+    f.classList.toggle('is-ok', !!ok);
     input(name).setAttribute('aria-invalid', String(!!message));
     return !message;
   };
-  Object.keys(checks).forEach((name) => input(name).addEventListener('input', () => tried && validate(name)));
+  names.forEach((name) => {
+    const i = input(name);
+    i.addEventListener('blur', () => {
+      if (!i.value) return;
+      touched.add(name);
+      validate(name);
+    });
+    i.addEventListener('input', () => {
+      // The confirmation is checked once it's as long as the password (not a mismatch at every letter before that).
+      if (name === 'confirm' && paired && i.value.length >= input('password').value.length) touched.add(name);
+      if (touched.has(name)) validate(name);
+      // A changed password re-checks a confirmation already typed.
+      if (name === 'password' && paired && (touched.has('confirm') || input('confirm').value)) {
+        if (input('confirm').value.length >= i.value.length) touched.add('confirm');
+        if (touched.has('confirm')) validate('confirm');
+      }
+    });
+  });
   return {
     input,
     all() {
-      tried = true;
-      const bad = Object.keys(checks).filter((name) => !validate(name));
+      names.forEach((name) => touched.add(name));
+      const bad = names.filter((name) => !validate(name));
       if (bad.length) input(bad[0]).focus();
       return !bad.length;
     },
     reset() {
-      tried = false;
-      Object.keys(checks).forEach((name) => {
+      touched.clear();
+      names.forEach((name) => {
         const f = q(`[data-field="${name}"]`, el)!;
         q('.sfield__error', f)!.textContent = '';
-        f.classList.remove('is-invalid');
+        f.classList.remove('is-invalid', 'is-ok');
         input(name).removeAttribute('aria-invalid');
       });
     },
