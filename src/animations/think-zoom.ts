@@ -1060,6 +1060,10 @@ export function initThinkZoom(
       end: '+=100%',
       pin: stage,
       invalidateOnRefresh: true,
+      // Measured before the triggers set up earlier at boot (the nav's light/dark sections, reveals): created after
+      // them, it was measured last, so they all missed its screen of pinned scroll and the nav turned white over the
+      // stage's last screen.
+      refreshPriority: 1,
       onEnter: () => capture(0),
       onEnterBack: () => capture(steps),
       onRefresh: () => {
