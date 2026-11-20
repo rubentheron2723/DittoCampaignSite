@@ -288,11 +288,20 @@ function initMenu(ctx: BootContext) {
     .timeline({ paused: true, defaults: { ease: 'expo.out' } })
     .set(menu, { autoAlpha: 1, display: 'flex' })
     .fromTo('.menu__bg', { clipPath: 'circle(0% at calc(100% - 40px) 36px)' }, { clipPath: 'circle(150% at calc(100% - 40px) 36px)', duration: 0.9, ease: 'expo.inOut' }, 0)
-    .from(links, { yPercent: 110, autoAlpha: 0, duration: 0.8, stagger: 0.06 }, 0.3)
+    // Each link's letters rise into their mask in turn, one link after the next.
+    .from(qa('.menu__char', menu), { yPercent: 115, duration: 0.8, stagger: 0.014 }, 0.3)
     .from(foot, { y: 20, autoAlpha: 0, duration: 0.6 }, 0.55);
   // Fully closed: out of the layout again, so the blobs' canvas stops drawing (they only draw while on screen).
   menuTl.eventCallback('onReverseComplete', () => gsap.set(menu, { display: 'none' }));
   if (ctx.reduce) menuTl.duration(0.01);
+
+  // Hover wave (pointer devices): plays through once, even if the pointer leaves mid-way.
+  links.forEach((link) => {
+    const last = qa<HTMLElement>('.menu__char', link).at(-1);
+    if (!last || ctx.reduce) return;
+    link.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && link.classList.add('is-waving'));
+    last.addEventListener('animationend', () => link.classList.remove('is-waving'));
+  });
 
   toggle.addEventListener('click', () => (menuOpen ? closeMenu() : openMenu()));
   window.addEventListener('keydown', (e) => e.key === 'Escape' && closeMenu());

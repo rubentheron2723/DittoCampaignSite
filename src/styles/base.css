@@ -227,8 +227,18 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 .menu--fx .menu__fx { opacity: 1; }
 /* The pages, 40/44 bold, 16 apart, in the middle of the screen. */
 .menu__links { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; margin: auto 0; }
-.menu__links a { font-size: 40px; line-height: 44px; letter-spacing: -0.04em; font-weight: 700; color: #171717; }
+.menu__links a {
+  font-size: 40px; line-height: 44px; letter-spacing: -0.04em; font-weight: 700; color: #171717;
+  -webkit-tap-highlight-color: transparent; transition: transform 0.35s var(--ease-out), color 0.2s var(--ease-out);
+}
 .menu__links a[aria-current='page'] { color: #1e6ef3; }
+/* Pressed: a small nudge to the right, in blue, before the page changes. */
+.menu__links a:active { transform: translateX(8px); color: #1e6ef3; }
+/* The letters sit in a mask (with room below for descenders) and rise into it as the menu opens. */
+.menu__mask { display: inline-flex; overflow: hidden; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+.menu__char { display: inline-block; white-space: pre; }
+/* With a mouse (a tablet with a trackpad, say), hovering ripples the letters as the footer links do (boot.ts). */
+.menu__links a.is-waving .menu__char { animation: wave-lift 0.38s ease-in-out calc(var(--i) * 30ms) both; }
 /* Two glass pills at the foot, centred: white-to-clear glass, and a clear 10% white one. */
 .menu__foot { position: relative; display: flex; justify-content: center; gap: 20px; }
 .menu__btn {

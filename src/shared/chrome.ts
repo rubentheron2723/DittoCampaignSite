@@ -41,8 +41,8 @@ export function renderChrome(page: PageId) {
     <div class="menu" id="menu" aria-hidden="true">
       <div class="menu__bg"><canvas class="menu__fx" aria-hidden="true"></canvas></div>
       <nav class="menu__links" aria-label="Mobile">
-        <a href="/" ${page === 'home' ? 'aria-current="page"' : ''}>Home</a>
-        ${nav.map((n) => `<a href="${n.href}" ${n.id === page ? 'aria-current="page"' : ''}>${esc(n.label)}</a>`).join('')}
+        <a href="/" aria-label="Home" ${page === 'home' ? 'aria-current="page"' : ''}>${menuText('Home')}</a>
+        ${nav.map((n) => `<a href="${n.href}" aria-label="${esc(n.label)}" ${n.id === page ? 'aria-current="page"' : ''}>${menuText(n.label)}</a>`).join('')}
       </nav>
       <div class="menu__foot">
         <a class="menu__btn" href="/contact">Book a demo</a>
@@ -69,6 +69,14 @@ export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: 
     </div>
   </section>
   ${footerHtml()}`;
+}
+
+/** A menu link's label as letters in a mask: they rise into it as the menu opens (boot.ts) and wave on hover. */
+function menuText(label: string) {
+  const chars = Array.from(label)
+    .map((ch, i) => `<span class="menu__char" style="--i:${i}">${esc(ch)}</span>`)
+    .join('');
+  return `<span class="menu__mask" aria-hidden="true">${chars}</span>`;
 }
 
 /** Splits a label into per-character spans for the footer's hover wave (see .wave in base.css). */
