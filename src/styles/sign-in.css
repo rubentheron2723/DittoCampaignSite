@@ -80,6 +80,33 @@ body[data-page='signin'] .nav { display: none; }
 .sform__submit:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 3px; }
 .sform__submit:disabled { filter: saturate(0.6); cursor: progress; }
 
+/* ---------- Reset password and create account (the same panel, swapped in place) ---------- */
+.sview[hidden], .sform[hidden] { display: none; }
+.sview { width: 100%; }
+.sform__title:focus { outline: none; }
+/* The register form's five fields sit closer than sign-in's two. */
+.sform--long { gap: 24px; }
+.sform--long .sform__sub { margin-bottom: 8px; }
+/* Name and surname side by side (stacked on phones). */
+.sform__pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+/* "New to Ditto? Create an account" and the like: 16/20 at 60%, the link underlined in ink. */
+.sform__alt { margin: 0; text-align: center; font-size: clamp(15px, calc(15px + 3 * (100vw - 375px) / 1065), 18px); line-height: 1.25; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
+.sform__link { padding: 0; border: 0; background: none; font: inherit; color: #171717; text-decoration: underline; text-underline-position: from-font; cursor: pointer; }
+.sform__link:hover { opacity: 0.6; }
+.sform__note { margin-left: 10px; color: #1e6ef3; }
+.sform__email { color: #1e6ef3; font-weight: 500; overflow-wrap: anywhere; }
+/* The main button and "Back to sign in" (a glass pill, 68 tall) side by side, centred; stacked on phones. */
+.sform__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.sform__actions .sform__submit { align-self: auto; }
+a.sform__submit { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.sform__ghost {
+  display: inline-flex; align-items: center; justify-content: center; height: 68px; padding: 0 36px; border-radius: 999px;
+  font-size: clamp(18px, calc(18px + 2 * (100vw - 375px) / 1065), 20px); line-height: 24px; letter-spacing: -0.04em; color: #171717; white-space: nowrap;
+  background: linear-gradient(-82.7deg, rgba(255, 255, 255, 0.6) 0.875%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 50px rgba(0, 0, 0, 0.12); transition: filter 0.2s;
+}
+.sform__ghost:hover { filter: brightness(0.97); }
+.sform__ghost:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 3px; }
+
 /* Narrow screens: the sky and intro on top, the form below in the white. */
 @media (max-width: 900px) {
   .signin { grid-template-columns: 1fr; align-items: stretch; }
@@ -87,6 +114,10 @@ body[data-page='signin'] .nav { display: none; }
   .signin__intro { padding: 72px var(--signin-gutter) 48px; gap: 28px; }
   .signin__panel { padding: 48px var(--signin-gutter) 72px; }
   .sform { gap: 28px; }
+  .sform--long { gap: 20px; }
+  .sform__pair { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .sform__actions { flex-direction: column; align-items: stretch; }
+  .sform__actions .sform__submit, .sform__ghost { width: 100%; }
 }
 
 /* Touch screens: the Show button gets a 44px tap area without changing how it looks. */
