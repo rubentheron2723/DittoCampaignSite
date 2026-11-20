@@ -46,7 +46,7 @@ export function renderChrome(page: PageId) {
       </nav>
       <div class="menu__foot">
         <a class="menu__btn" href="/contact">Book a demo</a>
-        <a class="menu__btn menu__btn--clear" href="/product">See the product</a>
+        <a class="menu__btn menu__btn--clear" href="${signInUrl}">Sign in</a>
       </div>
     </div>
 `;
