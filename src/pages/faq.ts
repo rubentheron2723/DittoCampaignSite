@@ -182,12 +182,16 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
   const topicOf = (tab: HTMLElement) => topics.find((t) => t.dataset.cat === tab.dataset.cat)!;
   let term = '';
 
-  /** Lights a topic's tab (and, on phones, brings it to the middle of the sideways row). */
+  /** Lights a topic's tab (and, picked, brings it to the middle of the sideways row on phones). */
   // While someone is swiping the row of tabs, the lit tab doesn't pull it back to centre.
   let rowTouched = -Infinity;
   ['pointerdown', 'wheel', 'touchmove'].forEach((t) => row.addEventListener(t, () => (rowTouched = performance.now()), { passive: true }));
+  // Phones: the row of tabs only scrolls itself when a tab is picked. Re-centring it as each topic scrolled by kept it
+  // moving under the reader.
+  const narrowRow = window.matchMedia('(max-width: 900px)');
   let active = '';
-  const light = (cat: string) => {
+  /** `centre`: bring the tab to the middle of its row (on a tap or deep link; on phones, never just from scrolling). */
+  const light = (cat: string, centre = !narrowRow.matches) => {
     if (cat === active) return;
     active = cat;
     tabs.forEach((b) => {
@@ -195,7 +199,7 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
       b.classList.toggle('is-on', on);
       if (on) b.setAttribute('aria-current', 'true');
       else b.removeAttribute('aria-current');
-      if (on && row.scrollWidth > row.clientWidth && performance.now() - rowTouched > 1200) {
+      if (on && centre && row.scrollWidth > row.clientWidth && performance.now() - rowTouched > 1200) {
         const left = b.offsetLeft - (row.clientWidth - b.offsetWidth) / 2;
         row.scrollTo({ left: Math.max(0, left), behavior: animate ? 'smooth' : 'auto' });
       }
@@ -273,7 +277,7 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
         show();
         ScrollTrigger.refresh();
       }
-      light(tab.dataset.cat!);
+      light(tab.dataset.cat!, true);
       goTo(topicOf(tab), animate);
       history.replaceState(null, '', `#${tab.dataset.cat}`);
     }),
@@ -319,7 +323,7 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
   return () => {
     const match = tabs.find((t) => t.dataset.cat === window.location.hash.slice(1));
     if (match) {
-      light(match.dataset.cat!);
+      light(match.dataset.cat!, true);
       goTo(topicOf(match), false);
     }
   };
@@ -339,12 +343,17 @@ boot({
     // The blobs' canvas is one screen tall (the whole list would be ~10,000px of shader every frame), carried down
     // the section so it always fills the view: at the section's top as it enters, at its foot as it leaves.
     const fx = q<HTMLElement>('.ftopics__fx')!;
-    ScrollTrigger.create({
-      trigger: '.ftopics',
-      start: 'top top',
-      end: 'bottom bottom',
-      onRefresh: (self) => gsap.set(fx, { y: self.progress * (self.end - self.start) }),
-      onUpdate: (self) => gsap.set(fx, { y: self.progress * (self.end - self.start) }),
+    // Phones: it stays put behind the topics' start and fades out (faq.css): moving it with every scroll frame cost
+    // smoothness there.
+    gsap.matchMedia().add('(min-width: 901px)', () => {
+      ScrollTrigger.create({
+        trigger: '.ftopics',
+        start: 'top top',
+        end: 'bottom bottom',
+        onRefresh: (self) => gsap.set(fx, { y: self.progress * (self.end - self.start) }),
+        onUpdate: (self) => gsap.set(fx, { y: self.progress * (self.end - self.start) }),
+      });
+      return () => gsap.set(fx, { y: 0 });
     });
     initAccordion(!reduce);
 
@@ -358,7 +367,7 @@ boot({
       // The list's rise-in would otherwise be measured mid-way (its 40px off still applied) and the scroll fall short.
       entrance?.progress(1);
       const nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
-      const gap = phone.matches ? rail.offsetHeight + 24 : parseFloat(getComputedStyle(rail).paddingTop) || 0;
+      const gap = phone.matches ? 24 : parseFloat(getComputedStyle(rail).paddingTop) || 0;
       const at = nav + gap;
       // As a number: a smooth scrollTo given the element and a position drops the position's offset.
       if (smoother) smoother.scrollTo(smoother.offset(topic, `top ${at}px`), smooth);
@@ -369,18 +378,6 @@ boot({
 
     // The tabs stay beside the questions (on phones, above them) as the topics scroll by.
     stickyPin(rail, grid, 72);
-    gsap.matchMedia().add('(max-width: 900px)', () => {
-      ScrollTrigger.create({
-        trigger: rail,
-        start: 'top 72px',
-        endTrigger: grid,
-        end: () => `bottom ${rail.offsetHeight + 72}px`,
-        pin: true,
-        pinSpacing: false,
-        invalidateOnRefresh: true,
-        toggleClass: { targets: rail, className: 'is-pinned' },
-      });
-    });
     if (reduce) return;
 
     const { tween } = splitReveal('.fhero__title', { by: 'chars', scrollTrigger: false, stagger: 0.025 });
