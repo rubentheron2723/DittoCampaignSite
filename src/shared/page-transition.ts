@@ -24,6 +24,7 @@ const FIGMA_HEADING = (Math.atan2(-1633, -2217) * 180) / Math.PI; // ≈ -143.6
 const SWEEP: Record<PageId, number> = {
   home: FIGMA_HEADING, // as designed: off towards the top left
   product: 0, // in from the left, off to the right
+  ai: 120, // off towards the bottom left, steeper than Sign in
   pricing: -90, // up from below
   about: -180 - FIGMA_HEADING, // the design mirrored: off towards the top right
   faq: 180, // in from the right, off to the left
