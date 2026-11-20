@@ -1,4 +1,4 @@
-import { finalCta, footer, nav, signInUrl, type PageId } from '../content/shared';
+import { finalCta, footerLegal, footer, nav, signInUrl, type PageId } from '../content/shared';
 import { esc, markSvg } from './mark';
 import { navLogoSvg } from './nav-logo';
 import { artSvg, FOOTER_LOGOMARK, FOOTER_WORDMARK } from './footer-art';
@@ -65,7 +65,7 @@ export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: 
         <span class="cta__line">${esc(c.lineTwo)}</span>
       </h2>
       <p class="cta__copy">${esc(c.copy)}</p>
-      <a class="btn btn--glass" href="/contact" data-magnetic><span>${esc(c.button)}</span></a>
+      <a class="bp bp--on-blue" href="/contact" data-magnetic>${esc(c.button)}</a>
     </div>
   </section>
   ${footerHtml()}`;
@@ -103,6 +103,11 @@ export function footerHtml() {
       <div class="footer__menu">
         <a class="footer__logomark" href="/" aria-label="Ditto home">${artSvg(FOOTER_LOGOMARK, '')}</a>
         ${columns}
+      </div>
+      <div class="footer__legal">
+        <p class="footer__jobs">${esc(footerLegal.jobs.lead)} <a href="${footerLegal.jobs.href}" target="_blank" rel="noreferrer">${esc(footerLegal.jobs.label)}</a></p>
+        <p class="footer__copy">${esc(footerLegal.copyright)}</p>
+        <p class="footer__tm">${esc(footerLegal.trademarks)}</p>
       </div>
       ${artSvg(FOOTER_WORDMARK, 'footer__wordmark')}
     </footer>`;
