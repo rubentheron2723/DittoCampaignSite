@@ -87,5 +87,16 @@ export function initBlobBackdrop(
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     if (visible && !raf) raf = requestAnimationFrame(loop);
-  }).observe(section);
+    // Off screen, iOS may throw the canvas's pixels away, and as it's opaque it then shows black until the next frame
+    // (a black flash as a section scrolled in). So it's hidden at once on leaving, and fades back in once it has drawn
+    // again (frame() adds the class).
+    if (!visible) {
+      canvas.style.transition = 'none';
+      section.classList.remove(fxClass);
+      void canvas.offsetWidth;
+      canvas.style.transition = '';
+    }
+    // The canvas itself, not its section: on phones a section's canvas often covers only its start (not pinned), and
+    // drew on, unseen, the whole way down a long section.
+  }).observe(canvas);
 }

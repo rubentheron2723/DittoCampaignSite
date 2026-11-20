@@ -92,8 +92,12 @@ function initClauses(animate: boolean, goTo: (clause: HTMLElement, smooth: boole
   // While someone is swiping the row of tabs, the lit tab doesn't pull it back to centre.
   let rowTouched = -Infinity;
   ['pointerdown', 'wheel', 'touchmove'].forEach((t) => row.addEventListener(t, () => (rowTouched = performance.now()), { passive: true }));
+  // Phones: the row of tabs only scrolls itself when a tab is picked. Re-centring it as each topic scrolled by kept it
+  // moving under the reader.
+  const narrowRow = window.matchMedia('(max-width: 900px)');
   let active = '';
-  const light = (cat: string) => {
+  /** `centre`: bring the tab to the middle of its row (on a tap or deep link; on phones, never just from scrolling). */
+  const light = (cat: string, centre = !narrowRow.matches) => {
     if (cat === active) return;
     active = cat;
     tabs.forEach((b) => {
@@ -103,7 +107,7 @@ function initClauses(animate: boolean, goTo: (clause: HTMLElement, smooth: boole
       else b.removeAttribute('aria-current');
       if (!on) return;
       // Keep the lit tab in view inside its own scrolling column (sideways on phones, up and down beside the text).
-      if (performance.now() - rowTouched < 1200) return;
+      if (!centre || performance.now() - rowTouched < 1200) return;
       if (row.scrollWidth > row.clientWidth) {
         row.scrollTo({ left: Math.max(0, b.offsetLeft - (row.clientWidth - b.offsetWidth) / 2), behavior: animate ? 'smooth' : 'auto' });
       } else if (row.scrollHeight > row.clientHeight) {
@@ -127,7 +131,7 @@ function initClauses(animate: boolean, goTo: (clause: HTMLElement, smooth: boole
       // Ours, not boot's same-page link handler (which would put the title under the nav).
       e.preventDefault();
       e.stopPropagation();
-      light(tab.dataset.cat!);
+      light(tab.dataset.cat!, true);
       goTo(clauseOf(tab), animate);
       history.replaceState(null, '', `#${tab.dataset.cat}`);
     }),
@@ -136,7 +140,7 @@ function initClauses(animate: boolean, goTo: (clause: HTMLElement, smooth: boole
   return () => {
     const match = tabs.find((t) => t.dataset.cat === window.location.hash.slice(1));
     if (match) {
-      light(match.dataset.cat!);
+      light(match.dataset.cat!, true);
       goTo(clauseOf(match), false);
     }
   };
@@ -153,12 +157,17 @@ export function legalPage(page: PageId, doc: LegalDoc) {
       initBlobBackdrop(q('.ftopics')!, q<HTMLCanvasElement>('.ftopics__fx')!, 'ftopics--fx', BLOBS, PAPER, reduce, 0.6, 30);
       // The blobs' canvas is one screen tall, carried down the (very long) document so it always fills the view.
       const fx = q<HTMLElement>('.ftopics__fx')!;
-      ScrollTrigger.create({
-        trigger: '.ftopics',
-        start: 'top top',
-        end: 'bottom bottom',
-        onRefresh: (self) => gsap.set(fx, { y: self.progress * (self.end - self.start) }),
-        onUpdate: (self) => gsap.set(fx, { y: self.progress * (self.end - self.start) }),
+      // Phones: it stays put behind the topics' start and fades out (faq.css): moving it with every scroll frame cost
+      // smoothness there.
+      gsap.matchMedia().add('(min-width: 901px)', () => {
+        ScrollTrigger.create({
+          trigger: '.ftopics',
+          start: 'top top',
+          end: 'bottom bottom',
+          onRefresh: (self) => gsap.set(fx, { y: self.progress * (self.end - self.start) }),
+          onUpdate: (self) => gsap.set(fx, { y: self.progress * (self.end - self.start) }),
+        });
+        return () => gsap.set(fx, { y: 0 });
       });
 
       const section = q<HTMLElement>('#document')!;
@@ -170,7 +179,7 @@ export function legalPage(page: PageId, doc: LegalDoc) {
       const goTo = (clause: HTMLElement, smooth: boolean) => {
         entrance?.progress(1);
         const nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
-        const gap = phone.matches ? rail.offsetHeight + 24 : parseFloat(getComputedStyle(rail).paddingTop) || 0;
+        const gap = phone.matches ? 24 : parseFloat(getComputedStyle(rail).paddingTop) || 0;
         const at = nav + gap;
         if (smoother) smoother.scrollTo(smoother.offset(clause, `top ${at}px`), smooth);
         else window.scrollTo({ top: clause.getBoundingClientRect().top + window.scrollY - at, behavior: smooth ? 'smooth' : 'auto' });
@@ -179,18 +188,6 @@ export function legalPage(page: PageId, doc: LegalDoc) {
       revealed.then(() => requestAnimationFrame(deepLink));
 
       stickyPin(rail, grid, 72);
-      gsap.matchMedia().add('(max-width: 900px)', () => {
-        ScrollTrigger.create({
-          trigger: rail,
-          start: 'top 72px',
-          endTrigger: grid,
-          end: () => `bottom ${rail.offsetHeight + 72}px`,
-          pin: true,
-          pinSpacing: false,
-          invalidateOnRefresh: true,
-          toggleClass: { targets: rail, className: 'is-pinned' },
-        });
-      });
       if (reduce) return;
 
       const { tween } = splitReveal('.fhero__title', { by: 'chars', scrollTrigger: false, stagger: 0.025 });
