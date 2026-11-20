@@ -113,7 +113,16 @@ export function initSelects(root: ParentNode, animate: boolean) {
     };
     closers.push(close);
 
-    button.addEventListener('click', () => (open ? close() : openList()));
+    // Whether it was open as the press began: on iOS a tap doesn't focus the button, so the list's focusout (below)
+    // closed it first and the click then opened it again. A press on the button of an open list closes it.
+    let wasOpen = false;
+    button.addEventListener('pointerdown', () => (wasOpen = open));
+    button.addEventListener('click', () => {
+      const closing = open || wasOpen;
+      wasOpen = false;
+      if (closing) close();
+      else openList();
+    });
     button.addEventListener('keydown', (e) => {
       if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) {
         e.preventDefault();
