@@ -112,3 +112,256 @@ export const trust = {
     'Executive search',
   ],
 };
+
+export type ProductFeature = { id: string; title: string; body: string; supportNote?: string; chips: string[] };
+export type ProductAct = {
+  id: string;
+  label: string;
+  headline: string;
+  intro: string;
+  ctaTitle: string;
+  ctaBody: string;
+  features: ProductFeature[];
+};
+
+/** "Everything in one system": the features of each stage, lifted from the production product page (ditto.work/product). */
+export const features = {
+  title: 'Everything in one system.',
+  lead: 'One platform for sourcing, engagement, and placements across your full hiring workflow.',
+  acts: [
+  {
+    "id": "source",
+    "label": "Source",
+    "headline": "Find the right candidates, faster",
+    "intro": "Ditto gives recruiters the tools to search deeper, reach wider, and discover better candidates from day one. Every part of the sourcing process is designed to reduce noise early and help recruiters focus their time on candidates who are genuinely worth engaging.",
+    "ctaTitle": "See agentic search in action",
+    "ctaBody": "Book a guided walkthrough and see how Ditto reduces screening noise from day one.",
+    "features": [
+      {
+        "id": "search",
+        "title": "Agentic AI search across your database",
+        "body": "Ditto uses agentic AI search to scan your entire database and understand intent, not just keywords. It surfaces candidates based on skills, experience, and role requirements, even when the brief is evolving.",
+        "supportNote": "Prefer legacy search? Keyword and Boolean search are also available.",
+        "chips": [
+          "Agentic AI",
+          "Boolean ready",
+          "Intent matching"
+        ]
+      },
+      {
+        "id": "job-ads",
+        "title": "Turn job specs into ready-to-publish job ads",
+        "body": "Drop in the job requirements and let Ditto handle the rest. Ditto converts job specs into clear, professional job ads in a single click, helping recruiters go from brief to live role without rewriting or reformatting.",
+        "chips": [
+          "1-click draft",
+          "Consistent quality",
+          "Editable"
+        ]
+      },
+      {
+        "id": "distribution",
+        "title": "One central place for all job advertising",
+        "body": "With a single click, Ditto distributes roles across major free and premium job boards, aggregators, social platforms, and your own website. Every application flows back into one central pipeline.",
+        "supportNote": "Some premium job boards may require an account.",
+        "chips": [
+          "Multi-channel",
+          "Single inbox",
+          "Central pipeline"
+        ]
+      },
+      {
+        "id": "matching-prompt",
+        "title": "Candidate matching logic you control",
+        "body": "When you create a job, Ditto generates a structured matching prompt based on your job spec. This prompt scores and ranks candidates as they apply. You can review, edit, and refine the prompt at any time.",
+        "supportNote": "Fully transparent. Never visible to candidates.",
+        "chips": [
+          "Prompt scoring",
+          "Editable logic",
+          "Transparent"
+        ]
+      },
+      {
+        "id": "qualifiers",
+        "title": "Smart qualifiers to filter early",
+        "body": "Add role-specific screening questions to the application process. Ditto evaluates responses and filters out candidates who do not meet required criteria.",
+        "chips": [
+          "Role filters",
+          "Early gate",
+          "Less noise"
+        ]
+      },
+      {
+        "id": "summaries",
+        "title": "Smart candidate summaries, at a glance",
+        "body": "Ditto generates concise executive summaries for every candidate, based on your persona. You can edit summaries at any time.",
+        "chips": [
+          "Executive summary",
+          "Persona-aware",
+          "Editable"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "engage",
+    "label": "Engage",
+    "headline": "Keep candidates moving, without losing control",
+    "intro": "Once candidates enter your pipeline, execution becomes everything. Ditto gives recruiters complete visibility across every interaction, stage, and follow-up, ensuring nothing slips through the cracks and momentum is never lost.",
+    "ctaTitle": "Run your pipeline with control",
+    "ctaBody": "See how teams coordinate hiring activity, ownership, and follow‑up in one system.",
+    "features": [
+      {
+        "id": "pipelines",
+        "title": "Custom hiring pipelines",
+        "body": "Design pipelines that reflect how your agency works. Create role-specific and client-specific workflows with custom stages and statuses.",
+        "chips": [
+          "Custom stages",
+          "Role-specific",
+          "Client-specific"
+        ]
+      },
+      {
+        "id": "activity-tracking",
+        "title": "Track everything that matters",
+        "body": "Calls, emails, meetings, interviews, notes, feedback, and tasks. Ditto captures it all in one place, linked to the candidate, role, and client.",
+        "chips": [
+          "Full history",
+          "Linked records",
+          "Manager visibility"
+        ]
+      },
+      {
+        "id": "calendar-email",
+        "title": "Integrated email and calendar",
+        "body": "Connect Google Workspace or Microsoft 365 email and calendar. Emails and meetings sync into Ditto and link to the correct records.",
+        "supportNote": "Shared visibility is configurable. You control privacy and access.",
+        "chips": [
+          "Google Workspace",
+          "Microsoft 365",
+          "Auto sync"
+        ]
+      },
+      {
+        "id": "follow-ups",
+        "title": "Follow-ups that do not get forgotten",
+        "body": "Log, schedule, and track follow-ups, CV submissions, and business development activity. Tasks and reminders keep busy days under control.",
+        "chips": [
+          "Task reminders",
+          "CV tracking",
+          "Daily control"
+        ]
+      },
+      {
+        "id": "collaboration",
+        "title": "Real team collaboration",
+        "body": "Tag colleagues on jobs, candidates, and activities. Keep decisions tied to the work with shared visibility across the team.",
+        "chips": [
+          "Team tags",
+          "Shared context",
+          "Aligned execution"
+        ]
+      },
+      {
+        "id": "talent-pools",
+        "title": "Talent pools that actually get used",
+        "body": "Group candidates into talent pools by skills, role type, and potential. Activate warm networks fast when new roles arrive.",
+        "chips": [
+          "Skills clusters",
+          "Warm network",
+          "Fast activation"
+        ]
+      },
+      {
+        "id": "branded-submissions",
+        "title": "Branded candidate submissions",
+        "body": "Convert candidate profiles into polished client-ready submissions using your branded templates. No manual formatting.",
+        "chips": [
+          "Branded templates",
+          "One-click output",
+          "Consistent quality"
+        ]
+      },
+      {
+        "id": "sales-crm",
+        "title": "Built-in sales CRM",
+        "body": "Track leads, manage client relationships, and monitor opportunities from first contact through to placement, all in one system.",
+        "chips": [
+          "Lead tracking",
+          "Opportunity flow",
+          "Revenue context"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "place",
+    "label": "Place",
+    "headline": "Turn activity into outcomes",
+    "intro": "This is where everything comes together. Ditto helps agencies convert sourcing and engagement into placements that close faster, perform better, and strengthen the business over time.",
+    "ctaTitle": "Turn effort into predictable billing",
+    "ctaBody": "See where revenue is created and what actions drive placement outcomes.",
+    "features": [
+      {
+        "id": "placements-faster",
+        "title": "Make placements faster",
+        "body": "Reduce delays and stalled decisions with structured workflows and full visibility between offer and start date.",
+        "chips": [
+          "Structured closing",
+          "Fewer delays",
+          "Faster billing"
+        ]
+      },
+      {
+        "id": "placement-visibility",
+        "title": "Full visibility from pipeline to placement",
+        "body": "See exactly where placements stand at any moment. Remove bottlenecks and keep opportunities moving.",
+        "chips": [
+          "Status clarity",
+          "Bottleneck control",
+          "Active tracking"
+        ]
+      },
+      {
+        "id": "performance-reporting",
+        "title": "Performance reporting that actually matters",
+        "body": "Report on recruiter activity, team performance, and conversion rates across every stage. Understand what drives outcomes.",
+        "chips": [
+          "Conversion rates",
+          "Team performance",
+          "Outcome analytics"
+        ]
+      },
+      {
+        "id": "roi",
+        "title": "Advertising and sourcing ROI",
+        "body": "Track which job boards and sourcing channels lead to interviews, offers, and placements. Focus spend on what converts.",
+        "chips": [
+          "Channel ROI",
+          "Source impact",
+          "Spend clarity"
+        ]
+      },
+      {
+        "id": "financials",
+        "title": "Financial reporting and team targets",
+        "body": "Track placement values, commissions, revenue, forecasts, and targets in one place.",
+        "chips": [
+          "Forecast vs actual",
+          "Commissions",
+          "Targets"
+        ]
+      },
+      {
+        "id": "after-care",
+        "title": "After-care and long-term relationships",
+        "body": "Maintain structured after-care follow-ups with clients and candidates to improve retention and repeat business.",
+        "chips": [
+          "Retention focus",
+          "Follow-up loops",
+          "Repeat business"
+        ]
+      }
+    ]
+  }
+] as ProductAct[],
+};

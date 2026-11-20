@@ -2,14 +2,14 @@ import '../styles/base.css';
 import '../styles/think.css';
 import '../styles/product.css';
 
-import { dayInTheLife, finalFeaturesCta, productHero, trust } from '../content/product';
+import { dayInTheLife, features, finalFeaturesCta, productHero, trust } from '../content/product';
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
 import { initThinkZoom, type StageScene } from '../animations/think-zoom';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from '../animations/gsap';
-import { splitReveal } from '../shared/motion';
+import { fadeUp, splitReveal } from '../shared/motion';
 import { initTrust } from '../animations/reveals';
 import { initBlobBackdrop } from '../shared/blob-backdrop';
 import { FOOTER_BLOBS } from '../shared/footer-blobs';
@@ -254,10 +254,109 @@ function trustSection() {
   </section>`;
 }
 
+/**
+ * "Everything in one system": the product's features by stage. A glass Source / Engage / Place switch over one stage at
+ * a time: its headline and intro, its features as glass cards (title, what it does, a note where there is one, three
+ * tags), and a demo link. Drafted from the production product page's content in the site's own style.
+ */
+function featuresSection() {
+  const f = features;
+  return `
+  <section class="feats" id="features" data-theme="light">
+    <canvas class="feats__fx" aria-hidden="true"></canvas>
+    <div class="feats__inner">
+      <header class="feats__head">
+        <h2 class="feats__title">${esc(f.title)}</h2>
+        <p class="feats__lead">${esc(f.lead)}</p>
+      </header>
+      <div class="feats__tabs" role="tablist" aria-label="Stages">
+        <i class="feats__pill" aria-hidden="true"></i>
+        ${f.acts
+          .map(
+            (a, i) =>
+              `<button type="button" class="feats__tab${i === 0 ? ' is-on' : ''}" role="tab" id="feats-tab-${a.id}" aria-controls="feats-${a.id}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-act="${a.id}">${esc(a.label)}</button>`,
+          )
+          .join('')}
+      </div>
+      ${f.acts
+        .map(
+          (a, i) => `<div class="feats__act" id="feats-${a.id}" role="tabpanel" aria-labelledby="feats-tab-${a.id}" data-act="${a.id}"${i ? ' hidden' : ''}>
+            <div class="feats__intro">
+              <h3 class="feats__headline">${esc(a.headline)}</h3>
+              <p class="feats__copy">${esc(a.intro)}</p>
+            </div>
+            <ul class="feats__grid">
+              ${a.features
+                .map(
+                  (ft) => `<li class="fcard">
+                    <h4 class="fcard__title">${esc(ft.title)}</h4>
+                    <p class="fcard__body">${esc(ft.body)}</p>
+                    ${ft.supportNote ? `<p class="fcard__note">${esc(ft.supportNote)}</p>` : ''}
+                    <ul class="fcard__chips">${ft.chips.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
+                  </li>`,
+                )
+                .join('')}
+            </ul>
+            <div class="feats__cta">
+              <div><p class="feats__cta-title">${esc(a.ctaTitle)}</p><p class="feats__cta-body">${esc(a.ctaBody)}</p></div>
+              <a class="gbtn" href="/contact">Book a demo</a>
+            </div>
+          </div>`,
+        )
+        .join('')}
+    </div>
+  </section>`;
+}
+
+/** The stage switch: the glass pill slides to the chosen stage, whose features swap in (arrow keys move along). */
+function initFeatures(animate: boolean) {
+  const tabs = qa<HTMLButtonElement>('.feats__tab');
+  const pill = q<HTMLElement>('.feats__pill')!;
+  const acts = qa<HTMLElement>('.feats__act');
+  let on = tabs[0];
+  const place = (t: HTMLElement, d: number) => gsap.to(pill, { x: t.offsetLeft, width: t.offsetWidth, duration: d, ease: 'expo.inOut', overwrite: true });
+  place(on, 0);
+  document.fonts.ready.then(() => place(on, 0));
+  window.addEventListener('resize', () => place(on, 0));
+
+  const pick = (t: HTMLButtonElement) => {
+    if (t === on) return;
+    const from = acts.find((a) => a.dataset.act === on.dataset.act)!;
+    const to = acts.find((a) => a.dataset.act === t.dataset.act)!;
+    tabs.forEach((b) => {
+      const sel = b === t;
+      b.classList.toggle('is-on', sel);
+      b.setAttribute('aria-selected', String(sel));
+      b.tabIndex = sel ? 0 : -1;
+    });
+    on = t;
+    place(t, animate ? 0.7 : 0);
+    from.hidden = true;
+    to.hidden = false;
+    if (animate) {
+      gsap.fromTo(q('.feats__intro', to), { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'expo.out' });
+      gsap.fromTo(qa('.fcard', to), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'expo.out', stagger: 0.05, delay: 0.05 });
+    }
+    ScrollTrigger.refresh();
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => pick(t));
+    t.addEventListener('keydown', (e) => {
+      const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!step) return;
+      e.preventDefault();
+      const next = tabs[(i + step + tabs.length) % tabs.length];
+      next.focus();
+      pick(next);
+    });
+  });
+}
+
 function render() {
   const main = document.getElementById('main')!;
   main.innerHTML = [
     hero(),
+    featuresSection(),
     day(),
     trustSection(),
     ctaAndFooter({ lineOne: finalFeaturesCta.title.replace(' recruitment business?', ''), lineTwo: 'recruitment business?', copy: finalFeaturesCta.body }),
@@ -675,6 +774,9 @@ boot({
     });
     // The day section's #FDFDFD under the Moving blobs, as on the About and Pricing pages.
     initBlobBackdrop(q('.trust')!, q<HTMLCanvasElement>('.trust__fx')!, 'trust--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
+    // The features on the page's #FDFDFD under the Moving blobs (drawn at 30 fps: it's a reading section).
+    initBlobBackdrop(q('.feats')!, q<HTMLCanvasElement>('.feats__fx')!, 'feats--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55, 30);
+    initFeatures(!reduce);
     const tab = initDayTabs(!reduce);
     const [source, engage, place] = ['Source', 'Engage', 'Place'].map((s) => q<HTMLElement>(`[data-chat="${s}"]`)!);
     initThinkZoom(!reduce, {
@@ -689,6 +791,11 @@ boot({
       initTrust(false);
       return;
     }
+
+    // Features: the title by word, then the lead and the switch, then the first stage's cards rise in turn.
+    splitReveal('.feats__title', { by: 'words' });
+    fadeUp('.feats__lead, .feats__tabs', '.feats__head', { y: 24, stagger: 0.08 });
+    fadeUp('.feats__act:not([hidden]) .feats__intro, .feats__act:not([hidden]) .fcard, .feats__act:not([hidden]) .feats__cta', '.feats__grid', { y: 30, stagger: 0.05 });
 
     // Hero entrance: the title by letter, then the copy and the button.
     const { tween } = splitReveal('.phero__title', { by: 'chars', scrollTrigger: false, stagger: 0.025 });
