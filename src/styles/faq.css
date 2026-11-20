@@ -38,29 +38,31 @@
 .fsearch__pill input::placeholder { color: rgba(23, 23, 23, 0.4); }
 
 /* ---------- Topics (Figma 2421:2028) ---------- */
-/* #FDFDFD under the Moving blobs. A 398-wide column of pill tabs (20/24, 22/20 padding) beside one topic: its 64/68
-   title, then its questions (40/44) 40 apart, each with a chevron; an open one shows its answer (16/20 at 60%). */
-.ftopics { --pad: clamp(20px, 5.556vw, 80px); position: relative; background: #fdfdfd; color: #171717; }
+/* #FDFDFD under the Moving blobs. A 398-wide column of pill tabs (20/24) beside every topic in turn: its 64/68 title,
+   then its questions (40/44) 40 apart, each with a chevron; an open one shows its answer (16/20 at 60%). The tabs'
+   first pill and the first title share one top line (--top). */
+.ftopics { --pad: clamp(20px, 5.556vw, 80px); --top: clamp(32px, 4.5vh, 64px); position: relative; background: #fdfdfd; color: #171717; }
 .ftopics__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; }
 .ftopics--fx .ftopics__fx { opacity: 1; }
 .ftopics__grid { position: relative; display: grid; grid-template-columns: minmax(240px, 398px) minmax(0, 1fr); gap: 40px; align-items: start; padding: 0 var(--pad); max-width: 1440px; margin: 0 auto; }
-/* A screen tall less the nav, the tabs centred in it (pinned just under the nav while a long topic scrolls). */
-.ftopics__rail { height: calc(100vh - var(--nav-h)); display: flex; align-items: center; }
-.ftabs { width: 100%; display: flex; flex-direction: column; gap: clamp(6px, 1.6vh, 24px); }
+/* Pinned just under the nav while the topics scroll by; sized to fit a laptop screen's height. */
+.ftopics__rail { padding-top: var(--top); }
+.ftabs { width: 100%; display: flex; flex-direction: column; gap: clamp(4px, 1.2vh, 20px); }
 .ftab {
-  display: flex; align-items: center; width: 100%; padding: clamp(10px, 1.6vh, 22px) 20px; border: 0; border-radius: 999px; background: transparent;
+  display: flex; align-items: center; width: 100%; padding: clamp(8px, 1.4vh, 20px) 20px; border: 0; text-decoration: none; border-radius: 999px; background: transparent;
   font: inherit; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717; text-align: left; cursor: pointer;
   transition: background-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
 }
 .ftab:hover { background: rgba(179, 179, 179, 0.1); }
 .ftab.is-on { background: rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 0 1px #1e6ef3, 0 8px 20px rgba(0, 0, 0, 0.05); }
+.ftab.is-empty { opacity: 0.35; }
 .ftab:focus { outline: none; }
 .ftab:focus-visible { box-shadow: inset 0 0 0 7px rgba(30, 110, 243, 0.2); }
 .ftab.is-on:focus-visible { box-shadow: inset 0 0 0 1px #1e6ef3, inset 0 0 0 7px rgba(30, 110, 243, 0.2), 0 8px 20px rgba(0, 0, 0, 0.05); }
 
-.ftopics__list { min-height: calc(100vh - var(--nav-h)); display: flex; flex-direction: column; justify-content: center; gap: 80px; padding: clamp(48px, 6vw, 96px) 0; }
+.ftopics__list { display: flex; flex-direction: column; gap: clamp(96px, 10vw, 160px); padding: var(--top) 0 clamp(96px, 10vw, 160px); }
 .ftopic[hidden] { display: none; }
-.ftopic { display: flex; flex-direction: column; gap: 40px; }
+.ftopic { display: flex; flex-direction: column; gap: clamp(40px, 4.5vw, 72px); }
 .ftopic__title { margin: 0; font-size: clamp(36px, calc(36px + 28 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; color: #181818; text-wrap: balance; }
 .ftopic__items { display: flex; flex-direction: column; gap: 40px; }
 .fqa[hidden] { display: none; }
@@ -81,11 +83,16 @@
 
 /* Phones and small tablets: the tabs become a row that scrolls sideways, above the questions. */
 @media (max-width: 900px) {
-  .ftopics__grid { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0; }
-  .ftopics__rail { height: auto; margin-top: 0; padding: 48px 0 8px; }
-  .ftabs { flex-direction: row; gap: 8px; overflow-x: auto; padding: 4px var(--pad) 16px; scrollbar-width: none; }
+  .ftopics__grid { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 40px 0 0; }
+  /* Pinned under the nav as a frosted strip over the questions scrolling beneath. */
+  .ftopics__rail { position: relative; z-index: 3; padding: 8px 0 0; transition: background-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out); }
+  .ftopics__rail.is-pinned { background: rgba(253, 253, 253, 0.96); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 1px 0 rgba(23, 23, 23, 0.06); }
+  /* The strip reaches up behind the nav too, so no question shows through above the tabs. */
+  .ftopics__rail.is-pinned::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: var(--nav-h); background: #fdfdfd; }
+  .ftabs { flex-direction: row; gap: 8px; overflow-x: auto; padding: 4px var(--pad) 12px; scrollbar-width: none; }
   .ftabs::-webkit-scrollbar { display: none; }
   .ftab { flex: none; width: auto; padding: 12px 18px; white-space: nowrap; font-size: 16px; }
-  .ftopics__list { min-height: 0; justify-content: flex-start; gap: 56px; padding: 24px var(--pad) 80px; }
+  .ftopics__list { gap: 72px; padding: 32px var(--pad) 80px; }
+  .ftopic { gap: 32px; }
   .fqa__panel p { padding-right: 0; }
 }
