@@ -46,6 +46,8 @@
   display: flex; flex-direction: column; gap: 40px;
   min-height: 100vh; min-height: 100lvh; padding: clamp(80px, 8.333vw, 120px) clamp(20px, 5.556vw, 80px);
 }
+/* Held to the site's 1280 content width (as the other pages' sections are), centred on wide screens. */
+.calc > * { width: 100%; max-width: 1280px; margin-inline: auto; }
 .calc__head { display: grid; gap: 40px; }
 .calc__area { display: grid; gap: 40px; }
 .calc__controls { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
@@ -80,7 +82,11 @@
 .quote__totals { display: flex; justify-content: flex-end; gap: 20px; margin-top: 10px; }
 .quote__total { display: grid; justify-items: center; gap: 12px; text-align: center; }
 .quote__total strong { font-size: clamp(28px, calc(28px + 12 * (100vw - 375px) / 1065), 40px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.calc__cta { align-self: center; }
+.calc > .calc__cta { width: auto; align-self: center; margin-inline: 0; }
+/* On wide screens it sits under the price, at the right edge of the content. */
+@media (min-width: 1440px) {
+  .calc > .calc__cta { align-self: flex-end; margin-right: max(0px, calc((100% - 1280px) / 2)); }
+}
 /* Solid blue pill (Figma): #1E6EF3 into #00B0FF, white 20/24 text, a blue glow. */
 .bbtn {
   display: inline-flex; align-items: center; justify-content: center; height: 68px; padding: 0 44px; border-radius: 999px; flex: none;
@@ -177,7 +183,7 @@
   .lcards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .gseg { padding: 10px 12px; }
   .gseg button { padding: 8px 14px; }
-  .calc__cta { align-self: stretch; }
+  .calc > .calc__cta { align-self: stretch; }
   .pstep { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; }
   .pnext__promises { grid-template-columns: 1fr; }
 }
