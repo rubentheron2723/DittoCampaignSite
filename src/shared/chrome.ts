@@ -36,15 +36,17 @@ export function renderChrome(page: PageId) {
       </div>
     </header>
 
+    <!-- Mobile menu slideout (Figma 2433:9): white under the Moving blobs, the pages in 40/44 bold, two glass
+         buttons at the foot. The nav's own logo and close button sit over it. -->
     <div class="menu" id="menu" aria-hidden="true">
-      <div class="menu__bg"></div>
+      <div class="menu__bg"><canvas class="menu__fx" aria-hidden="true"></canvas></div>
       <nav class="menu__links" aria-label="Mobile">
-        <a href="/" ${page === 'home' ? 'aria-current="page"' : ''}><em>00</em>Home</a>
-        ${nav.map((n, i) => `<a href="${n.href}" ${n.id === page ? 'aria-current="page"' : ''}><em>0${i + 1}</em>${esc(n.label)}</a>`).join('')}
+        <a href="/" ${page === 'home' ? 'aria-current="page"' : ''}>Home</a>
+        ${nav.map((n) => `<a href="${n.href}" ${n.id === page ? 'aria-current="page"' : ''}>${esc(n.label)}</a>`).join('')}
       </nav>
       <div class="menu__foot">
-        <a class="btn btn--light btn--lg" href="/contact">Book a demo</a>
-        <a class="btn btn--outline" href="${signInUrl}">Sign in</a>
+        <a class="menu__btn" href="/contact">Book a demo</a>
+        <a class="menu__btn menu__btn--clear" href="/product">See the product</a>
       </div>
     </div>
 `;
