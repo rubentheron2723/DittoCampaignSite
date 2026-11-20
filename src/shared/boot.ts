@@ -11,7 +11,7 @@ import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
 import { initNavFooterMark } from './nav-footer-mark';
 import { flagPageTransition, playPageTransition, takePageTransition } from './page-transition';
-import { liftCover, markCoverGone } from './cover';
+import { hidePage, liftCover, markCoverGone } from './cover';
 
 export type BootContext = {
   reduce: boolean;
@@ -357,13 +357,14 @@ function lockPage(lock: boolean) {
 }
 
 let menuFx = false;
+let pageHold: gsap.core.Tween | null = null;
 function openMenu() {
   if (!menuFx) {
     menuFx = true;
     const menu = q('#menu')!;
     // Shown first, so the canvas has its size when the backdrop measures it.
     gsap.set(menu, { display: 'flex' });
-    initBlobBackdrop(menu, q<HTMLCanvasElement>('.menu__fx', menu)!, 'menu--fx', MENU_BLOBS, [255, 255, 255], menuReduce, 0.6);
+    initBlobBackdrop(menu, q<HTMLCanvasElement>('.menu__fx', menu)!, 'menu--fx', MENU_BLOBS, [255, 255, 255], menuReduce, 0.6, 60, true);
   }
   menuOpen = true;
   document.body.classList.add('menu-open');
@@ -373,6 +374,9 @@ function openMenu() {
   q('#menu')?.setAttribute('aria-hidden', 'false');
   lockPage(true);
   menuTl?.timeScale(1).play();
+  // Once the panel covers the page (its circle has opened), the page's own effects hold still underneath.
+  pageHold?.kill();
+  pageHold = gsap.delayedCall(0.9, () => menuOpen && hidePage(true));
   // Focus goes into the menu (to its first link) once it has opened far enough to be seen.
   gsap.delayedCall(0.35, () => menuOpen && q<HTMLElement>('#menu .menu__links a')?.focus({ preventScroll: true }));
 }
@@ -389,5 +393,8 @@ export function closeMenu() {
   // Focus was in the menu: back to the button that opened it.
   if (menu?.contains(document.activeElement)) toggle?.focus({ preventScroll: true });
   lockPage(false);
+  // And draw again as the circle closes, so the page is live by the time it shows.
+  pageHold?.kill();
+  hidePage(false);
   menuTl?.timeScale(1.6).reverse();
 }

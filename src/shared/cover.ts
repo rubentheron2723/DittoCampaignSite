@@ -6,11 +6,28 @@
 let up = true;
 const waiting = new Set<() => void>();
 
-/** True while covered; the callback (a render loop's kick) then runs once the cover lifts. */
-export function covered(resume: () => void): boolean {
-  if (!up) return false;
+/**
+ * True while covered; the callback (a render loop's kick) then runs once the cover lifts. `overlay`: the loop draws
+ * on the open mobile menu itself, so only the entry cover holds it, not the menu.
+ */
+export function covered(resume: () => void, overlay = false): boolean {
+  if (!up && (overlay || !pageHidden)) return false;
   waiting.add(resume);
   return true;
+}
+
+/*
+ * The open mobile menu hides the whole page behind an opaque panel: its animated backgrounds hold still underneath
+ * (the same hold as under the entry cover) and pick up again as the menu starts to close.
+ */
+let pageHidden = false;
+export function hidePage(on: boolean) {
+  if (pageHidden === on) return;
+  pageHidden = on;
+  if (on || up) return;
+  const list = [...waiting];
+  waiting.clear();
+  list.forEach((fn) => fn());
 }
 
 /** Resolves once the cover has lifted (at once if it already has). */
