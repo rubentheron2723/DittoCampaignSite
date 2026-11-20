@@ -33,9 +33,9 @@
 .fsearch__icon { flex: none; color: #fff; width: 20px; height: 20px; margin: 0 2px; }
 .fsearch__pill input {
   flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; background: none; outline: none; -webkit-appearance: none; appearance: none;
-  font: inherit; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717;
+  font: inherit; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #fff; caret-color: #fff;
 }
-.fsearch__pill input::placeholder { color: rgba(23, 23, 23, 0.4); }
+.fsearch__pill input::placeholder { color: rgba(255, 255, 255, 0.8); opacity: 1; }
 
 /* ---------- Topics (Figma 2421:2028) ---------- */
 /* #FDFDFD under the Moving blobs. A 398-wide column of pill tabs (20/24) beside every topic in turn: its 64/68 title,
