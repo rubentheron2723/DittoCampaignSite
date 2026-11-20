@@ -138,6 +138,16 @@ function initAccordion(animate: boolean) {
 }
 
 /* ---------- Tabs + search ---------- */
+/**
+ * The search's words, each cut to a loose stem so a plural or another ending still finds it: "integrations" matches
+ * "integration" and "integrate", "migrating" matches "migration". Short words are kept whole.
+ */
+const searchWords = (term: string) =>
+  term
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .map((w) => (w.length > 4 ? w.replace(/(ations?|ions?|ing|ed|es|s)$/, '') : w));
+
 function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean) => void) {
   const input = q<HTMLInputElement>('#faq-search')!;
   const form = q<HTMLFormElement>('#faq-search-form')!;
@@ -181,10 +191,14 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
   /** Narrows every topic to the questions matching the search (a topic with none drops out). */
   const show = () => {
     let matches = 0;
+    const words = searchWords(term);
     topics.forEach((t) => {
       let shown = 0;
+      const title = q('.ftopic__title', t)!.textContent!.toLowerCase();
       qa<HTMLElement>('.fqa', t).forEach((it) => {
-        const on = !term || it.dataset.q!.includes(term) || it.dataset.a!.includes(term);
+        // Every word must appear somewhere in the question, its answer or its topic's title.
+        const text = `${title} ${it.dataset.q} ${it.dataset.a}`;
+        const on = words.every((w) => text.includes(w));
         it.hidden = !on;
         if (on) shown++;
       });
