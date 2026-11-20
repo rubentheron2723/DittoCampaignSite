@@ -11,6 +11,8 @@ import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from '../animations/gsap';
 import { splitReveal } from '../shared/motion';
 import { initTrust } from '../animations/reveals';
+import { initBlobBackdrop } from '../shared/blob-backdrop';
+import { FOOTER_BLOBS } from '../shared/footer-blobs';
 
 /* ---------- Render ---------- */
 function hero() {
@@ -243,6 +245,7 @@ function trustSection() {
   const ticker = [...trust.ticker, ...trust.ticker].map((t) => `<span>${esc(t)}</span>`).join('');
   return `
   <section class="trust" id="trust" data-theme="light">
+    <canvas class="trust__fx" aria-hidden="true"></canvas>
     <div class="trust__inner">
       <h2 class="trust__title">${esc(trust.headline)}</h2>
       <p class="trust__body">${esc(trust.body)}</p>
@@ -662,6 +665,8 @@ boot({
     initClouds(q('.phero')!, q<HTMLCanvasElement>('.phero__sky')!, 'phero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
+    // The day section's #FDFDFD under the Moving blobs, as on the About and Pricing pages.
+    initBlobBackdrop(q('.trust')!, q<HTMLCanvasElement>('.trust__fx')!, 'trust--fx', FOOTER_BLOBS, [253, 253, 253], reduce, 0.55);
     const tab = initDayTabs(!reduce);
     const [source, engage, place] = ['Source', 'Engage', 'Place'].map((s) => q<HTMLElement>(`[data-chat="${s}"]`)!);
     initThinkZoom(!reduce, {
