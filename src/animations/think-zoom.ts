@@ -744,10 +744,31 @@ export function initThinkZoom(
   document.documentElement.addEventListener('pointerleave', () => peek(false));
 
   const smoother = () => ScrollSmoother.get();
+  /*
+   * Holding the page still while the stage has the scroll. On desktop the smoother is paused. On touch screens pausing
+   * it laid observers over the whole page, and taps there no longer brought iOS Safari's minimised toolbar back. So
+   * there only the smoother's touch normaliser is switched off: our own touchmove handler (below) blocks the drag, taps
+   * pass through untouched, and a guard puts the scroll back should anything (a fling's momentum) move it.
+   */
+  const touchOnly = ScrollTrigger.isTouch === 1;
+  let heldAt: number | null = null;
+  const guard = () => {
+    // The page's own scroll (the smoother's eased position trails it).
+    if (heldAt !== null && Math.abs(window.scrollY - heldAt) > 1) window.scrollTo(0, heldAt);
+  };
   const freeze = (on: boolean) => {
     const sm = smoother();
-    if (sm) sm.paused(on);
-    else document.documentElement.style.overflow = on ? 'hidden' : '';
+    if (!sm) return void (document.documentElement.style.overflow = on ? 'hidden' : '');
+    if (!touchOnly) return void sm.paused(on);
+    if (on) {
+      sm.normalizer?.disable();
+      heldAt = window.scrollY;
+      window.addEventListener('scroll', guard, { passive: true });
+    } else {
+      heldAt = null;
+      window.removeEventListener('scroll', guard);
+      sm.normalizer?.enable();
+    }
   };
   const jumpTo = (y: number) => {
     const sm = smoother();
