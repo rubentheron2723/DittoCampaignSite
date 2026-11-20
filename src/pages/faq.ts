@@ -251,6 +251,16 @@ boot({
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
     initBlobBackdrop(q('.ftopics')!, q<HTMLCanvasElement>('.ftopics__fx')!, 'ftopics--fx', TOPIC_BLOBS, PAPER, reduce, 0.6);
+    // The blobs' canvas is one screen tall (the whole list would be ~10,000px of shader every frame), carried down
+    // the section so it always fills the view: at the section's top as it enters, at its foot as it leaves.
+    const fx = q<HTMLElement>('.ftopics__fx')!;
+    ScrollTrigger.create({
+      trigger: '.ftopics',
+      start: 'top top',
+      end: 'bottom bottom',
+      onRefresh: (self) => gsap.set(fx, { y: self.progress * (self.end - self.start) }),
+      onUpdate: (self) => gsap.set(fx, { y: self.progress * (self.end - self.start) }),
+    });
     initAccordion(!reduce);
 
     const section = q<HTMLElement>('#faq')!;
