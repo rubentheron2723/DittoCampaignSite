@@ -21,6 +21,19 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(
 const total = faqCategories.reduce((n, c) => n + c.items.length, 0);
 const summary = `${total} answers across ${faqCategories.length} topics. Search, or pick a topic.`;
 
+/**
+ * A question as per-character spans for the footer's hover wave (each letter lifts and settles in turn), grouped
+ * by word so the lines still wrap between words. Screen readers get the plain question instead.
+ */
+function waveQuestion(text: string) {
+  let i = 0;
+  const words = text
+    .split(' ')
+    .map((w) => `<span class="fqa__word">${Array.from(w).map((ch) => `<span style="--i:${i++}">${esc(ch)}</span>`).join('')}</span>`)
+    .join(' ');
+  return `<span class="sr-only">${esc(text)}</span><span class="fqa__wave" aria-hidden="true">${words}</span>`;
+}
+
 /** The section's Moving blobs: the hero's, with Figma's higher threshold (27.5) for this frame. */
 const TOPIC_BLOBS: BlobParams = { ...HERO_BUBBLES, threshold: 27.5 };
 
@@ -76,7 +89,7 @@ function render() {
                   .map((it, i) => {
                     const id = `${slug(c.title)}-${i}`;
                     return `<article class="fqa" data-q="${esc(it.q.toLowerCase())}" data-a="${esc(it.a.toLowerCase())}">
-                      <h3 class="fqa__head"><button type="button" class="fqa__trigger" id="${id}" aria-expanded="false" aria-controls="${id}-a"><span class="fqa__q">${esc(it.q)}</span>${CHEV}</button></h3>
+                      <h3 class="fqa__head"><button type="button" class="fqa__trigger" id="${id}" aria-expanded="false" aria-controls="${id}-a"><span class="fqa__q">${waveQuestion(it.q)}</span>${CHEV}</button></h3>
                       <div class="fqa__panel" id="${id}-a" role="region" aria-labelledby="${id}"><p>${esc(it.a)}</p></div>
                     </article>`;
                   })
@@ -98,6 +111,14 @@ function initAccordion(animate: boolean) {
   qa<HTMLElement>('.fqa').forEach((item) => {
     const trigger = q<HTMLButtonElement>('.fqa__trigger', item)!;
     const panel = q<HTMLElement>('.fqa__panel', item)!;
+    // Hover wave, as on the footer's links: it plays through once even if the pointer leaves mid-way.
+    const last = qa<HTMLElement>('.fqa__wave span span', item).at(-1);
+    if (animate && last) {
+      const wave = () => trigger.classList.add('is-waving');
+      trigger.addEventListener('pointerenter', wave);
+      trigger.addEventListener('focus', wave);
+      last.addEventListener('animationend', () => trigger.classList.remove('is-waving'));
+    }
     if (!item.classList.contains('is-open')) gsap.set(panel, { height: 0, autoAlpha: 0 });
     trigger.addEventListener('click', () => {
       const open = item.classList.contains('is-open');
