@@ -42,7 +42,7 @@
    then its questions (40/44) 40 apart, each with a chevron; an open one shows its answer (16/20 at 60%). The tabs'
    first pill and the first title share one top line (--top). */
 .ftopics { --pad: clamp(20px, 5.556vw, 80px); --top: clamp(32px, 4.5vh, 64px); position: relative; background: #fdfdfd; color: #171717; }
-.ftopics__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; }
+.ftopics__fx { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; will-change: transform; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; }
 .ftopics--fx .ftopics__fx { opacity: 1; }
 .ftopics__grid { position: relative; display: grid; grid-template-columns: minmax(240px, 398px) minmax(0, 1fr); gap: 40px; align-items: start; padding: 0 var(--pad); max-width: 1440px; margin: 0 auto; }
 /* Pinned just under the nav while the topics scroll by; sized to fit a laptop screen's height. */
