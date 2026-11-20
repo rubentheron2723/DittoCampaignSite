@@ -356,11 +356,20 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
   .page-hero { min-height: 60svh; padding-top: calc(var(--nav-h) + 40px); }
 }
 @media (max-width: 760px) {
-  .footer__menu { grid-template-columns: 1fr 1fr; column-gap: 24px; row-gap: 40px; padding-top: 48px; }
+  /* The screen with the browser's controls showing (svh), not hidden (lvh): at the end of the page the footer then
+     fits what's visible, and its logo at the top isn't cut off above the screen. */
+  .footer { min-height: 100vh; min-height: 100svh; }
+  /* A little tighter, so the logo, links and lettering fit a phone's screen with the controls showing. */
+  .footer__menu { grid-template-columns: 1fr 1fr; column-gap: 24px; row-gap: 28px; padding-top: 32px; }
   .footer__logomark { grid-column: 1 / -1; align-self: start; width: 56px; }
   .footer__col:nth-child(4), .footer__col:nth-child(6) { grid-column: auto; grid-row: auto; }
-  .footer__col { gap: 14px; }
-  .footer__menu { margin-bottom: 72px; }
+  .footer__col { gap: 12px; }
+  .footer__menu { margin-bottom: 40px; }
+}
+/* Short phones (an iPhone SE with the controls showing): tighter again, so the logo still fits on screen. */
+@media (max-width: 760px) and (max-height: 620px) {
+  .footer__menu { row-gap: 20px; padding-top: 20px; margin-bottom: 24px; }
+  .footer__col { gap: 10px; }
 }
 @media (min-width: 901px) { .menu { display: none; } }
 @media (prefers-reduced-motion: reduce) { .curtain, .intro { display: none; } }
