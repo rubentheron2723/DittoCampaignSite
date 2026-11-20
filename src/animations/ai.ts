@@ -272,7 +272,8 @@ export function initAI(animate: boolean) {
       scrollTrigger: {
         trigger: stage,
         start: 'top top',
-        end: narrow ? '+=300%' : '+=180%',
+        // Phones and portrait tablets step through the deck one card at a time: 2.2 screens, not 3.
+        end: narrow ? '+=220%' : '+=180%',
         pin: true,
         scrub: 1.2,
         anticipatePin: 1,

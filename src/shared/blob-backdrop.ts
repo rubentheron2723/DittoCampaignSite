@@ -18,6 +18,8 @@ export function initBlobBackdrop(
   colour: [number, number, number] | HTMLCanvasElement,
   reduce: boolean,
   intensity = 1,
+  /** Frames per second at most. Behind long reading pages (FAQ, legal) 30 looks the same and halves the GPU work. */
+  fps = 60,
 ) {
   const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, premultipliedAlpha: true });
   if (!gl) return;
@@ -41,14 +43,27 @@ export function initBlobBackdrop(
 
   let visible = false;
   let raf = 0;
+  let lost = false;
+  let lastDraw = 0;
+  // A lost context (iOS drops them under memory pressure): stop drawing and let the section's own colour show.
+  canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    lost = true;
+    section.classList.remove(fxClass);
+  });
   const frame = (now: number) => {
+    if (lost) return;
     pass.draw(input, now, reduce);
     section.classList.add(fxClass);
   };
   const loop = (now: number) => {
     // Held still under the entry cover (see cover.ts); it resumes as the cover lifts.
+    if (lost) return void (raf = 0);
     if (covered(kick)) return void (raf = 0);
-    frame(now);
+    if (now - lastDraw >= 1000 / fps - 2) {
+      lastDraw = now;
+      frame(now);
+    }
     raf = visible && !reduce ? requestAnimationFrame(loop) : 0;
   };
   const kick = () => {

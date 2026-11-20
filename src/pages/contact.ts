@@ -22,7 +22,7 @@ type FieldName = keyof typeof fields;
 const field = (name: FieldName, control: string, extra = '') => `<div class="field${extra}" data-field="${name}">
     <label class="field__label" id="${name}-label" for="${name}-input">${esc(fields[name].label)}</label>
     ${control}
-    <p class="field__error" role="alert"></p>
+    <p class="field__error" id="${name}-error"></p>
   </div>`;
 
 const text = (name: FieldName, type: string, attrs = '') => {
@@ -88,7 +88,7 @@ function render() {
       <button type="submit" class="form__submit"><span class="form__submit-label">Send request</span><span class="form__submit-sending" aria-hidden="true">Sending…</span></button>
       <div class="form__success" id="form-success" aria-live="polite">
         <div class="form__success-mark">${markSvg('mark--on-light')}</div>
-        <h2 class="form__success-title">${esc(success.title)}</h2>
+        <h2 class="form__success-title" tabindex="-1">${esc(success.title)}</h2>
         <p class="form__success-copy">${esc(success.copy)}</p>
       </div>
     </form>
@@ -148,6 +148,11 @@ function initForm(animate: boolean) {
     const had = f.classList.contains('is-invalid');
     f.classList.toggle('is-invalid', !!msg);
     err.textContent = msg;
+    // The message belongs to its control: read out with it when it's focused (one at a time, not all at once).
+    const control = focusOf(f);
+    control.setAttribute('aria-invalid', String(!!msg));
+    if (msg) control.setAttribute('aria-describedby', err.id);
+    else control.removeAttribute('aria-describedby');
     if (msg && !had && animate) {
       gsap.fromTo(f, { x: -6 }, { x: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' });
       gsap.fromTo(err, { y: -6, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.4 });
@@ -160,20 +165,24 @@ function initForm(animate: boolean) {
     return ok;
   };
 
+  // Checked as you leave a field you've filled in (tabbing through an empty form doesn't turn it red), every field
+  // once you've tried to send, and again as you correct one already marked.
+  let tried = false;
+  const check = (f: HTMLElement) => (tried || inputOf(f).value.trim() ? validate(f) : true);
   fieldEls.forEach((f) => {
     const input = inputOf(f);
-    // Checked as you leave a field, and again as you correct one already marked.
     if (input.type === 'hidden') {
       input.addEventListener('change', () => validate(f));
-      f.addEventListener('select:close', () => validate(f));
+      f.addEventListener('select:close', () => check(f));
     } else {
-      input.addEventListener('blur', () => validate(f));
+      input.addEventListener('blur', () => check(f));
       input.addEventListener('input', () => f.classList.contains('is-invalid') && validate(f));
     }
   });
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    tried = true;
     const results = fieldEls.map(validate);
     const firstBad = fieldEls[results.indexOf(false)];
     if (firstBad) {
@@ -191,7 +200,9 @@ function initForm(animate: boolean) {
         .set('.form__success', { display: 'grid' })
         .fromTo('.form__success-mark .mark__l', { x: -80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 })
         .fromTo('.form__success-mark .mark__r', { x: 80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 }, '<')
-        .from('.form__success-title, .form__success-copy', { y: 24, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, '-=0.5');
+        .from('.form__success-title, .form__success-copy', { y: 24, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, '-=0.5')
+        // The button that had focus is gone: focus (and a screen reader) moves to the confirmation.
+        .add(() => q<HTMLElement>('.form__success-title')?.focus({ preventScroll: true }));
     });
   });
 }

@@ -116,6 +116,16 @@ function render() {
   ${ctaAndFooter()}`;
 }
 
+/**
+ * One ScrollTrigger refresh a moment after the last change, rather than one per accordion toggle: each refresh
+ * re-measures every trigger and briefly undoes the pins (the phone's pinned tab row would jump).
+ */
+let refreshCall: gsap.core.Tween | null = null;
+const refreshSoon = () => {
+  refreshCall?.kill();
+  refreshCall = gsap.delayedCall(0.15, () => ScrollTrigger.refresh());
+};
+
 /* ---------- Accordion ---------- */
 function initAccordion(animate: boolean) {
   qa<HTMLElement>('.fqa').forEach((item) => {
@@ -140,7 +150,7 @@ function initAccordion(animate: boolean) {
         duration: animate ? 0.55 : 0,
         ease: open ? 'power3.inOut' : 'expo.out',
         overwrite: true,
-        onComplete: () => ScrollTrigger.refresh(),
+        onComplete: refreshSoon,
       });
       if (!open && animate) gsap.fromTo(panel.firstElementChild, { y: 12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, delay: 0.08, ease: 'power3.out' });
     });
@@ -173,6 +183,9 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
   let term = '';
 
   /** Lights a topic's tab (and, on phones, brings it to the middle of the sideways row). */
+  // While someone is swiping the row of tabs, the lit tab doesn't pull it back to centre.
+  let rowTouched = -Infinity;
+  ['pointerdown', 'wheel', 'touchmove'].forEach((t) => row.addEventListener(t, () => (rowTouched = performance.now()), { passive: true }));
   let active = '';
   const light = (cat: string) => {
     if (cat === active) return;
@@ -182,7 +195,7 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
       b.classList.toggle('is-on', on);
       if (on) b.setAttribute('aria-current', 'true');
       else b.removeAttribute('aria-current');
-      if (on && row.scrollWidth > row.clientWidth) {
+      if (on && row.scrollWidth > row.clientWidth && performance.now() - rowTouched > 1200) {
         const left = b.offsetLeft - (row.clientWidth - b.offsetWidth) / 2;
         row.scrollTo({ left: Math.max(0, left), behavior: animate ? 'smooth' : 'auto' });
       }
@@ -218,7 +231,10 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
       matches += shown;
     });
     empty.hidden = !term || matches > 0;
-    summaryEl.textContent = term ? `${matches} ${matches === 1 ? 'answer matches' : 'answers match'} “${input.value.trim()}”.` : summary;
+    // The list sits a screen below the search: say how to get there.
+    summaryEl.textContent = term
+      ? `${matches} ${matches === 1 ? 'answer matches' : 'answers match'} “${input.value.trim()}”.${matches ? ' Press Enter to see them.' : ''}`
+      : summary;
     emptyTerm.textContent = input.value.trim();
   };
 
@@ -233,7 +249,7 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
       return;
     }
     swapping = gsap
-      .timeline({ onComplete: () => void ScrollTrigger.refresh() })
+      .timeline()
       .to(list, { autoAlpha: 0, y: -12, duration: 0.2, ease: 'power2.in' })
       .add(() => {
         change();
@@ -319,7 +335,7 @@ boot({
     initClouds(q('.fhero')!, q<HTMLCanvasElement>('.fhero__sky')!, 'fhero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
-    initBlobBackdrop(q('.ftopics')!, q<HTMLCanvasElement>('.ftopics__fx')!, 'ftopics--fx', TOPIC_BLOBS, PAPER, reduce, 0.6);
+    initBlobBackdrop(q('.ftopics')!, q<HTMLCanvasElement>('.ftopics__fx')!, 'ftopics--fx', TOPIC_BLOBS, PAPER, reduce, 0.6, 30);
     // The blobs' canvas is one screen tall (the whole list would be ~10,000px of shader every frame), carried down
     // the section so it always fills the view: at the section's top as it enters, at its foot as it leaves.
     const fx = q<HTMLElement>('.ftopics__fx')!;
@@ -381,7 +397,7 @@ boot({
 
     gsap.from('.ftab', {
       x: -24,
-      autoAlpha: 0,
+      opacity: 0,
       duration: 0.9,
       ease: 'expo.out',
       stagger: 0.04,
@@ -390,7 +406,7 @@ boot({
     });
     entrance = gsap.from('.ftopics__list', {
       y: 40,
-      autoAlpha: 0,
+      opacity: 0,
       duration: 1,
       ease: 'expo.out',
       delay: 0.15,

@@ -97,6 +97,7 @@ export function initSelects(root: ParentNode, animate: boolean) {
       // Leaving the field: let the form check it.
       el.dispatchEvent(new Event('select:close', { bubbles: true }));
     };
+    let moved = false;
     const openList = (at?: number) => {
       if (open) return;
       closers.forEach((c) => c !== close && c());
@@ -107,6 +108,7 @@ export function initSelects(root: ParentNode, animate: boolean) {
       // Opacity only: visibility (autoAlpha) would stop the list taking focus on this first frame.
       if (animate) gsap.fromTo(list, { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.28, ease: 'expo.out', overwrite: true });
       list.focus({ preventScroll: true });
+      moved = at !== undefined;
       highlight(at ?? Math.max(0, options.findIndex((o) => o.classList.contains('is-selected'))));
     };
     closers.push(close);
@@ -126,6 +128,7 @@ export function initSelects(root: ParentNode, animate: boolean) {
     let typedAt = 0;
     list.addEventListener('keydown', (e) => {
       el.classList.add('is-kbd');
+      if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key) || (e.key.length === 1 && /\S/.test(e.key))) moved = true;
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
@@ -148,7 +151,8 @@ export function initSelects(root: ParentNode, animate: boolean) {
           e.preventDefault();
           return close();
         case 'Tab':
-          pick(active);
+          // Only an option the keyboard moved to: opening the list and tabbing on mustn't pick the first one.
+          if (moved) pick(active);
           return close(false);
       }
       // Type to jump: letters typed in quick succession build up a prefix.

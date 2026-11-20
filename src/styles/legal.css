@@ -36,6 +36,6 @@
 
 @media (max-width: 900px) {
   .ldoc .ltabs { max-height: none; overflow-y: visible; margin: 0; gap: 8px; padding: 4px var(--pad) 12px; }
-  .ltab { padding: 10px 16px; font-size: 15px; }
+  .ltab { min-height: 44px; padding: 10px 16px; font-size: 15px; }
   .ldoc__list { max-width: none; }
 }

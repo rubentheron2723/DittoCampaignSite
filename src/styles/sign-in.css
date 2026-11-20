@@ -88,3 +88,9 @@ body[data-page='signin'] .nav { display: none; }
   .signin__panel { padding: 48px var(--signin-gutter) 72px; }
   .sform { gap: 28px; }
 }
+
+/* Touch screens: the Show button gets a 44px tap area without changing how it looks. */
+@media (pointer: coarse) {
+  .sfield__show { position: relative; }
+  .sfield__show::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 44px; translate: 0 -50%; }
+}

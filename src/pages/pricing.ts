@@ -56,15 +56,15 @@ function render() {
 
     <div class="calc__area">
       <div class="calc__controls">
-        <div class="gseg" id="billing" role="tablist" aria-label="Billing cycle">
+        <div class="gseg" id="billing" role="radiogroup" aria-label="Billing cycle">
           <span class="gseg__pill" aria-hidden="true"></span>
-          <button type="button" role="tab" aria-selected="true" data-value="monthly">Monthly</button>
-          <button type="button" role="tab" aria-selected="false" data-value="annual">Annual <em>Save 15%</em></button>
+          <button type="button" role="radio" aria-checked="true" tabindex="0" data-value="monthly">Monthly</button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="annual">Annual <em>Save 15%</em></button>
         </div>
-        <div class="gseg" id="currency" role="tablist" aria-label="Currency">
+        <div class="gseg" id="currency" role="radiogroup" aria-label="Currency">
           <span class="gseg__pill" aria-hidden="true"></span>
-          <button type="button" role="tab" aria-selected="true" data-value="ZAR">ZAR</button>
-          <button type="button" role="tab" aria-selected="false" data-value="USD">USD</button>
+          <button type="button" role="radio" aria-checked="true" tabindex="0" data-value="ZAR">ZAR</button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="USD">USD</button>
         </div>
       </div>
 
@@ -151,7 +151,8 @@ function initCalculator(animate: boolean) {
 
   let rateRoll: gsap.core.Tween | undefined;
   let totalRoll: gsap.core.Tween | undefined;
-  function update() {
+  /** `instant`: set the figures at once (while dragging) instead of rolling them. */
+  function update(instant = false) {
     const tier = tierForUsers(users);
     const monthlyRate = tier.rates ? tier.rates[currency] : 0;
     const rate = period === 'annual' ? monthlyRate * ANNUAL_MULTIPLIER : monthlyRate;
@@ -159,6 +160,7 @@ function initCalculator(animate: boolean) {
 
     sliderValue.textContent = String(users);
     knob.setAttribute('aria-valuenow', String(users));
+    knob.setAttribute('aria-valuetext', `${users} ${users === 1 ? 'recruiter' : 'recruiters'}`);
     el.users.textContent = String(users);
     el.tier.textContent = tier.label;
     el.range.textContent = tier.rangeLabel;
@@ -171,8 +173,8 @@ function initCalculator(animate: boolean) {
     rateRoll?.kill();
     totalRoll?.kill();
     if (tier.rates) {
-      rateRoll = rollNumber(el.rate, rate, (n) => money(n, !Number.isInteger(rate)), dur);
-      totalRoll = rollNumber(el.total, Math.round(total), (n) => money(Math.round(n)), dur);
+      rateRoll = rollNumber(el.rate, rate, (n) => money(n, !Number.isInteger(rate)), instant ? 0 : dur);
+      totalRoll = rollNumber(el.total, Math.round(total), (n) => money(Math.round(n)), instant ? 0 : dur);
     } else {
       el.rate.textContent = 'Custom';
       el.total.textContent = 'Let’s talk';
@@ -206,21 +208,32 @@ function initCalculator(animate: boolean) {
     type: 'x',
     bounds: bounds(),
     inertia: false,
+    // The knob takes the whole touch: a slightly diagonal drag moves it rather than scrolling the page.
+    allowNativeTouchScrolling: false,
     onDrag() {
-      users = Math.max(1, Math.min(100, Math.round((this.x / track.clientWidth) * 99 + 1)));
       gsap.set(fill, { width: `${(this.x / track.clientWidth) * 100}%` });
-      update();
+      const next = Math.max(1, Math.min(100, Math.round((this.x / track.clientWidth) * 99 + 1)));
+      // Only when the count changes, and set straight away: a roll restarted on every pointer move never caught up.
+      if (next === users) return;
+      users = next;
+      update(true);
     },
     onPress() { this.applyBounds(bounds()); gsap.to(knob, { scale: 1.12, duration: 0.2 }); },
     onRelease() { gsap.to(knob, { scale: 1, duration: 0.5, ease: 'elastic.out(1, 0.5)' }); setUsers(users); },
   });
-  track.addEventListener('click', (e) => {
+  // The whole slider (track, ticks and the space around them) takes a tap, not just the 6px track.
+  q('#slider')!.addEventListener('click', (e) => {
+    if (knob.contains(e.target as Node)) return;
     const r = track.getBoundingClientRect();
     setUsers(((e.clientX - r.left) / r.width) * 99 + 1);
   });
   knob.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); setUsers(users + 1); }
     if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); setUsers(users - 1); }
+    if (e.key === 'PageUp') { e.preventDefault(); setUsers(users + 10); }
+    if (e.key === 'PageDown') { e.preventDefault(); setUsers(users - 10); }
+    if (e.key === 'Home') { e.preventDefault(); setUsers(1); }
+    if (e.key === 'End') { e.preventDefault(); setUsers(100); }
   });
   cards.forEach((c) => c.addEventListener('click', () => setUsers(Number(c.dataset.min))));
   window.addEventListener('resize', () => { drag.applyBounds(bounds()); place(); });
@@ -232,15 +245,29 @@ function initCalculator(animate: boolean) {
     const buttons = qa<HTMLButtonElement>('button', root);
     const move = (b: HTMLButtonElement, instant = false) =>
       gsap.to(pill, { x: b.offsetLeft, y: b.offsetTop, width: b.offsetWidth, height: b.offsetHeight, duration: instant ? 0 : 0.5, ease: 'power3.inOut' });
-    const current = () => buttons.find((b) => b.getAttribute('aria-selected') === 'true')!;
+    const current = () => buttons.find((b) => b.getAttribute('aria-checked') === 'true')!;
     move(buttons[0], true);
-    buttons.forEach((b) =>
-      b.addEventListener('click', () => {
-        buttons.forEach((x) => x.setAttribute('aria-selected', String(x === b)));
-        move(b);
-        onChange(b.dataset.value!);
-      }),
-    );
+    const choose = (b: HTMLButtonElement) => {
+      if (b === current()) return;
+      buttons.forEach((x) => {
+        x.setAttribute('aria-checked', String(x === b));
+        x.tabIndex = x === b ? 0 : -1;
+      });
+      move(b);
+      onChange(b.dataset.value!);
+    };
+    buttons.forEach((b, i) => {
+      b.addEventListener('click', () => choose(b));
+      // A radio group: the arrow keys move the choice (and focus) along it.
+      b.addEventListener('keydown', (e) => {
+        const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+        if (!step) return;
+        e.preventDefault();
+        const next = buttons[(i + step + buttons.length) % buttons.length];
+        next.focus();
+        choose(next);
+      });
+    });
     window.addEventListener('resize', () => move(current(), true));
     document.fonts.ready.then(() => move(current(), true));
   }
@@ -273,7 +300,11 @@ boot({
       .timeline({ paused: true, defaults: { ease: 'expo.out' } })
       .add(tween.play(), 0.05)
       .from('.phero__lower > *, .phero .gbtn', { y: 30, autoAlpha: 0, duration: 1, stagger: 0.1 }, 0.45);
-    revealed.then(() => heroTl.play());
+    revealed.then(() => {
+      heroTl.play();
+      // Never leave the copy hidden if frames are starved.
+      window.setTimeout(() => heroTl.progress() < 1 && heroTl.progress(1), 3500);
+    });
 
     splitReveal('.calc__title span', { by: 'words' });
     fadeUp('.calc__head .psub, .calc__controls', '.calc__head', { y: 24 });

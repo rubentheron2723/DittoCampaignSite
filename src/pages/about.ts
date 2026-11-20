@@ -124,7 +124,8 @@ function render() {
 function initRebuild(animate: boolean) {
   const rows = qa<HTMLElement>('.rrow');
   const fills = rows.map((r) => q<HTMLElement>('.rrow__bar i', r)!);
-  if (!animate) return;
+  // Without motion the lines are simply full, rather than left empty as if unfinished.
+  if (!animate) return void fills.forEach((f) => (f.style.transform = 'scaleX(1)'));
   const PIN = () => q('#nav')!.offsetHeight + 24;
   /** How tall the soft edge is where a row fades under the next (px). */
   const FADE = 56;
@@ -132,6 +133,9 @@ function initRebuild(animate: boolean) {
 
   const mm = gsap.matchMedia();
   mm.add('(min-height: 560px)', () => {
+    // A row taller than the room under the nav (a narrow phone, stacked copy) would be cut off while held: then
+    // they stay a plain list.
+    if (Math.max(...rows.map((r) => r.offsetHeight)) > window.innerHeight - PIN() - 40) return;
     rows.slice(0, -1).forEach((row) =>
       ScrollTrigger.create({
         trigger: row,
@@ -143,24 +147,43 @@ function initRebuild(animate: boolean) {
       }),
     );
     // Clip each held row to what the next row hasn't covered yet, and fill its line by how much is covered.
+    // Heights and the pin line only change on a refresh; positions are all read before anything is written, so a
+    // scroll frame costs one layout rather than one per row.
+    let heights: number[] = [];
+    let pinAt = 0;
+    const measure = () => {
+      heights = rows.map((r) => r.offsetHeight);
+      pinAt = PIN();
+    };
     const update = () => {
+      if (!heights.length) measure();
+      const tops = rows.map((r) => r.getBoundingClientRect().top);
       rows.forEach((row, i) => {
         const next = rows[i + 1];
-        const top = row.getBoundingClientRect().top;
-        const h = row.offsetHeight;
+        const top = tops[i];
+        const h = heights[i];
         if (!next) {
           // The last row has nothing to cover it: its line fills as it scrolls on past the pin line.
-          fills[i].style.transform = `scaleX(${gsap.utils.clamp(0, 1, (PIN() - top) / h)})`;
+          fills[i].style.transform = `scaleX(${gsap.utils.clamp(0, 1, (pinAt - top) / h)})`;
           return;
         }
-        const visible = Math.round(gsap.utils.clamp(0, h, next.getBoundingClientRect().top - top - 20));
+        const visible = Math.round(gsap.utils.clamp(0, h, tops[i + 1] - top - 20));
         const mask = visible >= h ? '' : `linear-gradient(to bottom, #000 ${visible - FADE}px, transparent ${visible}px)`;
         row.style.maskImage = mask;
         row.style.webkitMaskImage = mask;
         fills[i].style.transform = `scaleX(${1 - visible / h})`;
       });
     };
-    const st = ScrollTrigger.create({ trigger: '.rebuild', start: 'top bottom', end: 'bottom top', onUpdate: update, onRefresh: update });
+    const st = ScrollTrigger.create({
+      trigger: '.rebuild',
+      start: 'top bottom',
+      end: 'bottom top',
+      onUpdate: update,
+      onRefresh: () => {
+        measure();
+        update();
+      },
+    });
     update();
     return () => {
       st.kill();

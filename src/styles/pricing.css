@@ -114,6 +114,10 @@
 .slider__tick b { font-size: var(--t-caption-size); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-ls); font-weight: var(--t-caption-wt); position: absolute; top: 14px; left: 50%; translate: -50% 0; color: var(--ink-soft); }
 .slider__knob { position: absolute; top: 3px; left: 0; width: 36px; height: 36px; margin-left: -18px; margin-top: -18px; border-radius: 50%; background: #0a0f15; border: 3px solid var(--white); box-shadow: 0 10px 30px rgba(6, 49, 73, 0.35); cursor: grab; touch-action: none; }
 .slider__knob:active { cursor: grabbing; }
+/* A 48px touch area around the 36px knob, and a taller tap zone over the thin track. */
+.slider__knob::before { content: ''; position: absolute; inset: -9px; border-radius: 50%; }
+.slider { cursor: pointer; }
+.slider::before { content: ''; position: absolute; left: 0; right: 0; top: -18px; height: 42px; }
 .slider__knob:focus-visible { outline: none; box-shadow: 0 0 0 5px rgba(0, 176, 255, 0.35); }
 .slider__value { font-size: var(--t-label-size); line-height: var(--t-label-lh); letter-spacing: var(--t-label-ls); font-weight: var(--t-label-wt); position: absolute; left: 50%; bottom: calc(100% + 12px); translate: -50% 0; padding: 6px 12px; border-radius: 999px; background: #0a0f15; color: var(--white); font-variant-numeric: tabular-nums; }
 .slider__value::after { content: ''; position: absolute; left: 50%; top: 100%; border: 5px solid transparent; border-top-color: #0a0f15; translate: -50% 0; }

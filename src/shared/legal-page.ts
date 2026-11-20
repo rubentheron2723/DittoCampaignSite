@@ -89,6 +89,9 @@ function initClauses(animate: boolean, goTo: (clause: HTMLElement, smooth: boole
   const clauses = qa<HTMLElement>('.ftopic');
   const clauseOf = (tab: HTMLElement) => clauses.find((c) => c.dataset.cat === tab.dataset.cat)!;
 
+  // While someone is swiping the row of tabs, the lit tab doesn't pull it back to centre.
+  let rowTouched = -Infinity;
+  ['pointerdown', 'wheel', 'touchmove'].forEach((t) => row.addEventListener(t, () => (rowTouched = performance.now()), { passive: true }));
   let active = '';
   const light = (cat: string) => {
     if (cat === active) return;
@@ -100,6 +103,7 @@ function initClauses(animate: boolean, goTo: (clause: HTMLElement, smooth: boole
       else b.removeAttribute('aria-current');
       if (!on) return;
       // Keep the lit tab in view inside its own scrolling column (sideways on phones, up and down beside the text).
+      if (performance.now() - rowTouched < 1200) return;
       if (row.scrollWidth > row.clientWidth) {
         row.scrollTo({ left: Math.max(0, b.offsetLeft - (row.clientWidth - b.offsetWidth) / 2), behavior: animate ? 'smooth' : 'auto' });
       } else if (row.scrollHeight > row.clientHeight) {
@@ -146,7 +150,7 @@ export function legalPage(page: PageId, doc: LegalDoc) {
       initClouds(q('.fhero')!, q<HTMLCanvasElement>('.fhero__sky')!, 'fhero--sky', reduce, SKY_HERO, {
         bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
       });
-      initBlobBackdrop(q('.ftopics')!, q<HTMLCanvasElement>('.ftopics__fx')!, 'ftopics--fx', BLOBS, PAPER, reduce, 0.6);
+      initBlobBackdrop(q('.ftopics')!, q<HTMLCanvasElement>('.ftopics__fx')!, 'ftopics--fx', BLOBS, PAPER, reduce, 0.6, 30);
       // The blobs' canvas is one screen tall, carried down the (very long) document so it always fills the view.
       const fx = q<HTMLElement>('.ftopics__fx')!;
       ScrollTrigger.create({
@@ -202,7 +206,7 @@ export function legalPage(page: PageId, doc: LegalDoc) {
 
       gsap.from('.ftab', {
         x: -24,
-        autoAlpha: 0,
+        opacity: 0,
         duration: 0.9,
         ease: 'expo.out',
         stagger: 0.02,
@@ -211,7 +215,7 @@ export function legalPage(page: PageId, doc: LegalDoc) {
       });
       entrance = gsap.from('.ftopics__list', {
         y: 40,
-        autoAlpha: 0,
+        opacity: 0,
         duration: 1,
         ease: 'expo.out',
         delay: 0.15,

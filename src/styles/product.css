@@ -37,7 +37,7 @@
 }
 .think--peek .day__tabs { transform: translate(-50%, var(--peek-shift, 0px)); }
 .day__tab {
-  position: relative; padding: 8px 20px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  position: relative; min-height: 36px; padding: 8px 20px; border: 0; border-radius: 999px; background: none; cursor: pointer;
   font: inherit; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; white-space: nowrap;
 }
 .day__tab:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 2px; }
@@ -251,3 +251,5 @@
 .app__facts li { display: grid; grid-template-columns: 72px 1fr; gap: 8px; visibility: hidden; }
 .app__facts span { color: rgba(23, 23, 23, 0.5); }
 .app__facts b { font-weight: 400; }
+/* Touch screens: the day's stage tabs get a 44px tap area. */
+@media (pointer: coarse) { .day__tab { min-height: 44px; } }

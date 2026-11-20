@@ -115,8 +115,19 @@ function initForm() {
       return;
     }
     // Valid: the browser posts the form to the app.
+    const label = submit.textContent;
     submit.disabled = true;
     submit.textContent = form.submitting;
+    // Back from the app (the back/forward cache restores this page as it was left): ready to sign in again.
+    window.addEventListener(
+      'pageshow',
+      (ev) => {
+        if (!ev.persisted) return;
+        submit.disabled = false;
+        submit.textContent = label;
+      },
+      { once: true },
+    );
   });
 }
 

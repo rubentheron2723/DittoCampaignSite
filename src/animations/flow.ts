@@ -113,18 +113,44 @@ export function initFlow(animate: boolean) {
     .fromTo(intro, { yPercent: -50, autoAlpha: 1 }, { yPercent: -130, autoAlpha: 0, duration: 0.62, ease: 'power4.in' }, 0)
     .fromTo(field, { autoAlpha: 0 }, { autoAlpha: 1, duration: 1, ease: 'power3.in' }, 0);
 
-  // Every line loops all the time while either section is on screen. Created after the pin so the measured end
-  // includes the pinned scroll.
+  // The lines loop while either section is on screen, but only those of the panels in view: the two slid off to the
+  // side (each with eight masked, tilted lines) stay paused. Created after the pin so the measured end includes the
+  // pinned scroll.
   const loops = qa('.flow__mq-track, .fpanel__track', section).map((track) => {
     const duration = () => track.offsetWidth / 2 / SPEED;
-    return { loop: gsap.to(track, { xPercent: -50, ease: 'none', repeat: -1, duration: duration(), paused: true }), duration };
+    const panel = track.closest<HTMLElement>('.fpanel');
+    return {
+      loop: gsap.to(track, { xPercent: -50, ease: 'none', repeat: -1, duration: duration(), paused: true }),
+      duration,
+      /** Its panel, or -1 for the shared marquee (which runs whenever the section does). */
+      at: panel ? panels.indexOf(panel) : -1,
+    };
   });
+  let sectionOn = false;
+  const panelOn = panels.map(() => false);
+  const sync = () =>
+    loops.forEach(({ loop, at }) => (sectionOn && (at < 0 || panelOn[at]) ? loop.play() : loop.pause()));
+  panels.forEach((panel, i) =>
+    ScrollTrigger.create({
+      trigger: panel,
+      containerAnimation: slide,
+      start: 'left right',
+      end: 'right left',
+      onToggle: (self) => {
+        panelOn[i] = self.isActive;
+        sync();
+      },
+    }),
+  );
   ScrollTrigger.create({
     trigger: above ?? section,
     start: 'top bottom',
     endTrigger: section,
     end: 'bottom top',
-    onToggle: (self) => loops.forEach(({ loop }) => (self.isActive ? loop.play() : loop.pause())),
+    onToggle: (self) => {
+      sectionOn = self.isActive;
+      sync();
+    },
     onRefresh: () => loops.forEach(({ loop, duration }) => loop.duration(duration())),
   });
 }
