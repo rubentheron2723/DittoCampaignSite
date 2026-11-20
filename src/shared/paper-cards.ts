@@ -355,10 +355,21 @@ export function createPaperCards(
   // Draw only while on screen.
   let raf = 0;
   let visible = false;
+  // At rest (no pose changed since the last frame) the cards only drift in their idle float, which reads the same at
+  // 30 fps: half the draws. Anything moving them (a scrub, the flight in) gets every frame.
+  let lastPoses = '';
+  let lastDraw = 0;
   const loop = (now: number) => {
     // Held still under the entry cover (see cover.ts); it resumes as the cover lifts.
     if (covered(kick)) return void (raf = 0);
-    render(now);
+    // Just the numbers (GSAP keeps its own bookkeeping on the pose objects it tweens).
+    const key = poses.map((p) => `${p.x},${p.y},${p.z},${p.rx},${p.ry},${p.rz},${p.bend},${p.curl},${p.alpha},${p.shadow}`).join(';');
+    const moving = key !== lastPoses;
+    lastPoses = key;
+    if (moving || now - lastDraw >= 1000 / 30 - 2) {
+      lastDraw = now;
+      render(now);
+    }
     raf = visible ? requestAnimationFrame(loop) : 0;
   };
   const kick = () => {

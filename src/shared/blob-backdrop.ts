@@ -20,6 +20,8 @@ export function initBlobBackdrop(
   intensity = 1,
   /** Frames per second at most. Behind long reading pages (FAQ, legal) 30 looks the same and halves the GPU work. */
   fps = 60,
+  /** It draws on the mobile menu, so the menu being open doesn't hold it (cover.ts). */
+  overlay = false,
 ) {
   const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, premultipliedAlpha: true });
   if (!gl) return;
@@ -59,7 +61,7 @@ export function initBlobBackdrop(
   const loop = (now: number) => {
     // Held still under the entry cover (see cover.ts); it resumes as the cover lifts.
     if (lost) return void (raf = 0);
-    if (covered(kick)) return void (raf = 0);
+    if (covered(kick, overlay)) return void (raf = 0);
     if (now - lastDraw >= 1000 / fps - 2) {
       lastDraw = now;
       frame(now);
