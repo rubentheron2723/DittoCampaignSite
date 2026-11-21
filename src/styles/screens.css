@@ -81,7 +81,8 @@
 @media (max-width: 480px) {
   .scr__main { padding: 18px 16px 18px; }
   .scr-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .scr-board .scr-col:nth-child(n + 3) { display: none; }
+  /* The two middle stages: Thabo's interview card stays in view. */
+  .scr-board .scr-col:first-child, .scr-board .scr-col:last-child { display: none; }
   .scr-match i { display: none; }
   .scr-kpis b { font-size: 17px; }
 }

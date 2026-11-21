@@ -106,7 +106,7 @@
 .slider__track { position: relative; height: 6px; border-radius: 6px; background: rgba(15, 20, 29, 0.1); }
 .slider__fill { position: absolute; left: 0; top: 0; height: 100%; width: 0; border-radius: 6px; background: linear-gradient(90deg, var(--blue-deep), var(--blue)); }
 .slider__tick { position: absolute; top: 14px; width: 1px; height: 10px; background: rgba(15, 20, 29, 0.2); translate: -50% 0; }
-.slider__tick b { font-size: var(--t-caption-size); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-ls); font-weight: var(--t-caption-wt); position: absolute; top: 14px; left: 50%; translate: -50% 0; color: var(--ink-soft); }
+.slider__tick b { font-size: 13px; line-height: 16px; letter-spacing: 0; font-weight: 500; position: absolute; top: 14px; left: 50%; translate: -50% 0; color: var(--ink-soft); }
 .slider__knob { position: absolute; top: 3px; left: 0; width: 36px; height: 36px; margin-left: -18px; margin-top: -18px; border-radius: 50%; background: #0a0f15; border: 3px solid var(--white); box-shadow: 0 10px 30px rgba(6, 49, 73, 0.35); cursor: grab; touch-action: none; }
 .slider__knob:active { cursor: grabbing; }
 /* A 48px touch area around the 36px knob, and a taller tap zone over the thin track. */

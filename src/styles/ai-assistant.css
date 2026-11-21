@@ -166,7 +166,7 @@
 .chat__composer[hidden] { display: none; }
 .chat__composer.is-typing { border-color: rgba(30, 110, 243, 0.5); }
 .chat__field { flex: 1 1 0; min-width: 0; display: flex; align-items: center; overflow: hidden; white-space: nowrap; font-size: 15px; }
-.chat__placeholder { color: rgba(15, 20, 29, 0.45); }
+.chat__placeholder { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: rgba(15, 20, 29, 0.45); }
 .chat__composer.is-typing .chat__placeholder { display: none; }
 .chat__typed { white-space: pre; }
 .chat__caret { display: none; flex: none; width: 1px; height: 18px; margin-left: 1px; background: #1e6ef3; animation: c-caret 1s steps(1) infinite; }
