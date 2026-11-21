@@ -26,9 +26,11 @@ type Options = {
   render: () => void;
   /** Wires up the page's animations. Runs after fonts are ready and the smoother exists. */
   init: (ctx: BootContext) => void;
+  /** Arriving with a #section in the address, scroll to it (default). Pages that place their own (FAQ, legal) opt out. */
+  hashScroll?: boolean;
 };
 
-export async function boot({ page, render, init }: Options) {
+export async function boot({ page, render, init, hashScroll = true }: Options) {
   const reduce = prefersReducedMotion();
 
   // Always start from the top on load/reload. The browser (and ScrollTrigger) would otherwise
@@ -118,6 +120,23 @@ export async function boot({ page, render, init }: Options) {
   // Nav theming last: its triggers depend on pinned sections' final positions.
   initNavTheme(!reduce);
   ScrollTrigger.refresh();
+  // A link to a section of this page (/ai-assistant#day, /product#engage): the smoother doesn't follow the browser's own
+  // jump, so take the reader there once the page is showing.
+  if (hashScroll && window.location.hash) {
+    revealed.then(() =>
+      requestAnimationFrame(() => {
+        let target: Element | null = null;
+        try {
+          target = document.querySelector(decodeURIComponent(window.location.hash));
+        } catch {
+          return;
+        }
+        if (!target) return;
+        if (smoother) smoother.scrollTo(target, false, 'top 0px');
+        else target.scrollIntoView();
+      }),
+    );
+  }
   return ctx;
 }
 

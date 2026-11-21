@@ -333,6 +333,7 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
 const PAPER: [number, number, number] = [253, 253, 253];
 
 boot({
+  hashScroll: false,
   page: 'faq',
   render,
   init: ({ reduce, revealed, smoother }) => {
