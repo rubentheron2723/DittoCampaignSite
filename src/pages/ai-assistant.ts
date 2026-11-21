@@ -1,12 +1,12 @@
 import '../styles/base.css';
 import '../styles/faq.css';
+import '../styles/ai-points.css';
 import '../styles/ai-assistant.css';
 
 import {
   aiCta,
   aiHero,
   asks,
-  assistantPoints,
   builtIn,
   chapters,
   control,
@@ -22,6 +22,7 @@ import {
   type Turn,
 } from '../content/ai-assistant';
 import { boot } from '../shared/boot';
+import { pointCards } from '../shared/ai-points';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc, markSvg } from '../shared/mark';
 import { gsap, q, qa } from '../animations/gsap';
@@ -47,12 +48,6 @@ const ICONS = {
   replay: `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12a7 7 0 1 0 2.05-4.95M5 4.5v3.5h3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   send: `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 };
-/** Small line icons for the point cards (no numbers on cards: brief 4.4, point 6). */
-const POINT_ICONS = [
-  `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5 6v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>`,
-  `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 12.2l2.4 2.4 4.6-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5 19.5c1.2-3.3 3.9-5 7-5s5.8 1.7 7 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`,
-];
 
 /* ---------- Hero and "What it is" ---------- */
 function hero() {
@@ -76,19 +71,6 @@ function hero() {
   </section>`;
 }
 
-export function pointCards(cls = '') {
-  return `<ul class="aipoints${cls ? ` ${cls}` : ''}">
-    ${assistantPoints
-      .map(
-        (p, i) => `<li class="aipoint">
-          <span class="aipoint__icon">${POINT_ICONS[i]}</span>
-          <h3 class="aipoint__title">${esc(p.title)}</h3>
-          <p class="aipoint__body">${esc(p.body)}</p>
-        </li>`,
-      )
-      .join('')}
-  </ul>`;
-}
 
 function whatSection() {
   return `
