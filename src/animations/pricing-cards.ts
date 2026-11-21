@@ -1,7 +1,17 @@
 import { gsap, q, qa } from './gsap';
 import { createPaperCards, type CardPose } from '../shared/paper-cards';
-import { ACCENT_STOPS } from './ai';
 import { guarantees } from '../content/pricing';
+
+/** The blue card's soft gradient (as Figma's accent card). */
+const ACCENT_STOPS: [number, string][] = [
+  [0, '#1a7cf5'],
+  [0.12, '#0b98fb'],
+  [0.24, '#03a9fe'],
+  [0.38, '#0b98fb'],
+  [0.58, '#1583f6'],
+  [0.8, '#1b74f4'],
+  [1, '#1e6ef3'],
+];
 
 /**
  * The four tilted cards around "From first call to first placement" (Figma 2378:1018), as paper sheets in WebGL,

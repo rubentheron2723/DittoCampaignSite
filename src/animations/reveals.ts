@@ -54,5 +54,5 @@ export function initCTA(animate: boolean) {
     stagger: 0.07,
     scrollTrigger: enter(section, 'top 70%'),
   });
-  gsap.from('.cta__copy, .cta__inner .btn', { y: 30, autoAlpha: 0, stagger: 0.12, scrollTrigger: enter(section, 'top 60%') });
+  gsap.from('.cta__copy, .cta__inner .bp', { y: 30, autoAlpha: 0, stagger: 0.12, scrollTrigger: enter(section, 'top 60%') });
 }
