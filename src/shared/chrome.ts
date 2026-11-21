@@ -1,4 +1,4 @@
-import { finalCta, footer, nav, signInUrl, type PageId } from '../content/shared';
+import { finalCta, footerLegal, footer, nav, showNewTag, signInUrl, type PageId } from '../content/shared';
 import { esc, markSvg } from './mark';
 import { navLogoSvg } from './nav-logo';
 import { artSvg, FOOTER_LOGOMARK, FOOTER_WORDMARK } from './footer-art';
@@ -8,7 +8,7 @@ import { INTRO_MARK } from './intro';
 export function renderChrome(page: PageId) {
   const chrome = document.getElementById('chrome')!;
   const links = nav
-    .map((n) => `<a href="${n.href}" ${n.id === page ? 'aria-current="page" class="is-active"' : ''}>${esc(n.label)}</a>`)
+    .map((n) => `<a href="${n.href}" ${n.id === page ? 'aria-current="page" class="is-active"' : ''}>${esc(n.label)}${newTag(n.isNew)}</a>`)
     .join('');
 
   chrome.innerHTML = `
@@ -42,7 +42,7 @@ export function renderChrome(page: PageId) {
       <div class="menu__bg"><canvas class="menu__fx" aria-hidden="true"></canvas></div>
       <nav class="menu__links" aria-label="Mobile">
         <a href="/" aria-label="Home" ${page === 'home' ? 'aria-current="page"' : ''}>${menuText('Home')}</a>
-        ${nav.map((n) => `<a href="${n.href}" aria-label="${esc(n.label)}" ${n.id === page ? 'aria-current="page"' : ''}>${menuText(n.label)}</a>`).join('')}
+        ${nav.map((n) => `<a href="${n.href}" aria-label="${esc(n.label)}${n.isNew && showNewTag ? ', new' : ''}" ${n.id === page ? 'aria-current="page"' : ''}>${menuText(n.label)}${newTag(n.isNew)}</a>`).join('')}
       </nav>
       <div class="menu__foot">
         <a class="menu__btn" href="/contact">Book a demo</a>
@@ -65,13 +65,16 @@ export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: 
         <span class="cta__line">${esc(c.lineTwo)}</span>
       </h2>
       <p class="cta__copy">${esc(c.copy)}</p>
-      <a class="btn btn--glass" href="/contact" data-magnetic><span>${esc(c.button)}</span></a>
+      <a class="bp bp--on-blue" href="/contact" data-magnetic>${esc(c.button)}</a>
     </div>
   </section>
   ${footerHtml()}`;
 }
 
 /** A menu link's label as letters in a mask: they rise into it as the menu opens (boot.ts) and wave on hover. */
+/** The small "New" tag (content/shared.ts switches it off for good). */
+const newTag = (isNew?: boolean) => (isNew && showNewTag ? ` <span class="new-tag">New</span>` : '');
+
 function menuText(label: string) {
   const chars = Array.from(label)
     .map((ch, i) => `<span class="menu__char" style="--i:${i}">${esc(ch)}</span>`)
@@ -103,6 +106,11 @@ export function footerHtml() {
       <div class="footer__menu">
         <a class="footer__logomark" href="/" aria-label="Ditto home">${artSvg(FOOTER_LOGOMARK, '')}</a>
         ${columns}
+      </div>
+      <div class="footer__legal">
+        <p class="footer__jobs">${esc(footerLegal.jobs.lead)} <a href="${footerLegal.jobs.href}" target="_blank" rel="noreferrer">${esc(footerLegal.jobs.label)}</a></p>
+        <p class="footer__copy">${esc(footerLegal.copyright)}</p>
+        <p class="footer__tm">${esc(footerLegal.trademarks)}</p>
       </div>
       ${artSvg(FOOTER_WORDMARK, 'footer__wordmark')}
     </footer>`;

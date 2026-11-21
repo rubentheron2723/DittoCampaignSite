@@ -25,184 +25,125 @@
     rgba(253, 253, 253, 0.48) 60%, rgba(253, 253, 253, 0.7) 75%, rgba(253, 253, 253, 0.9) 90%, #fdfdfd 100%);
 }
 
-.hero__inner { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; gap: clamp(24px, 2.778vw, 40px); }
+/* Everything lines up on the text's left edge (brief 4.4, point 9): the pill, the headline, one line under it, the two
+   buttons and the proof line. */
+.hero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; align-items: flex-start; gap: clamp(20px, 2.222vw, 32px); }
+.hero__pill {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 8px 16px; border-radius: 999px;
+  font-size: clamp(14px, calc(14px + 2 * (100vw - 375px) / 1065), 16px); line-height: 20px; font-weight: 500; letter-spacing: -0.02em; color: #fff;
+  background: rgba(255, 255, 255, 0.16); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4); transition: background-color 0.2s;
+}
+.hero__pill:hover { background: rgba(255, 255, 255, 0.26); }
+.hero__pill:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .hero__title { font-size: var(--t-hero-size); line-height: var(--t-hero-lh); letter-spacing: var(--t-hero-ls); font-weight: var(--t-hero-wt); }
 .hero__line { display: block; }
-.hero__lower { display: grid; gap: 12px; }
-.hero__subhead { font-size: var(--t-h3-size); line-height: var(--t-h3-lh); letter-spacing: var(--t-h3-ls); font-weight: var(--t-h3-wt); }
-.hero__support { font-size: var(--t-lead-size); line-height: var(--t-lead-lh); letter-spacing: var(--t-lead-ls); font-weight: var(--t-lead-wt); }
-.hero__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-.btn--hero {
-  height: 68px; padding: 0 44px; box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25);
-  font-size: var(--t-button-lg-size); line-height: var(--t-button-lg-lh); letter-spacing: var(--t-button-lg-ls); font-weight: var(--t-button-lg-wt);
+/* White on the saturated blue, medium weight, 18px or more (brief 4.3, point 3). */
+.hero__sub { max-width: 40em; font-size: clamp(18px, calc(18px + 4 * (100vw - 375px) / 1065), 22px); line-height: 1.4; letter-spacing: -0.02em; font-weight: 500; }
+.hero__actions { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; margin-top: 4px; }
+.hero__secondary { align-self: auto; }
+.hero__proof {
+  /* It lands where the sky fades to white, so it sits on frosted glass in ink: readable on blue or white. */
+  padding: 8px 14px; border-radius: 14px; font-size: clamp(14px, calc(14px + 2 * (100vw - 375px) / 1065), 16px); line-height: 1.35; font-weight: 500;
+  color: #0f141d; background: rgba(255, 255, 255, 0.72); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
 }
-.btn--light.btn--hero { color: #171717; }
-/* "View Pricing" sits on the hero's pale bottom fade, where white text washed out: ink, like "Book a demo". */
-.btn--glass.btn--hero { color: #171717; }
+/* ---------- Shared bits ---------- */
+.eyebrow { margin: 0; font-size: 15px; line-height: 20px; font-weight: 700; letter-spacing: 0; color: #1e6ef3; }
+.eyebrow--new { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border-radius: 999px; color: #fff; background: #1e6ef3; font-size: 13px; }
+.textlink { display: inline-flex; font-size: 18px; line-height: 24px; font-weight: 500; letter-spacing: -0.02em; color: #1e6ef3; }
+.textlink:hover { text-decoration: underline; text-underline-offset: 4px; }
+.textlink:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 4px; border-radius: 4px; }
 
-/* ---------- FLOW ---------- */
-/* Source → Engage → Place (Figma node 2370:194): three 1440x1024 panels side by side, slid sideways as the section
-   pins (animations/flow.ts). Each panel: a field of faint slanted lines of its word, the copy on the left and its glass
-   illustration on the right, both centred vertically. With reduced motion the panels stack instead. */
-.flow { position: relative; color: var(--white); background: #fff; overflow-x: clip; margin-top: -1px; }
-/* Not clipped vertically: the shared marquee starts out up in the section above (see .flow__marquee). */
-.flow__pin { position: relative; }
-/* Figma's background spans the whole strip: one #01B0FF radial, very wide and 432px tall either side of the middle,
-   centred 1867px along the 4320px strip, over white. So every panel is white at the top and bottom (meeting the
-   sections around it) with a soft blue band through the middle. */
-.flow__bg {
-  position: absolute; left: 0; top: 0; width: 300%; height: 100%;
-  background: radial-gradient(167.67% 42.19% at 43.23% 50%, #01b0ff 0%, rgba(1, 176, 255, 0) 100%), #fff;
-}
-/* The panels sit above the shared marquee, which sits above the background; the background slides with the panels. */
-.flow__strip { position: relative; z-index: 2; display: flex; width: max-content; }
-.fpanel {
-  position: relative; width: 100vw; height: 100vh; height: 100svh; overflow: clip;
-  display: flex; align-items: center; gap: 20px;
-  padding: clamp(80px, 11.72vh, 120px) clamp(24px, 2.778vw, 40px);
-}
-
-/* The shared marquee (animations/flow.ts): the section above's black line, carried into this one. Its CSS is its
-   starting state (that black line): GSAP clears a tween's inline styles on refresh until the scroll reaches it, so
-   whatever shows then must be the start. The move wrapper carries it down from the section above (--k, --dx, --dy, --g
-   are measured on refresh); the tilt is the section above's flat -11deg slant. It rolls out as the Source field fades
-   in. The word starts a quarter in so its track covers both sides while it loops. */
-.flow__marquee { position: absolute; left: 46.3%; top: 33%; width: 0; height: 0; z-index: 1; pointer-events: none; }
-.flow__mq-move, .flow__mq-tilt { position: absolute; left: 0; top: 0; width: 0; height: 0; }
-.flow__mq-move {
-  --k: 1; --dx: 0px; --dy: 0px; --g: 1;
-  transform: translate(calc(var(--dx) * var(--k)), calc(var(--dy) * var(--k))) scale(calc(var(--g) + (1 - var(--g)) * var(--k)));
-}
-.flow__mq-tilt {
-  color: var(--brand-ink); transform: rotate(-11deg);
-  font-size: clamp(60px, 10.14vw, 146px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; text-transform: uppercase;
-}
-.flow__mq-word { position: absolute; left: 0; top: 0; width: max-content; transform: translate(-25%, -50%); }
-.flow__mq-track { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
-.flow__mq-track span { padding-right: 0.3em; }
-.flow--stacked .flow__marquee { display: none; }
-
-/* Each panel's field: eight lines of its word, 164 bold, -0.04em at 1440, white at 5%, on Figma's rotateX(-22deg)
-   rotateY(32deg) slant (no perspective, which CSS draws flat, as Figma does). Clipped to the panel, with a short fade at
-   its sides to soften that edge while the panels slide. Each line loops as a marquee (two identical halves). */
-.fpanel__words {
-  position: absolute; inset: 0; pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
-}
-.fpanel__plane {
-  position: absolute; left: 46.3%; top: var(--wy); width: 0; height: 0;
-  transform: rotateX(-22deg) rotateY(32deg);
-  font-size: clamp(64px, 11.39vw, 164px); line-height: 1.122; letter-spacing: -0.04em; font-weight: 700; text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.05);
-}
-.fpanel__word { position: absolute; left: 0; top: 0; width: max-content; transform: translate(-25%, -50%); }
-.fpanel__track { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
-.fpanel__track span { padding-right: 0.22em; }
-
-/* 40/44 bold, 24/28 medium, 20/24 regular, all -0.04em at 1440; 760 wide at 1440. */
-.fpanel__copy { position: relative; flex: 1 1 0; min-width: 0; max-width: 760px; display: grid; gap: 17px; }
-.fpanel__title { font-size: clamp(26px, calc(26px + 14 * (100vw - 375px) / 1065), 40px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; }
-.fpanel__lead { font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
-.fpanel__text { display: grid; gap: 1.2em; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; }
-
-/* The illustration (shared/flow-art.ts) centred in Figma's 580x556 "Cards" slot, scaled down on shorter screens. */
-.fpanel__art { position: relative; flex: none; width: min(580px, 42vw, calc((100vh - 200px) * 1.043)); aspect-ratio: 580 / 556; }
-.fstep__art { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
-
-/* Phones: the illustration above the copy, the pair centred in what's left under the nav. */
-@media (max-width: 900px) {
-  /* The stacked illustration and copy run taller than Figma's band, so the blue holds further out (still white at the
-     top and bottom edges), keeping the white copy readable. */
-  .flow__bg { background: radial-gradient(167.67% 50% at 43.23% 50%, #01b0ff 0%, rgba(1, 176, 255, 0.85) 55%, rgba(1, 176, 255, 0) 100%), #fff; }
-  .fpanel { flex-direction: column; align-items: stretch; justify-content: center; gap: 16px; padding: calc(var(--nav-h) + 16px) var(--gutter) clamp(32px, 6vh, 56px); }
-  .fpanel__copy { flex: none; }
-  .fpanel__art { order: -1; flex: 0 1 auto; width: 100%; height: min(36vh, 320px); aspect-ratio: auto; }
-  /* No side fade on phones: masking a layer that slides sideways is redrawn every frame, and at 5% white the lines'
-     cut edge hardly shows at this size. */
-  .fpanel__words { -webkit-mask-image: none; mask-image: none; }
-  /* Short phones (an iPhone SE): a smaller illustration, so the copy under it isn't cut off. */
-  @media (max-height: 700px) { .fpanel__art { height: min(26svh, 220px); } }
-}
-
-/* Reduced motion: no sideways scroll; the panels stack and keep their full-screen layout, each with its own band. */
-.flow--stacked .flow__strip { flex-direction: column; width: auto; }
-.flow--stacked .flow__bg { display: none; }
-.flow--stacked .fpanel { min-height: 100vh; height: auto; background: radial-gradient(503% 42.19% at 50% 50%, #01b0ff 0%, rgba(1, 176, 255, 0) 100%), #fff; }
-
-/* ---------- SYSTEM ---------- */
-/* "Everything recruiters do." (Figma node 2364:777, 1440x1024): centred headline and copy, then the slanted
-   "Source. Engage. Place." line, which runs as a marquee along its own angle (animations/system.ts). */
-.system {
-  --system-angle: -11deg;
-  position: relative; background: #fdfdfd; color: var(--brand-ink); overflow: clip;
-  /* Tucked 1px under the hero: section heights often land on fractional pixels (on phones especially), and the
-     page's black background showed through that last, partly covered row as a line. The sections after this one
-     (.flow, .ai, the closing .cta) tuck under the same way. */
-  margin-top: -1px;
-  padding: clamp(72px, 8.333vw, 120px) var(--gutter) clamp(56px, 8.125vw, 117px);
-}
-.system__head { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; text-align: center; }
-/* 84/88 bold, -0.04em at 1440: the same headline style as the AI section's title. */
+/* ---------- Intro ---------- */
+/* Tucked 1px under the hero: fractional section heights on phones showed the page's base as a line. */
+.system { position: relative; margin-top: -1px; background: #fdfdfd; color: var(--brand-ink); padding: clamp(64px, 7vw, 104px) var(--gutter) clamp(24px, 3vw, 40px); }
+.system__head { max-width: 1280px; margin: 0 auto; text-align: center; }
 .system__title { font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
 .system__line { display: block; }
-/* 23/27 regular, -0.01em at 1440; breaks after "and revenue". */
-.system__body {
-  font-size: clamp(16px, calc(16px + 7 * (100vw - 375px) / 1065), 23px);
-  line-height: 1.174; letter-spacing: -0.01em; font-weight: 400;
-  max-width: 960px; margin: clamp(20px, 2.778vw, 40px) auto 0;
-}
-/* The band the slanted line sits in, full bleed. Its height leaves room for the slant across the full width;
-   at 1440 the line's centre lands ~697px from the section's top, as in the frame. */
-.system__loop { position: relative; height: clamp(170px, 29.17vw, 420px); margin: clamp(40px, 6.667vw, 96px) calc(-1 * var(--gutter)) 0; }
-.system__tilt {
-  position: absolute; left: -20%; top: 50%; width: 140%;
-  transform: translateY(-50%) rotate(var(--system-angle));
-}
-/* With motion, the flow section's shared marquee draws this line (it hands off from here to there). */
-.system--handoff .system__tilt { visibility: hidden; }
-.system__track { display: flex; width: max-content; white-space: nowrap; will-change: transform; }
-.system__phrase {
-  /* 146 bold, -0.04em at 1440. */
-  font-size: clamp(60px, 10.14vw, 146px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700;
-  text-transform: uppercase; padding-right: 0.3em;
-}
+.system__body { max-width: 760px; margin: clamp(20px, 2.222vw, 32px) auto 0; font-size: clamp(18px, calc(18px + 3 * (100vw - 375px) / 1065), 21px); line-height: 1.45; letter-spacing: -0.02em; color: #3d4757; }
 
-/* ---------- AI ---------- */
-/* "Practical AI that recruiters can trust" (Figma node 2364:692). The stage pins while the capability cards fly in as
-   WebGL paper sheets (animations/ai.ts, shared/paper-cards.ts). Near-white, with a blue glow rising from below. */
-.ai { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; --ai-pad: clamp(20px, 5.556vw, 80px); }
-.ai__stage { position: relative; min-height: 100vh; min-height: 100lvh; padding: clamp(calc(var(--nav-h) + 24px), 8.333vw, 120px) var(--ai-pad) clamp(64px, 8vw, 120px); overflow-x: clip; }
-/* Figma's glow (its colours and opacity) rises from below the stage. The stage used to clip it mid-glow, a hard line
-   under the cards, and the closing CTA now starts right at the stage's bottom edge, so the glow stays inside the stage:
-   it peaks 170px above that edge and fades to nothing exactly at it. Only the light outer part of Figma's colours ever
-   showed, so only that is used: #01B0FF easing out. */
-.ai__glow {
-  position: absolute; inset: 0; pointer-events: none; opacity: 0.3;
-  background: radial-gradient(60% 170px at 50% calc(100% - 170px), rgba(1, 176, 255, 0.85) 0%, rgba(1, 176, 255, 0.55) 30%, rgba(1, 176, 255, 0.25) 60%, rgba(1, 176, 255, 0.07) 82%, rgba(1, 176, 255, 0) 100%);
+/* ---------- Source, Engage, Place ---------- */
+.acts { background: #fdfdfd; }
+.act {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: clamp(32px, 5vw, 80px); align-items: center;
+  max-width: 1280px; margin: 0 auto; padding: clamp(56px, 6vw, 88px) var(--gutter); color: var(--ink);
 }
-.ai__head { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; }
-/* 84/88 bold, -0.04em at 1440 (the h1 size token, set tighter and bolder here as in the design). */
-.ai__title { font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; max-width: 10em; }
-/* 24/28 medium, -0.04em at 1440; breaks after "matching, and". */
-.ai__desc { font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; margin-top: clamp(20px, 2.778vw, 40px); max-width: 32em; }
-.ai__canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; display: none; }
-.ai--3d .ai__canvas { display: block; }
-/* HTML cards (no WebGL, or reduced motion): the same cards, flat. */
-.ai__cards { position: relative; z-index: 1; max-width: 1280px; margin: clamp(40px, 6.944vw, 100px) auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-/* With the 3D cards running, the HTML cards stay only for screen readers. */
-.ai--3d .ai__cards { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.aicard { position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: clamp(240px, 22.64vw, 326px); padding: clamp(24px, 2.778vw, 40px); border-radius: 24px; background: #fff; box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25); }
-/* The same soft gradient as the WebGL card (ACCENT_STOPS in animations/ai.ts). */
-.aicard:nth-child(2) { background: linear-gradient(246.83deg, #1a7cf5 0%, #0b98fb 12%, #03a9fe 24%, #0b98fb 38%, #1583f6 58%, #1b74f4 80%, #1e6ef3 100%); color: #fff; }
-.aicard__index { font-size: clamp(56px, 5.833vw, 84px); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; }
-.aicard:nth-child(2) .aicard__index { color: #fff; }
-.aicard h3 { font-size: clamp(20px, 1.667vw, 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 700; margin-top: 48px; }
-.aicard p { font-size: clamp(16px, 1.389vw, 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; margin-top: 20px; }
+.act--flip { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+.act--flip .act__copy { order: 2; }
+.act__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.act__title { font-size: clamp(30px, calc(30px + 14 * (100vw - 375px) / 1065), 44px); line-height: 1.08; letter-spacing: -0.04em; font-weight: 700; text-wrap: balance; }
+.act__lead { font-size: clamp(19px, calc(19px + 3 * (100vw - 375px) / 1065), 22px); line-height: 1.35; letter-spacing: -0.02em; font-weight: 600; }
+.act__body { font-size: clamp(17px, calc(17px + 1 * (100vw - 375px) / 1065), 18px); line-height: 1.55; letter-spacing: -0.01em; color: #3d4757; }
+.act .textlink { margin-top: 8px; }
 
-/* ---------- Responsive ---------- */
+/* ---------- AI assistant ---------- */
+.assist { position: relative; overflow: clip; background: #fdfdfd; color: var(--ink); padding: clamp(72px, 8vw, 120px) var(--gutter); }
+.assist__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; }
+.assist--fx .assist__fx { opacity: 1; }
+.assist__wrap { position: relative; max-width: 1280px; margin: 0 auto; }
+.assist__grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
+.assist__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+.assist__title { font-size: clamp(34px, calc(34px + 22 * (100vw - 375px) / 1065), 56px); line-height: 1.05; letter-spacing: -0.04em; font-weight: 700; text-wrap: balance; }
+.assist__sub { font-size: clamp(17px, calc(17px + 2 * (100vw - 375px) / 1065), 19px); line-height: 1.5; letter-spacing: -0.02em; color: #3d4757; }
+.assist__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+.assist__link { align-self: auto; height: 56px; padding: 0 28px; background: #fff; box-shadow: inset 0 0 0 1px rgba(15, 20, 29, 0.14); }
+.assist__actions .bp--lg { height: 56px; padding: 0 32px; }
+.assist__small { font-size: 15px; line-height: 1.45; color: #5b6576; }
+.assist__points { margin-top: clamp(48px, 6vw, 72px); }
+
+/* The still chat: four example requests, each answered in Ditto. */
+.minichat {
+  margin: 0; border-radius: 28px; overflow: hidden; color: #171717; font-size: 15px; line-height: 21px; letter-spacing: -0.02em;
+  background: linear-gradient(-80deg, rgba(255, 255, 255, 0.95) 40%, rgba(255, 255, 255, 0.75) 100%);
+  border: 1px solid rgba(15, 20, 29, 0.08); box-shadow: 0 24px 80px rgba(15, 20, 29, 0.12);
+}
+.minichat__bar { display: flex; align-items: center; justify-content: space-between; height: 54px; padding: 0 18px; border-bottom: 1px solid rgba(15, 20, 29, 0.06); }
+.minichat__dots { display: flex; gap: 6px; }
+.minichat__dots i { width: 10px; height: 10px; border-radius: 50%; background: rgba(15, 20, 29, 0.12); }
+.minichat__badge { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 13px; border-radius: 999px; font-size: 14px; font-weight: 600; color: #0b5c32; background: #e6f7ee; box-shadow: inset 0 0 0 1px rgba(11, 92, 50, 0.16); }
+.minichat__badge i { width: 8px; height: 8px; border-radius: 50%; background: #18a058; box-shadow: 0 0 0 3px rgba(24, 160, 88, 0.2); }
+.minichat__list { list-style: none; margin: 0; padding: 20px; display: grid; gap: 14px; }
+.minichat__item { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.minichat__me {
+  max-width: 88%; padding: 10px 14px; border-radius: 18px 18px 4px 18px; color: #fff;
+  background: linear-gradient(135deg, #1e6ef3 0%, #00b0ff 100%); box-shadow: 0 8px 24px rgba(30, 110, 243, 0.22);
+}
+.minichat__done { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; line-height: 16px; font-weight: 600; color: #1e6ef3; }
+.minichat__mark { width: 11px; height: auto; }
+.minichat__mark .mark__l, .minichat__mark .mark__r { fill: #1e6ef3; }
+
+/* ---------- AI built into Ditto: three flat cards in a row ---------- */
+.ai { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; padding: clamp(40px, 5vw, 72px) var(--gutter) clamp(72px, 8vw, 120px); }
+.ai__wrap { max-width: 1280px; margin: 0 auto; }
+.ai__head { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; max-width: 760px; }
+.ai__title { font-size: clamp(34px, calc(34px + 22 * (100vw - 375px) / 1065), 56px); line-height: 1.05; letter-spacing: -0.04em; font-weight: 700; text-wrap: balance; }
+.ai__desc { font-size: clamp(17px, calc(17px + 2 * (100vw - 375px) / 1065), 19px); line-height: 1.5; letter-spacing: -0.02em; color: #3d4757; }
+.ai__cards { list-style: none; margin: clamp(40px, 5vw, 64px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.aicard { display: flex; flex-direction: column; gap: 12px; padding: 28px; border-radius: 24px; background: #fff; border: 1px solid rgba(15, 20, 29, 0.08); box-shadow: 0 10px 40px rgba(15, 20, 29, 0.05); }
+.aicard__icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; color: #1e6ef3; background: rgba(30, 110, 243, 0.08); }
+.aicard h3 { margin-top: 8px; font-size: 21px; line-height: 1.2; letter-spacing: -0.03em; font-weight: 700; }
+.aicard p { font-size: 17px; line-height: 1.5; letter-spacing: -0.01em; color: #3d4757; }
+
+/* ---------- Proof ---------- */
+.proof { margin-top: -1px; background: #fdfdfd; color: var(--ink); padding: clamp(72px, 8vw, 112px) var(--gutter); }
+.proof__wrap { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; align-items: flex-start; }
+.proof__title { font-size: clamp(32px, calc(32px + 20 * (100vw - 375px) / 1065), 52px); line-height: 1.06; letter-spacing: -0.04em; font-weight: 700; text-wrap: balance; }
+.proof__stats { list-style: none; margin: clamp(36px, 4vw, 56px) 0 0; padding: 0; width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.proof__stats li { display: flex; flex-direction: column; gap: 6px; padding-top: 20px; border-top: 2px solid #1e6ef3; }
+.proof__stats b { font-size: clamp(34px, calc(34px + 22 * (100vw - 375px) / 1065), 56px); line-height: 1.05; letter-spacing: -0.04em; font-weight: 700; color: #1e6ef3; }
+.proof__stats span { font-size: 18px; line-height: 1.35; color: #3d4757; }
+.proof__body { margin-top: 32px; font-size: 18px; line-height: 1.5; color: #3d4757; }
+.proof .textlink { margin-top: 16px; }
+
+/* ---------- Narrow screens ---------- */
 @media (max-width: 900px) {
   .hero { padding-top: calc(var(--nav-h) + 32px); }
-  /* Flow stacks vertically on small screens */
-  .ai__cards { grid-template-columns: 1fr; }
+  .act, .act--flip, .assist__grid { grid-template-columns: minmax(0, 1fr); }
+  .act--flip .act__copy { order: 0; }
+  .act__screen { margin-top: 8px; }
+  .ai__cards, .proof__stats { grid-template-columns: minmax(0, 1fr); }
+  .proof__stats { gap: 24px; }
+}
+@media (max-width: 480px) {
+  .hero__actions { width: 100%; }
+  .hero__actions > * { flex: 1 1 100%; }
 }

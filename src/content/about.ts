@@ -1,13 +1,14 @@
-/**
- * About copy, lifted from the production about page. The hero follows Figma 2387:2.
- */
+/* About copy, from brief v2.2 section 3.7. The hero follows Figma 2387:2. */
 export const hero = {
   title: 'About Ditto.',
-  paragraphs: [
-    'Ditto is built by a small team of engineers, designers, and operators who enjoy solving difficult problems.',
-    'We design recruitment software used by agencies and hiring teams to run their operations. Recruiters use Ditto to manage candidate pipelines, communicate with clients and candidates, coordinate interviews, and place people into companies that are growing.',
+  lead: 'Ditto is built in Cape Town by a small team that enjoys solving difficult problems.',
+  body: [
+    'Since 2016 we have built the software that agencies and hiring teams run on: finding candidates, managing clients, coordinating interviews and making placements.',
     "This isn't theoretical software. It's infrastructure that recruiters rely on to do their work every day.",
   ],
+  stat: 'Thousands of recruiters. Millions of job applications every month.',
+  primary: 'Book a demo',
+  secondary: 'See the product',
 };
 
 /** "We like rebuilding broken systems." (Figma 2390:108): five numbered rows, the first one the section's own. */
@@ -18,19 +19,19 @@ export const builders = {
   panels: [
     {
       title: 'Most recruitment software feels committee-built.',
-      body: 'Most recruitment platforms didn’t become complicated overnight. They got there one compromise at a time. A feature request here. A sales requirement there. A roadmap decision designed to keep everyone happy. Each change seems harmless on its own. But over time the system drifts. Eventually the software stops serving recruiters and recruiters start working around the software.',
+      body: 'You can see the committee in the product. One screen for the sales pitch, another for a client who asked loudly, a third for a roadmap that had to keep everyone happy. Each decision made sense in the room. Together they add up to software recruiters have to work around.',
     },
     {
       title: 'Recruiters end up adapting to the software.',
-      body: 'When a system loses its structure, the people using it pay the price. Recruiters learn which buttons to avoid, which steps can be skipped, and which workarounds are necessary to keep things moving. Everyone quietly accepts the friction as “just how the system works.” But the tool was supposed to remove friction, not introduce it. Software should support the operator. Not the other way around.',
+      body: 'When a system loses its structure, the people using it pay the price. Recruiters learn which buttons to avoid, which steps can be skipped, and which workarounds are necessary to keep things moving. Everyone quietly accepts the friction as “just how the system works.” Software should adapt to the recruiter. Not the other way around.',
     },
     {
       title: 'We rebuild from first principles.',
       body: 'When a system starts to feel wrong, adding more features rarely fixes it. The only way forward is to step back and question the assumptions. What are recruiters actually trying to do? Which steps matter? From there the work begins again. We rebuild the system around the real workflow. Cleaner pipelines. Faster actions. Fewer moving parts. Structure that holds up under real operational pressure.',
     },
     {
-      title: 'Curiosity compounds.',
-      body: 'The best product improvements rarely look dramatic. A faster search. A clearer pipeline. A workflow that removes three unnecessary clicks. None of these changes are revolutionary on their own. But when thousands of recruiters rely on a system every day, small improvements compound quickly. That is how great products get built.',
+      title: 'Then we keep going.',
+      body: 'A rebuild is the start, not the finish. A faster search. A clearer pipeline. A workflow that loses three clicks. None of it is dramatic on its own. But when thousands of recruiters use a system every day, it adds up fast.',
     },
   ],
 };
@@ -38,10 +39,10 @@ export const builders = {
 export const thinking = {
   title: 'We think independently.',
   intro:
-    'Most software companies build by consensus. Layers of meetings and roadmap negotiations slowly dilute the product until it tries to satisfy everyone and excites no one. We prefer clarity over consensus. We build for the people doing the work, not the pitch. Over time the results compound.',
+    'Most software companies build by consensus. Layers of meetings and roadmap negotiations slowly dilute the product until it tries to satisfy everyone and excites no one. We prefer clarity over consensus. We build for the people doing the work, not the pitch.',
   principles: [
     {
-      title: 'When others zig, we zag.',
+      title: 'We question the default.',
       body: 'Industries drift toward the same patterns. Features accumulate, workflows bloat, and products slowly lose clarity. We push against that drift. If an industry norm exists just because it is familiar, we treat it as a signal to rethink it. This is not rebellion for its own sake. It is how we protect simplicity.',
     },
     {
@@ -49,12 +50,8 @@ export const thinking = {
       body: 'Most software gets more complicated over time. We believe the real challenge is the opposite: removing friction until the system feels obvious to use. Every screen, workflow, and interaction has to earn its place. Clarity is not minimalism. It’s engineering discipline.',
     },
     {
-      title: 'Operators first.',
-      body: 'Recruitment software is often designed around sales funnels. The people doing the work become an afterthought. We start from the opposite position. Recruiters are operators. Their day is fast, messy, and decision heavy. Software should support that rhythm. It should get out of the way.',
-    },
-    {
-      title: 'Small improvements compound.',
-      body: 'Big features get the headlines, but real progress comes from small improvements that quietly make the system better. A faster search. A cleaner workflow. A smarter automation. When thousands of recruiters use the product every day, those improvements compound into something meaningful.',
+      title: 'Recruiters first.',
+      body: 'Recruitment software is often designed around the sales pitch. The people doing the work become an afterthought. We start from the other end. A recruiter\u2019s day is fast, messy and decision-heavy. Software should support that rhythm, then get out of the way.',
     },
     {
       title: 'Stay curious.',
@@ -67,7 +64,7 @@ export const team = {
   titleOne: 'A team with unusually',
   titleTwo: 'high standards.',
   paragraphs: [
-    'Ditto is built by engineers, designers, and operators who care deeply about the craft of building software. We spend most of our time improving systems, refining workflows, and simplifying complex problems until they feel obvious.',
+    'Ditto is built by a small team that cares deeply about the craft of building software. We spend most of our time improving systems, refining workflows, and simplifying complex problems until they feel obvious.',
     'We believe great software comes from people who obsess over the details. The performance of the system. The clarity of the interface. The elegance of the workflow. Things most people would call “small” are often the things that matter most.',
     'Every month millions of job applications move through Ditto. Software operating at that scale demands discipline, curiosity, and people who genuinely enjoy solving difficult problems.',
     "Fortunately, that's exactly the kind of people who tend to end up here.",
