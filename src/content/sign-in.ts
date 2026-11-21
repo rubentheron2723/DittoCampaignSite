@@ -13,7 +13,7 @@ export const form = {
   email: { label: 'Work Email', placeholder: 'you@company.com' },
   password: { label: 'Password', placeholder: 'Enter your password', show: 'Show', hide: 'Hide' },
   remember: 'Remember me',
-  forgot: 'Forgot password?',
+  forgot: 'Forgot Password?',
   submit: 'Sign in',
   submitting: 'Signing in…',
   newHere: 'New to Ditto?',

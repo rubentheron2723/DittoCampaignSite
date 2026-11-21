@@ -1,10 +1,12 @@
-/* Contact copy and form options, from brief v2.2 section 3.9. */
+/**
+ * Contact copy and form options, lifted from the production contact page.
+ */
 /** Contact page copy (Figma 2396:121, 2390:340, 2396:191). */
 export const hero = {
   /** Two lines in the design: "Book a demo" / "or talk to sales". */
   title: ['Book a demo', 'or talk to sales'],
-  subtitle: "Tell us what you're trying to solve and we'll show you how Ditto handles it.",
-  support: 'No pressure. A short conversation to see if Ditto fits the way you work.',
+  subtitle: "Tell us what you're trying to solve and we'll point you to the right setup.",
+  support: 'No sales pressure. Just a quick conversation to see if Ditto fits your workflow.',
 };
 
 export const roles = [
@@ -15,33 +17,31 @@ export const roles = [
   'HR Manager',
   'Founder / Business Owner',
   'Internal Recruitment Team',
+  'Candidate',
 ];
 
-export const teamSizes = ['1 to 9 recruiters', '10 to 24 recruiters', '25 to 49 recruiters', '50 or more recruiters'];
+export const teamSizes = ['Starter (1 – 9 recruiters)', 'Growth (10 – 24 recruiters)', 'Scale (25 – 49 recruiters)', 'Enterprise (50 – 100 recruiters)'];
 
 export const interests = [
-  'A demo of Ditto',
-  'Ditto for Claude, ChatGPT and Copilot',
+  'Book a demo',
   'Switching from another ATS',
-  'Pricing for my team',
+  'Improving recruiter productivity',
+  'Scaling our recruitment team',
+  'Exploring Ditto',
   'Something else',
 ];
 
-/** `optional`: shown lighter, with "(optional)" after the label, and may be left empty. */
-export const fields: Record<string, { label: string; placeholder?: string; optional?: boolean }> = {
-  name: { label: 'Full name', placeholder: 'Your full name' },
-  email: { label: 'Business email', placeholder: 'you@company.com' },
-  business: { label: 'Business name', placeholder: 'Your company name' },
-  website: { label: 'Business website', placeholder: 'yourcompany.com', optional: true },
-  phone: { label: 'Contact number', placeholder: 'Your number' },
-  role: { label: 'Your role' },
+export const fields = {
+  name: { label: 'Full Name', placeholder: 'Your full name' },
+  email: { label: 'Business Email', placeholder: 'you@company.com' },
+  business: { label: 'Business Name', placeholder: 'Your company name' },
+  website: { label: 'Business Website', placeholder: 'yourcompany.com' },
+  phone: { label: 'Contact Number', placeholder: 'Your number' },
+  role: { label: 'Your Role' },
   teamSize: { label: 'Recruitment team size' },
-  interest: { label: 'What you\u2019re interested in' },
-  message: { label: 'Message', placeholder: 'Anything you\u2019d like us to cover in the demo?', optional: true },
+  interest: { label: 'What you’re interested in' },
+  message: { label: 'Message', placeholder: 'Tell us the goals for the demo' },
 };
-
-export const submitLabel = 'Request my demo';
-export const jobsLine = { lead: 'Looking for a job?', label: 'Visit ditto.jobs.', href: 'https://ditto.jobs' };
 
 /** Dialling codes for the contact number (South Africa first, as in the design). */
 export const dialCodes = [
@@ -68,22 +68,20 @@ export const errors = {
   role: 'Please select an option.',
   teamSize: 'Please select your recruitment team size.',
   interest: 'Please select what you are interested in.',
+  message: 'Please enter a message.',
 };
 
 export const success = {
-  title: 'Thanks.',
-  copy: 'We have your request and will be in touch within one business day.',
+  title: 'Thanks for reaching out!',
+  copy: 'One of our teammates will be in touch shortly.',
 };
 
 export const next = {
   title: 'What happens next?',
   steps: [
-    { title: 'A guided walkthrough.', copy: 'We show you Ditto around how your team works: sourcing, jobs, collaboration and client submissions.' },
-    { title: 'Your call.', copy: 'If Ditto fits, we move forward together. If not, you still leave with a clear picture.' },
-    {
-      title: 'Onboarding and migration.',
-      copy: 'We migrate your candidates, clients, documents and history, configure your account and set up your CV templates and permissions.',
-    },
+    { title: 'A guided walkthrough', copy: 'We show you how recruiters source, manage jobs, collaborate, and submit candidates in Ditto.' },
+    { title: 'Your call', copy: 'If Ditto fits your team and goals, we move forward together. If not, you still leave with a clear picture.' },
+    { title: 'Onboarding and migration', copy: 'We import your database, configure your account, and set up branded templates and permissions.' },
   ],
   direct: { label: 'Prefer email?', email: 'hello@ditto.work' },
 };

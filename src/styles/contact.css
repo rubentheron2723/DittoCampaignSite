@@ -3,9 +3,8 @@
    84/88 title on two lines, the 24/28 lead and the 20/24 support line centred. */
 .chero {
   --pad: clamp(20px, 5.556vw, 80px);
-  /* About 60% of the screen, so the form shows under it (brief 4.3, points 1 and 11). */
-  position: relative; display: flex; align-items: center; justify-content: center; min-height: 60vh; min-height: 60svh;
-  padding: calc(var(--nav-h) + 40px) var(--pad) 80px;
+  position: relative; display: flex; align-items: center; justify-content: center; min-height: 100vh; min-height: 100lvh;
+  padding: calc(var(--nav-h) + 48px) var(--pad) 120px;
   background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); color: #fefefe; overflow: clip; text-align: center;
 }
 .chero__bg { position: absolute; inset: 0; pointer-events: none; }
@@ -16,69 +15,70 @@
   background: radial-gradient(134.57% 124.02% at 50% -24.02%, #1e6ef3 0%, #108ff9 25%, #01b0ff 50%, #11b5ff 53.125%, #21baff 56.25%, #41c4ff 62.5%, #60ceff 68.75%, #80d8ff 75%, #c0ebff 87.5%, #fff 100%);
 }
 .chero__haze { position: absolute; inset: 0; background: linear-gradient(0deg, #fff 0%, rgba(255, 255, 255, 0) 34.289%); }
-.chero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; display: flex; flex-direction: column; align-items: center; gap: 28px; }
+.chero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; display: flex; flex-direction: column; align-items: center; gap: 40px; }
 .chero__title { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
 .chero__line { display: block; }
 .chero__copy { display: flex; flex-direction: column; gap: 12px; }
-.chero__lead { margin: 0; font-size: clamp(19px, calc(19px + 5 * (100vw - 375px) / 1065), 24px); line-height: 1.25; letter-spacing: -0.03em; font-weight: 600; }
-.chero__support { margin: 0; font-size: clamp(18px, calc(18px + 2 * (100vw - 375px) / 1065), 20px); line-height: 1.4; letter-spacing: -0.02em; font-weight: 500; }
+.chero__lead { margin: 0; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
+.chero__support { margin: 0; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; }
 
 /* ---------- The form (Figma 2390:340; dropdown 2396:478) ---------- */
 /* Two columns of fields 40 apart on #FDFDFD, each a 20/24 label over a glass pill (68 tall, a white sheen fading
    right to left, a soft 100px shadow); the message a 234-tall rounded box; the blue "Send request" pill centred. */
 .cform {
   --pad: clamp(20px, 5.556vw, 80px);
-  /* Its foot fades into the footer's blue (contact.ts fadeToFooter, the same 180px), below the content. */
-  position: relative; margin-top: -1px; color: #171717; overflow: clip; padding: clamp(48px, 5vw, 72px) var(--pad) 260px;
-  background: linear-gradient(180deg, #fdfdfd calc(100% - 180px), #00b0ff 100%);
+  position: relative; background: #fdfdfd; color: #171717;
+  min-height: 100vh; display: flex; align-items: center; padding: clamp(64px, 8vw, 120px) var(--pad);
 }
-.cform__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s var(--ease-out); pointer-events: none; }
-.cform--fx .cform__fx { opacity: 1; }
-/* The form (left) beside "What happens next?" (right). */
-.cform__grid { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: clamp(32px, 4vw, 64px); align-items: start; }
-.cform__main { min-width: 0; }
-.form { position: relative; width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 28px; }
-.form__fields { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 24px; }
-.field { position: relative; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.form { position: relative; width: 100%; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.form__fields { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; }
+.field { position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .field--full { grid-column: 1 / -1; }
 /* The field with an open dropdown sits above the ones after it (their entrance leaves each its own layer). */
 .field:has(.select.is-open) { z-index: 30; }
-.field__label { font-size: 17px; line-height: 1.2; letter-spacing: -0.02em; font-weight: 600; color: #171717; }
-/* Optional fields sit a little lighter (brief 4.6). */
-.field__opt { font-weight: 400; color: #5b6576; }
-.field--optional .pill, .field--optional .form__message { background: #f8fafc; }
+.field__label { font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717; }
 
 .pill {
   --ring: 0 0 0 0 transparent;
-  /* A visible 1px edge and a clear blue focus ring (brief 4.3, point 3). */
-  display: flex; align-items: center; width: 100%; min-height: 56px; padding: 0 18px; border: 1px solid rgba(15, 20, 29, 0.2); border-radius: 16px;
-  background: #fff; box-shadow: var(--ring);
-  font: inherit; font-size: 17px; line-height: 1.2; letter-spacing: -0.02em; color: #171717;
-  transition: box-shadow 0.2s var(--ease-out), border-color 0.2s;
+  display: flex; align-items: center; width: 100%; min-height: 68px; padding: 0 20px; border: 0; border-radius: 999px;
+  background: linear-gradient(-86.6deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.64%), #fdfdfd;
+  box-shadow: inset var(--ring), 0 8px 100px rgba(0, 0, 0, 0.1);
+  font: inherit; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717;
+  transition: box-shadow 0.25s var(--ease-out);
 }
 input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: none; appearance: none; }
-.pill::placeholder, .phone__input::placeholder, .form__message::placeholder, .select__value.is-placeholder { color: #6b7483; }
+.pill::placeholder, .phone__input::placeholder, .form__message::placeholder, .select__value.is-placeholder { color: rgba(23, 23, 23, 0.4); }
 /* In use: the dropdown's chosen-option outline, 1px #1E6EF3. */
-.pill:focus, .pill:focus-within, .select.is-open > .pill { border-color: #1e6ef3; --ring: 0 0 0 3px rgba(30, 110, 243, 0.25); }
-.field.is-invalid .pill, .field.is-invalid .form__message { border-color: #c2410c; --ring: 0 0 0 3px rgba(194, 65, 12, 0.15); }
-.field__error { margin: 0; min-height: 0; font-size: 14px; line-height: 18px; letter-spacing: -0.02em; color: #b23c0a; }
+.pill:focus, .pill:focus-within, .select.is-open > .pill { --ring: 0 0 0 1px #1e6ef3; }
+.field.is-invalid .pill, .field.is-invalid .form__message { --ring: 0 0 0 1px #d4572a; }
+.field__error { margin: 0; min-height: 0; font-size: 14px; line-height: 18px; letter-spacing: -0.02em; color: #d4572a; }
 .field__error:empty { display: none; }
 
 /* Contact number: the dialling-code chip and the number in one pill (16 top and bottom around the chip). */
-.phone { gap: 12px; padding-left: 8px; }
+.phone { gap: 16px; }
 .phone__input { flex: 1 1 auto; min-width: 0; height: 100%; padding: 0; border: 0; background: none; font: inherit; color: inherit; letter-spacing: inherit; }
 
 /* The message box: 36 corners, 234 tall, text from 16/20. */
 .form__message {
-  display: block; width: 100%; height: 132px; resize: vertical; padding: 14px 18px; border: 1px solid rgba(15, 20, 29, 0.2); border-radius: 16px;
-  background: #fff; box-shadow: var(--ring, 0 0 0 0 transparent);
-  font: inherit; font-size: 17px; line-height: 1.4; letter-spacing: -0.02em; color: #171717;
-  transition: box-shadow 0.2s var(--ease-out), border-color 0.2s;
+  display: block; width: 100%; height: 234px; resize: vertical; padding: 16px 20px; border: 0; border-radius: 36px;
+  background: linear-gradient(-88.43deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.71%), #fdfdfd;
+  box-shadow: inset var(--ring, 0 0 0 0 transparent), 0 8px 100px rgba(0, 0, 0, 0.1);
+  font: inherit; font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717;
+  transition: box-shadow 0.25s var(--ease-out);
 }
-.form__message:focus { border-color: #1e6ef3; --ring: 0 0 0 3px rgba(30, 110, 243, 0.25); }
+.form__message:focus { --ring: 0 0 0 1px #1e6ef3; }
 
-/* Request my demo: the primary button (.bp in base.css). */
-.form__submit { border: 0; cursor: pointer; font-family: inherit; }
+/* Send request: the blue pill, 22 × 44, with a blue glow. */
+.form__submit {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 22px 44px; border: 0; border-radius: 999px; cursor: pointer;
+  background: linear-gradient(-79.83deg, #1e6ef3 0.875%, #00b0ff 100%); color: #fff;
+  box-shadow: 0 8px 100px rgba(30, 110, 243, 0.35);
+  font: inherit; font-size: 20px; line-height: 24px; letter-spacing: -0.04em;
+  /* Only the glow transitions: it slides in on scroll (GSAP owns its transform and opacity, see .cnext__mail a). */
+  transition: box-shadow 0.35s var(--ease-out);
+}
+.form__submit:hover { box-shadow: 0 12px 100px rgba(30, 110, 243, 0.55); }
+.form__submit:focus-visible { outline: none; box-shadow: 0 0 0 7px rgba(30, 110, 243, 0.2), 0 8px 100px rgba(30, 110, 243, 0.35); }
 .form__submit-sending { display: none; }
 .form.is-sending .form__submit-label { display: none; }
 .form.is-sending .form__submit-sending { display: inline; }
@@ -86,10 +86,7 @@ input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: n
 .form__success { display: none; position: absolute; inset: 0; place-content: center; justify-items: center; text-align: center; gap: 16px; padding: 40px; }
 .form__success-mark { width: 64px; margin-bottom: 12px; filter: drop-shadow(0 20px 40px rgba(0, 176, 255, 0.35)); }
 .form__success-title { outline: none; margin: 0; font-size: clamp(32px, calc(32px + 32 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; }
-.form__success-copy { margin: 0; font-size: 19px; line-height: 1.45; letter-spacing: -0.02em; color: #3d4757; max-width: 34ch; }
-.cform__jobs { margin: 24px 0 0; font-size: 16px; line-height: 1.4; color: #4d596b; }
-.cform__jobs a { color: #1e6ef3; font-weight: 500; }
-.cform__jobs a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.form__success-copy { margin: 0; font-size: 20px; line-height: 24px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
 
 /* Dropdowns (shared/select.ts). The panel: white, 36 corners, 16 × 20 inside, options 8 apart. */
 .select { position: relative; width: 100%; }
@@ -100,15 +97,15 @@ input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: n
 .select__button:focus { outline: none; }
 .select__list {
   position: absolute; z-index: 20; top: calc(100% + 8px); left: 0; right: 0; margin: 0; list-style: none;
-  display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: 20px; outline: none; border: 1px solid rgba(15, 20, 29, 0.12);
+  display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; border-radius: 36px; outline: none;
   max-height: min(420px, 60vh); overflow-y: auto; overscroll-behavior: contain;
   background: linear-gradient(-89.64deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.71%), #fff;
   box-shadow: 0 8px 100px rgba(0, 0, 0, 0.1);
 }
 .select__list[hidden] { display: none; }
 .select__option {
-  flex: none; display: flex; align-items: center; min-height: 48px; padding: 0 14px; border-radius: 12px; cursor: pointer;
-  font-size: 17px; line-height: 1.2; letter-spacing: -0.02em; color: #171717;
+  flex: none; display: flex; align-items: center; min-height: 68px; padding: 0 20px; border-radius: 999px; cursor: pointer;
+  font-size: clamp(17px, calc(17px + 3 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: #171717;
   transition: background-color 0.2s, box-shadow 0.2s;
 }
 /* Hover: a light grey fill. */
@@ -122,38 +119,51 @@ input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: n
 /* The dialling-code chip: a small glass pill (8 × 20, 16/20) with its own list, wider than it. */
 .select--chip { width: auto; flex: none; }
 .select--chip .select__button {
-  display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 0; border-radius: 10px;
-  background: #f1f4f8; box-shadow: none;
+  display: inline-flex; align-items: center; padding: 8px 20px; border: 0; border-radius: 999px;
+  background: linear-gradient(-82.44deg, rgba(255, 255, 255, 0.6) 0.279%, rgba(255, 255, 255, 0) 100%), #fdfdfd;
+  box-shadow: 0 8px 50px rgba(0, 0, 0, 0.2);
   font: inherit; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717;
 }
-.select--chip .select__button:focus-visible { box-shadow: 0 0 0 3px rgba(30, 110, 243, 0.3); }
+.select--chip .select__button:focus-visible { box-shadow: 0 0 0 4px rgba(30, 110, 243, 0.2), 0 8px 50px rgba(0, 0, 0, 0.2); }
 .select--chip .select__list { top: calc(100% + 18px); left: -16px; right: auto; width: min(360px, 80vw); }
 .select--chip .select__option { white-space: pre; }
 
-/* ---------- What happens next? ---------- */
-/* Beside the form on desktop: a white card with the three numbered steps and the email. */
+/* ---------- What happens next? (Figma 2396:191) ---------- */
+/* #FDFDFD fading to #00B0FF from 64% to 85% down, under the footer's Moving blobs (.cnext__fx). The 84/88 title and
+   three steps (an 84/88 #00B0FF number, a 22/26 title and 16/20 copy, 684 wide) at the top; the email at the foot. */
 .cnext {
-  position: relative; display: flex; flex-direction: column; gap: 24px; padding: 32px; border-radius: 28px; background: #fff; color: #171717;
-  border: 1px solid rgba(15, 20, 29, 0.08); box-shadow: 0 20px 70px rgba(15, 20, 29, 0.08);
+  --pad: clamp(20px, 5.556vw, 80px);
+  position: relative; overflow: clip; color: #171717;
+  background: linear-gradient(180deg, #fdfdfd 64.111%, #00b0ff 85.156%);
+  min-height: 100vh; min-height: 100lvh; padding: clamp(80px, 8.333vw, 120px) var(--pad);
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 120px;
 }
-.cnext__title { margin: 0; font-size: clamp(28px, calc(28px + 8 * (100vw - 375px) / 1065), 36px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; }
-.cnext__steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 20px; }
-.cnext__step { display: flex; align-items: flex-start; gap: 16px; }
-.cnext__num { flex: none; width: 44px; font-size: 28px; line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; color: #1e6ef3; font-variant-numeric: tabular-nums; }
-.cnext__desc { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.cnext__desc h3 { margin: 0; font-size: 19px; line-height: 1.25; letter-spacing: -0.02em; font-weight: 700; }
-.cnext__desc p { margin: 0; font-size: 17px; line-height: 1.5; color: #3d4757; }
-.cnext__mail { margin: 0; padding-top: 20px; border-top: 1px solid rgba(15, 20, 29, 0.08); font-size: 17px; line-height: 1.4; color: #3d4757; }
-.cnext__mail a { color: #1e6ef3; font-weight: 600; overflow-wrap: anywhere; }
-.cnext__mail a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.cnext__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s var(--ease-out); pointer-events: none; }
+.cnext--fx .cnext__fx { opacity: 1; }
+.cnext__top { position: relative; z-index: 1; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 80px; }
+.cnext__title { margin: 0; text-align: center; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
+.cnext__steps { width: min(684px, 100%); margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 40px; }
+.cnext__step { display: flex; align-items: center; gap: 20px; }
+.cnext__num { flex: none; width: calc(var(--t-h1-size) * 1.333); font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; }
+.cnext__desc { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.cnext__desc h3 { margin: 0; font-size: clamp(19px, calc(19px + 3 * (100vw - 375px) / 1065), 22px); line-height: 1.18; letter-spacing: -0.04em; font-weight: 400; }
+.cnext__desc p { margin: 0; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; }
+.cnext__mail { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; color: #fdfdfd; max-width: 100%; }
+.cnext__mail p { margin: 0; font-size: clamp(19px, calc(19px + 3 * (100vw - 375px) / 1065), 22px); line-height: 1.18; letter-spacing: -0.04em; }
+.cnext__mail a {
+  font-size: min(var(--t-h1-size), 10.5vw); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #fdfdfd;
+  text-decoration: underline; text-decoration-thickness: from-font; text-underline-position: from-font; overflow-wrap: anywhere;
+  /* Colour, not opacity: a CSS transition on opacity fought the scroll entrance (GSAP re-reads the resting opacity
+     when ScrollTrigger refreshes, caught it mid-transition at 0, and left the address invisible). */
+  transition: color 0.25s;
+}
+.cnext__mail a:hover { color: rgba(253, 253, 253, 0.85); }
 
-@media (max-width: 1100px) {
-  .cform__grid { grid-template-columns: minmax(0, 1fr); }
-}
 @media (max-width: 760px) {
-  .form__fields { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-  .form__submit { align-self: stretch; }
-  .cnext { padding: 24px; }
+  .form__fields { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .cnext__top { gap: 48px; }
+  .cnext__steps { gap: 28px; }
+  .cnext__step { align-items: flex-start; }
 }
 
 /* Touch screens: the dialling-code chip gets a 44px tap area without changing how it looks. */
