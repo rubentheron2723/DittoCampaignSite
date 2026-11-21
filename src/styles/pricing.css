@@ -59,7 +59,7 @@
 .gseg { position: relative; display: inline-flex; gap: 8px; padding: 16px 20px; border-radius: 999px; background: linear-gradient(-75deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1); }
 .gseg__pill { position: absolute; left: 0; top: 0; border-radius: 999px; background: linear-gradient(-79deg, rgba(255, 255, 255, 0.6) 0.279%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25); }
 .gseg button { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 4px; padding: 8px 20px; border-radius: 999px; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; white-space: nowrap; }
-.gseg button em { font-style: normal; font-size: 10px; line-height: 12px; letter-spacing: -0.04em; color: #00b0ff; }
+.gseg button em { font-style: normal; font-size: 13px; line-height: 16px; letter-spacing: -0.02em; font-weight: 600; color: #1e6ef3; }
 /* Cards over the slider (left, 569 wide), price check (right). */
 .calc__body { display: flex; align-items: flex-start; gap: 10px; }
 /* As wide as the cards need (at least Figma's 569), so the longest range never spills out of its card. */
@@ -115,7 +115,7 @@
 .slider__track { position: relative; height: 6px; border-radius: 6px; background: rgba(15, 20, 29, 0.1); }
 .slider__fill { position: absolute; left: 0; top: 0; height: 100%; width: 0; border-radius: 6px; background: linear-gradient(90deg, var(--blue-deep), var(--blue)); }
 .slider__tick { position: absolute; top: 14px; width: 1px; height: 10px; background: rgba(15, 20, 29, 0.2); translate: -50% 0; }
-.slider__tick b { font-size: var(--t-caption-size); line-height: var(--t-caption-lh); letter-spacing: var(--t-caption-ls); font-weight: var(--t-caption-wt); position: absolute; top: 14px; left: 50%; translate: -50% 0; color: var(--ink-soft); }
+.slider__tick b { font-size: 13px; line-height: 16px; letter-spacing: 0; font-weight: 500; position: absolute; top: 14px; left: 50%; translate: -50% 0; color: var(--ink-soft); }
 .slider__knob { position: absolute; top: 3px; left: 0; width: 36px; height: 36px; margin-left: -18px; margin-top: -18px; border-radius: 50%; background: #0a0f15; border: 3px solid var(--white); box-shadow: 0 10px 30px rgba(6, 49, 73, 0.35); cursor: grab; touch-action: none; }
 .slider__knob:active { cursor: grabbing; }
 /* A 48px touch area around the 36px knob, and a taller tap zone over the thin track. */
@@ -199,3 +199,6 @@
   .pstep { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; }
   .pnext__promises { grid-template-columns: 1fr; }
 }
+
+/* Touch screens: the billing and currency toggles are 44px tall to tap. */
+@media (pointer: coarse) { .gseg button { min-height: 44px; } }
