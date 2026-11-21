@@ -1,7 +1,7 @@
 import '../styles/base.css';
 import '../styles/contact.css';
 
-import { dialCodes, errors, fields, hero, interests, next, roles, success, teamSizes } from '../content/contact';
+import { dialCodes, errors, fields, hero, interests, jobsLine, next, roles, submitLabel, success, teamSizes } from '../content/contact';
 import { boot } from '../shared/boot';
 import { footerHtml } from '../shared/chrome';
 import { esc, markSvg } from '../shared/mark';
@@ -13,14 +13,15 @@ import { FOOTER_BLOBS } from '../shared/footer-blobs';
 import { initSelects, selectHtml } from '../shared/select';
 
 /*
- * Contact (Figma 2396:121 hero, 2390:340 form with the 2396:478 dropdown, 2396:191 "What happens next?").
+ * Contact (Figma 2396:121 hero, 2390:340 form with the 2396:478 dropdown; brief v2.2 3.9 and 4.3 point 11): the hero,
+ * then the form on the left with "What happens next?" beside it, both in view together on desktop.
  */
 
 type FieldName = keyof typeof fields;
 
 /** A labelled field around `control`; the label's id is `<name>-label`. */
-const field = (name: FieldName, control: string, extra = '') => `<div class="field${extra}" data-field="${name}">
-    <label class="field__label" id="${name}-label" for="${name}-input">${esc(fields[name].label)}</label>
+const field = (name: FieldName, control: string, extra = '') => `<div class="field${extra}${fields[name].optional ? ' field--optional' : ''}" data-field="${name}">
+    <label class="field__label" id="${name}-label" for="${name}-input">${esc(fields[name].label)}${fields[name].optional ? ' <span class="field__opt">(optional)</span>' : ''}</label>
     ${control}
     <p class="field__error" id="${name}-error"></p>
   </div>`;
@@ -46,7 +47,7 @@ const phone = () =>
         dialCodes.map((d) => ({ value: d.code, label: `${d.code}  ${d.country}`, short: d.code })),
         { labelledBy: 'phone-label', initial: '+27', variant: 'chip' },
       )}
-      <input class="phone__input" id="phone-input" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="${esc(fields.phone.placeholder)}" />
+      <input class="phone__input" id="phone-input" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="${esc(fields.phone.placeholder ?? "")}" />
     </div>`,
   );
 
@@ -69,49 +70,49 @@ function render() {
   </section>
 
   <section class="cform" id="contact-form" data-theme="light">
-    <form class="form" id="form" novalidate>
-      <div class="form__fields">
-        ${text('name', 'text', 'autocomplete="name"')}
-        ${text('email', 'email', 'autocomplete="email"')}
-        ${text('business', 'text', 'autocomplete="organization"')}
-        ${text('website', 'text', 'autocomplete="url" inputmode="url"')}
-        ${phone()}
-        ${choice('role', roles)}
-        ${choice('teamSize', teamSizes)}
-        ${choice('interest', interests)}
-        ${field(
-          'message',
-          `<textarea class="field__input form__message" id="message-input" name="message" rows="6" placeholder="${esc(fields.message.placeholder)}"></textarea>`,
-          ' field--full',
-        )}
+    <canvas class="cform__fx" aria-hidden="true"></canvas>
+    <div class="cform__grid">
+      <div class="cform__main">
+        <form class="form" id="form" novalidate>
+          <div class="form__fields">
+            ${text('name', 'text', 'autocomplete="name"')}
+            ${text('email', 'email', 'autocomplete="email"')}
+            ${text('business', 'text', 'autocomplete="organization"')}
+            ${text('website', 'text', 'autocomplete="url" inputmode="url"')}
+            ${phone()}
+            ${choice('role', roles)}
+            ${choice('teamSize', teamSizes)}
+            ${choice('interest', interests)}
+            ${field(
+              'message',
+              `<textarea class="field__input form__message" id="message-input" name="message" rows="4" placeholder="${esc(fields.message.placeholder ?? '')}"></textarea>`,
+              ' field--full',
+            )}
+          </div>
+          <button type="submit" class="bp bp--lg form__submit"><span class="form__submit-label">${esc(submitLabel)}</span><span class="form__submit-sending" aria-hidden="true">Sending…</span></button>
+          <div class="form__success" id="form-success" aria-live="polite">
+            <div class="form__success-mark">${markSvg('mark--on-light')}</div>
+            <h2 class="form__success-title" tabindex="-1">${esc(success.title)}</h2>
+            <p class="form__success-copy">${esc(success.copy)}</p>
+          </div>
+        </form>
+        <p class="cform__jobs">${esc(jobsLine.lead)} <a href="${jobsLine.href}">${esc(jobsLine.label)}</a></p>
       </div>
-      <button type="submit" class="form__submit"><span class="form__submit-label">Send request</span><span class="form__submit-sending" aria-hidden="true">Sending…</span></button>
-      <div class="form__success" id="form-success" aria-live="polite">
-        <div class="form__success-mark">${markSvg('mark--on-light')}</div>
-        <h2 class="form__success-title" tabindex="-1">${esc(success.title)}</h2>
-        <p class="form__success-copy">${esc(success.copy)}</p>
-      </div>
-    </form>
-  </section>
 
-  <section class="cnext" data-theme="light">
-    <canvas class="cnext__fx" aria-hidden="true"></canvas>
-    <div class="cnext__top">
-      <h2 class="cnext__title">${esc(next.title)}</h2>
-      <ol class="cnext__steps">
-        ${next.steps
-          .map(
-            (s, i) => `<li class="cnext__step">
-              <span class="cnext__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
-              <div class="cnext__desc"><h3>${esc(s.title)}</h3><p>${esc(s.copy)}</p></div>
-            </li>`,
-          )
-          .join('')}
-      </ol>
-    </div>
-    <div class="cnext__mail">
-      <p>${esc(next.direct.label)}</p>
-      <a href="mailto:${next.direct.email}">${esc(next.direct.email)}</a>
+      <aside class="cnext" aria-labelledby="next-title">
+        <h2 class="cnext__title" id="next-title">${esc(next.title)}</h2>
+        <ol class="cnext__steps">
+          ${next.steps
+            .map(
+              (s, i) => `<li class="cnext__step">
+                <span class="cnext__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+                <div class="cnext__desc"><h3>${esc(s.title)}</h3><p>${esc(s.copy)}</p></div>
+              </li>`,
+            )
+            .join('')}
+        </ol>
+        <p class="cnext__mail">${esc(next.direct.label)} <a href="mailto:${next.direct.email}">${esc(next.direct.email)}</a></p>
+      </aside>
     </div>
   </section>
 
@@ -123,12 +124,14 @@ const validators: Record<string, (v: string) => boolean> = {
   name: (v) => v.trim().length > 1,
   email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
   business: (v) => v.trim().length > 1,
-  website: (v) => /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)?$/i.test(v.trim()),
+  // Optional: empty is fine; anything typed must look like a website.
+  website: (v) => !v.trim() || /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)?$/i.test(v.trim()),
   phone: (v) => /^[\d\s()-]{5,}$/.test(v.trim()) && v.replace(/\D/g, '').length >= 6,
   role: (v) => !!v,
   teamSize: (v) => !!v,
   interest: (v) => !!v,
-  message: (v) => v.trim().length > 0,
+  // Optional.
+  message: () => true,
 };
 
 function initForm(animate: boolean) {
@@ -161,7 +164,7 @@ function initForm(animate: boolean) {
   const validate = (f: HTMLElement) => {
     const name = f.dataset.field!;
     const ok = validators[name](inputOf(f).value);
-    setError(f, ok ? '' : errors[name as keyof typeof errors]);
+    setError(f, ok ? '' : (errors as Record<string, string>)[name] ?? '');
     return ok;
   };
 
@@ -208,18 +211,19 @@ function initForm(animate: boolean) {
 }
 
 /**
- * The "What happens next?" backdrop: the section's white, fading to #00b0ff from 64.1% to 85.2% of its height
- * (Figma's cloudsBG gradient), drawn into a strip the blobs then distort.
+ * The form section's backdrop: #FDFDFD, fading into the footer's blue (#00B0FF) over its last FADE px, below the
+ * content (contact.css keeps that much padding), drawn into a strip the blobs then distort.
  */
-function nextGradient() {
+const FADE = 180;
+function fadeToFooter(section: HTMLElement) {
   const c = document.createElement('canvas');
   c.width = 1;
   c.height = 512;
   const ctx = c.getContext('2d')!;
   const g = ctx.createLinearGradient(0, 0, 0, c.height);
+  const at = Math.max(0.5, 1 - FADE / Math.max(1, section.offsetHeight));
   g.addColorStop(0, '#fdfdfd');
-  g.addColorStop(0.64111, '#fdfdfd');
-  g.addColorStop(0.85156, '#00b0ff');
+  g.addColorStop(at, '#fdfdfd');
   g.addColorStop(1, '#00b0ff');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 1, c.height);
@@ -234,7 +238,7 @@ boot({
     initClouds(q('.chero')!, q<HTMLCanvasElement>('.chero__sky')!, 'chero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
-    initBlobBackdrop(q('.cnext')!, q<HTMLCanvasElement>('.cnext__fx')!, 'cnext--fx', FOOTER_BLOBS, nextGradient(), reduce, 0.55);
+    initBlobBackdrop(q('.cform')!, q<HTMLCanvasElement>('.cform__fx')!, 'cform--fx', FOOTER_BLOBS, fadeToFooter(q('.cform')!), reduce, 0.5, 30);
     initForm(!reduce);
     if (reduce) return;
 
@@ -253,18 +257,7 @@ boot({
     fadeUp('.field', '.form', { y: 24, stagger: 0.05, start: 'top 80%' });
     fadeUp('.form__submit', '.form__submit', { y: 20, start: 'top 95%' });
 
-    splitReveal('.cnext__title', { by: 'words', start: 'top 80%' });
-    qa<HTMLElement>('.cnext__step').forEach((step) =>
-      gsap.from(step.children, {
-        y: 30,
-        autoAlpha: 0,
-        duration: 1,
-        ease: 'expo.out',
-        stagger: 0.08,
-        scrollTrigger: { trigger: step, start: 'top 85%', toggleActions: 'play none none reverse' },
-      }),
-    );
-    fadeUp('.cnext__mail > *', '.cnext__mail', { y: 30, stagger: 0.1, start: 'top 90%' });
+    fadeUp('.cnext > *', '.cnext', { y: 24, stagger: 0.08, start: 'top 85%' });
     ScrollTrigger.refresh();
   },
 });

@@ -10,20 +10,18 @@ import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
 import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { Draggable } from 'gsap/Draggable';
-import { fadeUp, rollNumber, splitReveal } from '../shared/motion';
-import { initPricingCards } from '../animations/pricing-cards';
+import { fadeUp, splitReveal } from '../shared/motion';
 
 gsap.registerPlugin(Draggable);
 
 /* ---------- Render ---------- */
 /**
- * Pricing (Figma 2378:655 hero, 2378:786 calculator; the third section is designed to match them).
- *   1. Hero: the home hero's cloud sky and bubbles (the frame uses the same shader settings), centred white copy and a
- *      glass "Get started" pill.
- *   2. Calculator on #fdfdfd (one screen at 1440), under the footer's Moving blobs: the headline and toggles; the plan
- *      cards over the slider on the left and the price check on the right; a blue "Book a demo" centred below.
- *   3. "From first call to first placement" (Figma 2378:1018): five numbered steps in a centred column, with the four
- *      guarantees as tilted cards around them. Sections 2 and 3 share one #fdfdfd field and one pinned blob layer.
+ * Pricing (brief v2.2, 3.6; design notes 4.3 and 4.4 point 10).
+ *   1. Hero: the cloud sky, about 70% of the screen, and "See your price ↓" to the calculator.
+ *   2. Calculator: the plans over the slider on the left, the price card beside them (it changes at once, no counting
+ *      up), with Book a demo and the billing FAQ link. Fifty or more recruiters: "Let's talk" in place of a price.
+ *   3. "From first call to first placement": five numbered steps, then the four promises as flat white cards.
+ *   Sections 2 and 3 share one #fdfdfd field and one pinned blob layer.
  */
 function render() {
   const main = document.getElementById('main')!;
@@ -40,7 +38,7 @@ function render() {
         <p class="phero__sub">${esc(hero.subtitle)}</p>
         <p class="phero__body">${esc(hero.body)}</p>
       </div>
-      <a class="gbtn gbtn--lg" href="#calculator" data-magnetic>${esc(hero.cta)}</a>
+      <a class="gbtn gbtn--lg" href="#calculator">${esc(hero.cta)}</a>
     </div>
   </section>
 
@@ -50,7 +48,7 @@ function render() {
   <canvas class="pfield__fx" aria-hidden="true"></canvas>
   <section class="calc" id="calculator" data-theme="light">
     <header class="calc__head">
-      <h2 class="ptitle calc__title"><span>${esc(calculator.titleOne)}</span><span>${esc(calculator.titleTwo)}</span></h2>
+      <h2 class="ptitle calc__title">${esc(calculator.title)}</h2>
       <p class="psub">${esc(calculator.description)}</p>
     </header>
 
@@ -59,7 +57,7 @@ function render() {
         <div class="gseg" id="billing" role="radiogroup" aria-label="Billing cycle">
           <span class="gseg__pill" aria-hidden="true"></span>
           <button type="button" role="radio" aria-checked="true" tabindex="0" data-value="monthly">Monthly</button>
-          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="annual">Annual <em>Save 15%</em></button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="annual">${esc(calculator.annualToggle)}</button>
         </div>
         <div class="gseg" id="currency" role="radiogroup" aria-label="Currency">
           <span class="gseg__pill" aria-hidden="true"></span>
@@ -70,6 +68,7 @@ function render() {
 
       <div class="calc__body">
         <div class="calc__pick">
+          <p class="calc__ask" id="slider-label">${esc(calculator.sliderLabel)}</p>
           <div class="lcards" id="tiers-row">
             ${tiers
               .map(
@@ -84,30 +83,32 @@ function render() {
               ${tiers.map((t) => `<span class="slider__tick" style="left:${((t.min - 1) / 99) * 100}%"><b>${t.min}</b></span>`).join('')}
               <span class="slider__tick slider__tick--end" style="left:100%"><b>100</b></span>
             </div>
-            <button type="button" class="slider__knob" id="knob" aria-label="Recruiter count" aria-valuemin="1" aria-valuemax="100" aria-valuenow="7" role="slider">
+            <button type="button" class="slider__knob" id="knob" aria-labelledby="slider-label" aria-valuemin="1" aria-valuemax="100" aria-valuenow="7" role="slider">
               <span class="slider__value" id="slider-value">7</span>
             </button>
           </div>
         </div>
 
-        <div class="quote" id="quote">
-          <p class="quote__tier"><span id="q-tier">Starter</span> <em id="q-range">1 – 9 users</em></p>
-          <div class="quote__rate"><strong id="q-rate">R949</strong><span>${esc(calculator.perLicense)}</span></div>
-          <div class="quote__totals">
-            <div class="quote__total"><strong id="q-total">R6,643</strong><span id="q-period">Monthly total</span></div>
-            <div class="quote__total"><strong id="q-users">7</strong><span>Recruiters</span></div>
+        <div class="quote" id="quote" aria-live="polite">
+          <p class="quote__tier"><span id="q-tier">Starter</span> <em id="q-range">1 to 9 recruiters</em></p>
+          <div class="quote__price">
+            <p class="quote__rate"><strong id="q-rate">R949</strong><span id="q-per">${esc(calculator.perRecruiter.ZAR)}</span></p>
+            <p class="quote__total"><strong id="q-total">R6,643</strong><span><span id="q-period">${esc(calculator.monthlyTotal.ZAR)}</span> · <span id="q-users">7 recruiters</span></span></p>
+            <p class="quote__save" id="q-save" hidden></p>
           </div>
-          <p class="quote__enterprise" id="q-enterprise">${esc(calculator.enterprise)}</p>
+          <div class="quote__ent">
+            <strong>${esc(calculator.enterprise.big)}</strong>
+            <p>${esc(calculator.enterprise.line)}</p>
+          </div>
+          <a class="bp bp--lg quote__cta" id="q-cta" href="/contact" data-magnetic>${esc(calculator.book)}</a>
+          <p class="quote__faq">${esc(calculator.faq.lead)} <a href="${calculator.faq.href}">${esc(calculator.faq.label)}</a></p>
         </div>
       </div>
     </div>
-
-    <a class="bbtn calc__cta" href="/contact" data-magnetic>Book a demo</a>
   </section>
 
   <section class="pnext" data-theme="light">
-    <canvas class="pnext__canvas" aria-hidden="true"></canvas>
-    <h2 class="ptitle pnext__title"><span>From first call</span> <span>to first placement</span></h2>
+    <h2 class="ptitle pnext__title">${esc(nextSteps.title)}</h2>
     <ol class="pnext__steps">
       ${nextSteps.steps
         .map(
@@ -119,7 +120,7 @@ function render() {
         .join('')}
     </ol>
     <ul class="pnext__promises">
-      ${guarantees.map((g) => `<li class="promise promise--${g.id}"><div class="promise__face"><h3>${esc(g.title)}</h3><p>${esc(g.copy).replace('\n', '<br>')}</p></div></li>`).join('')}
+      ${guarantees.map((g) => `<li class="promise"><h3>${esc(g.title)}</h3><p>${esc(g.copy)}</p></li>`).join('')}
     </ul>
   </section>
   </div>
@@ -147,41 +148,40 @@ function initCalculator(animate: boolean) {
   const sym = () => (currency === 'ZAR' ? 'R' : '$');
   const money = (n: number, decimals = false) =>
     `${sym()}${n.toLocaleString('en-US', { minimumFractionDigits: decimals ? 2 : 0, maximumFractionDigits: decimals ? 2 : 0 })}`;
-  const dur = animate ? 0.7 : 0;
 
-  let rateRoll: gsap.core.Tween | undefined;
-  let totalRoll: gsap.core.Tween | undefined;
-  /** `instant`: set the figures at once (while dragging) instead of rolling them. */
-  function update(instant = false) {
+  const cta = q<HTMLAnchorElement>('#q-cta')!;
+  const save = q('#q-save')!;
+  const per = q('#q-per')!;
+  /** Sets every figure at once: no counting up through wrong values (brief 4.4, point 10). */
+  function update() {
     const tier = tierForUsers(users);
     const monthlyRate = tier.rates ? tier.rates[currency] : 0;
     const rate = period === 'annual' ? monthlyRate * ANNUAL_MULTIPLIER : monthlyRate;
     const total = rate * users * (period === 'annual' ? 12 : 1);
+    const label = `${users} ${users === 1 ? 'recruiter' : 'recruiters'}`;
 
     sliderValue.textContent = String(users);
     knob.setAttribute('aria-valuenow', String(users));
-    knob.setAttribute('aria-valuetext', `${users} ${users === 1 ? 'recruiter' : 'recruiters'}`);
-    el.users.textContent = String(users);
+    knob.setAttribute('aria-valuetext', label);
+    el.users.textContent = label;
     el.tier.textContent = tier.label;
     el.range.textContent = tier.rangeLabel;
-    el.period.textContent = period === 'annual' ? 'Annual total' : 'Monthly total';
+    per.textContent = calculator.perRecruiter[currency];
+    el.period.textContent = (period === 'annual' ? calculator.annualTotal : calculator.monthlyTotal)[currency];
     quote.classList.toggle('quote--enterprise', !tier.rates);
     cards.forEach((c) => c.classList.toggle('is-active', c.dataset.label === tier.label));
+    cta.textContent = tier.rates ? calculator.book : calculator.enterprise.button;
 
-    // A roll still running (a fast drag into Enterprise) would write its number over "Custom", and two rolls on one
-    // figure fight: each new one replaces the last.
-    rateRoll?.kill();
-    totalRoll?.kill();
-    if (tier.rates) {
-      rateRoll = rollNumber(el.rate, rate, (n) => money(n, !Number.isInteger(rate)), instant ? 0 : dur);
-      totalRoll = rollNumber(el.total, Math.round(total), (n) => money(Math.round(n)), instant ? 0 : dur);
-    } else {
-      el.rate.textContent = 'Custom';
-      el.total.textContent = 'Let’s talk';
-      // Rolling back to a price starts from nothing rather than a stale figure.
-      delete el.rate.dataset.value;
-      delete el.total.dataset.value;
+    if (!tier.rates) {
+      save.hidden = true;
+      return;
     }
+    el.rate.textContent = money(rate, !Number.isInteger(rate));
+    el.total.textContent = money(Math.round(total));
+    // Annual: what a year on monthly billing would cost, less the annual total.
+    const saved = Math.round(monthlyRate * users * 12) - Math.round(total);
+    save.hidden = period !== 'annual';
+    save.textContent = period === 'annual' ? `${calculator.savePrefix}${money(saved)}${calculator.saveSuffix}` : '';
   }
 
   // Slider geometry
@@ -213,10 +213,10 @@ function initCalculator(animate: boolean) {
     onDrag() {
       gsap.set(fill, { width: `${(this.x / track.clientWidth) * 100}%` });
       const next = Math.max(1, Math.min(100, Math.round((this.x / track.clientWidth) * 99 + 1)));
-      // Only when the count changes, and set straight away: a roll restarted on every pointer move never caught up.
+      // Only when the count changes.
       if (next === users) return;
       users = next;
-      update(true);
+      update();
     },
     onPress() { this.applyBounds(bounds()); gsap.to(knob, { scale: 1.12, duration: 0.2 }); },
     onRelease() { gsap.to(knob, { scale: 1, duration: 0.5, ease: 'elastic.out(1, 0.5)' }); setUsers(users); },
@@ -310,18 +310,15 @@ boot({
       window.setTimeout(() => heroTl.progress() < 1 && heroTl.progress(1), 3500);
     });
 
-    splitReveal('.calc__title span', { by: 'words' });
+    splitReveal('.calc__title', { by: 'words' });
     fadeUp('.calc__head .psub, .calc__controls', '.calc__head', { y: 24 });
     // The row, not the cards: each card has a CSS hover transition on transform, which would fight the tween and
     // could leave the cards short of their place (below the plan title they line up with).
     fadeUp('.lcards, .slider', '.calc__pick', { y: 30, stagger: 0.1 });
-    fadeUp('.quote > :not(.quote__enterprise), .calc__cta', '.quote', { y: 30, stagger: 0.08 });
+    fadeUp('.quote', '.quote', { y: 30 });
 
-    splitReveal('.pnext__title span', { by: 'words' });
+    splitReveal('.pnext__title', { by: 'words' });
     fadeUp('.pstep', '.pnext__steps', { y: 40, stagger: 0.1 });
-    // Wide screens: the cards fly in as paper sheets and stick (animations/pricing-cards.ts). Below that the HTML
-    // cards sit in a grid under the steps and rise in.
-    initPricingCards(true);
-    qa('.promise').forEach((card) => fadeUp(card, card, { y: 60, duration: 1.2, start: 'top 90%' }));
+    fadeUp('.promise', '.pnext__promises', { y: 30, stagger: 0.08 });
   },
 });

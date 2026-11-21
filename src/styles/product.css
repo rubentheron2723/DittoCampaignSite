@@ -1,10 +1,10 @@
 /* ---------- Hero (Figma 2398:532) ---------- */
-/* The About and Contact heroes' sky, one screen tall: the 84/88 title on two lines, the 24/28 lead and 20/24 support
-   line, then the glass "Day in the life" pill, all centred, 40 apart. */
+/* The About and Contact heroes' sky, about 70% of the screen (brief 4.3, point 1) so the features show under it: the
+   title on two lines, the lead and support line, then Book a demo and the link to the AI assistant, all centred. */
 .phero {
   --pad: clamp(20px, 5.556vw, 80px);
-  position: relative; display: flex; align-items: center; justify-content: center; min-height: 100vh; min-height: 100lvh;
-  padding: calc(var(--nav-h) + 48px) var(--pad) 120px;
+  position: relative; display: flex; align-items: center; justify-content: center; min-height: 72vh; min-height: 72svh;
+  padding: calc(var(--nav-h) + 48px) var(--pad) 96px;
   background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); color: #fefefe; overflow: clip; text-align: center;
 }
 .phero__bg { position: absolute; inset: 0; pointer-events: none; }
@@ -15,255 +15,18 @@
   background: radial-gradient(134.57% 124.02% at 50% -24.02%, #1e6ef3 0%, #108ff9 25%, #01b0ff 50%, #11b5ff 53.125%, #21baff 56.25%, #41c4ff 62.5%, #60ceff 68.75%, #80d8ff 75%, #c0ebff 87.5%, #fff 100%);
 }
 .phero__haze { position: absolute; inset: 0; background: linear-gradient(0deg, #fff 0%, rgba(255, 255, 255, 0) 34.289%); }
-.phero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.phero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; display: flex; flex-direction: column; align-items: center; gap: 32px; }
 .phero__text { display: flex; flex-direction: column; align-items: center; gap: 40px; }
 .phero__title { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
 .phero__line { display: block; }
 .phero__copy { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.phero__lead { margin: 0; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
-.phero__support { margin: 0; max-width: 820px; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; }
-.phero__actions { display: flex; justify-content: center; }
+.phero__lead { margin: 0; max-width: 860px; font-size: clamp(18px, calc(18px + 4 * (100vw - 375px) / 1065), 22px); line-height: 1.4; letter-spacing: -0.02em; font-weight: 500; }
+.phero__support { margin: 0; max-width: 820px; font-size: clamp(18px, calc(18px + 1 * (100vw - 375px) / 1065), 19px); line-height: 1.4; letter-spacing: -0.02em; font-weight: 500; }
+.phero__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.phero__secondary { align-self: auto; height: 56px; padding: 0 28px; }
 
-/* ---------- Day in the life (Figma 2407:6) ---------- */
-/* The lens stage (think.css) on #FDFDFD: the time 84/88 bold over its stage 20/24 at 60%, centred; the glass
-   Source / Engage / Place toggle 52 from the top; the app window (1024 x 768) arrives behind the time as it flies. */
-.day .think__item { flex-direction: column; justify-content: center; align-items: center; gap: 20px; text-align: center; }
-.day .think__title { flex: none; }
-.day .think__body { width: auto; }
-/* While the site nav opens over the stage (.think--peek, think-zoom.ts) the toggle slides down clear of it. */
-.day__tabs {
-  position: absolute; z-index: 3; left: 50%; top: 52px; transform: translateX(-50%); transition: transform 0.5s var(--ease-out); display: flex; gap: 8px; padding: 16px 20px; border-radius: 999px; isolation: isolate;
-  background: linear-gradient(-73deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1);
-}
-.think--peek .day__tabs { transform: translate(-50%, var(--peek-shift, 0px)); }
-.day__tab {
-  position: relative; min-height: 36px; padding: 8px 20px; border: 0; border-radius: 999px; background: none; cursor: pointer;
-  font: inherit; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; white-space: nowrap;
-}
-.day__tab:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 2px; }
-.day__tab[aria-disabled='true'] { cursor: default; }
-/* The on tab's glass, one pill that slides between them (placed by initDayTabs). */
-.day__pill {
-  position: absolute; z-index: -1; left: 0; top: 16px; bottom: 16px; width: 0; border-radius: 999px;
-  background: linear-gradient(-80deg, rgba(255, 255, 255, 0.6) 0.27885%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25);
-}
-/* Without the lens (reduced motion, no WebGL) the stage is a plain section: the toggle, the time, then the window. */
-.day:not(.think--gl) .think__stage { display: flex; flex-direction: column; align-items: center; padding: 140px var(--pad, 20px) 120px; }
-.day:not(.think--gl) .think__list { padding: 0 0 60px; }
-/* The flying time (the lens canvas) passes over the window arriving behind it. */
-.think--gl.day .think__lens { z-index: 2; }
-.think--gl.day .day__screen { position: absolute; left: 50%; top: 50%; z-index: 0; visibility: hidden; transform-origin: 50% 50%; will-change: transform, opacity; }
-.think--gl.day .app { will-change: transform; }
-/* Engage's chat fills the stage (it isn't scaled to fit); without the lens it isn't shown. */
-.think--gl.day .day__screen--chat { width: 100%; height: 100%; }
-.day:not(.think--gl) .day__screen--chat { display: none; }
-
-/* The chat (the assistant's, Figma 2420:2 on): DM Sans 12/16 in #171717. Each of Day in the life's chats is one of
-   these, laid out as .app--bare below. */
-.app { --line: rgba(4, 92, 255, 0.5); position: relative; text-align: left; color: #171717; font-size: 12px; line-height: 16px; letter-spacing: -0.04em; }
-.app ul { list-style: none; margin: 0; padding: 0; }
-.app p { margin: 0; }
-.app__icon { display: block; flex: none; width: 16px; height: 16px; }
-.app__chip { display: inline-flex; align-items: center; padding: 4px; border-radius: 24px; border: 1px solid transparent; font-weight: 400; }
-.app__chip.is-on { border-color: #1e6ef3; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18); }
-.app__chat { position: relative; flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; padding: 4px; }
-.app__hello { font-size: 40px; line-height: 44px; letter-spacing: -0.04em; font-weight: 700; text-align: center; }
-.app__ask { display: flex; flex-direction: column; align-items: center; gap: 24px; }
-.app__box {
-  border: 1px solid rgba(81, 142, 243, 0);
-  width: 435px; max-width: 100%; height: 120px; display: flex; flex-direction: column; justify-content: space-between; padding: 16px 20px; border-radius: 24px;
-  background: linear-gradient(-89deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 101.71%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.1);
-}
-/* The composer it becomes once the conversation starts (Figma 2425:61; shown by sourceScene). */
-.app__box { position: relative; }
-.app__line {
-  position: absolute; inset: 0; display: flex; align-items: center; gap: 8px; padding: 0 20px;
-  color: rgba(23, 23, 23, 0.4); visibility: hidden;
-}
-.app__line > span { flex: 1 1 0; }
-.app__under { position: absolute; right: 8px; top: calc(100% + 8px); display: flex; gap: 4px; visibility: hidden; }
-.app__under b { font-weight: 400; }
-.app__under em { font-style: normal; color: rgba(23, 23, 23, 0.5); }
-.app__field { display: grid; }
-.app__field > * { grid-area: 1 / 1; }
-.app__prompt { color: rgba(23, 23, 23, 0.4); }
-.app__typed { display: block; }
-.app__caret {
-  display: inline-block; width: 1px; height: 14px; margin-left: 1px; vertical-align: -2px; background: #1e6ef3;
-  visibility: hidden; animation: app-caret 1s steps(1) infinite;
-}
-@keyframes app-caret { 50% { background: transparent; } }
-.app__send { transform-origin: 50% 50%; }
-
-/* The conversation (Figma 2420:2 on): above the box once it has dropped to the chat's foot, from just below the
-   toggle (its top set by chatScene). It scrolls up as it grows, fading out at its top and foot; the side padding
-   keeps the cards' shadows inside its clip. */
-.app__thread {
-  position: absolute; left: 50%; top: 24px; bottom: 116px; width: 560px; padding: 0 40px; transform: translateX(-50%);
-  overflow: hidden; pointer-events: none;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 12px), transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 28px, #000 calc(100% - 12px), transparent 100%);
-}
-.app__scroll { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 28px 0 16px; }
-.app__me, .app__by, .app__step, .app__answer, .app__person { visibility: hidden; }
-.app__me {
-  align-self: flex-end; max-width: 340px; padding: 10px 14px; border-radius: 18px 18px 4px 18px; transform-origin: 100% 100%;
-  background: linear-gradient(135deg, #1e6ef3 0%, #00b0ff 100%); color: #fff; box-shadow: 0 8px 30px rgba(30, 110, 243, 0.25);
-}
-.app__reply { display: flex; flex-direction: column; gap: 14px; }
-.app__by { display: flex; align-items: center; gap: 8px; font-weight: 600; }
-.app__orb {
-  width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9fdcff 0%, #00b0ff 45%, #1e6ef3 100%);
-  box-shadow: 0 0 0 0 rgba(0, 176, 255, 0.4); animation: app-orb 1.6s ease-in-out infinite;
-}
-@keyframes app-orb { 50% { box-shadow: 0 0 0 5px rgba(0, 176, 255, 0); transform: scale(0.9); } }
-.app__steps { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.app__step { display: flex; align-items: center; gap: 8px; }
-.app__state { position: relative; flex: none; width: 14px; height: 14px; }
-.app__state > * { position: absolute; inset: 0; }
-.app__spin { border-radius: 50%; border: 1.5px solid rgba(30, 110, 243, 0.2); border-top-color: #1e6ef3; animation: app-spin 0.8s linear infinite; }
-.app__tick { visibility: hidden; }
-@keyframes app-spin { to { transform: rotate(360deg); } }
-.app__step-text { display: grid; }
-.app__step-text > * { grid-area: 1 / 1; }
-/* Working: the words shimmer, as a model's do while it thinks. */
-.app__step-live {
-  background: linear-gradient(90deg, #171717 0%, #171717 35%, #8fb6f7 50%, #171717 65%, #171717 100%) 0 0 / 250% 100%;
-  -webkit-background-clip: text; background-clip: text; color: transparent; animation: app-shimmer 1.6s linear infinite;
-}
-@keyframes app-shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
-.app__step-done { visibility: hidden; color: rgba(23, 23, 23, 0.5); }
-.app__people { display: grid; gap: 8px; }
-.app__person {
-  display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border-radius: 16px;
-  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.8) 56%, rgba(255, 255, 255, 0.3) 100%); border: 1px solid rgba(4, 92, 255, 0.12);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
-}
-.app__avatar {
-  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0;
-  background: linear-gradient(135deg, hsl(var(--hue) 90% 62%), hsl(calc(var(--hue) + 25) 85% 45%));
-}
-.app__who { display: grid; gap: 1px; min-width: 0; }
-.app__who b { font-size: 13px; font-weight: 600; }
-.app__who span { color: rgba(23, 23, 23, 0.6); }
-.app__who em { font-style: normal; font-size: 10px; line-height: 12px; color: #1e6ef3; }
-.app__match { display: grid; justify-items: end; font-size: 10px; line-height: 12px; color: rgba(23, 23, 23, 0.5); }
-.app__match b { font-size: 16px; line-height: 20px; font-weight: 700; color: #1e6ef3; }
-.app__controls { display: flex; align-items: center; justify-content: space-between; }
-.app__modes, .app__model { display: flex; align-items: center; gap: 4px; }
-.app__modes .app__chip { padding: 4px 8px; }
-.app__model { gap: 8px; }
-.app__model b { font-weight: 400; }
-.app__model em { font-style: normal; color: rgba(23, 23, 23, 0.5); margin-left: -4px; }
-.app__actions { display: flex; gap: 8px; }
-.app__btn {
-  display: inline-flex; align-items: center; gap: 4px; padding: 8px 12px; border-radius: 999px;
-  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25);
-}
-
-/* ---------- Trust (moved from the home page) ---------- */
-.trust { position: relative; margin-top: -1px; background: transparent; color: var(--ink); padding: clamp(96px, 12vw, 180px) 0 0; overflow: clip; }
-.trust__inner, .trust .ticker { position: relative; }
-.trust__inner { padding: 0 var(--gutter); max-width: 1240px; margin: 0 auto; }
-.trust__title { font-size: var(--t-h1-size); line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); font-weight: var(--t-h1-wt); max-width: 14ch; }
-.trust__body { font-size: var(--t-lead-size); line-height: var(--t-lead-lh); letter-spacing: var(--t-lead-ls); font-weight: var(--t-lead-wt); margin-top: 32px; max-width: 64ch; color: var(--ink-soft); }
-.ticker { margin-top: clamp(72px, 9vw, 140px); padding: 22px 0; border-top: 1px solid var(--line-light); border-bottom: 1px solid var(--line-light); overflow: hidden; white-space: nowrap; }
-.ticker__row { display: inline-flex; gap: 0; will-change: transform; }
-.ticker__row span { font-size: var(--t-subtitle-size); line-height: var(--t-subtitle-lh); letter-spacing: var(--t-subtitle-ls); font-weight: var(--t-subtitle-wt); display: inline-flex; align-items: center; gap: 28px; padding-right: 28px; color: var(--ink); }
-.ticker__row span::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
-
-/* ---------- Engage's chat (Figma 2415:2 on): just the chat, at the zoomed chat's size ---------- */
-/* Bottom-anchored in the stage and scaled by engageScene (which also sets its height to the band), so its composer
-   sits where the first chat's ended up. */
-.app.app--bare {
-  position: absolute; left: 50%; bottom: 24px; width: 560px; height: 600px; transform-origin: 50% 100%;
-  border: 0; border-radius: 0; background: none; overflow: visible;
-}
-.app--bare { container-type: inline-size; }
-.app--bare .app__chat { position: relative; display: block; height: 100%; padding: 0; }
-.app--bare .app__thread { top: 0; left: 0; right: 0; width: auto; transform: none; }
-.app--bare .app__ask { position: absolute; left: 0; right: 0; bottom: 48px; }
-/* Source's chat starts as the greeting over the prompt box and its buttons, centred (sourceScene drops the box). */
-.app--intro .app__chat { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
-.app--intro .app__ask { position: static; width: 100%; }
-.app__actions { flex-wrap: wrap; justify-content: center; }
-/* On a phone the chat is the screen's width (fitChat): the greeting smaller, the conversation nearer the edges. */
-@container (max-width: 480px) {
-  .app__hello { font-size: 32px; line-height: 36px; }
-  .app__thread { padding: 0 6px; }
-  .app__me { max-width: 88%; }
-  .app__placed-head { grid-template-columns: 32px 1fr; }
-  .app__badge { grid-column: 1 / -1; justify-self: start; }
-}
-.app__box--compact { height: 48px; padding: 0; border-color: rgba(81, 142, 243, 0.35); }
-.app__box--compact .app__line, .app__box--compact .app__under { visibility: visible; }
-.app__field--line { flex: 1 1 0; min-width: 0; overflow: hidden; white-space: nowrap; }
-.app__field--line .app__typed { color: #171717; }
-/* The conversation so far shows from the start. */
-.app__me.is-past, .app__by.is-past, .app__answer.is-past, .app__person.is-past { visibility: visible; }
-
-/* The message Ditto drafts: who it's to, the text (streamed over a hidden copy that holds its size), the slot it
-   held and the send button. */
-.app__draft {
-  visibility: hidden; display: grid; gap: 10px; padding: 14px 16px; border-radius: 16px;
-  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.85) 56%, rgba(255, 255, 255, 0.4) 100%);
-  border: 1px solid rgba(4, 92, 255, 0.12); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
-}
-.app__draft-head { color: rgba(23, 23, 23, 0.6); }
-.app__draft-head b { color: #171717; font-weight: 600; }
-/* The text to copy: set apart as a block, since it's pasted into LinkedIn by hand (the chat can't send it). */
-.app__draft-body { display: grid; line-height: 18px; padding: 10px 12px; border-radius: 12px; background: rgba(30, 110, 243, 0.04); border: 1px solid rgba(4, 92, 255, 0.08); }
-.app__draft-body > * { grid-area: 1 / 1; }
-.app__draft-ghost { visibility: hidden; }
-.app__draft-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(4, 92, 255, 0.1); }
-.app__slot { display: flex; align-items: center; gap: 6px; color: rgba(23, 23, 23, 0.6); }
-/* Copy, which turns to Copied: glass, like the app's other buttons. */
-.app__copy-btn {
-  display: grid; padding: 6px 12px; border-radius: 999px; font-weight: 400; color: #171717;
-  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); border: 1px solid #1e6ef3;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
-}
-.app__copy-btn > * { grid-area: 1 / 1; display: flex; align-items: center; justify-content: center; gap: 4px; }
-.app__copied-label { visibility: hidden; color: #1e6ef3; }
-.app__copied-label .app__tick { visibility: inherit; width: 12px; height: 12px; }
-
-/* The Engage message as it stands in Place's conversation so far: written out, and copied. */
-.app__draft.is-past { visibility: visible; }
-.app__draft.is-past .app__copy-label { visibility: hidden; }
-.app__draft.is-past .app__copied-label { visibility: visible; }
-
-/* Place's placement card: who, for whom and the Placed badge, then its facts. */
-.app__placed {
-  visibility: hidden; display: grid; gap: 12px; padding: 14px 16px; border-radius: 16px;
-  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.85) 56%, rgba(255, 255, 255, 0.4) 100%);
-  border: 1px solid rgba(4, 92, 255, 0.12); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
-}
-.app__placed-head { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 12px; }
-.app__badge {
-  display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; color: #1e6ef3; font-weight: 500;
-  background: rgba(30, 110, 243, 0.08); border: 1px solid rgba(30, 110, 243, 0.3); visibility: hidden;
-}
-.app__badge .app__tick { visibility: inherit; width: 12px; height: 12px; }
-/* Doubled so it outranks `.app ul`, which zeroed the gap under the line. */
-.app .app__facts { display: grid; gap: 12px; margin-top: 4px; padding-top: 16px; border-top: 1px solid rgba(4, 92, 255, 0.1); }
-.app__facts li { display: grid; grid-template-columns: 72px 1fr; gap: 8px; visibility: hidden; }
-.app__facts span { color: rgba(23, 23, 23, 0.5); }
-.app__facts b { font-weight: 400; }
-/* Touch screens: the day's stage tabs get a 44px tap area. */
-@media (pointer: coarse) { .day__tab, .feats__tab { min-height: 44px; } }
-/* Phones: the stage tabs sit below the corner logo, which stays on screen while the stage holds, rather than under it. */
-@media (max-width: 900px) {
-  /* A slimmer bar (56 tall) so it still ends above the chat, which starts 150px down the stage (product.ts BAND_TOP). */
-  .day__tabs { top: calc(var(--nav-h) + 8px); padding: 6px 8px; }
-  .day__pill { top: 6px; bottom: 6px; }
-}
-
-/* ---------- Features (the Pricing page's "From first call" layout, content from the production product page) ---------- */
-/* #FDFDFD under the Moving blobs. The centred 84px title and 24px lead, the glass Source / Engage / Place switch (as the
-   day section's), then the stage's features as numbered rows in a 684-wide column: the blue 84px number beside its
-   22px title and 16px copy, 40 apart (Pricing's .pstep). */
-/* Features and trust on one #FDFDFD field under one Moving blobs layer (pricing.css's .pfield): a screen tall, pinned
-   through both on wider screens; a fade at the field's top blends it out of the day section's plain white. */
+/* The features on one #FDFDFD field under the Moving blobs (pricing.css's .pfield): a screen tall, pinned
+   through them on wider screens; a fade at the field's top blends it out of the hero's white. */
 .pfield { position: relative; margin-top: -1px; background: #fdfdfd; }
 .pfield__fx { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; display: block; pointer-events: none; opacity: 0; transition: opacity 0.8s var(--ease-out); }
 .pfield--fx .pfield__fx { opacity: 1; }
@@ -273,19 +36,21 @@
 @media (max-width: 900px) {
   .pfield__fx { -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%); mask-image: linear-gradient(180deg, #000 70%, transparent 100%); }
 }
-.feats { position: relative; margin-top: -1px; background: transparent; color: #171717; padding: clamp(96px, 10vw, 160px) clamp(20px, 5.556vw, 80px); overflow: clip; }
+.feats { position: relative; margin-top: -1px; background: transparent; color: #171717; padding: clamp(64px, 7vw, 112px) clamp(20px, 5.556vw, 80px); overflow: clip; }
+/* /product#source, #engage, #place land here (boot.ts), just above the title. */
+.feats__anchor { position: absolute; top: 0; left: 0; }
 .feats__inner { position: relative; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: clamp(40px, 4vw, 56px); }
 .feats__head { display: grid; gap: 20px; text-align: center; max-width: 880px; }
 .feats__title { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
-.feats__lead { margin: 0; text-wrap: balance; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; color: rgba(23, 23, 23, 0.7); }
+.feats__lead { margin: 0; text-wrap: balance; font-size: clamp(18px, calc(18px + 4 * (100vw - 375px) / 1065), 22px); line-height: 1.35; letter-spacing: -0.02em; font-weight: 500; color: #3d4757; }
 
 .feats__tabs {
   position: relative; display: flex; gap: 8px; padding: 16px 20px; border-radius: 999px; isolation: isolate;
   background: linear-gradient(-73deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 1px 50px rgba(0, 0, 0, 0.1);
 }
 .feats__tab {
-  position: relative; min-height: 36px; padding: 8px 20px; border: 0; border-radius: 999px; background: none; cursor: pointer;
-  font: inherit; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717; white-space: nowrap;
+  position: relative; min-height: 44px; padding: 8px 20px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  font: inherit; font-size: 17px; line-height: 20px; letter-spacing: -0.02em; color: #171717; white-space: nowrap;
 }
 .feats__tab:focus { outline: none; }
 .feats__tab:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 2px; }
@@ -294,32 +59,71 @@
   background: linear-gradient(-80deg, rgba(255, 255, 255, 0.6) 0.27885%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25);
 }
 
-.feats__act { width: 100%; }
+
+.feats__act { width: 100%; display: grid; gap: clamp(32px, 4vw, 48px); }
 .feats__act[hidden] { display: none; }
-/* Home's Practical AI cards (home.css .aicard): white, a soft deep shadow, the 84px blue number above a 24px bold title
-   and 20px copy; the second card in Ditto's blue gradient. Three to a row. */
-.fcards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; perspective: 1400px; }
-/* (The perspective is for their flight in: product.ts flyIn.) */
+/* The stage's Ditto screen, centred above its cards. */
+.feats__screen { width: min(920px, 100%); margin: 0 auto; }
+/* All white, equal heights, titles top-aligned (brief 4.4, points 6, 7 and 9); a small icon in place of a number. The
+   one blue card is Scout, on purpose: the card we most want read. */
+.fcards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
 .fcard {
-  position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-height: clamp(240px, 22.64vw, 326px);
-  padding: clamp(24px, 2.778vw, 40px); border-radius: 24px; background: #fff; box-shadow: 0 8px 100px rgba(0, 0, 0, 0.18);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 28px; border-radius: 24px; background: #fff;
+  border: 1px solid rgba(15, 20, 29, 0.08); box-shadow: 0 10px 40px rgba(15, 20, 29, 0.05);
 }
-.fcard:nth-child(2) { background: linear-gradient(246.83deg, #1a7cf5 0%, #0b98fb 12%, #03a9fe 24%, #0b98fb 38%, #1583f6 58%, #1b74f4 80%, #1e6ef3 100%); color: #fff; }
-.fcard__index { font-size: clamp(56px, 5.833vw, 84px); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; }
-.fcard:nth-child(2) .fcard__index { color: #fff; }
-.fcard__text { display: grid; gap: 16px; }
-.fcard h3 { margin: 0; font-size: clamp(20px, 1.667vw, 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 700; text-wrap: balance; }
-.fcard p { margin: 0; font-size: clamp(16px, 1.25vw, 18px); line-height: 1.25; letter-spacing: -0.04em; }
-.fcard .fcard__note { font-size: 14px; line-height: 18px; color: #1e6ef3; }
-.fcard:nth-child(2) .fcard__note { color: rgba(255, 255, 255, 0.85); }
+.fcard__icon { display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 8px; border-radius: 14px; color: #1e6ef3; background: rgba(30, 110, 243, 0.08); }
+.fcard h3 { margin: 0; font-size: clamp(19px, 1.528vw, 22px); line-height: 1.2; letter-spacing: -0.03em; font-weight: 700; text-wrap: balance; }
+.fcard p { margin: 0; font-size: 17px; line-height: 1.5; letter-spacing: -0.01em; color: #3d4757; }
+.fcard .fcard__note { margin-top: auto; padding-top: 8px; font-size: 15px; line-height: 1.4; font-weight: 500; color: #1e6ef3; }
+.fcard--lead { background: #1e6ef3; border-color: #1e6ef3; color: #fff; box-shadow: 0 16px 50px rgba(30, 110, 243, 0.3); }
+.fcard--lead .fcard__icon { color: #1e6ef3; background: #fff; }
+.fcard--lead p, .fcard--lead .fcard__note { color: #fff; }
+
+/* ---------- AI assistant band: blue, on purpose ---------- */
+.aiband { position: relative; margin-top: -1px; background: linear-gradient(160deg, #1557c9 0%, #1e6ef3 100%); color: #fff; padding: clamp(64px, 7vw, 104px) clamp(20px, 5.556vw, 80px); }
+.aiband__inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); align-items: end; }
+.aiband__eyebrow { margin: 0 0 16px; display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border-radius: 999px; font-size: 13px; font-weight: 700; color: #1e6ef3; background: #fff; }
+.aiband__title { margin: 0; font-size: clamp(32px, calc(32px + 20 * (100vw - 375px) / 1065), 52px); line-height: 1.06; letter-spacing: -0.04em; font-weight: 700; text-wrap: balance; }
+.aiband__right { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
+.aiband__body { margin: 0; font-size: clamp(18px, calc(18px + 2 * (100vw - 375px) / 1065), 20px); line-height: 1.5; font-weight: 500; }
+
+/* ---------- Proof: the text beside its three stats, then the "Built for" ticker ---------- */
+.trust { position: relative; margin-top: -1px; background: #fdfdfd; color: var(--ink); padding: clamp(72px, 8vw, 120px) 0 0; overflow: clip; }
+.trust__inner { max-width: 1280px; margin: 0 auto; padding: 0 clamp(20px, 5.556vw, 80px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); align-items: start; }
+.trust__title { margin: 0; font-size: clamp(32px, calc(32px + 20 * (100vw - 375px) / 1065), 52px); line-height: 1.06; letter-spacing: -0.04em; font-weight: 700; text-wrap: balance; }
+.trust__body { margin: 24px 0 0; font-size: clamp(17px, calc(17px + 2 * (100vw - 375px) / 1065), 19px); line-height: 1.5; color: #3d4757; }
+.trust__stats { list-style: none; margin: 0; padding: 0; display: grid; gap: 24px; }
+.trust__stats li { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; padding-top: 18px; border-top: 2px solid #1e6ef3; }
+.trust__stats b { font-size: clamp(32px, calc(32px + 16 * (100vw - 375px) / 1065), 48px); line-height: 1.05; letter-spacing: -0.04em; font-weight: 700; color: #1e6ef3; }
+.trust__stats span { font-size: 18px; line-height: 1.35; color: #3d4757; }
+.ticker { display: flex; align-items: center; margin-top: clamp(56px, 7vw, 96px); border-top: 1px solid var(--line-light); border-bottom: 1px solid var(--line-light); }
+.ticker__label {
+  position: relative; z-index: 1; flex: none; margin: 0; padding: 22px 4px 22px clamp(20px, 5.556vw, 80px); background: #fdfdfd;
+  font-size: 15px; line-height: 20px; font-weight: 700; color: #1e6ef3; white-space: nowrap;
+}
+.ticker__pause {
+  position: relative; z-index: 1; flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin-right: 8px; border-radius: 50%;
+  color: var(--ink); background: #fdfdfd; transition: color 0.2s;
+}
+.ticker__pause:hover { color: #1e6ef3; }
+.ticker__pause:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 2px; }
+.ticker__play, .ticker__pause[aria-pressed='true'] .ticker__bar { display: none; }
+.ticker__pause[aria-pressed='true'] .ticker__play { display: inline; }
+.ticker__clip { flex: 1 1 0; min-width: 0; overflow: hidden; white-space: nowrap; padding: 22px 0; }
+.ticker__row { display: inline-flex; will-change: transform; }
+.ticker__row span { display: inline-flex; align-items: center; gap: 24px; padding-right: 24px; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.2; letter-spacing: -0.03em; font-weight: 600; color: var(--ink); }
+.ticker__row span::after { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #1e6ef3; }
 
 @media (max-width: 1100px) {
   .fcards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .aiband__inner, .trust__inner { grid-template-columns: minmax(0, 1fr); align-items: start; }
 }
 @media (max-width: 720px) {
   .feats__tabs { padding: 10px 12px; }
   .feats__pill { top: 10px; bottom: 10px; }
   .feats__tab { padding: 8px 16px; }
   .fcards { grid-template-columns: minmax(0, 1fr); }
-  .fcard { min-height: 0; }
+  .fcard { padding: 24px; }
 }
