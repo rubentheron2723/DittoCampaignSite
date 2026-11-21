@@ -389,6 +389,6 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
 }
 /* Touch screens: the small pills get a 44px tap area without changing how they look. */
 @media (pointer: coarse) {
-  .nav__cta, .gbtn { position: relative; }
-  .nav__cta::after, .gbtn::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 44px; translate: 0 -50%; }
+  .nav__cta, .gbtn, .fqa__trigger { position: relative; }
+  .nav__cta::after, .gbtn::after, .fqa__trigger::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 44px; min-height: 100%; translate: 0 -50%; }
 }

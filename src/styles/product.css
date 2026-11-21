@@ -250,7 +250,13 @@
 .app__facts span { color: rgba(23, 23, 23, 0.5); }
 .app__facts b { font-weight: 400; }
 /* Touch screens: the day's stage tabs get a 44px tap area. */
-@media (pointer: coarse) { .day__tab { min-height: 44px; } }
+@media (pointer: coarse) { .day__tab, .feats__tab { min-height: 44px; } }
+/* Phones: the stage tabs sit below the corner logo, which stays on screen while the stage holds, rather than under it. */
+@media (max-width: 900px) {
+  /* A slimmer bar (56 tall) so it still ends above the chat, which starts 150px down the stage (product.ts BAND_TOP). */
+  .day__tabs { top: calc(var(--nav-h) + 8px); padding: 6px 8px; }
+  .day__pill { top: 6px; bottom: 6px; }
+}
 
 /* ---------- Features (the Pricing page's "From first call" layout, content from the production product page) ---------- */
 /* #FDFDFD under the Moving blobs. The centred 84px title and 24px lead, the glass Source / Engage / Place switch (as the
