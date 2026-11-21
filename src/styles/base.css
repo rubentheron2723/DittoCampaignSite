@@ -270,13 +270,15 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 .menu__char { display: inline-block; white-space: pre; }
 /* With a mouse (a tablet with a trackpad, say), hovering ripples the letters as the footer links do (boot.ts). */
 .menu__links a.is-waving .menu__char { animation: wave-lift 0.38s ease-in-out calc(var(--i) * 30ms) both; }
-/* Two glass pills at the foot, centred: white-to-clear glass, and a clear 10% white one. */
-.menu__foot { position: relative; display: flex; justify-content: center; gap: 20px; }
+/* The foot: Book a demo as the primary button (one style site-wide, brief 4.3 point 4) beside Sign in as the
+   secondary, both 48 tall with 16px text. */
+.menu__foot { position: relative; display: flex; justify-content: center; gap: 12px; }
 .menu__btn {
-  display: inline-flex; align-items: center; padding: 12px 16px; border-radius: 999px; font-size: 12px; line-height: 16px; letter-spacing: -0.04em; color: #171717; white-space: nowrap;
-  background: linear-gradient(-80.6deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 10px rgba(0, 0, 0, 0.05);
+  display: inline-flex; align-items: center; justify-content: center; flex: 1 1 0; max-width: 220px; height: 48px; padding: 0 20px; border-radius: 999px;
+  font-size: 16px; line-height: 20px; font-weight: 500; letter-spacing: -0.02em; color: #fff; white-space: nowrap;
+  background: #1e6ef3; box-shadow: 0 8px 24px rgba(30, 110, 243, 0.3);
 }
-.menu__btn--clear { background: rgba(255, 255, 255, 0.1); color: #0f141d; }
+.menu__btn--clear { background: #fff; color: #0f141d; box-shadow: inset 0 0 0 1px rgba(15, 20, 29, 0.16); }
 /* While it's open the nav sits on white: dark logo and close button, no glass, no "Book a demo" (it's in the menu). */
 body.menu-open .nav { color: #171717; }
 body.menu-open .nav::before { opacity: 0; }
@@ -413,8 +415,10 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
-/* Touch screens: the small pills get a 44px tap area without changing how they look. */
+/* Touch screens: small pills, text links and the FAQ's questions get a 44px tap area without changing how they look
+   (brief 4.7). */
 @media (pointer: coarse) {
-  .nav__cta, .gbtn { position: relative; }
-  .nav__cta::after, .gbtn::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 44px; translate: 0 -50%; }
+  .nav__cta, .gbtn, .textlink, .fqa__trigger, .quote__faq a, .cform__jobs a, .cnext__mail a, .sform__forgot, .sform__link { position: relative; }
+  .nav__cta::after, .gbtn::after, .textlink::after, .fqa__trigger::after, .quote__faq a::after, .cform__jobs a::after, .cnext__mail a::after,
+  .sform__forgot::after, .sform__link::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 44px; min-height: 100%; translate: 0 -50%; }
 }
