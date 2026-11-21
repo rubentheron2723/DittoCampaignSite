@@ -2,9 +2,8 @@
 /* The Pricing hero's sky, glow and haze. Two equal columns: "About Ditto." at 84/88 bold over the copy on the left,
    the glass logomark centred in a 460-tall box on the right; then two glass buttons centred. */
 .ahero {
-  /* About 70% of the screen, so the statements show under it (brief 4.3, point 1). */
-  position: relative; display: flex; align-items: center; min-height: 72vh; min-height: 72svh;
-  padding: calc(var(--nav-h) + 40px) clamp(20px, 5.556vw, 80px) 96px;
+  position: relative; display: flex; align-items: center; min-height: 100vh; min-height: 100lvh;
+  padding: calc(var(--nav-h) + 48px) clamp(20px, 5.556vw, 80px) 120px;
   background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); color: #fefefe; overflow: clip;
 }
 .ahero__bg { position: absolute; inset: 0; pointer-events: none; }
@@ -18,16 +17,14 @@
 .ahero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
 .ahero__title { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; }
 .ahero__row { display: flex; align-items: center; gap: 40px; }
-.ahero__text { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 28px; }
-.ahero__logo { flex: 1 1 0; min-width: 0; height: 400px; display: flex; align-items: center; justify-content: center; }
+.ahero__text { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 40px; }
+.ahero__logo { flex: 1 1 0; min-width: 0; height: 460px; display: flex; align-items: center; justify-content: center; }
 /* Figma's copy is 685 wide in a 620 column: it runs a little past the column's edge, towards the logo. */
 .ahero__copy { display: flex; flex-direction: column; gap: 12px; width: min(685px, calc(100% + 65px)); }
-.ahero__lead { margin: 0; font-size: clamp(19px, calc(19px + 5 * (100vw - 375px) / 1065), 24px); line-height: 1.25; letter-spacing: -0.03em; font-weight: 600; }
-.ahero__body { display: grid; gap: 14px; font-size: clamp(18px, calc(18px + 2 * (100vw - 375px) / 1065), 20px); line-height: 1.4; letter-spacing: -0.02em; font-weight: 500; }
-/* The stat line, large (brief 3.7). */
-.ahero__stat { margin: 0; font-size: clamp(22px, calc(22px + 10 * (100vw - 375px) / 1065), 32px); line-height: 1.15; letter-spacing: -0.03em; font-weight: 700; text-wrap: balance; }
+.ahero__lead { margin: 0; font-size: clamp(18px, calc(18px + 6 * (100vw - 375px) / 1065), 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 500; }
+.ahero__body { display: grid; gap: 24px; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; }
 .ahero__body p { margin: 0; }
-.ahero__actions { display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 12px; }
+.ahero__actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; }
 
 /* The glass logomark (shared/glass-logo.ts): one solid block of glass in CSS 3D, turned by the pointer. */
 .glogo { position: relative; flex: none; width: 202.5px; height: 236px; perspective: 1000px; }
@@ -36,22 +33,22 @@
 /* A soft shadow under the block, on a plain layer behind it (a filter on the 3D faces would be redrawn every frame). */
 .glogo::before { content: ''; position: absolute; left: 12%; right: 12%; bottom: -18px; height: 36px; border-radius: 50%; background: rgba(6, 49, 120, 0.18); filter: blur(18px); }
 
+/* We think independently (Figma 2390:287): the stage itself is in think.css, shared with Product. */
 
 /* ---------- We like rebuilding broken systems (Figma 2390:108) ---------- */
 /* Five rows on #FEFEFE with the Moving blobs behind, 20 apart. Each: a 2px line (10% ink, filling #171717), the number
    84/88 in #00B0FF, then the title 40/44 bold on the left and the copy 16/20 at 60% on the right. */
-.rebuild { position: relative; margin-top: -1px; background: #fefefe; color: #171717; padding: clamp(72px, 8vw, 112px) clamp(20px, 5.556vw, 80px); }
+.rebuild { position: relative; margin-top: -1px; background: #fefefe; color: #171717; padding: 120px clamp(20px, 5.556vw, 80px); }
 .rebuild__fx { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; opacity: 0; transition: opacity 0.8s var(--ease-out); pointer-events: none; }
 .rebuild--fx .rebuild__fx { opacity: 1; }
-.rebuild__list { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px; }
+.rebuild__list { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 .rrow { display: flex; flex-direction: column; gap: 20px; }
 .rrow__bar { height: 2px; background: rgba(23, 23, 23, 0.1); overflow: hidden; }
 .rrow__bar i { display: block; height: 100%; background: #171717; transform: scaleX(0); transform-origin: 0 50%; }
-.rrow__num { margin: 0; font-size: clamp(40px, calc(40px + 24 * (100vw - 375px) / 1065), 64px); line-height: 1; letter-spacing: -0.04em; font-weight: 700; color: #1e6ef3; }
+.rrow__num { margin: 0; font-size: var(--t-h1-size); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; }
 .rrow__text { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; }
 .rrow__title { margin: 0; max-width: var(--w, 524px); font-size: clamp(28px, calc(28px + 12 * (100vw - 375px) / 1065), 40px); line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; }
-/* 17 to 18px in near black (brief 4.3, point 3). */
-.rrow__body { margin: 0; flex: none; width: min(560px, 50%); font-size: clamp(17px, calc(17px + 1 * (100vw - 375px) / 1065), 18px); line-height: 1.55; letter-spacing: -0.01em; color: #1f2733; }
+.rrow__body { margin: 0; flex: none; width: min(426px, 45%); font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
 @media (max-width: 760px) {
   .rebuild { padding-top: 80px; padding-bottom: 80px; }
   .rrow__text { flex-direction: column; gap: 16px; }
@@ -60,22 +57,13 @@
 }
 
 
-/* ---------- We think independently ---------- */
-/* The title and intro, then the five principles as a plain grid on #FDFDFD under the Moving blobs. Nothing holds the
-   page here any more (brief 4.3, point 1). */
-.think { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; padding: clamp(72px, 8vw, 112px) clamp(20px, 5.556vw, 80px); overflow: clip; }
-.think__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s var(--ease-out); pointer-events: none; }
-.think--fx .think__fx { opacity: 1; }
-.think__inner { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; }
-.think__head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 80px); align-items: start; }
-.think__title { margin: 0; font-size: clamp(36px, calc(36px + 28 * (100vw - 375px) / 1065), 64px); line-height: 1.05; letter-spacing: -0.04em; font-weight: 700; text-wrap: balance; }
-.think__intro { margin: 0; font-size: clamp(18px, calc(18px + 2 * (100vw - 375px) / 1065), 20px); line-height: 1.5; color: #1f2733; }
-.think__list { list-style: none; margin: clamp(40px, 5vw, 64px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.think__item { display: grid; align-content: start; gap: 10px; padding: 28px; border-radius: 24px; background: #fff; border: 1px solid rgba(15, 20, 29, 0.08); box-shadow: 0 10px 40px rgba(15, 20, 29, 0.05); }
-.think__name { margin: 0; font-size: clamp(21px, calc(21px + 5 * (100vw - 375px) / 1065), 26px); line-height: 1.15; letter-spacing: -0.03em; font-weight: 700; }
-.think__body { margin: 0; font-size: clamp(17px, calc(17px + 1 * (100vw - 375px) / 1065), 18px); line-height: 1.55; color: #1f2733; }
+/* Builders */
+
+/* Thinking */
+
+/* Team */
+
 @media (max-width: 900px) {
-  .think__head, .think__list { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* Narrow screens: the glass mark sits under the copy, a little smaller. */
@@ -84,23 +72,42 @@
   .ahero__copy { width: 100%; }
   .ahero__logo { height: 280px; }
   .glogo { transform: scale(0.72); }
+  .ahero__actions { justify-content: center; }
 }
 
 /* ---------- A team with unusually high standards (Figma 2395:98) ---------- */
-/* The logomark on the left, the title and copy in near black on the right; stacked on narrow screens.
-   Its own section; the logo builds itself once as it comes into view. */
+/* The logomark on the left, the 64/68 title and 20/24 copy at 60% on the right (524 wide); stacked on narrow screens.
+   With the lens running it's the last stop of the locked "We think independently" stage (.think__team), its type scaled
+   (--fit, set by think-zoom.ts) so the whole copy fits within one screen; otherwise it's its own section. */
 .team { position: relative; margin-top: -1px; background: #fdfdfd; color: #171717; padding: clamp(72px, 9vw, 120px) clamp(20px, 5.556vw, 80px); }
 .team__inner { display: flex; align-items: center; justify-content: space-between; gap: clamp(32px, 4vw, 64px); max-width: 1280px; margin: 0 auto; }
 .team__visual { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; align-self: stretch; }
 .tlogo { display: block; height: min(380px, 30vw); width: auto; aspect-ratio: 165.603 / 193; overflow: visible; }
 .team__copy { flex: none; width: min(524px, 50%); display: flex; flex-direction: column; }
 .team__title { margin: 0 0 20px; font-size: clamp(32px, calc(32px + 32 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; color: #171717; }
-.team__p { margin: 0; font-size: clamp(17px, calc(17px + 2 * (100vw - 375px) / 1065), 19px); line-height: 1.5; letter-spacing: -0.01em; color: #1f2733; }
+.team__p { margin: 0; font-size: clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px); line-height: 1.2; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); }
 .team__p + .team__p { margin-top: 1.2em; }
 /* The ribbons and the forming mark (team-logo.ts), drawn over the whole scene in the Figma frame's coordinates. */
 .tflow { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+/* Inside the stage: centred in the screen below the nav, hidden until the scroll reaches it; the last statement fades
+   as it arrives. The type scales by --fit and the mark by the screen's height, so the full copy fits on any screen. */
+.think__team {
+  position: absolute; left: 50%; top: calc(50% + var(--nav-h) / 2); z-index: 2; width: min(1280px, calc(100% - 2 * clamp(20px, 5.556vw, 80px)));
+  height: min(656px, calc(100vh - var(--nav-h) - 96px)); transform: translate(-50%, -50%); visibility: hidden;
+}
+.think__team .tlogo { height: min(76%, 50vh); }
+.think__team .team__title { font-size: calc(clamp(32px, calc(32px + 32 * (100vw - 375px) / 1065), 64px) * var(--fit, 1)); margin-bottom: calc(20px * var(--fit, 1)); }
+.think__team .team__p { font-size: calc(clamp(16px, calc(16px + 4 * (100vw - 375px) / 1065), 20px) * var(--fit, 1)); }
+.think--team .think__team { visibility: visible; }
+.think__stage > .tflow { visibility: hidden; }
+.think--team .think__stage > .tflow { visibility: visible; }
+.think--team .think__item.is-current { opacity: 0; transition: opacity 0.45s ease; }
 @media (max-width: 900px) {
   .team__inner { flex-direction: column; align-items: stretch; gap: 40px; }
   .tlogo { height: min(240px, 52vw); }
   .team__copy { width: auto; }
+  /* Stacked in the stage: the copy takes what it needs and the mark fills the rest above it (up to 240). */
+  .think__team { height: calc(100vh - var(--nav-h) - 48px); gap: calc(28px * var(--fit, 1)); }
+  .think__team .team__visual { flex: 1 1 0; min-height: 0; }
+  .think__team .tlogo { height: min(100%, 240px); }
 }

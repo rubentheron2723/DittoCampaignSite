@@ -1,6 +1,5 @@
 /**
- * FAQ copy, from the production FAQ page as edited by brief v2.2 section 3.8 (topic titles in sentence case, as in
- * Figma 2421:2028). The hero's counts are worked out from this list.
+ * FAQ copy, lifted verbatim from the production FAQ page (topic titles in sentence case, as in Figma 2421:2028).
  */
 export type FAQItem = {
   q: string;
@@ -9,10 +8,6 @@ export type FAQItem = {
 
 export type FAQCategory = {
   title: string;
-  /** The rail's shorter label, where it differs from the title. */
-  rail?: string;
-  /** A fixed link id (/faq#ai-assistant), where the title's own slug won't do. */
-  id?: string;
   items: FAQItem[];
 };
 
@@ -26,15 +21,15 @@ export const faqCategories: FAQCategory[] = [
       },
       {
         q: 'Will you migrate our existing database?',
-        a: 'Yes. We migrate your candidate records, client records, files and documents, and historical interactions from all major recruitment systems. We review a sample of your data, prepare a mapping sheet that shows how it will look in Ditto, and only migrate once you have approved it.',
+        a: 'Yes. We migrate databases from all major ATS providers. We start by reviewing the data you provide, including a sample if needed. We then prepare a detailed mapping sheet that shows how each part of your data will look inside Ditto. You review and approve that mapping before we move anything across. Once approved, we run the migration and confirm the result with you. The goal is that your team can work from a complete, usable database as soon as you go live.',
       },
       {
         q: 'Do we lose any data during migration?',
-        a: 'No. You see and approve the mapping before anything moves, so you know exactly what will be imported and how it will appear. If anything looks off, we fix it before you go live.',
+        a: 'No. We take data integrity seriously and we plan the migration properly. We confirm the mapping with you before the migration happens. That means you can see what will be imported and how it will appear in Ditto. Whatever data we receive and you approve is what gets migrated. If anything looks off, we fix it before you go live. The goal is simple: you should not lose data and you should not be surprised.',
       },
       {
         q: 'What systems can you migrate data from?',
-        a: 'All major recruitment systems. Most store similar information: candidates, clients, notes and attachments. During onboarding we review a sample, confirm what will be imported and flag any edge cases upfront.',
+        a: 'We migrate data from all major recruitment systems. Most ATS platforms store similar information like candidates, jobs, clients, notes, and attachments. Because of that, migrations are usually straightforward. During onboarding, we review a sample of your data and confirm what will be imported. We then provide a clear mapping plan so you know exactly what to expect. If there are edge cases, we highlight them upfront and agree on the best way to handle them.',
       },
       {
         q: 'Can we import candidates ourselves?',
@@ -51,53 +46,6 @@ export const faqCategories: FAQCategory[] = [
     ],
   },
   {
-    id: 'ai-assistant',
-    rail: 'AI assistant',
-    title: 'Ditto for Claude, ChatGPT and Copilot',
-    items: [
-      {
-        q: 'What is Ditto for Claude, ChatGPT and Copilot?',
-        a: 'It is a connection between Ditto and the AI assistant you already use. Once connected, you can ask your assistant to search your Ditto database, add candidates, update pipelines, log activity, create placements and pull reports, in plain language. It works on your agency’s live data, not a copy.',
-      },
-      {
-        q: 'Which AI assistants does it work with?',
-        a: 'Claude, ChatGPT and Microsoft Copilot. You use your own account with the assistant and connect it to Ditto by signing in with your Ditto login.',
-      },
-      {
-        q: 'Do I need a paid AI plan?',
-        a: 'No. Ditto connects to Claude, ChatGPT and Microsoft Copilot on any plan, including free accounts. If your company manages your assistant, an admin may need to switch the connection on first.',
-      },
-      {
-        q: 'What can I ask it to do?',
-        a: 'Find and shortlist candidates from a job spec. Add a candidate from a CV or LinkedIn profile and shortlist them for a job. Create clients, contacts and jobs. Move applicants between stages. Log calls, meetings and notes. Create tasks and reminders. Create placements and draft the invoice. Pull placement and activity numbers for you or your team.',
-      },
-      {
-        q: 'Can the assistant see everything in our database?',
-        a: 'No. It acts as the recruiter who is signed in, with that recruiter’s permissions. If a recruiter cannot see something in Ditto, the assistant cannot see it either.',
-      },
-      {
-        q: 'Does it change records without me knowing?',
-        a: 'No. It only makes a change when you ask for it, it tells you what it changed, and every action is recorded in Ditto under your name. It checks for duplicates before it creates a candidate, client or job.',
-      },
-      {
-        q: 'Will it email candidates or clients for me?',
-        a: 'No. It drafts messages and summaries for you to review and send yourself. Ditto does not send emails or calendar invites on your behalf.',
-      },
-      {
-        q: 'Is our data used to train AI?',
-        a: 'Ditto never uses your candidate or client data to train AI models. Your assistant provider has its own rules. On personal plans, chats may be used to improve the provider’s models unless you switch that off in your settings. Business plans do not use them by default. Check this setting before you connect Ditto.',
-      },
-      {
-        q: 'Do I have to use an AI assistant to use Ditto?',
-        a: 'No. Ditto works fully in the browser, with its own built-in AI search, matching, summaries and job ad writing. The assistant connection is one more way to work.',
-      },
-      {
-        q: 'Is this the same as “MCP”?',
-        a: 'Yes. It is built on the Model Context Protocol (MCP), the open standard that lets AI assistants work securely with other software.',
-      },
-    ],
-  },
-  {
     title: 'Training & onboarding',
     items: [
       {
@@ -106,7 +54,7 @@ export const faqCategories: FAQCategory[] = [
       },
       {
         q: 'How long does training take?',
-        a: 'Training depends on your team and how they like to work. Some teams pick it up quickly, and some teams want more guidance. We normally split training into smaller sessions so people do not get overwhelmed. This makes it easier to learn and remember what to do. We focus on practical workflows, not theory.',
+        a: 'Training depends on your team and how they like to work. Some teams pick it up quickly, and some teams want more guidance. We normally split training into smaller sessions so people do not get overwhelmed. This makes it easier to learn and remember what to do. We focus on practical workflows, not theory. The goal is that your team can do real work inside Ditto after training.',
       },
       {
         q: 'Do you offer onboarding sessions for new recruiters?',
@@ -148,7 +96,7 @@ export const faqCategories: FAQCategory[] = [
       },
       {
         q: 'Can I still use Boolean search?',
-        a: 'Yes. Ditto supports both AI search and traditional keyword or Boolean search. Some recruiters prefer Boolean because it feels familiar. Others prefer AI search because it is faster and more flexible. You can switch between them depending on the job. This means you do not need to change your style overnight. You can use both side by side.',
+        a: 'Yes. Ditto supports both AI search and traditional keyword or Boolean search. Some recruiters prefer Boolean because it feels familiar. Others prefer AI search because it is faster and more flexible. You can switch between them depending on the job. This means you do not need to change your style overnight. Ditto supports modern and legacy approaches side by side.',
       },
       {
         q: 'Can recruiters search the database before posting a job?',
@@ -164,7 +112,7 @@ export const faqCategories: FAQCategory[] = [
       },
       {
         q: 'Can I customise the matching logic?',
-        a: 'Yes. When you create a job, Ditto shows a summary of how applicants will be scored. Edit it to prioritise the skills and experience that matter most, and update it whenever the role changes.',
+        a: 'Yes. During job creation, Ditto generates a matching summary based on your job specification. This shows how candidates will be scored. You can review and edit this summary to prioritise certain skills or experience. This keeps the system transparent and under your control. If the role changes, you can update the matching logic at any time. The goal is that the system follows your rules, not hidden rules.',
       },
       {
         q: 'Can I edit candidate summaries?',
@@ -181,7 +129,7 @@ export const faqCategories: FAQCategory[] = [
     items: [
       {
         q: 'What are Personas in Ditto?',
-        a: 'Personas are saved instructions that tell Ditto’s AI how you want something written or judged. For example, a “Client submission” Persona can make every candidate summary formal, three paragraphs long and focused on leadership experience.',
+        a: 'Personas are instruction sets that shape how Ditto generates or presents output in specific parts of the platform. They help control things like tone, structure, emphasis, strictness, and format, depending on the workflow.',
       },
       {
         q: 'How are Personas used?',
@@ -222,7 +170,11 @@ export const faqCategories: FAQCategory[] = [
       },
       {
         q: 'Can premium job boards be connected?',
-        a: 'Yes. If you have an account with a premium job board, it can be connected to Ditto. In most cases this only requires an API key or authentication code. Once connected, your team can post from Ditto without bouncing between systems. This improves speed and reduces admin. If you are unsure what you need, we can guide you.',
+        a: 'Yes. If you have an account with a premium job board, it can be connected to Ditto. In most cases this only requires an API key or authentication code. The goal is to make it simple and not feel like a complex integration project. Once connected, your team can post from Ditto without bouncing between systems. This improves speed and reduces admin. If you are unsure what you need, we can guide you.',
+      },
+      {
+        q: 'Can recruiters add their own sourced candidates to a job?',
+        a: 'Yes. Recruiters can add sourced candidates directly to a job. This means you are not limited to waiting for applicants. Each role becomes a central workspace with applicants and sourced candidates in one place. This is useful for proactive recruiting and headhunting. It also improves collaboration because everyone can see the same shortlist. The job pipeline stays the single source of truth.',
       },
       {
         q: 'Can we track where candidates came from?',
@@ -251,7 +203,7 @@ export const faqCategories: FAQCategory[] = [
       },
       {
         q: 'Can recruiters manage multiple clients and jobs at the same time?',
-        a: 'Yes. Jobs are always linked to a client and a client can have unlimited open roles. Recruiters can manage high volumes of jobs and candidates without losing track. You can filter jobs by client, department, recruiter, and other fields. This reduces admin and makes day-to-day work easier. It also improves visibility across the business.',
+        a: 'Yes. That is the whole point of using an ATS. Jobs are always linked to a client and a client can have unlimited open roles. Recruiters can manage high volumes of jobs and candidates without losing track. You can filter jobs by client, department, recruiter, and other fields. This reduces admin and makes day-to-day work easier. It also improves visibility across the business.',
       },
       {
         q: 'Can we see the full candidate history?',
@@ -264,11 +216,15 @@ export const faqCategories: FAQCategory[] = [
     items: [
       {
         q: 'What email systems integrate with Ditto?',
-        a: 'Ditto integrates with Microsoft 365 and Google Workspace. This connects both email and calendar into the platform. It reduces the need to jump between tools all day. It also helps keep your communication history tied to candidates and clients. If you already use Outlook or Gmail, you can keep using them.',
+        a: 'Ditto integrates with Microsoft 365 and Google Workspace. This connects both email and calendar into the platform. It reduces the need to jump between tools all day. It also helps keep your communication history tied to candidates and clients. The goal is that Ditto feels like part of your existing workflow. If you already use Outlook or Gmail, you can keep using them.',
+      },
+      {
+        q: 'Does Ditto integrate with Outlook and Gmail?',
+        a: 'Yes. Ditto integrates with Outlook (Microsoft 365) and Gmail (Google Workspace). Email and calendar events sync between Ditto and your email platform. What you do in Ditto reflects in your inbox, and what you do in your inbox reflects in Ditto. This keeps things consistent and avoids missing messages. It also supports better team visibility when permissions allow it. The integration is designed to be reliable and practical for recruiters.',
       },
       {
         q: 'Does Ditto integrate with calendars?',
-        a: 'Yes. Calendar events stay synchronised between Ditto and your email calendar. This helps recruiters manage interviews and client meetings without duplicate admin. Events created in Ditto appear in your calendar, and calendar events can appear in Ditto. This keeps schedules aligned and reduces missed appointments. It also makes it easier to see availability when planning.',
+        a: 'Yes. Calendar events stay synchronised between Ditto and your email calendar. This helps recruiters manage interviews and client meetings without duplicate admin. Events created in Ditto appear in your calendar, and calendar events can appear in Ditto. This keeps schedules aligned and reduces missed appointments. It also makes it easier to see availability when planning. The goal is simple: one schedule, not two.',
       },
       {
         q: 'Can Ditto connect to external job boards?',
@@ -276,7 +232,7 @@ export const faqCategories: FAQCategory[] = [
       },
       {
         q: 'Does Ditto offer API access?',
-        a: 'Yes, on request. Tell us what you want to achieve and we will guide you on the best approach. If you want to work with Ditto from an AI assistant, you don’t need the API. See Ditto for Claude, ChatGPT and Copilot.',
+        a: 'Yes. API access is available on request. We do not run a public open API that anyone can use without context. If you need API access, contact us and tell us what you want to achieve. We will review your use case and guide you on the best approach. This helps ensure the integration is stable and supported. It also helps us understand your requirements properly before enabling access.',
       },
     ],
   },
@@ -285,15 +241,15 @@ export const faqCategories: FAQCategory[] = [
     items: [
       {
         q: 'What support channels are available?',
-        a: 'Email, phone and WhatsApp. Where it makes sense, we also come to your office for training.',
+        a: 'Support is available via email and telephone. If your team needs help, you can reach out and we will assist. This includes questions, training support, and troubleshooting. We want the system to feel easy to use, not frustrating. If something is unclear, we would rather you ask than guess. The goal is fast help and a smooth experience.',
       },
       {
         q: 'What are the support hours?',
-        a: 'Monday to Friday, 09:00 to 17:00, South African time. If you contact us outside those hours, we respond on the next business day.',
+        a: 'Support is available Monday to Friday, 9am to 5pm. These are standard business hours. If you contact us during these hours, we respond as quickly as possible. If you message outside of business hours, we respond the next business day. Your account manager can also guide you on the best channel for different requests. We keep support simple and direct.',
       },
       {
         q: 'How quickly do you respond to support tickets?',
-        a: 'We aim to respond within one hour during business hours. That does not always mean the issue is fully resolved in one hour, but we respond quickly and take ownership. We will ask questions if we need more details. If it is urgent, we prioritise it. If it is a bug, we escalate it immediately.',
+        a: 'We aim to respond within one hour during business hours. That does not always mean the issue is fully resolved in one hour, but we respond quickly and take ownership. We will ask questions if we need more details. If it is urgent, we prioritise it. If it is a bug, we escalate it immediately. The goal is that you are not left waiting.',
       },
       {
         q: 'Do we get a dedicated account manager?',
@@ -301,7 +257,7 @@ export const faqCategories: FAQCategory[] = [
       },
       {
         q: 'What happens if something breaks?',
-        a: 'Software can sometimes have bugs, and we take that seriously. If your team reports an issue, we investigate quickly. We work to fix problems as fast as possible because recruitment teams rely on the system daily. We also communicate clearly so you know what is happening. If something is broken, we do not ignore it.',
+        a: 'Software can sometimes have bugs, and we take that seriously. If your team reports an issue, we investigate quickly. We work to fix problems as fast as possible because recruitment teams rely on the system daily. We also communicate clearly so you know what is happening. The goal is a stable, reliable experience. If something is broken, we do not ignore it.',
       },
     ],
   },
@@ -327,44 +283,44 @@ export const faqCategories: FAQCategory[] = [
     items: [
       {
         q: 'How is candidate data protected?',
-        a: 'Each agency’s data sits in its own separate database schema. Data is encrypted at rest and in transit, and every action in the platform is recorded in an audit log. Only recruiters in your account can access your data, and permissions control what each of them can see and do.',
+        a: 'All databases are encrypted and access is tightly controlled. Only users in your account can access your data. Permissions help you control what different users can see and do. This protects sensitive candidate and client information. We also treat privacy seriously across the platform. The goal is that your data stays secure and only your team can access it.',
       },
       {
         q: 'Who owns our data?',
-        a: 'You own your data. Ditto hosts the data so you can use the platform, but your database belongs to you. If your account ends, you receive a copy of your data once the notice period is completed and the account is up to date. We keep the process straightforward and professional. If you need a specific export format, we can guide you.',
+        a: 'You own your data. Ditto hosts the data so you can use the platform, but your database belongs to you. If your account ends, you receive a copy of your data once the notice period is completed and the account is up to date. We keep the process straightforward and professional. If you need a specific export format, we can guide you. The goal is that you are never “held hostage” by your system.',
       },
       {
         q: 'Can we export our data?',
         a: 'Yes. Data exports are available throughout the system. Exports are permission-based, so you control who in your team can export sensitive data. This prevents accidental exports by the wrong users. If you need a custom export, contact us and we can help. Many clients use exports for reporting or audits. The key point is that your data is accessible when you need it.',
       },
-      {
-        q: 'Is our data used to train AI?',
-        a: 'No. Ditto never uses your candidate or client data to train AI models.',
-      },
     ],
   },
   {
-    title: 'Common concerns',
+    title: 'Questions we often hear',
     items: [
       {
         q: 'Will onboarding be painful?',
-        a: 'No. We plan it with you, with clear milestones and regular updates, so you always know what is happening and what we need from you. We have been onboarding agencies of every size since 2016.',
+        a: 'No. Onboarding is carefully planned with you so it feels controlled and smooth. We understand that switching systems can be stressful, especially when a team is busy. That is why we work with clear milestones and regular updates. We keep you informed on what is happening and what is needed from your side. We have onboarded thousands of recruitment teams, so we know the process well. The goal is to make the transition feel simple, not chaotic.',
       },
       {
         q: 'Will my team actually use the system?',
-        a: 'Yes. Jobs, candidates, communication and activity all live in one place, so Ditto becomes where the work happens, not an extra admin step. Training is included for every recruiter, including those who join later.',
+        a: 'Yes. Ditto is designed to become the operating system for your recruitment team. Many clients say, “If it’s not on Ditto, it doesn’t exist.” That is because jobs, candidates, communication, and activity all live in one place. It reduces admin and removes the need for scattered spreadsheets and inbox guesswork. Training and onboarding also help teams adopt the system properly. The goal is real daily usage, not a tool that gets ignored.',
+      },
+      {
+        q: 'Will we lose data?',
+        a: 'No. We plan migrations properly and confirm the mapping with you before importing. This gives you visibility into what is moving and how it will appear in Ditto. We take data integrity seriously because your database is your business. The goal is that you go live with a complete and usable database. If something looks wrong, we fix it before you start working. You should feel confident your data is safe.',
       },
       {
         q: 'Will we get locked into contracts?',
-        a: 'No. Month to month is the standard, with one calendar month’s notice. Some clients choose an annual plan, paid once upfront, for a 15% lower price. That is optional.',
+        a: 'No. Ditto offers flexible month-to-month contracts. That means you are not forced into long commitments by default. Some clients choose annual plans to receive a discount, but that is optional. If you choose an annual plan, you are paying ahead for the year in exchange for lower pricing. If you prefer flexibility, month-to-month is the standard option. The goal is simple: you choose what fits your business.',
       },
       {
         q: 'Will support disappear after the sale?',
-        a: 'No. Support continues for as long as you are a client. You get a dedicated account manager and access to our support team. We treat customer success as a core part of the product, not an afterthought. If you need training later, we do it. If you need help with configuration, we help.',
+        a: 'No. Support continues for as long as you are a client. You get a dedicated account manager and access to our support team. We treat customer success as a core part of the product, not an afterthought. If you need training later, we do it. If you need help with configuration, we help. The goal is an ongoing relationship, not a quick sale.',
       },
       {
         q: 'Will the system scale as we grow?',
-        a: 'Yes. Ditto is built to support growing recruitment teams and high volumes of data. As your team grows, you can add users and adjust workflows. We also keep improving the platform over time. Software is never “finished”, so we keep investing into performance, features, and usability. Ditto should keep up as you scale.',
+        a: 'Yes. Ditto is built to support growing recruitment teams and high volumes of data. As your team grows, you can add users and adjust workflows. We also keep improving the platform over time. Software is never “finished”, so we keep investing into performance, features, and usability. The goal is that you do not outgrow the system. Ditto should keep up as you scale.',
       },
     ],
   },
