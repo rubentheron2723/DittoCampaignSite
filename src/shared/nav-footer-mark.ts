@@ -37,7 +37,14 @@ export function initNavFooterMark() {
   const setState = (next: typeof state) => {
     if (next === state) return;
     if (next === 'flying') {
+      // The header (logo too) is folded up while scrolling down: measure the mark where it rests, not where it's hidden.
+      const brand = brandMark.closest<HTMLElement>('.nav__brand')!;
+      brand.style.transition = 'none';
+      brand.style.transform = 'none';
       const r = brandMark.getBoundingClientRect();
+      brand.style.transform = '';
+      void brand.offsetWidth;
+      brand.style.transition = '';
       from = { left: r.left, top: r.top, width: r.width };
       fromColor = getComputedStyle(nav).color;
     }
