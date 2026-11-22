@@ -1,7 +1,7 @@
 import '../styles/base.css';
 import '../styles/contact.css';
 
-import { dialCodes, errors, fields, hero, interests, jobsLine, next, roles, submitLabel, success, teamSizes } from '../content/contact';
+import { dialCodes, errors, fields, hero, interests, jobsLine, next, roles, sendError, submitLabel, success, teamSizes } from '../content/contact';
 import { boot } from '../shared/boot';
 import { footerHtml } from '../shared/chrome';
 import { esc, markSvg } from '../shared/mark';
@@ -89,7 +89,9 @@ function render() {
               ' field--full',
             )}
           </div>
+          <div class="form__trap" aria-hidden="true"><label for="company_fax-input">Leave this empty</label><input id="company_fax-input" name="company_fax" type="text" tabindex="-1" autocomplete="off" /></div>
           <button type="submit" class="bp bp--lg form__submit"><span class="form__submit-label">${esc(submitLabel)}</span><span class="form__submit-sending" aria-hidden="true">Sending…</span></button>
+          <p class="form__send-error" id="form-send-error" role="alert"></p>
           <div class="form__success" id="form-success" aria-live="polite">
             <div class="form__success-mark">${markSvg('mark--on-light')}</div>
             <h2 class="form__success-title" tabindex="-1">${esc(success.title)}</h2>
@@ -183,6 +185,33 @@ function initForm(animate: boolean) {
     }
   });
 
+  const sendErr = q<HTMLElement>('#form-send-error', form)!;
+
+  /** Posts every named field to /api/contact (api/contact.ts); rejects unless the server says it was sent. */
+  const send = async () => {
+    const body = Object.fromEntries([...new FormData(form)].map(([k, v]) => [k, String(v)]));
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const out = (await res.json().catch(() => null)) as { ok?: boolean } | null;
+    if (!res.ok || !out?.ok) throw new Error(`contact: ${res.status}`);
+  };
+
+  const showSent = () => {
+    form.classList.remove('is-sending');
+    form.classList.add('is-sent');
+    const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+    tl.to('.form__fields, .form__submit, .form__send-error', { autoAlpha: 0, y: -20, duration: animate ? 0.5 : 0 })
+      .set('.form__success', { display: 'grid' })
+      .fromTo('.form__success-mark .mark__l', { x: -80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 })
+      .fromTo('.form__success-mark .mark__r', { x: 80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 }, '<')
+      .from('.form__success-title, .form__success-copy', { y: 24, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, '-=0.5')
+      // The button that had focus is gone: focus (and a screen reader) moves to the confirmation.
+      .add(() => q<HTMLElement>('.form__success-title')?.focus({ preventScroll: true }));
+  };
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     tried = true;
@@ -195,18 +224,15 @@ function initForm(animate: boolean) {
     }
     form.classList.add('is-sending');
     submit.disabled = true;
-    // Simulated send (no backend in the prototype).
-    gsap.delayedCall(animate ? 1.1 : 0, () => {
-      form.classList.add('is-sent');
-      const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
-      tl.to('.form__fields, .form__submit', { autoAlpha: 0, y: -20, duration: animate ? 0.5 : 0 })
-        .set('.form__success', { display: 'grid' })
-        .fromTo('.form__success-mark .mark__l', { x: -80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 })
-        .fromTo('.form__success-mark .mark__r', { x: 80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 }, '<')
-        .from('.form__success-title, .form__success-copy', { y: 24, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, '-=0.5')
-        // The button that had focus is gone: focus (and a screen reader) moves to the confirmation.
-        .add(() => q<HTMLElement>('.form__success-title')?.focus({ preventScroll: true }));
-    });
+    sendErr.textContent = '';
+    send()
+      .then(showSent)
+      .catch(() => {
+        form.classList.remove('is-sending');
+        submit.disabled = false;
+        sendErr.innerHTML = `${esc(sendError.lead)} <a href="mailto:${sendError.email}">${esc(sendError.email)}</a>.`;
+        if (animate) gsap.fromTo(sendErr, { y: -6, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.4 });
+      });
   });
 }
 
