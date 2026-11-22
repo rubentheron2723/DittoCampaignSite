@@ -5,7 +5,7 @@ import { dialCodes, errors, fields, hero, interests, jobsLine, next, roles, send
 import { boot } from '../shared/boot';
 import { footerHtml } from '../shared/chrome';
 import { esc, markSvg } from '../shared/mark';
-import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
+import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, splitReveal } from '../shared/motion';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { initBlobBackdrop } from '../shared/blob-backdrop';
@@ -199,12 +199,28 @@ function initForm(animate: boolean) {
     if (!res.ok || !out?.ok) throw new Error(`contact: ${res.status}`);
   };
 
+  /**
+   * The confirmation is centred in the form, which on a phone is far above the button just tapped (about 500px), so
+   * it could land under the header or off screen. Bring it to the middle of the screen when it isn't already in view.
+   */
+  const bringThanksIntoView = () => {
+    const top = q('.form__success-mark', form)!.getBoundingClientRect().top;
+    const bottom = q('.form__success-copy', form)!.getBoundingClientRect().bottom;
+    const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
+    if (top >= navH + 16 && bottom <= window.innerHeight - 16) return;
+    const by = (top + bottom) / 2 - window.innerHeight / 2;
+    const smoother = ScrollSmoother.get();
+    if (smoother) smoother.scrollTo(smoother.scrollTop() + by, animate);
+    else window.scrollTo({ top: window.scrollY + by, behavior: animate ? 'smooth' : 'auto' });
+  };
+
   const showSent = () => {
     form.classList.remove('is-sending');
     form.classList.add('is-sent');
     const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
     tl.to('.form__fields, .form__submit, .form__send-error', { autoAlpha: 0, y: -20, duration: animate ? 0.5 : 0 })
       .set('.form__success', { display: 'grid' })
+      .add(bringThanksIntoView)
       .fromTo('.form__success-mark .mark__l', { x: -80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 })
       .fromTo('.form__success-mark .mark__r', { x: 80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 }, '<')
       .from('.form__success-title, .form__success-copy', { y: 24, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, '-=0.5')
