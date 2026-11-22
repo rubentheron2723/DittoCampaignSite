@@ -70,6 +70,9 @@ export const errors = {
   interest: 'Please select what you are interested in.',
 };
 
+/** Shown under the button when the request could not be sent; the address is a mailto link. */
+export const sendError = { lead: 'We couldn\u2019t send your request. Please try again, or email us at', email: 'hello@ditto.work' };
+
 export const success = {
   title: 'Thanks.',
   copy: 'We have your request and will be in touch within one business day.',

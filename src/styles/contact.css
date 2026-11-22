@@ -83,6 +83,12 @@ input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: n
 .form.is-sending .form__submit-label { display: none; }
 .form.is-sending .form__submit-sending { display: inline; }
 .form.is-sending .form__submit { opacity: 0.8; cursor: default; }
+/* Shown only when sending failed (pages/contact.ts). */
+.form__send-error { margin: 0; font-size: 16px; line-height: 1.45; color: #c42b1c; }
+.form__send-error:empty { display: none; }
+.form__send-error a { color: #1e6ef3; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+/* The bot trap: off screen, out of the tab order and hidden from screen readers. */
+.form__trap { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 .form__success { display: none; position: absolute; inset: 0; place-content: center; justify-items: center; text-align: center; gap: 16px; padding: 40px; }
 .form__success-mark { width: 64px; margin-bottom: 12px; filter: drop-shadow(0 20px 40px rgba(0, 176, 255, 0.35)); }
 .form__success-title { outline: none; margin: 0; font-size: clamp(32px, calc(32px + 32 * (100vw - 375px) / 1065), 64px); line-height: 1.0625; letter-spacing: -0.04em; font-weight: 700; }
