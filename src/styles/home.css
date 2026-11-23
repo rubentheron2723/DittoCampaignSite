@@ -56,10 +56,12 @@
 }
 /* The panels sit above the shared marquee, which sits above the background; the background slides with the panels. */
 .flow__strip { position: relative; z-index: 2; display: flex; width: max-content; }
+/* The copy and illustration sit together as one centred pair (the copy caps at 760, the art at 580), inside the site's
+   usual side margin, so on wide screens they hold the middle instead of hugging the left edge. */
 .fpanel {
   position: relative; width: 100vw; height: 100vh; height: 100svh; overflow: clip;
-  display: flex; align-items: center; gap: 20px;
-  padding: clamp(80px, 11.72vh, 120px) clamp(24px, 2.778vw, 40px);
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  padding: clamp(80px, 11.72vh, 120px) var(--gutter);
 }
 
 /* The shared marquee (animations/flow.ts): the section above's black line, carried into this one. Its CSS is its
