@@ -3,6 +3,7 @@ import { bezier, capKernel, compile, FULL_VERT, kernel, LENS_FRAG } from '../sha
 import { createTeamScene, type TeamScene } from './team-logo';
 import { sdfField } from './sdf';
 import { coverGone } from '../shared/cover';
+import { loadCanvasFont } from '../shared/canvas-font';
 
 /**
  * "We think independently." (Figma 2390:287): the section pins and scrolling flies the reader through its statements.
@@ -134,27 +135,6 @@ function rgba(css: string): number[] {
   return [m[0] / 255, m[1] / 255, m[2] / 255, m[3] ?? 1];
 }
 
-/**
- * DM Sans with its optical size fixed at the site's 16 (type.css sets opsz with font-variation-settings, which canvas
- * text ignores; at 84px the variable font would otherwise switch to its tighter display cut). Google Fonts serves an
- * instance pinned at one opsz; it is registered under its own name so it never replaces the page's font.
- */
-let canvasFamily: Promise<string> | null = null;
-function loadCanvasFont() {
-  canvasFamily ??= (async () => {
-    try {
-      const css = await (await fetch('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@16,400;16,500;16,700&display=block')).text();
-      const style = document.createElement('style');
-      style.textContent = css.replace(/font-family: 'DM Sans'/g, "font-family: 'DM Sans Canvas'");
-      document.head.appendChild(style);
-      await Promise.all(['400', '500', '700'].map((w) => document.fonts.load(`${w} 40px "DM Sans Canvas"`)));
-      return "'DM Sans Canvas', 'DM Sans', sans-serif";
-    } catch {
-      return "'DM Sans', sans-serif";
-    }
-  })();
-  return canvasFamily;
-}
 
 /**
  * Draws a statement exactly where and how the HTML lays it out: every word at its own line box, in the element's

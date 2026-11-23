@@ -38,6 +38,8 @@ export type PaperCards = {
   aspect: () => number;
   /** Redraws now (the loop also redraws while the canvas is on screen). */
   draw: () => void;
+  /** Uploads the face canvases again after they've been redrawn (same sizes), then redraws. */
+  refreshFaces: () => void;
 };
 
 const FOV = 30; // degrees, vertical
@@ -283,6 +285,15 @@ export function createPaperCards(
       return box.clientWidth / Math.max(1, box.clientHeight) || 16 / 9;
     },
     draw: () => render(performance.now()),
+    refreshFaces: () => {
+      faces.forEach((face, i) => {
+        gl.bindTexture(gl.TEXTURE_2D, textures[i]);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, face);
+        gl.generateMipmap(gl.TEXTURE_2D);
+      });
+      render(performance.now());
+    },
   };
 
   const resize = () => {
