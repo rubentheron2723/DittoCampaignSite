@@ -1,4 +1,5 @@
 import { gsap, q, SplitText } from './gsap';
+import { onModeChange } from '../shared/colour-mode';
 import { enter } from '../shared/motion';
 import { createPaperCards, type CardPose } from '../shared/paper-cards';
 import { ai } from '../content/home';
@@ -37,6 +38,9 @@ export const ACCENT_STOPS: [number, string][] = [
 ];
 
 /** Draws one card face (2D canvas → WebGL texture), set as in the Figma section (node 2364:692). */
+/** A colour token's current value (light or dark mode). */
+const token = (name: string, fallback: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+
 /**
  * Draws a card face. `c` is reused when redrawing (once the canvas font has loaded); `family` is that font, DM Sans at
  * the site's optical size, so the faces carry the same type as the HTML cards (.aicard in home.css).
@@ -60,11 +64,12 @@ function drawFace(index: number, title: string, copy: string, family = "'DM Sans
     ACCENT_STOPS.forEach(([at, colour]) => g.addColorStop(at, colour));
     ctx.fillStyle = g;
   } else {
-    ctx.fillStyle = '#ffffff';
+    // The card and its type from the colour tokens (white and Ink; in dark mode #2E2E2E and white).
+    ctx.fillStyle = token('--color-card', '#ffffff');
   }
   ctx.fill();
 
-  const ink = accent ? '#ffffff' : '#171717';
+  const ink = accent ? '#ffffff' : token('--color-text', '#171717');
   const pad = 40 * K;
   const spacing = (em: number, size: number) => {
     if ('letterSpacing' in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${em * size}px`;
@@ -249,9 +254,16 @@ export function initAI(animate: boolean) {
   if (import.meta.env.DEV) (window as unknown as { __aiCards: typeof cards }).__aiCards = cards; // for checking frames in dev
   // Drawn first in the page's DM Sans so the cards are never blank; redrawn in DM Sans at the site's optical size (16)
   // once it has loaded, so the faces match the design system's type instead of the variable font's display cut.
+  let faceFamily: string | undefined;
   loadCanvasFont().then((family) => {
     if (!family.startsWith("'DM Sans Canvas'")) return;
+    faceFamily = family;
     ai.cards.forEach((c, i) => drawFace(i, c.title, c.copy, family, faces[i]));
+    cards.refreshFaces();
+  });
+  // Light or dark mode: the faces drawn again in the new card colours.
+  onModeChange(() => {
+    ai.cards.forEach((c, i) => drawFace(i, c.title, c.copy, faceFamily, faces[i]));
     cards.refreshFaces();
   });
 

@@ -1,5 +1,6 @@
 @import './type.css';
 @import './tokens.css';
+@import './dark.css';
 
 :root {
   --ink: #0f141d;
@@ -162,7 +163,7 @@ svg { display: block; }
   font-size: 16px; line-height: 20px; letter-spacing: -0.04em; font-weight: 400; font-variation-settings: 'opsz' 14;
   color: rgba(23, 23, 23, 0.6); white-space: nowrap;
 }
-.scroll-cue__chev { display: block; width: 16px; height: 16px; }
+.scroll-cue__chev { display: block; width: 16px; height: 16px; color: rgba(23, 23, 23, 0.6); }
 /* Phones: closer to the foot (clear of the home indicator), so it sits under the panels' copy rather than on it. */
 @media (max-width: 900px) { .scroll-cue { bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); } }
 

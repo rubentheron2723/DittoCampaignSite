@@ -213,16 +213,18 @@ function initForm(animate: boolean) {
  * The "What happens next?" backdrop: the section's white, fading to #00b0ff from 64.1% to 85.2% of its height
  * (Figma's cloudsBG gradient), drawn into a strip the blobs then distort.
  */
-function nextGradient() {
+function nextGradient(dark = false) {
   const c = document.createElement('canvas');
   c.width = 1;
   c.height = 512;
   const ctx = c.getContext('2d')!;
   const g = ctx.createLinearGradient(0, 0, 0, c.height);
-  g.addColorStop(0, '#fdfdfd');
-  g.addColorStop(0.64111, '#fdfdfd');
-  g.addColorStop(0.85156, '#00b0ff');
-  g.addColorStop(1, '#00b0ff');
+  // Dark mode: #171717 into the dark footer's Ditto Blue.
+  const [page, foot] = dark ? ['#171717', '#1e6ef3'] : ['#fdfdfd', '#00b0ff'];
+  g.addColorStop(0, page);
+  g.addColorStop(0.64111, page);
+  g.addColorStop(0.85156, foot);
+  g.addColorStop(1, foot);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 1, c.height);
   return c;
@@ -236,7 +238,7 @@ boot({
     initClouds(q('.chero')!, q<HTMLCanvasElement>('.chero__sky')!, 'chero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
-    initBlobBackdrop(q('.cnext')!, q<HTMLCanvasElement>('.cnext__fx')!, 'cnext--fx', FOOTER_BLOBS, nextGradient(), reduce, 0.55);
+    initBlobBackdrop(q('.cnext')!, q<HTMLCanvasElement>('.cnext__fx')!, 'cnext--fx', FOOTER_BLOBS, nextGradient(), reduce, 0.55, 60, false, nextGradient(true));
     initForm(!reduce);
     if (reduce) return;
 

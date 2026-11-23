@@ -26,6 +26,8 @@
   --color-text-muted: rgba(23, 23, 23, 0.6);
   --color-text-on-hero: #fefefe;
   --color-surface: #ffffff;
+  /* Solid cards (feature, AI and pricing cards): white, or #2E2E2E (10% white on #171717) in dark mode. */
+  --color-card: #ffffff;
   --color-surface-hover: #ebf0f6;
   --color-line: rgba(15, 20, 29, 0.12);
   --color-selected-border: #1e6ef3;
@@ -62,6 +64,7 @@
   --color-text-muted: rgba(255, 255, 255, 0.6);
   --color-text-on-hero: #fefefe;
   --color-surface: rgba(255, 255, 255, 0.1);
+  --color-card: #2e2e2e;
   --color-surface-hover: rgba(179, 179, 179, 0.1);
   --color-line: rgba(255, 255, 255, 0.14);
   --color-selected-border: #1e6ef3;

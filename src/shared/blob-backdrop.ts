@@ -1,5 +1,6 @@
 import { createBlobsPass, type BlobParams } from './footer-blobs';
 import { covered } from './cover';
+import { currentMode, onModeChange } from './colour-mode';
 
 const MAX_DPR = 1.5;
 
@@ -22,7 +23,18 @@ export function initBlobBackdrop(
   fps = 60,
   /** It draws on the mobile menu, so the menu being open doesn't hold it (cover.ts). */
   overlay = false,
+  /** The section's colour in dark mode (default #171717, the dark page). */
+  darkColour: [number, number, number] | HTMLCanvasElement = [23, 23, 23],
 ) {
+  // Light or dark mode (shared/colour-mode.ts): dark inverts the blobs along their edges (faint light rings) over the
+  // dark colour. It starts in the page's mode and follows the switch.
+  const lightParams = params;
+  const lightColour = colour;
+  const darkParams: BlobParams = { ...params, mode: 'Invert' };
+  if (currentMode() === 'dark') {
+    params = darkParams;
+    colour = darkColour;
+  }
   const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, premultipliedAlpha: true });
   if (!gl) return null;
   const pass = createBlobsPass(gl, params, intensity);
@@ -38,9 +50,13 @@ export function initBlobBackdrop(
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
   }
   else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([...colour, 255]));
-  const fill = (rgb: [number, number, number]) => {
+  const fill = (c: [number, number, number] | HTMLCanvasElement) => {
     gl.bindTexture(gl.TEXTURE_2D, input);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([...rgb, 255]));
+    if (c instanceof HTMLCanvasElement) {
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    } else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([...c, 255]));
   };
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -104,12 +120,11 @@ export function initBlobBackdrop(
     // drew on, unseen, the whole way down a long section.
   }).observe(canvas);
 
-  return {
-    /** Switches the effect's settings and the section's colour under it (light and dark mode), redrawn at once. */
-    set(next: BlobParams, rgb: [number, number, number]) {
-      pass.setParams(next);
-      fill(rgb);
-      if (!lost) frame(performance.now());
-    },
+  const set = (next: BlobParams, c: [number, number, number] | HTMLCanvasElement) => {
+    pass.setParams(next);
+    fill(c);
+    if (!lost) frame(performance.now());
   };
+  onModeChange((mode) => (mode === 'dark' ? set(darkParams, darkColour) : set(lightParams, lightColour)));
+  return { set };
 }
