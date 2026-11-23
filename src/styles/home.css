@@ -41,11 +41,6 @@
 .hero__sub { max-width: 40em; font-size: clamp(18px, calc(18px + 4 * (100vw - 375px) / 1065), 22px); line-height: 1.4; letter-spacing: -0.02em; font-weight: 500; }
 .hero__actions { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; margin-top: 4px; }
 .hero__secondary { align-self: auto; }
-.hero__proof {
-  /* It lands where the sky fades to white, so it sits on frosted glass in ink: readable on blue or white. */
-  padding: 8px 14px; border-radius: 14px; font-size: clamp(14px, calc(14px + 2 * (100vw - 375px) / 1065), 16px); line-height: 1.35; font-weight: 500;
-  color: #0f141d; background: rgba(255, 255, 255, 0.72); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-}
 /* ---------- Shared bits ---------- */
 .eyebrow { margin: 0; font-size: 15px; line-height: 20px; font-weight: 700; letter-spacing: 0; color: #1e6ef3; }
 .eyebrow--new { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border-radius: 999px; color: #fff; background: #1e6ef3; font-size: 13px; }
