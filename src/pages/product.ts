@@ -39,7 +39,9 @@ function hero() {
 }
 
 /** A 16px icon from Figma's app mockup. */
-const appIcon = (name: string, cls = '') => `<img class="app__icon${cls ? ` ${cls}` : ''}" src="/product/app/${name}.svg" alt="" width="16" height="16" />`;
+/** An app icon: the SVG as a mask, painted in --color-icon so it follows light and dark mode. */
+const appIcon = (name: string, cls = '') =>
+  `<span class="app__icon${cls ? ` ${cls}` : ''}" style="--icon: url('/product/app/${name}.svg')" aria-hidden="true"></span>`;
 
 /** Two overlapping sheets: copy. */
 const COPY = icon('copy', { className: 'app__copy-icon', size: 12 });
