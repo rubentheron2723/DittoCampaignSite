@@ -27,7 +27,7 @@
   --t-small-min: 12; --t-small-max: 14; --t-small-lh: 1.5; --t-small-ls: 0em; --t-small-wt: 400;
   --t-label-min: 12; --t-label-max: 14; --t-label-lh: 1.3; --t-label-ls: .01em; --t-label-wt: 500;
   --t-caption-min: 10; --t-caption-max: 12; --t-caption-lh: 1.4; --t-caption-ls: 0em; --t-caption-wt: 400;
-  --t-eyebrow-min: 10; --t-eyebrow-max: 12; --t-eyebrow-lh: 1.4; --t-eyebrow-ls: .22em; --t-eyebrow-wt: 500;
+  --t-eyebrow-min: 10; --t-eyebrow-max: 12; --t-eyebrow-lh: 1.4; --t-eyebrow-ls: 0em; --t-eyebrow-wt: 500;
   --t-button-min: 16; --t-button-max: 16; --t-button-lh: 1; --t-button-ls: .01em; --t-button-wt: 400;
   --t-button-lg-min: 18; --t-button-lg-max: 20; --t-button-lg-lh: 1; --t-button-lg-ls: -0.01em; --t-button-lg-wt: 400;
   --t-number-min: 40; --t-number-max: 84; --t-number-lh: 1; --t-number-ls: -.04em; --t-number-wt: 600;

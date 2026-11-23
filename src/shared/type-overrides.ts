@@ -22,7 +22,7 @@ export const TYPE_ROLES: TypeRole[] = [
   { key: 'small', label: 'Small', uses: 'Card copy, notes, stat labels', sample: 'Shortlists update the moment a candidate replies, with the full history attached.' },
   { key: 'label', label: 'Label', uses: 'Nav links, chips, toggles, form labels', sample: 'Product   Pricing   About   FAQ' },
   { key: 'caption', label: 'Caption', uses: 'Meta text, ticks, errors', sample: 'Match 96 · Cape Town · Updated 2m ago' },
-  { key: 'eyebrow', label: 'Eyebrow', uses: 'Uppercase kickers and indexes', sample: 'THE RECRUITMENT OPERATING SYSTEM' },
+  { key: 'eyebrow', label: 'Eyebrow', uses: 'Small kickers and indexes, in sentence case (never all caps)', sample: 'The recruitment operating system' },
   { key: 'button', label: 'Button', uses: 'Standard buttons', sample: 'Book a demo' },
   { key: 'button-lg', label: 'Button large', uses: 'Big CTA buttons', sample: 'Book a demo' },
   { key: 'number', label: 'Number', uses: 'Stats and prices', sample: '12,480' },

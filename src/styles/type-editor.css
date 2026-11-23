@@ -4,7 +4,7 @@
 /* ---------- Specimen (inside the preview frame) ---------- */
 .specimen-body { background: var(--paper); color: var(--ink); }
 .specimen { padding: 56px var(--gutter) 120px; }
-.specimen__kicker { font: 500 12px/1 var(--t-family), sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 32px; }
+.specimen__kicker { font: 500 13px/1 var(--t-family), sans-serif; color: var(--ink-soft); margin-bottom: 32px; }
 .specimen__row { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 32px; align-items: baseline; padding: 36px 0; border-top: 1px solid var(--line-light); }
 .specimen__row--dark { margin: 0 calc(var(--gutter) * -1); padding: 48px var(--gutter); background: var(--dark-grad); color: var(--white); border-top: 0; }
 .specimen__meta { display: grid; gap: 6px; font: 400 13px/1.4 var(--t-family), sans-serif; letter-spacing: 0; color: var(--ink-soft); }
@@ -14,7 +14,6 @@
 .specimen__size { font-variant-numeric: tabular-nums; }
 .specimen__sample { max-width: 22ch; text-wrap: balance; }
 .specimen__sample[style*='--t-body'], .specimen__sample[style*='--t-small'], .specimen__sample[style*='--t-lead'] { max-width: 60ch; }
-.specimen__sample--upper { text-transform: uppercase; max-width: none; }
 .specimen__sample--num { font-variant-numeric: tabular-nums; }
 @media (max-width: 760px) {
   .specimen__row { grid-template-columns: 1fr; gap: 12px; }
