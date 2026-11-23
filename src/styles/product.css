@@ -93,7 +93,7 @@
   position: absolute; inset: 0; display: flex; align-items: center; gap: 8px; padding: 0 20px;
   color: rgba(23, 23, 23, 0.4); visibility: hidden;
 }
-.app__line > span { flex: 1 1 0; }
+.app__line > span:not(.app__icon) { flex: 1 1 0; }
 .app__under { position: absolute; right: 8px; top: calc(100% + 8px); display: flex; gap: 4px; visibility: hidden; }
 .app__under b { font-weight: 400; }
 .app__under em { font-style: normal; color: rgba(23, 23, 23, 0.5); }
