@@ -2,7 +2,7 @@ import '../styles/base.css';
 import '../styles/think.css';
 import '../styles/product.css';
 
-import { dayInTheLife, features, finalFeaturesCta, productHero, trust } from '../content/product';
+import { dayInTheLife, features, productHero, trust } from '../content/product';
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
@@ -390,7 +390,7 @@ function render() {
     day(),
     // Features and trust share one Moving blobs layer (two canvases showed a seam where their patterns met).
     `<div class="pfield"><canvas class="pfield__fx" aria-hidden="true"></canvas><i class="pfield__fade" aria-hidden="true"></i>${featuresSection()}${trustSection()}</div>`,
-    ctaAndFooter({ lineOne: finalFeaturesCta.title.replace(' recruitment business?', ''), lineTwo: 'recruitment business?', copy: finalFeaturesCta.body }),
+    ctaAndFooter(),
   ].join('');
 }
 

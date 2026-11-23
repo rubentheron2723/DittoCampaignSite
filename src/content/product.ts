@@ -1,11 +1,12 @@
 /**
- * Product copy.
+ * Product copy, from brief v2.2 section 3.5, set into the existing sections (no new sections or buttons; the
+ * "Day in the life" demo stays).
  */
 /** The hero (Figma 2398:532). */
 export const productHero = {
   title: ['Recruitment software', 'for teams that scale.'],
-  lead: 'One platform for sourcing, engagement, and placements across your full hiring workflow.',
-  support: 'A complete system for agencies and hiring teams that need speed, visibility, and control.',
+  lead: 'One ATS and CRM for sourcing, engagement and placements. Use it in the browser, or from Claude, ChatGPT and Microsoft Copilot.',
+  support: 'Built for agencies and in-house hiring teams that need speed, visibility and control.',
   cta: 'Day in the life',
 };
 
@@ -91,22 +92,17 @@ export const dayInTheLife = {
   },
 };
 
-export const finalFeaturesCta = {
-  title: 'Ready to scale your recruitment business?',
-  body: 'Book a guided demo and see why high-performing recruiters run on Ditto.',
-};
-
 /** "Trusted by leading recruitment teams since 2016." (moved from the home page): headline, copy and ticker. */
 export const trust = {
   headline: 'Trusted by leading recruitment teams since 2016.',
-  body:
-    'Ditto powers recruitment agencies and hiring teams across multiple markets, providing the infrastructure behind modern recruitment operations. From independent agencies to large, listed organisations, teams rely on Ditto to manage sourcing, communication, and placements while keeping their entire recruitment engine running smoothly.',
+  body: 'Thousands of recruiters run their desks on Ditto, from independent agencies to large listed groups, across multiple markets.',
   ticker: [
-    'Listed groups',
     'Independent agencies',
+    'Listed recruitment groups',
     'In-house hiring teams',
     'Permanent',
     'Contract',
+    'Temporary',
     'Retained',
     'Contingent',
     'Executive search',
@@ -127,7 +123,7 @@ export type ProductAct = {
 /** "Everything in one system": the features of each stage, lifted from the production product page (ditto.work/product). */
 export const features = {
   title: 'Everything in one system.',
-  lead: 'One platform for sourcing, engagement, and placements across your full hiring workflow.',
+  lead: 'Pick a stage to see what Ditto does for you there.',
   acts: [
   {
     "id": "source",
@@ -139,9 +135,9 @@ export const features = {
     "features": [
       {
         "id": "search",
-        "title": "Agentic AI search across your database",
-        "body": "Ditto uses agentic AI search to scan your entire database and understand intent, not just keywords. It surfaces candidates based on skills, experience, and role requirements, even when the brief is evolving.",
-        "supportNote": "Prefer legacy search? Keyword and Boolean search are also available.",
+        "title": "Scout: agentic AI search across your database",
+        "body": "Describe who you need, or paste the job spec. Scout reads your whole database and finds people by what they have done, not only the words on their CV. A sales brief also finds business development and partnerships people.",
+        "supportNote": "Prefer Boolean? Keyword and Boolean search are still there.",
         "chips": [
           "Agentic AI",
           "Boolean ready",
@@ -150,8 +146,8 @@ export const features = {
       },
       {
         "id": "job-ads",
-        "title": "Turn job specs into ready-to-publish job ads",
-        "body": "Drop in the job requirements and let Ditto handle the rest. Ditto converts job specs into clear, professional job ads in a single click, helping recruiters go from brief to live role without rewriting or reformatting.",
+        "title": "Job specs become job ads",
+        "body": "Paste the client’s spec and Ditto writes a clear, structured job ad in one click. Edit it, then publish.",
         "chips": [
           "1-click draft",
           "Consistent quality",
@@ -160,9 +156,9 @@ export const features = {
       },
       {
         "id": "distribution",
-        "title": "One central place for all job advertising",
-        "body": "With a single click, Ditto distributes roles across major free and premium job boards, aggregators, social platforms, and your own website. Every application flows back into one central pipeline.",
-        "supportNote": "Some premium job boards may require an account.",
+        "title": "One place for all your advertising",
+        "body": "Post a job once and Ditto sends it to free and premium job boards, aggregators, social platforms and your own website. Every application comes back into one pipeline.",
+        "supportNote": "Premium boards use your own board account.",
         "chips": [
           "Multi-channel",
           "Single inbox",
@@ -171,9 +167,9 @@ export const features = {
       },
       {
         "id": "matching-prompt",
-        "title": "Candidate matching logic you control",
-        "body": "When you create a job, Ditto generates a structured matching prompt based on your job spec. This prompt scores and ranks candidates as they apply. You can review, edit, and refine the prompt at any time.",
-        "supportNote": "Fully transparent. Never visible to candidates.",
+        "title": "Matching you can see and change",
+        "body": "For every job, Ditto writes out how it will score applicants, based on your spec. Applicants are scored and ranked as they apply. Change the criteria whenever the role changes.",
+        "supportNote": "Candidates never see your criteria.",
         "chips": [
           "Prompt scoring",
           "Editable logic",
@@ -182,8 +178,8 @@ export const features = {
       },
       {
         "id": "qualifiers",
-        "title": "Smart qualifiers to filter early",
-        "body": "Add role-specific screening questions to the application process. Ditto evaluates responses and filters out candidates who do not meet required criteria.",
+        "title": "Screening questions that filter early",
+        "body": "Add must-have questions to any application. Ditto checks the answers and filters out applicants who don’t meet your requirements.",
         "chips": [
           "Role filters",
           "Early gate",
@@ -192,8 +188,8 @@ export const features = {
       },
       {
         "id": "summaries",
-        "title": "Smart candidate summaries, at a glance",
-        "body": "Ditto generates concise executive summaries for every candidate, based on your persona. You can edit summaries at any time.",
+        "title": "Candidate summaries, your way",
+        "body": "Every candidate gets a short summary written the way you want it, using your Personas. Edit it at any time.",
         "chips": [
           "Executive summary",
           "Persona-aware",
@@ -212,8 +208,8 @@ export const features = {
     "features": [
       {
         "id": "pipelines",
-        "title": "Custom hiring pipelines",
-        "body": "Design pipelines that reflect how your agency works. Create role-specific and client-specific workflows with custom stages and statuses.",
+        "title": "Pipelines that match how you recruit",
+        "body": "Separate pipelines, stages and statuses for permanent, contract, retained or executive search, per client or per role.",
         "chips": [
           "Custom stages",
           "Role-specific",
@@ -222,8 +218,8 @@ export const features = {
       },
       {
         "id": "activity-tracking",
-        "title": "Track everything that matters",
-        "body": "Calls, emails, meetings, interviews, notes, feedback, and tasks. Ditto captures it all in one place, linked to the candidate, role, and client.",
+        "title": "Every interaction on the record",
+        "body": "Calls, emails, meetings, interviews, notes, feedback and tasks in one place, linked to the candidate, job and client.",
         "chips": [
           "Full history",
           "Linked records",
@@ -232,9 +228,9 @@ export const features = {
       },
       {
         "id": "calendar-email",
-        "title": "Integrated email and calendar",
-        "body": "Connect Google Workspace or Microsoft 365 email and calendar. Emails and meetings sync into Ditto and link to the correct records.",
-        "supportNote": "Shared visibility is configurable. You control privacy and access.",
+        "title": "Email and calendar built in",
+        "body": "Connect Google Workspace or Microsoft 365. Emails and meetings sync into Ditto and attach to the right records.",
+        "supportNote": "You choose which emails are shared with the team and which stay private.",
         "chips": [
           "Google Workspace",
           "Microsoft 365",
@@ -243,8 +239,8 @@ export const features = {
       },
       {
         "id": "follow-ups",
-        "title": "Follow-ups that do not get forgotten",
-        "body": "Log, schedule, and track follow-ups, CV submissions, and business development activity. Tasks and reminders keep busy days under control.",
+        "title": "Follow-ups that don’t get forgotten",
+        "body": "Log and schedule follow-ups, CV submissions and business development calls. Tasks and reminders keep busy days under control.",
         "chips": [
           "Task reminders",
           "CV tracking",
@@ -253,8 +249,8 @@ export const features = {
       },
       {
         "id": "collaboration",
-        "title": "Real team collaboration",
-        "body": "Tag colleagues on jobs, candidates, and activities. Keep decisions tied to the work with shared visibility across the team.",
+        "title": "Work the same role together",
+        "body": "Tag colleagues on jobs, candidates and activities, so decisions stay attached to the work and handovers are clean.",
         "chips": [
           "Team tags",
           "Shared context",
@@ -263,8 +259,8 @@ export const features = {
       },
       {
         "id": "talent-pools",
-        "title": "Talent pools that actually get used",
-        "body": "Group candidates into talent pools by skills, role type, and potential. Activate warm networks fast when new roles arrive.",
+        "title": "Talent pools",
+        "body": "Group candidates by skill, role type or potential, so your warm network is one click away when a new role lands.",
         "chips": [
           "Skills clusters",
           "Warm network",
@@ -273,8 +269,8 @@ export const features = {
       },
       {
         "id": "branded-submissions",
-        "title": "Branded candidate submissions",
-        "body": "Convert candidate profiles into polished client-ready submissions using your branded templates. No manual formatting.",
+        "title": "Branded CVs in one click",
+        "body": "Turn any candidate profile into a Word CV in your agency’s template. As many templates as you need. No retyping, no formatting.",
         "chips": [
           "Branded templates",
           "One-click output",
@@ -283,8 +279,8 @@ export const features = {
       },
       {
         "id": "sales-crm",
-        "title": "Built-in sales CRM",
-        "body": "Track leads, manage client relationships, and monitor opportunities from first contact through to placement, all in one system.",
+        "title": "Sales CRM included",
+        "body": "Track leads, client relationships and opportunities from first contact to placement, in the same system as your candidates.",
         "chips": [
           "Lead tracking",
           "Opportunity flow",
@@ -303,8 +299,8 @@ export const features = {
     "features": [
       {
         "id": "placements-faster",
-        "title": "Make placements faster",
-        "body": "Reduce delays and stalled decisions with structured workflows and full visibility between offer and start date.",
+        "title": "Faster from offer to start date",
+        "body": "Clear steps from offer to start date, so decisions don’t stall and nothing is forgotten.",
         "chips": [
           "Structured closing",
           "Fewer delays",
@@ -313,8 +309,8 @@ export const features = {
       },
       {
         "id": "placement-visibility",
-        "title": "Full visibility from pipeline to placement",
-        "body": "See exactly where placements stand at any moment. Remove bottlenecks and keep opportunities moving.",
+        "title": "See where every placement stands",
+        "body": "Offers out, offers accepted, start dates coming up. One view, no chasing.",
         "chips": [
           "Status clarity",
           "Bottleneck control",
@@ -323,8 +319,8 @@ export const features = {
       },
       {
         "id": "performance-reporting",
-        "title": "Performance reporting that actually matters",
-        "body": "Report on recruiter activity, team performance, and conversion rates across every stage. Understand what drives outcomes.",
+        "title": "Reporting on what drives results",
+        "body": "Activity, conversion rates at every stage and results, per recruiter and per team.",
         "chips": [
           "Conversion rates",
           "Team performance",
@@ -333,8 +329,8 @@ export const features = {
       },
       {
         "id": "roi",
-        "title": "Advertising and sourcing ROI",
-        "body": "Track which job boards and sourcing channels lead to interviews, offers, and placements. Focus spend on what converts.",
+        "title": "Know which job boards pay off",
+        "body": "See which boards and sourcing channels lead to interviews, offers and placements. Spend where it converts.",
         "chips": [
           "Channel ROI",
           "Source impact",
@@ -343,8 +339,8 @@ export const features = {
       },
       {
         "id": "financials",
-        "title": "Financial reporting and team targets",
-        "body": "Track placement values, commissions, revenue, forecasts, and targets in one place.",
+        "title": "Fees, commissions and targets",
+        "body": "Track placement values, commissions, revenue, forecasts and targets in one place.",
         "chips": [
           "Forecast vs actual",
           "Commissions",
@@ -353,8 +349,8 @@ export const features = {
       },
       {
         "id": "after-care",
-        "title": "After-care and long-term relationships",
-        "body": "Maintain structured after-care follow-ups with clients and candidates to improve retention and repeat business.",
+        "title": "After-care that protects the placement",
+        "body": "Schedule check-ins with the candidate and the client after every placement. Protect the guarantee period and earn the next brief.",
         "chips": [
           "Retention focus",
           "Follow-up loops",

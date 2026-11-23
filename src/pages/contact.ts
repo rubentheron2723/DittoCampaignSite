@@ -85,7 +85,7 @@ function render() {
           ' field--full',
         )}
       </div>
-      <button type="submit" class="form__submit"><span class="form__submit-label">Send request</span><span class="form__submit-sending" aria-hidden="true">Sending…</span></button>
+      <button type="submit" class="form__submit"><span class="form__submit-label">Request my demo</span><span class="form__submit-sending" aria-hidden="true">Sending…</span></button>
       <div class="form__success" id="form-success" aria-live="polite">
         <div class="form__success-mark">${markSvg('mark--on-light')}</div>
         <h2 class="form__success-title" tabindex="-1">${esc(success.title)}</h2>
@@ -123,12 +123,14 @@ const validators: Record<string, (v: string) => boolean> = {
   name: (v) => v.trim().length > 1,
   email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
   business: (v) => v.trim().length > 1,
-  website: (v) => /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)?$/i.test(v.trim()),
+  // Optional (brief v2.2, 3.9): empty is fine; anything typed must look like a website.
+  website: (v) => !v.trim() || /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)?$/i.test(v.trim()),
   phone: (v) => /^[\d\s()-]{5,}$/.test(v.trim()) && v.replace(/\D/g, '').length >= 6,
   role: (v) => !!v,
   teamSize: (v) => !!v,
   interest: (v) => !!v,
-  message: (v) => v.trim().length > 0,
+  // Optional (brief v2.2, 3.9).
+  message: () => true,
 };
 
 function initForm(animate: boolean) {
