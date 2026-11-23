@@ -330,6 +330,25 @@ function initViews(animate: boolean, onLeaveReset: () => void) {
 
 const narrow = window.matchMedia('(max-width: 900px)');
 
+/**
+ * Narrow screens stack the white intro over the form, so the sky's white fade runs top to bottom, across the whole gap
+ * between them: clear just under the intro's last line, fully white just above the form's title, wherever the form
+ * starts (it moves with the screen's height and
+ * with the form shown: sign in, create account, reset). A fixed share of the page's height put the form's black title
+ * on the blue on some screens.
+ */
+function stackedFade() {
+  const section = q('.signin')!.getBoundingClientRect();
+  const h = section.height || 1;
+  const lede = q('.signin__lede')!.getBoundingClientRect();
+  // The title of whichever form is showing (the others are hidden); the panel's top if none is laid out yet.
+  const title = qa<HTMLElement>('.signin__panel .sform__title').find((t) => t.offsetParent);
+  const top = (title ?? q('.signin__panel')!).getBoundingClientRect().top;
+  const to = (top - section.top - 8) / h;
+  const from = Math.min((lede.bottom - section.top + 4) / h, to - 0.02);
+  return { from, to, axis: 'y' as const };
+}
+
 boot({
   page: 'signin',
   render,
@@ -338,8 +357,17 @@ boot({
       // Figma runs Moving blobs over the whole frame at full strength, after the sky's white fade.
       bubbles: { params: HERO_BUBBLES, intensity: 1 },
       // Figma's fade: clear at 18.7% across to #FEFEFE at 54.4%; on narrow screens, top to bottom instead.
-      fade: () => (narrow.matches ? { from: 0.26, to: 0.46, axis: 'y' } : { from: 0.18715, to: 0.54444, axis: 'x' }),
+      fade: () => (narrow.matches ? stackedFade() : { from: 0.18715, to: 0.54444, axis: 'x' }),
     });
+    // The CSS copy of the fade (shown until the sky's first frame) follows the same stops.
+    const cssFade = q<HTMLElement>('.signin__fade')!;
+    const syncCssFade = () => {
+      if (!narrow.matches) return void (cssFade.style.background = '');
+      const { from, to } = stackedFade();
+      cssFade.style.background = `linear-gradient(180deg, rgba(254, 254, 254, 0) ${(from * 100).toFixed(2)}%, #fefefe ${(to * 100).toFixed(2)}%)`;
+    };
+    syncCssFade();
+    new ResizeObserver(syncCssFade).observe(q('.signin')!);
     const resetReset = initForms(!reduce);
     initViews(!reduce, resetReset);
     if (reduce) return;
