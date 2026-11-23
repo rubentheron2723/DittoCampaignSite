@@ -276,4 +276,8 @@ export const shaderModes = [
   { shader: 'Moving blobs (sections)', setting: 'Mode', light: 'Displacement, edges only', dark: 'Invert, edges only (light rings on #171717)' },
   { shader: 'Moving blobs (sections)', setting: 'Strength / threshold', light: '11 / 27.5', dark: '11 / 27.5' },
   { shader: 'Moving blobs (both)', setting: 'Scale, dispersion, shadow, speed', light: '300, 59.1, 9, 61.7', dark: 'The same' },
+  { shader: 'Clouds (closing CTA)', setting: 'Sky / clouds', light: '#1e6ef3 → #00b0ff / #edf8ff', dark: '#0e0153 → #1e6ef3 / #f5655f (coral), shadow #1e6ef3' },
+  { shader: 'Clouds (closing CTA)', setting: 'Over the sky', light: 'White haze at the top, #00b0ff at the foot', dark: '#171717 haze at the top, #1e6ef3 at the foot' },
+  { shader: 'Footer', setting: 'Gradient', light: 'Radial from the foot: #1e6ef3 → #108ff9 → #01b0ff', dark: 'Radial from just below the foot: #0e0153 navy → #1e6ef3 at the edges' },
+  { shader: 'Footer', setting: 'Moving blobs', light: 'Displacement, edges only, 11 / 27.5', dark: 'The same' },
 ];

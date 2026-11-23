@@ -294,6 +294,13 @@ body.menu-open .menu-toggle span:last-child { transform: translateY(-4px) rotate
 body.menu-open .nav { color: #171717; }
 body.menu-open .nav::before { opacity: 0; }
 body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
+/* Dark mode: the menu on #171717 (blobs as light rings, boot.ts), white links, the current page still Ditto Blue. */
+[data-mode='dark'] .menu, [data-mode='dark'] .menu__links a { color: var(--color-text); }
+[data-mode='dark'] .menu__links a[aria-current='page'], [data-mode='dark'] .menu__links a:active { color: var(--color-selected-border); }
+[data-mode='dark'] .menu__bg { background: var(--color-bg); }
+[data-mode='dark'] .menu__btn { box-shadow: 0 8px 20px var(--color-glow); }
+[data-mode='dark'] .menu__btn--clear { color: var(--color-text); }
+[data-mode='dark'] body.menu-open .nav { color: var(--color-text); }
 .nav__cta { transition: color 0.35s var(--ease-out), filter 0.2s, opacity 0.3s var(--ease-out); }
 
 /* Text for screen readers only. */
@@ -324,6 +331,11 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
    (grey on a dark section above). The CTA's own 4px edge colour fills them. */
 .cta__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; clip-path: inset(3px 0 0 0); }
 .cta--sky .cta__sky { opacity: 1; }
+/* Dark mode (Figma 2441:2263): navy into Ditto Blue under the shader (cta-clouds.ts colours its clouds coral), from
+   #171717 above to Ditto Blue at the foot, where the dark footer starts. */
+[data-mode='dark'] .cta { background: linear-gradient(180deg, var(--cta-edge, #171717) 0, var(--cta-edge, #171717) 4px, #0e0153 4px, #1e6ef3 100%); }
+[data-mode='dark'] .cta::before { background: var(--cta-from, #171717); }
+[data-mode='dark'] .cta .cta__shade { background: linear-gradient(180deg, rgba(30, 110, 243, 0) 62.549%, #1e6ef3 100%), linear-gradient(180deg, var(--cta-from, #171717) 0%, rgba(23, 23, 23, 0) 52.559%); }
 /* Figma 2378:1159: white haze at the top (from the section above) and the footer's #00B0FF at the bottom, so the
    band runs straight into the footer with no edge. */
 .cta__shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 176, 255, 0) 62.549%, #00b0ff 100%), linear-gradient(180deg, #fefefe 0%, rgba(255, 255, 255, 0) 52.559%); pointer-events: none; }
@@ -360,6 +372,9 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
   display: flex; flex-direction: column;
   background: radial-gradient(57.677% 53.158% at 50% 100%, #1e6ef3 0%, #108ff9 50%, #01b0ff 100%);
 }
+/* Dark mode (Figma 2441:2269): a navy glow from just below the foot opening out to Ditto Blue (footer-blobs.ts draws
+   the same under the blobs). */
+[data-mode='dark'] .footer { background: radial-gradient(88.688% 81.738% at 50% 107.227%, #0e0153 0%, #100f67 12.5%, #121c7b 25%, #1638a3 50%, #1a53cb 75%, #1e6ef3 100%); }
 .footer__fx { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
 .footer--fx .footer__fx { opacity: 1; }
 .footer--fx .footer__logomark svg, .footer--fx .footer__wordmark { visibility: hidden; }

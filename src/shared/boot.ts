@@ -6,6 +6,7 @@ import { hideCurtain } from './curtain';
 import { coverAndGo, hideIntro, playCloudIntro } from './intro';
 import { initFooterBlobs, type BlobParams } from './footer-blobs';
 import { initBlobBackdrop } from './blob-backdrop';
+import { currentMode, onModeChange } from './colour-mode';
 import { HERO_BUBBLES, initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
@@ -326,6 +327,12 @@ let menuOpen = false;
 
 /** The menu's Moving blobs: the hero's, with Figma's threshold for this frame (27.5). */
 const MENU_BLOBS: BlobParams = { ...HERO_BUBBLES, threshold: 27.5 };
+/** Dark mode: the blobs inverted along their edges, faint light rings on #171717. */
+const MENU_BLOBS_DARK: BlobParams = { ...MENU_BLOBS, mode: 'Invert' };
+const MENU_WHITE: [number, number, number] = [255, 255, 255];
+const MENU_INK: [number, number, number] = [23, 23, 23];
+let menuBlobs: ReturnType<typeof initBlobBackdrop> = null;
+onModeChange((mode) => menuBlobs?.set(mode === 'dark' ? MENU_BLOBS_DARK : MENU_BLOBS, mode === 'dark' ? MENU_INK : MENU_WHITE));
 let menuReduce = false;
 
 function initMenu(ctx: BootContext) {
@@ -385,7 +392,8 @@ function openMenu() {
     const menu = q('#menu')!;
     // Shown first, so the canvas has its size when the backdrop measures it.
     gsap.set(menu, { display: 'flex' });
-    initBlobBackdrop(menu, q<HTMLCanvasElement>('.menu__fx', menu)!, 'menu--fx', MENU_BLOBS, [255, 255, 255], menuReduce, 0.6, 60, true);
+    const dark = currentMode() === 'dark';
+    menuBlobs = initBlobBackdrop(menu, q<HTMLCanvasElement>('.menu__fx', menu)!, 'menu--fx', dark ? MENU_BLOBS_DARK : MENU_BLOBS, dark ? MENU_INK : MENU_WHITE, menuReduce, 0.6, 60, true);
   }
   menuOpen = true;
   document.body.classList.add('menu-open');

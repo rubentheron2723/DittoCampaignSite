@@ -12,6 +12,7 @@
 
 import { createBlobsPass, type BlobParams } from './footer-blobs';
 import { covered } from './cover';
+import { currentMode, onModeChange } from './colour-mode';
 
 type SkyTransform = { x: number; y: number; radius: number; angle: number };
 type Key<T> = { t: number; v: T };
@@ -125,6 +126,20 @@ export const SKY_HERO_DARK: CloudParams = {
   sky: [
     { at: 0, color: [0.1176, 0.4314, 0.9529] },
     { at: 1, color: [0.0535, 0.0054, 0.326] },
+  ],
+};
+
+/**
+ * The closing CTA's sky in dark mode (Figma 2441:2263): SKY_CTA's clouds in the coral accent (#F5655F), shadowed in
+ * Ditto Blue, over a sky from navy at the top to Ditto Blue at the foot (where it meets the dark footer).
+ */
+export const SKY_CTA_DARK: CloudParams = {
+  ...SKY_CTA,
+  cloudColor: [0.9608, 0.3961, 0.3725],
+  cloudShadowColor: [0.1176, 0.4314, 0.9529],
+  sky: [
+    { at: 0, color: [0.0549, 0.0039, 0.3255] },
+    { at: 1, color: [0.1176, 0.4314, 0.9529] },
   ],
 };
 
@@ -392,7 +407,10 @@ export function initCtaClouds(reduce: boolean) {
   const section = document.querySelector<HTMLElement>('.cta');
   const canvas = section?.querySelector<HTMLCanvasElement>('.cta__sky');
   // Drifts while on screen; still with reduced motion.
-  if (section && canvas) initClouds(section, canvas, 'cta--sky', reduce, SKY_CTA);
+  if (!section || !canvas) return;
+  // Light or dark (pages with a dark mode switch it from the footer, shared/colour-mode.ts).
+  const clouds = initClouds(section, canvas, 'cta--sky', reduce, currentMode() === 'dark' ? SKY_CTA_DARK : SKY_CTA);
+  onModeChange((mode) => clouds?.setLook(mode === 'dark' ? SKY_CTA_DARK : SKY_CTA));
 }
 
 /**
