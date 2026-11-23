@@ -10,7 +10,7 @@ import { SCREENS } from '../shared/screens';
  * abstract Ditto screen, the AI assistant, the AI built into Ditto, proof, and the closing CTA. Nothing pins.
  */
 
-/** The hero (Figma node 2354:85): the sky, the announcement pill, the headline, one line under it, two buttons, all
+/** The hero (Figma node 2354:85): the sky, the headline, one line under it, two buttons, all
  *  aligned to the left edge of the text. */
 function heroSection() {
   return `
@@ -21,7 +21,6 @@ function heroSection() {
       <div class="hero__haze"></div>
     </div>
     <div class="hero__inner">
-      <a class="hero__pill" href="${hero.pill.href}">${esc(hero.pill.label)}</a>
       <h1 class="hero__title">
         <span class="hero__line">${esc(hero.lineOne)}</span>
         <span class="hero__line">${esc(hero.lineTwo)}</span>

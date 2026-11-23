@@ -25,16 +25,9 @@
     rgba(253, 253, 253, 0.48) 60%, rgba(253, 253, 253, 0.7) 75%, rgba(253, 253, 253, 0.9) 90%, #fdfdfd 100%);
 }
 
-/* Everything lines up on the text's left edge (brief 4.4, point 9): the pill, the headline, one line under it, the two
-   buttons and the proof line. */
+/* Everything lines up on the text's left edge (brief 4.4, point 9): the headline, one line under it and the two
+   buttons. */
 .hero__inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; align-items: flex-start; gap: clamp(20px, 2.222vw, 32px); }
-.hero__pill {
-  display: inline-flex; align-items: center; min-height: 40px; padding: 8px 16px; border-radius: 999px;
-  font-size: clamp(14px, calc(14px + 2 * (100vw - 375px) / 1065), 16px); line-height: 20px; font-weight: 500; letter-spacing: -0.02em; color: #fff;
-  background: rgba(255, 255, 255, 0.16); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4); transition: background-color 0.2s;
-}
-.hero__pill:hover { background: rgba(255, 255, 255, 0.26); }
-.hero__pill:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .hero__title { font-size: var(--t-hero-size); line-height: var(--t-hero-lh); letter-spacing: var(--t-hero-ls); font-weight: var(--t-hero-wt); }
 .hero__line { display: block; }
 /* White on the saturated blue, medium weight, 18px or more (brief 4.3, point 3). */

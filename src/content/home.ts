@@ -1,7 +1,6 @@
 /* Home copy, from brief v2.2 section 3.3. */
 
 export const hero = {
-  pill: { label: 'New: Ditto now works inside Claude, ChatGPT and Microsoft Copilot →', href: '/ai-assistant' },
   lineOne: 'Recruitment.',
   lineTwo: 'Running at scale.',
   sub: 'The ATS and CRM recruitment teams use to find candidates, manage clients and make placements. With AI built in, and now inside Claude, ChatGPT and Copilot.',
