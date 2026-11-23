@@ -42,7 +42,9 @@ const icon = (name: string, cls = '') => `<img class="app__icon${cls ? ` ${cls}`
 
 /** Two overlapping sheets: copy. */
 const COPY = `<svg class="app__copy-icon" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 3.5v-.5a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
-const TICK = `<svg class="app__tick" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#1e6ef3"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+/** A done step's tick. The circle sits a hair inside its box and the SVG may draw past it, so neither its smoothed edge
+ *  nor the pop-in overshoot (back.out) is ever clipped. */
+const TICK = `<svg class="app__tick" viewBox="0 0 16 16" width="14" height="14" overflow="visible" aria-hidden="true"><circle cx="8" cy="8" r="7.75" fill="#1e6ef3"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 /**
  * Source's conversation (played by sourceScene): the request as a bubble, Ditto's steps as it works,
