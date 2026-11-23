@@ -97,7 +97,7 @@
 .fqa__panel { overflow: hidden; }
 /* Collapsed from the first paint (GSAP takes over when one opens), so the answers never flash open on load. */
 .fqa:not(.is-open) > .fqa__panel { height: 0; visibility: hidden; }
-.fqa__panel p { margin: 0; padding: 16px 44px 0 0; font-size: 17px; line-height: 1.5; letter-spacing: -0.01em; color: #3d4757; max-width: 72ch; }
+.fqa__panel p { margin: 0; padding: 20px 44px 0 0; font-size: 16px; line-height: 1.25; letter-spacing: -0.04em; color: rgba(23, 23, 23, 0.6); max-width: 72ch; }
 /* No matches: a glass card with the search icon, what was searched, and two ways on. */
 .fempty[hidden] { display: none; }
 .fempty {

@@ -1,11 +1,7 @@
-export type PageId = 'home' | 'product' | 'ai' | 'pricing' | 'about' | 'faq' | 'contact' | 'signin' | 'privacy' | 'terms';
+export type PageId = 'home' | 'product' | 'pricing' | 'about' | 'faq' | 'contact' | 'signin' | 'privacy' | 'terms';
 
-/** The "New" tag beside AI assistant in the nav and menu. Switch it off here once it's no longer news. */
-export const showNewTag = true;
-
-export const nav: { id: PageId; label: string; href: string; isNew?: boolean }[] = [
+export const nav: { id: PageId; label: string; href: string }[] = [
   { id: 'product', label: 'Product', href: '/product' },
-  { id: 'ai', label: 'AI assistant', href: '/ai-assistant', isNew: true },
   { id: 'pricing', label: 'Pricing', href: '/pricing' },
   { id: 'about', label: 'About', href: '/about' },
   { id: 'faq', label: 'FAQ', href: '/faq' },
@@ -17,29 +13,20 @@ export const appUrl = 'https://app.ditto.work';
 export const signInUrl = '/sign-in';
 
 /** Footer columns, as laid out in the Figma footer (node 2396:311): Company and Info on the first row, Community and
- * Account on the second; Legal (Privacy, Terms) beside Company and Info. */
+ * Account on the second; Legal (Privacy, Terms) below them. */
 export const footer = {
   columns: [
-    { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Product', href: '/product' }, { label: 'AI assistant', href: '/ai-assistant' }] },
+    { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Product', href: '/product' }] },
     { title: 'Info', links: [{ label: 'Pricing', href: '/pricing' }, { label: 'FAQ', href: '/faq' }, { label: 'Contact', href: '/contact' }] },
-    { title: 'Follow', links: [{ label: 'Facebook', href: 'https://www.facebook.com/DittoHire/' }, { label: 'LinkedIn', href: 'https://www.linkedin.com/company/dittohire/' }] },
+    { title: 'Community', links: [{ label: 'Facebook', href: 'https://www.facebook.com/DittoHire/' }, { label: 'LinkedIn', href: 'https://www.linkedin.com/company/dittohire/' }] },
     { title: 'Account', links: [{ label: 'Sign in', href: signInUrl }, { label: 'Book a demo', href: '/contact' }] },
     { title: 'Legal', links: [{ label: 'Privacy', href: '/privacy' }, { label: 'Terms', href: '/terms' }] },
   ],
 };
 
-/** The closing band on every page except the AI assistant page (which has its own). */
 export const finalCta = {
-  lineOne: 'Ready to run your desk',
-  lineTwo: 'on Ditto?',
-  copy: 'Book a guided demo and watch a job spec become a shortlist.',
+  lineOne: 'Ready to scale your',
+  lineTwo: 'recruitment business?',
+  copy: 'Book a guided demo and see why high-performing recruiters run on Ditto.',
   button: 'Book a demo',
-};
-
-/** The footer's closing lines: the job seekers' pointer, the copyright (year set automatically) and the trademarks. */
-export const footerLegal = {
-  jobs: { lead: 'Looking for a job?', label: 'Visit ditto.jobs', href: 'https://ditto.jobs' },
-  copyright: `© ${new Date().getFullYear()} Ditto Jobs (Pty) Ltd`,
-  trademarks:
-    'Claude is a trademark of Anthropic. ChatGPT is a trademark of OpenAI. Microsoft Copilot is a trademark of the Microsoft group of companies. Ditto is an independent product and is not affiliated with or endorsed by these companies.',
 };
