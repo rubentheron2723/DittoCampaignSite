@@ -1,5 +1,6 @@
 import { FOOTER_ART_FILL, FOOTER_LOGOMARK, FOOTER_WORDMARK, type FooterArt } from './footer-art';
 import { covered } from './cover';
+import { currentMode, onModeChange } from './colour-mode';
 
 /**
  * The footer's "Moving blobs" effect.
@@ -53,6 +54,24 @@ const GRADIENT = {
     [0, '#1e6ef3'],
     [0.5, '#108ff9'],
     [1, '#01b0ff'],
+  ] as const,
+};
+
+/**
+ * Dark mode (Figma 2441:2269): a navy glow centred just below the foot, opening out to Ditto Blue, so the top meets the
+ * dark CTA's blue foot. A wider ellipse than light's; the blobs are the same.
+ */
+const GRADIENT_DARK = {
+  radiusX: 1277.1 / 1440,
+  radiusY: 837 / 1024,
+  centerY: 1098 / 1024,
+  stops: [
+    [0, '#0e0153'],
+    [0.125, '#100f67'],
+    [0.25, '#121c7b'],
+    [0.5, '#1638a3'],
+    [0.75, '#1a53cb'],
+    [1, '#1e6ef3'],
   ] as const,
 };
 
@@ -432,6 +451,7 @@ export function initFooterBlobs(reduce: boolean) {
     return;
   }
 
+  let dark = currentMode() === 'dark';
   const u = deriveUniforms(FOOTER_BLOBS);
   const vao = gl.createVertexArray();
   const layer = document.createElement('canvas');
@@ -474,10 +494,11 @@ export function initFooterBlobs(reduce: boolean) {
     layer.height = height;
     const ctx = layerCtx;
     ctx.save();
-    ctx.translate(width / 2, height);
-    ctx.scale(GRADIENT.radiusX * width, GRADIENT.radiusY * height);
+    const g = dark ? GRADIENT_DARK : { ...GRADIENT, centerY: 1 };
+    ctx.translate(width / 2, height * g.centerY);
+    ctx.scale(g.radiusX * width, g.radiusY * height);
     const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
-    for (const [at, color] of GRADIENT.stops) grad.addColorStop(at, color);
+    for (const [at, color] of g.stops) grad.addColorStop(at, color);
     ctx.fillStyle = grad;
     ctx.fillRect(-width, -height * 4, width * 4, height * 8);
     ctx.restore();
@@ -496,6 +517,11 @@ export function initFooterBlobs(reduce: boolean) {
   repaintLayer = () => {
     if (width) paintLayer();
   };
+  // Light or dark: the gradient under the artwork (the blobs are the same in both).
+  onModeChange((mode) => {
+    dark = mode === 'dark';
+    if (width) paintLayer();
+  });
 
   const resize = () => {
     const rect = footer.getBoundingClientRect();
@@ -620,7 +646,8 @@ export function initFooterBlobs(reduce: boolean) {
  * displacement, dispersion and rim shading to make the bubbles subtler than
  * in Figma. Returns null if the context can't render the float field target.
  */
-export function createBlobsPass(gl: WebGL2RenderingContext, params: BlobParams, intensity = 1) {
+export function createBlobsPass(gl: WebGL2RenderingContext, initial: BlobParams, intensity = 1) {
+  let params = initial;
   if (!(gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float'))) return null;
   let fieldProgram: WebGLProgram;
   let compositeProgram: WebGLProgram;
@@ -631,7 +658,7 @@ export function createBlobsPass(gl: WebGL2RenderingContext, params: BlobParams, 
     console.warn('Bubbles disabled:', err);
     return null;
   }
-  const u = deriveUniforms(params);
+  let u = deriveUniforms(params);
   const vao = gl.createVertexArray();
   const fieldTex = gl.createTexture()!;
   const fieldFbo = gl.createFramebuffer()!;
@@ -659,6 +686,11 @@ export function createBlobsPass(gl: WebGL2RenderingContext, params: BlobParams, 
   };
 
   return {
+    /** New settings (light and dark mode differ), from the next frame on. */
+    setParams(next: BlobParams) {
+      params = next;
+      u = deriveUniforms(next);
+    },
     resize(w: number, h: number) {
       width = w;
       height = h;

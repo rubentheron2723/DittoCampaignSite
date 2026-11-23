@@ -2,15 +2,15 @@
  * Colour modes: the semantic colour tokens, with a value for light mode and one for dark mode.
  *
  * Light is the site as it is today. Dark comes from Figma (palette 2441:416, hero 2441:192, content section 2441:90).
- * Light applies everywhere by default; anything inside [data-theme="dark"] (or the page, with the attribute on <html>)
- * takes the dark values. The pages don't use these yet: they're the contract for building dark mode, and
- * /designsystem shows both side by side. Shader settings for each mode live next to the shaders
+ * Light applies everywhere by default; anything inside [data-mode="dark"] (the page, with the attribute on <html>, as
+ * shared/colour-mode.ts sets it) takes the dark values. (`data-mode`, not `data-theme`: sections already use that to
+ * tell the nav whether it sits over a light or a dark background.) /designsystem shows both side by side. Shader settings for each mode live next to the shaders
  * (SKY_HERO / SKY_HERO_DARK and HERO_BUBBLES / HERO_BUBBLES_DARK in shared/cta-clouds.ts, FOOTER_BLOBS / FOOTER_BLOBS_DARK
  * in shared/footer-blobs.ts).
  */
 
 :root,
-[data-theme='light'] {
+[data-mode='light'] {
   /* Palette (Figma "Light") */
   --color-primary: #00b0ff;
   --color-secondary: #1e6ef3;
@@ -48,7 +48,7 @@
   --color-hero-fade: #ffffff;
 }
 
-[data-theme='dark'] {
+[data-mode='dark'] {
   --color-primary: #1e6ef3;
   --color-secondary: #0e0153;
   --color-accent: #f5655f;

@@ -12,6 +12,7 @@
 
 import { createBlobsPass, type BlobParams } from './footer-blobs';
 import { covered } from './cover';
+import { currentMode, onModeChange } from './colour-mode';
 
 type SkyTransform = { x: number; y: number; radius: number; angle: number };
 type Key<T> = { t: number; v: T };
@@ -125,6 +126,20 @@ export const SKY_HERO_DARK: CloudParams = {
   sky: [
     { at: 0, color: [0.1176, 0.4314, 0.9529] },
     { at: 1, color: [0.0535, 0.0054, 0.326] },
+  ],
+};
+
+/**
+ * The closing CTA's sky in dark mode (Figma 2441:2263): SKY_CTA's clouds in the coral accent (#F5655F), shadowed in
+ * Ditto Blue, over a sky from navy at the top to Ditto Blue at the foot (where it meets the dark footer).
+ */
+export const SKY_CTA_DARK: CloudParams = {
+  ...SKY_CTA,
+  cloudColor: [0.9608, 0.3961, 0.3725],
+  cloudShadowColor: [0.1176, 0.4314, 0.9529],
+  sky: [
+    { at: 0, color: [0.0549, 0.0039, 0.3255] },
+    { at: 1, color: [0.1176, 0.4314, 0.9529] },
   ],
 };
 
@@ -392,7 +407,10 @@ export function initCtaClouds(reduce: boolean) {
   const section = document.querySelector<HTMLElement>('.cta');
   const canvas = section?.querySelector<HTMLCanvasElement>('.cta__sky');
   // Drifts while on screen; still with reduced motion.
-  if (section && canvas) initClouds(section, canvas, 'cta--sky', reduce, SKY_CTA);
+  if (!section || !canvas) return;
+  // Light or dark (pages with a dark mode switch it from the footer, shared/colour-mode.ts).
+  const clouds = initClouds(section, canvas, 'cta--sky', reduce, currentMode() === 'dark' ? SKY_CTA_DARK : SKY_CTA);
+  onModeChange((mode) => clouds?.setLook(mode === 'dark' ? SKY_CTA_DARK : SKY_CTA));
 }
 
 /**
@@ -400,7 +418,11 @@ export function initCtaClouds(reduce: boolean) {
  * `readyClass` once the first frame is drawn (and loses it if WebGL is lost),
  * so its CSS can keep a fallback until then.
  */
-export type Clouds = { setPart: (amount: number) => void };
+export type Clouds = {
+  setPart: (amount: number) => void;
+  /** Recolours the sky (light and dark mode share the clouds' shape) and, with bubbles, switches their settings. */
+  setLook: (params: CloudParams, bubbles?: BlobParams) => void;
+};
 export type SkyOptions = {
   /** Run the Moving blobs effect over the sky ("bubbles"); intensity < 1 makes them subtler than Figma. */
   bubbles?: { params: BlobParams; intensity: number };
@@ -607,6 +629,16 @@ export function initClouds(
       if (amount === part) return;
       part = amount;
       // The draw loop picks this up while animating; draw now when it isn't running.
+      if (!raf) render(performance.now());
+    },
+    setLook(next, bubbleParams) {
+      gl.useProgram(program);
+      gl.uniform3fv(loc('uCloudColor'), next.cloudColor);
+      gl.uniform3fv(loc('uCloudShadowColor'), next.cloudShadowColor);
+      gl.uniform3fv(loc('uSky0'), next.sky[0].color);
+      gl.uniform3fv(loc('uSky1'), next.sky[1].color);
+      gl.uniform2f(loc('uSkyP'), next.sky[0].at, next.sky[1].at);
+      if (bubbleParams) bubbles?.setParams(bubbleParams);
       if (!raf) render(performance.now());
     },
   };

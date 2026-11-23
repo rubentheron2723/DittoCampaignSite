@@ -6,6 +6,7 @@ import { hideCurtain } from './curtain';
 import { coverAndGo, hideIntro, playCloudIntro } from './intro';
 import { initFooterBlobs, type BlobParams } from './footer-blobs';
 import { initBlobBackdrop } from './blob-backdrop';
+import { currentMode, onModeChange } from './colour-mode';
 import { HERO_BUBBLES, initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
@@ -158,6 +159,9 @@ window.addEventListener('pageshow', (e) => {
 });
 
 /* ---------- CTA join ---------- */
+/** Re-blends the CTA into the section above it, after that section's colour changes (light and dark mode). */
+export const refreshCtaJoin = () => blendCtaIntoPrevious();
+
 /**
  * Removes the edge between the closing CTA and the section above it.
  * - Light sections: the section's own background now ends in the CTA's top
@@ -169,6 +173,11 @@ function blendCtaIntoPrevious() {
   const cta = q('.cta');
   const prev = cta?.previousElementSibling as HTMLElement | null;
   if (!cta || !prev) return;
+  // Measured afresh (a page switching between light and dark mode calls this again): undo the last blend first.
+  prev.style.backgroundImage = '';
+  cta.classList.remove('cta--from-dark');
+  cta.style.removeProperty('--cta-from');
+  cta.dataset.theme = 'light';
   const style = getComputedStyle(prev);
   // The last colour of a background gradient is the colour at the bottom edge.
   const colours = style.backgroundImage.match(/rgba?\([^)]*\)/g);
@@ -318,6 +327,12 @@ let menuOpen = false;
 
 /** The menu's Moving blobs: the hero's, with Figma's threshold for this frame (27.5). */
 const MENU_BLOBS: BlobParams = { ...HERO_BUBBLES, threshold: 27.5 };
+/** Dark mode: the blobs inverted along their edges, faint light rings on #171717. */
+const MENU_BLOBS_DARK: BlobParams = { ...MENU_BLOBS, mode: 'Invert' };
+const MENU_WHITE: [number, number, number] = [255, 255, 255];
+const MENU_INK: [number, number, number] = [23, 23, 23];
+let menuBlobs: ReturnType<typeof initBlobBackdrop> = null;
+onModeChange((mode) => menuBlobs?.set(mode === 'dark' ? MENU_BLOBS_DARK : MENU_BLOBS, mode === 'dark' ? MENU_INK : MENU_WHITE));
 let menuReduce = false;
 
 function initMenu(ctx: BootContext) {
@@ -377,7 +392,8 @@ function openMenu() {
     const menu = q('#menu')!;
     // Shown first, so the canvas has its size when the backdrop measures it.
     gsap.set(menu, { display: 'flex' });
-    initBlobBackdrop(menu, q<HTMLCanvasElement>('.menu__fx', menu)!, 'menu--fx', MENU_BLOBS, [255, 255, 255], menuReduce, 0.6, 60, true);
+    const dark = currentMode() === 'dark';
+    menuBlobs = initBlobBackdrop(menu, q<HTMLCanvasElement>('.menu__fx', menu)!, 'menu--fx', dark ? MENU_BLOBS_DARK : MENU_BLOBS, dark ? MENU_INK : MENU_WHITE, menuReduce, 0.6, 60, true);
   }
   menuOpen = true;
   document.body.classList.add('menu-open');

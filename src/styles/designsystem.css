@@ -125,7 +125,7 @@ html:has(.ds-body) { background: #fdfdfd; }
 .ds-modes__value i.is-shadow { background: #fdfdfd; }
 .ds-modes__value .ds-code { font-size: 11px; line-height: 15px; }
 
-/* Light and dark: live previews (all colour from the --color-* tokens of each figure's data-theme) */
+/* Light and dark: live previews (all colour from the --color-* tokens of each figure's data-mode) */
 .ds-modes__preview { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 8px; }
 .ds-mode { margin: 0; display: grid; gap: 10px; }
 .ds-mode figcaption { font-size: 14px; font-weight: 500; color: rgba(23, 23, 23, 0.6); }
@@ -133,7 +133,7 @@ html:has(.ds-body) { background: #fdfdfd; }
 .ds-mode__hero { aspect-ratio: 1440 / 1024; border-radius: 24px 24px 0 0; background: var(--color-sky); color: var(--color-text-on-hero); }
 .ds-mode__sky, .ds-mode__blobs { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; }
 .ds-mode__glow { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-[data-theme='dark'] .ds-mode__glow { mix-blend-mode: soft-light; opacity: 0.4; background: radial-gradient(130% 90% at 50% -24%, #0e0153 0%, #1e6ef3 50%, #171717 100%); }
+[data-mode='dark'] .ds-mode__glow { mix-blend-mode: soft-light; opacity: 0.4; background: radial-gradient(130% 90% at 50% -24%, #0e0153 0%, #1e6ef3 50%, #171717 100%); }
 .ds-mode__fade { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(0deg, var(--color-hero-fade) 0%, transparent 34.289%); }
 .ds-mode__nav, .ds-mode__bar { display: flex; align-items: center; gap: 12px; padding: 14px 18px; font-size: 12px; line-height: 16px; }
 .ds-mode__nav { color: var(--color-nav-text); }
