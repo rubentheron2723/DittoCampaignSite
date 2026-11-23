@@ -5,6 +5,8 @@ import {
   blurs,
   breakpoints,
   colours,
+  colourModes,
+  shaderModes,
   gapScale,
   gradients,
   motion,
@@ -16,6 +18,11 @@ import {
   type Token,
 } from '../content/design-system';
 import { gsap, SplitText } from '../animations/gsap';
+import { initBlobBackdrop } from '../shared/blob-backdrop';
+import { liftCover, markCoverGone } from '../shared/cover';
+import { HERO_BUBBLES, HERO_BUBBLES_DARK, initClouds, SKY_HERO, SKY_HERO_DARK } from '../shared/cta-clouds';
+import { FOOTER_BLOBS, FOOTER_BLOBS_DARK } from '../shared/footer-blobs';
+import { navLogoSvg } from '../shared/nav-logo';
 import { APP_ICONS, FILE_ICONS, icon, ICONS, type IconName } from '../shared/icons';
 import { esc } from '../shared/mark';
 import { renderEditor, renderSpecimen } from '../shared/type-editor';
@@ -36,6 +43,7 @@ const attr = (v: string) => v.replace(/&/g, '&amp;').replace(/"/g, '&quot;').rep
 const SECTIONS = [
   { id: 'overview', label: 'Overview', group: 'Start' },
   { id: 'colour', label: 'Colour', group: 'Tokens' },
+  { id: 'modes', label: 'Light and dark', group: 'Tokens' },
   { id: 'gradients', label: 'Gradients', group: 'Tokens' },
   { id: 'typography', label: 'Typography', group: 'Tokens' },
   { id: 'spacing', label: 'Spacing and layout', group: 'Tokens' },
@@ -128,6 +136,80 @@ function colourSection() {
       </div>
     </div>`;
   return section('colour', 'Colour', 'Every colour the site uses, by role. Click a swatch to copy its value.', groups + ramp);
+}
+
+/** Light and dark: each semantic token's two values (read from tokens.css once rendered), the shader changes, and a
+ *  live preview of a hero and a content section in each mode. */
+function modesSection() {
+  const groups = colourModes
+    .map(
+      (g) => `
+    <div class="ds-block">
+      <h3 class="ds-block__title">${g.title}</h3>
+      ${g.note ? `<p class="ds-block__note">${g.note}</p>` : ''}
+      <div class="ds-modes">
+        <div class="ds-modes__head"><span>Token</span><span>Light</span><span>Dark</span></div>
+        ${g.tokens
+          .map(
+            (t) => `
+          <div class="ds-modes__row">
+            <div class="ds-modes__name"><b>${t.name}</b><code class="ds-code ds-code--token">${t.token}</code><span>${t.uses}</span></div>
+            <button type="button" class="ds-modes__value" data-mode-token="${t.token}" data-mode="light"><i></i><code class="ds-code"></code></button>
+            <button type="button" class="ds-modes__value" data-mode-token="${t.token}" data-mode="dark"><i></i><code class="ds-code"></code></button>
+          </div>`,
+          )
+          .join('')}
+      </div>
+    </div>`,
+    )
+    .join('');
+  const shaders = `
+    <div class="ds-block">
+      <h3 class="ds-block__title">Shaders</h3>
+      <p class="ds-block__note">The cloud sky and the moving blobs keep their shape in dark mode; their colours and the blobs’ mode change. Settings: <code>SKY_HERO_DARK</code>, <code>HERO_BUBBLES_DARK</code> and <code>FOOTER_BLOBS_DARK</code>.</p>
+      <div class="ds-table ds-table--modes">
+        <div class="ds-table__row ds-table__row--head"><b>Shader</b><b>Setting</b><b>Light</b><b>Dark</b></div>
+        ${shaderModes.map((r) => `<div class="ds-table__row"><b>${r.shader}</b><span>${r.setting}</span><span>${r.light}</span><span>${r.dark}</span></div>`).join('')}
+      </div>
+    </div>`;
+  const preview = (mode: 'light' | 'dark') => `
+    <figure class="ds-mode" data-theme="${mode}">
+      <div class="ds-mode__hero" data-hero="${mode}">
+        <canvas class="ds-mode__sky"></canvas>
+        <span class="ds-mode__glow"></span>
+        <span class="ds-mode__fade"></span>
+        <div class="ds-mode__nav">${navLogoSvg('ds-mode__logo')}<span>Product · Pricing · FAQ</span><span class="ds-mode__cta">Book a demo</span></div>
+        <div class="ds-mode__copy">
+          <p class="ds-mode__title">Recruitment software FAQs.</p>
+          <p class="ds-mode__sub">Your questions, answered clearly.</p>
+          <span class="ds-mode__field">${icon('search', { size: 16 })}Search questions</span>
+        </div>
+      </div>
+      <div class="ds-mode__section" data-section="${mode}">
+        <canvas class="ds-mode__blobs"></canvas>
+        <div class="ds-mode__bar">${navLogoSvg('ds-mode__logo')}<span>Nav over a section</span></div>
+        <div class="ds-mode__body">
+          <div class="ds-mode__tabs">
+            <span class="ds-mode__tab is-on">Active</span>
+            <span class="ds-mode__tab is-hover">Hover</span>
+            <span class="ds-mode__tab is-focus">Focus</span>
+            <span class="ds-mode__tab">Default</span>
+          </div>
+          <div class="ds-mode__text">
+            <p class="ds-mode__h">Getting started with Ditto</p>
+            <p class="ds-mode__q">How long does implementation take?</p>
+            <p class="ds-mode__a">Implementation is planned around your preferred start date, with clear milestones so everyone knows what happens when.</p>
+          </div>
+        </div>
+      </div>
+      <figcaption>${mode === 'light' ? 'Light (today’s site)' : 'Dark'}</figcaption>
+    </figure>`;
+  return section(
+    'modes',
+    'Light and dark',
+    'Semantic colour tokens with a light and a dark value, from <code>src/styles/tokens.css</code>. Light is the site today; dark is from the Figma frames. Put <code>data-theme="dark"</code> on a section (or the page) to switch it. Click a value to copy it.',
+    `<div class="ds-modes__preview">${preview('light')}${preview('dark')}</div>` + groups + shaders,
+  );
 }
 
 function gradientSection() {
@@ -429,6 +511,22 @@ const allTokens = () => ({
   motion,
 });
 
+/** Every colour-mode token's value in each mode, read from tokens.css. */
+function modeValues() {
+  const read = (mode: string) => {
+    const el = Object.assign(document.createElement('div'), { hidden: true });
+    el.dataset.theme = mode;
+    document.body.appendChild(el);
+    const cs = getComputedStyle(el);
+    const out = colourModes.flatMap((g) => g.tokens.map((t) => ({ ...t, group: g.title, value: cs.getPropertyValue(t.token).trim() })));
+    el.remove();
+    return out;
+  };
+  const light = read('light');
+  const dark = read('dark');
+  return light.map((t, i) => ({ ...t, light: t.value, dark: dark[i].value }));
+}
+
 function exportCss() {
   const groups = allTokens();
   const lines = Object.entries(groups)
@@ -445,6 +543,14 @@ ${lines.join('\n\n')}
   --t-family: 'DM Sans';
   --t-opsz: 16;
 ${type.join('\n')}
+}
+
+/* Colour modes: light by default, dark inside [data-theme="dark"]. */
+:root, [data-theme='light'] {
+${modeValues().map((t) => `  ${t.token}: ${t.light};`).join('\n')}
+}
+[data-theme='dark'] {
+${modeValues().map((t) => `  ${t.token}: ${t.dark};`).join('\n')}
 }`;
 }
 
@@ -473,6 +579,18 @@ ${colours.map((g) => `### ${g.title}\n${g.note ? `${g.note}\n\n` : ''}${table(g.
 
 ### Sky ramp (in order)
 ${skyRamp.map((t) => `\`${t.value}\` at ${t.name}`).join(' → ')}
+
+## Colour modes (light and dark)
+Light is the site today; dark mode uses the same tokens with these values (switch with data-theme="dark"). In dark mode every section sits on #171717 with white text, and the nav stays light throughout.
+
+| Name | Token | Light | Dark | Use |
+|---|---|---|---|---|
+${modeValues().map((t) => `| ${t.name} | \`${t.token}\` | \`${t.light}\` | \`${t.dark}\` | ${t.uses} |`).join('\n')}
+
+### Shaders in each mode
+| Shader | Setting | Light | Dark |
+|---|---|---|---|
+${shaderModes.map((r) => `| ${r.shader} | ${r.setting} | ${r.light} | ${r.dark} |`).join('\n')}
 
 ## Gradients
 ${table(gradients)}
@@ -524,6 +642,7 @@ function exportJson() {
   for (const [group, ts] of Object.entries(allTokens())) {
     out[group] = Object.fromEntries(ts.map((t) => [t.token.replace(/^--/, ''), { value: t.value, name: t.name, ...(t.css ? { css: t.css } : {}), use: t.uses }]));
   }
+  out.modes = Object.fromEntries(modeValues().map((t) => [t.token.replace(/^--/, ''), { name: t.name, light: t.light, dark: t.dark, use: t.uses }]));
   out.type = Object.fromEntries(
     liveType().map((r) => [r.key, { family: 'DM Sans', opsz: 16, sizePhone: +r.min, sizeDesktop: +r.max, weight: +r.wt, lineHeight: +r.lh, letterSpacing: r.ls, use: r.uses }]),
   );
@@ -550,6 +669,7 @@ function renderSystem() {
         </div>
       </header>
       ${colourSection()}
+      ${modesSection()}
       ${gradientSection()}
       ${typeSection()}
       ${spacingSection()}
@@ -563,6 +683,39 @@ function renderSystem() {
     </main>
   </div>
   <div class="ds-toast" role="status" aria-live="polite"></div>`;
+
+  /* Light and dark values, read from tokens.css through a probe in each mode. */
+  const modeProbe = (mode: string) => {
+    const el = document.createElement('div');
+    el.dataset.theme = mode;
+    el.hidden = true;
+    document.body.appendChild(el);
+    return getComputedStyle(el);
+  };
+  const modeStyles = { light: modeProbe('light'), dark: modeProbe('dark') };
+  app.querySelectorAll<HTMLElement>('[data-mode-token]').forEach((el) => {
+    const v = modeStyles[el.dataset.mode as 'light' | 'dark'].getPropertyValue(el.dataset.modeToken!).trim();
+    el.dataset.copy = v;
+    el.querySelector('code')!.textContent = v;
+    const chip = el.querySelector<HTMLElement>('i')!;
+    // A shadow is shown on a chip; anything else (a colour or a gradient) fills it.
+    if (/^\d/.test(v)) {
+      chip.style.boxShadow = v;
+      chip.classList.add('is-shadow');
+    } else chip.style.background = v;
+  });
+
+  /* The previews run the real shaders, light and dark. This page has no entry cover, so lift it for them. */
+  liftCover();
+  markCoverGone();
+  for (const mode of ['light', 'dark'] as const) {
+    const hero = app.querySelector<HTMLElement>(`[data-hero="${mode}"]`)!;
+    initClouds(hero, hero.querySelector('canvas')!, 'is-sky', false, mode === 'dark' ? SKY_HERO_DARK : SKY_HERO, {
+      bubbles: { params: mode === 'dark' ? HERO_BUBBLES_DARK : HERO_BUBBLES, intensity: 0.6 },
+    });
+    const sec = app.querySelector<HTMLElement>(`[data-section="${mode}"]`)!;
+    initBlobBackdrop(sec, sec.querySelector('canvas')!, 'is-fx', mode === 'dark' ? FOOTER_BLOBS_DARK : FOOTER_BLOBS, mode === 'dark' ? [23, 23, 23] : [253, 253, 253], false, 0.55, 30);
+  }
 
   /* Live values: type specs and fluid spacing at this width. */
   const probe = document.createElement('div');

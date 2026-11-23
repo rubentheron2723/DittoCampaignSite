@@ -42,6 +42,9 @@ export const FOOTER_BLOBS: BlobParams = {
   speed: 61.7,
 };
 
+/** Content sections' blobs in dark mode (Figma 2441:90): inverted along their edges, light rings on #171717. */
+export const FOOTER_BLOBS_DARK: BlobParams = { ...FOOTER_BLOBS, mode: 'Invert' };
+
 /** Background gradient from the Figma frame: an ellipse centred on the bottom edge. */
 const GRADIENT = {
   radiusX: 830.55 / 1440,
