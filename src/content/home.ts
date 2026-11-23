@@ -17,7 +17,6 @@ export const system = {
 
 export type Act = {
   id: 'source' | 'engage' | 'place';
-  label: string;
   headline: string;
   lead: string;
   body: string;
@@ -27,7 +26,6 @@ export type Act = {
 export const acts: Act[] = [
   {
     id: 'source',
-    label: 'Source',
     headline: 'Find the right candidate in the database you already have.',
     lead: 'Most recruitment databases become graveyards of old CVs.',
     body: 'Ditto keeps every profile current and searchable, with an AI summary and a full history of every call, email and submission. Paste a client’s job spec and Scout, Ditto’s agentic AI search, finds the people who fit, even when their CVs use different words.',
@@ -35,7 +33,6 @@ export const acts: Act[] = [
   },
   {
     id: 'engage',
-    label: 'Engage',
     headline: 'Keep every candidate moving.',
     lead: 'Placements are won or lost between first contact and final decision.',
     body: 'Email, calendar, interviews, notes and pipeline stages live in one workflow the whole team can see. AI scores applicants against the job, drafts outreach and summarises profiles, so recruiters spend their time on conversations.',
@@ -43,7 +40,6 @@ export const acts: Act[] = [
   },
   {
     id: 'place',
-    label: 'Place',
     headline: 'See how work turns into revenue.',
     lead: 'A placement is the result of hundreds of small actions.',
     body: 'Ditto connects pipeline activity to placements, fees and targets, per recruiter and per team. Owners and managers see what is working without asking for a report.',

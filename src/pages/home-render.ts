@@ -58,7 +58,6 @@ function actsSection() {
         (a, i) => `
     <section class="act${i % 2 ? ' act--flip' : ''}" id="${a.id}" data-theme="light" aria-labelledby="act-${a.id}">
       <div class="act__copy">
-        <p class="eyebrow">${esc(a.label)}</p>
         <h2 class="act__title" id="act-${a.id}">${esc(a.headline)}</h2>
         <p class="act__lead">${esc(a.lead)}</p>
         <p class="act__body">${esc(a.body)}</p>
