@@ -6,7 +6,7 @@ import { boot } from '../shared/boot';
 import { footerHtml } from '../shared/chrome';
 import { esc, markSvg } from '../shared/mark';
 import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
-import { fadeUp, splitReveal } from '../shared/motion';
+import { enter, fadeUp, splitReveal } from '../shared/motion';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { initBlobBackdrop } from '../shared/blob-backdrop';
 import { FOOTER_BLOBS } from '../shared/footer-blobs';
@@ -263,7 +263,7 @@ boot({
         duration: 1,
         ease: 'expo.out',
         stagger: 0.08,
-        scrollTrigger: { trigger: step, start: 'top 85%', toggleActions: 'play none none reverse' },
+        scrollTrigger: enter(step, 'top 85%'),
       }),
     );
     fadeUp('.cnext__mail > *', '.cnext__mail', { y: 30, stagger: 0.1, start: 'top 90%' });

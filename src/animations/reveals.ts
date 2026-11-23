@@ -1,10 +1,7 @@
-import { gsap, q, qa, ScrollTrigger, SplitText } from './gsap';
+import { gsap, q, ScrollTrigger, SplitText } from './gsap';
+import { enter as reveal } from '../shared/motion';
 
-const enter = (trigger: Element, start = 'top 75%') => ({
-  trigger,
-  start,
-  toggleActions: 'play none none reverse',
-});
+const enter = (trigger: Element, start = 'top 75%') => reveal(trigger, start);
 
 /* ---------- Trust ---------- */
 export function initTrust(animate: boolean) {
