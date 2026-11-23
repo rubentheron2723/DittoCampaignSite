@@ -112,7 +112,6 @@
   background: linear-gradient(-86.6deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 101.64%), var(--color-bg);
   box-shadow: inset var(--ring, 0 0 0 0 transparent), 0 8px 100px var(--color-glow); color: var(--color-text);
 }
-[data-mode='dark'] :is(.pill::placeholder, .phone__input::placeholder, .form__message::placeholder, .select__value.is-placeholder) { color: rgba(255, 255, 255, 0.4); }
 [data-mode='dark'] .form__success-copy { color: var(--color-text-muted); }
 [data-mode='dark'] .select__list { background: linear-gradient(-89.64deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 101.71%), var(--color-card); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.4); }
 [data-mode='dark'] .select__option { color: var(--color-text); }
@@ -129,13 +128,15 @@
   [data-mode='dark'] .signin__fade { background: linear-gradient(180deg, rgba(23, 23, 23, 0) 26%, var(--color-bg-join) 46%); }
 }
 [data-mode='dark'] :is(.sform, .sform__title, .sform__sub, .sfield__input, .sform__forgot, .sform__link, .sfield__label) { color: var(--color-text); }
-[data-mode='dark'] .sfield__input::placeholder { color: rgba(255, 255, 255, 0.4); }
 [data-mode='dark'] .sform__alt { color: var(--color-text-muted); }
 [data-mode='dark'] .sfield__box { background: linear-gradient(-87.3deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 101.64%); box-shadow: 0 8px 100px var(--color-glow); }
 [data-mode='dark'] .scheck__box { background: linear-gradient(-89.6deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 101.64%); box-shadow: 0 4px 25px var(--color-glow); }
 [data-mode='dark'] :is(.sfield__show, .sform__ghost) { background: linear-gradient(-81deg, rgba(255, 255, 255, 0.1) 0.28%, rgba(255, 255, 255, 0.02) 100%); color: var(--color-text); }
 
 /* ---------- Privacy and Terms ---------- */
-[data-mode='dark'] :is(.ltab__num, .lclause__body > ol > li::before, .lclause__body li ol > li::before) { color: rgba(255, 255, 255, 0.4); }
+/* (::before can't go inside :is(), so the list numbers get their own selectors.) */
+[data-mode='dark'] .ltab:not(.is-on) .ltab__num,
+[data-mode='dark'] .lclause__body > ol > li::before,
+[data-mode='dark'] .lclause__body li ol > li::before { color: rgba(255, 255, 255, 0.4); }
 [data-mode='dark'] :is(.lclause__title, .lclause__body strong) { color: var(--color-text); }
 [data-mode='dark'] .lclause__body { color: rgba(255, 255, 255, 0.72); }
