@@ -5,6 +5,8 @@ gsap.registerPlugin(DrawSVGPlugin);
 
 /** Marquee speed along the slant, in pixels per second. */
 const SPEED = 85;
+/** How long each panel holds still, as a share of the scroll it takes to slide from one panel to the next. */
+const HOLD = 0.6;
 
 /**
  * Source → Engage → Place (Figma node 2370:194): a side scroller. The section pins and scrolling down slides
@@ -31,24 +33,43 @@ export function initFlow(animate: boolean) {
   }
 
   /* ---------- The side scroll ---------- */
+  // Each panel holds still for a stretch of scroll before the next slides in, Source as it arrives and Place before
+  // the page moves on, so every panel settles and can be read. The slide from one panel to the next is 1; a hold is
+  // HOLD of that.
+  const steps = panels.length - 1;
   const distance = () => strip.scrollWidth - window.innerWidth;
-  const slide = gsap.to([bg, strip], {
-    x: () => -distance(),
-    ease: 'none',
+  const slide = gsap.timeline({
+    defaults: { ease: 'none' },
     scrollTrigger: {
       trigger: pin,
       start: 'top top',
-      end: () => `+=${distance()}`,
+      end: () => `+=${(distance() / steps) * (steps + panels.length * HOLD)}`,
       pin: true,
       scrub: 0.8,
       invalidateOnRefresh: true,
       // Measured before the AI section's pin below (priority 1) and everything else that depends on this length.
       refreshPriority: 2,
-      // Settle on the nearest panel. Not directional and no inertia: stopping just inside the section (or a fast
-      // scroll into it) must not jump past the first panel.
-      snap: { snapTo: 1 / (panels.length - 1), directional: false, inertia: false, duration: { min: 0.25, max: 0.7 }, delay: 0.08, ease: 'power2.inOut' },
+      // Settle in the middle of the nearest panel's hold. Not directional and no inertia: stopping just inside the
+      // section (or a fast scroll into it) must not jump past the first panel.
+      snap: { snapTo: 'labels', directional: false, inertia: false, duration: { min: 0.4, max: 0.9 }, delay: 0.12, ease: 'power2.inOut' },
     },
   });
+  /** Timeline time where the slide into panel i starts (i > 0) and ends. */
+  const slideIn: { from: number; to: number }[] = [];
+  panels.forEach((_, i) => {
+    if (i > 0) {
+      const from = slide.duration();
+      slide.to([bg, strip], { x: () => -(distance() / steps) * i, duration: 1 }, from);
+      slideIn[i] = { from, to: from + 1 };
+    }
+    const hold = slide.duration();
+    slide.addLabel(`panel-${i}`, hold + HOLD / 2).to({}, { duration: HOLD }, hold);
+  });
+  /** The page scroll at a time on the slide (for the triggers below, measured after the pin's own refresh). */
+  const scrollAt = (t: number) => {
+    const st = slide.scrollTrigger!;
+    return st.start + ((st.end - st.start) * t) / slide.duration();
+  };
 
   // Each illustration assembles as its panel arrives: the pieces rise in one after another, then the white
   // connecting lines draw themselves. The copy of the later panels rises in with it.
@@ -56,10 +77,11 @@ export function initFlow(animate: boolean) {
     const pieces = qa('.fart__piece', panel);
     const lines = qa('.fart__piece path[stroke="white"]:not([fill])', panel);
     const copy = qa('.fpanel__copy > *', panel);
-    // The first panel arrives by scrolling down; the others slide in from the right.
+    // The first panel arrives by scrolling down; the others slide in from the right, starting as the panel's left edge
+    // passes 55% across the screen (45% of the way through its slide).
     const arrive = i === 0
       ? { trigger: section, start: 'top 55%' }
-      : { trigger: panel, containerAnimation: slide, start: 'left 55%' };
+      : { start: () => scrollAt(slideIn[i].from + 0.45) };
     const tl = gsap.timeline({ scrollTrigger: { ...arrive, toggleActions: 'play none none reverse' } });
     tl.from(pieces, { y: 24, autoAlpha: 0, duration: 0.7, stagger: { amount: 0.6 }, ease: 'power3.out' })
       .fromTo(lines, { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.9, stagger: 0.12, ease: 'power1.inOut' }, 0.5);
@@ -129,12 +151,12 @@ export function initFlow(animate: boolean) {
   const panelOn = panels.map(() => false);
   const sync = () =>
     loops.forEach(({ loop, at }) => (sectionOn && (at < 0 || panelOn[at]) ? loop.play() : loop.pause()));
-  panels.forEach((panel, i) =>
+  // A panel is on screen from the moment it starts sliding in until the slide to the panel after it has finished
+  // (the first from before the pin, the last until the page has scrolled on).
+  panels.forEach((_, i) =>
     ScrollTrigger.create({
-      trigger: panel,
-      containerAnimation: slide,
-      start: 'left right',
-      end: 'right left',
+      ...(i === 0 ? { trigger: section, start: 'top bottom' } : { start: () => scrollAt(slideIn[i].from) }),
+      ...(i === steps ? { endTrigger: section, end: 'bottom top' } : { end: () => scrollAt(slideIn[i + 1].to) }),
       onToggle: (self) => {
         panelOn[i] = self.isActive;
         sync();
