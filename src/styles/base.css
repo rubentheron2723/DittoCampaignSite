@@ -298,8 +298,8 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
 [data-mode='dark'] .menu, [data-mode='dark'] .menu__links a { color: var(--color-text); }
 [data-mode='dark'] .menu__links a[aria-current='page'], [data-mode='dark'] .menu__links a:active { color: var(--color-selected-border); }
 [data-mode='dark'] .menu__bg { background: var(--color-bg); }
-[data-mode='dark'] .menu__btn { box-shadow: 0 8px 20px var(--color-glow); }
-[data-mode='dark'] .menu__btn--clear { color: var(--color-text); }
+/* Both pills alike on dark: the clear 10% white glass with white text (the white-to-clear glass read as a grey slab). */
+[data-mode='dark'] .menu__btn { background: rgba(255, 255, 255, 0.1); color: var(--color-text); box-shadow: 0 8px 20px var(--color-glow); }
 [data-mode='dark'] body.menu-open .nav { color: var(--color-text); }
 .nav__cta { transition: color 0.35s var(--ease-out), filter 0.2s, opacity 0.3s var(--ease-out); }
 
