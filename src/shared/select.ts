@@ -1,5 +1,6 @@
 import { gsap, q, qa } from '../animations/gsap';
 import { esc } from './mark';
+import { icon } from './icons';
 
 /**
  * A dropdown in the site's style (Figma 2396:478): a pill button that opens a white panel of pill options. It is a
@@ -16,7 +17,7 @@ import { esc } from './mark';
 
 export type Option = { value: string; label: string; short?: string };
 
-const CHEVRON = `<svg class="select__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const CHEVRON = icon('chevron-down', { className: 'select__chev', size: 24 });
 
 let uid = 0;
 

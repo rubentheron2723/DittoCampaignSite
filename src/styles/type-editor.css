@@ -1,4 +1,4 @@
-/* /type: the type system editor and its specimen sheet. The editor's own UI uses fixed sizes so
+/* /designsystem?type-editor: the type system editor and its specimen sheet. The editor's own UI uses fixed sizes so
    it never changes while you tune the tokens. */
 
 /* ---------- Specimen (inside the preview frame) ---------- */
@@ -26,6 +26,8 @@
 .editor { display: grid; grid-template-columns: 360px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); height: 100vh; height: 100dvh; }
 .editor__panel { min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-right: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 40px; }
 .editor__head { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.editor__back { display: inline-block; margin-bottom: 14px; font-size: 13px; color: rgba(231, 239, 244, 0.6); text-decoration: none; }
+.editor__back:hover { color: #e7eff4; }
 .editor__head h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
 .editor__head p { margin-top: 8px; font-size: 13px; line-height: 1.5; color: rgba(231, 239, 244, 0.6); }
 .editor__actions { display: flex; gap: 8px; margin-top: 16px; }

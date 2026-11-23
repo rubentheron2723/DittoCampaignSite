@@ -1,7 +1,6 @@
-import '../styles/base.css';
 import '../styles/type-editor.css';
 
-import { esc } from '../shared/mark';
+import { esc } from './mark';
 import {
   applyTypeOverrides,
   initTypePreview,
@@ -11,27 +10,28 @@ import {
   TYPE_ROLES,
   typeVar,
   type TypeField,
-} from '../shared/type-overrides';
+} from './type-overrides';
 
 /**
- * /type: a small visual editor for the site's type system (src/styles/type.css).
+ * The type editor (/designsystem?type-editor): a small visual editor for the site's type system (src/styles/type.css).
  *
  * Sliders change the type tokens live in a preview of the specimen sheet or any
  * real page, at desktop or phone width. Tweaks are kept in this browser only
  * (the whole site picks them up, with a "Previewing custom type" pill), and
  * "Export tokens" gives the CSS block to commit to type.css.
  *
- * /type?specimen renders just the specimen sheet; the editor loads it in its frame.
+ * /designsystem?specimen renders just the specimen sheet; the editor loads it in its frame.
  */
 
-const app = document.getElementById('app')!;
+const appEl = () => document.getElementById('app')!;
 
 /* ---------- Specimen ---------- */
 function roleStyle(key: string) {
   return `font-size: var(--t-${key}-size); line-height: var(--t-${key}-lh); letter-spacing: var(--t-${key}-ls); font-weight: var(--t-${key}-wt);`;
 }
 
-function renderSpecimen() {
+export function renderSpecimen() {
+  const app = appEl();
   document.body.classList.add('specimen-body');
   initTypePreview();
   app.innerHTML = `
@@ -76,7 +76,7 @@ const CONTROLS: Control[] = [
 ];
 
 const PAGES = [
-  ['Specimen', '/type?specimen'],
+  ['Specimen', '/designsystem?specimen'],
   ['Home', '/'],
   ['Product', '/product'],
   ['Pricing', '/pricing'],
@@ -85,7 +85,8 @@ const PAGES = [
   ['Contact', '/contact'],
 ] as const;
 
-function renderEditor() {
+export function renderEditor() {
+  const app = appEl();
   document.body.classList.add('editor-body');
 
   // Committed values, read straight from type.css before any preview is applied.
@@ -108,6 +109,7 @@ function renderEditor() {
   <div class="editor">
     <aside class="editor__panel">
       <header class="editor__head">
+        <a class="editor__back" href="/designsystem#typography">← Design system</a>
         <h1>Type system</h1>
         <p>Changes preview live and stay in this browser only. Export the tokens when you're happy and send them over to make them the site standard.</p>
         <div class="editor__actions">
@@ -139,7 +141,7 @@ function renderEditor() {
           <button type="button" data-width="375">Phone</button>
         </div>
       </div>
-      <div class="stage__viewport"><iframe class="stage__frame" title="Preview" src="/type?specimen"></iframe></div>
+      <div class="stage__viewport"><iframe class="stage__frame" title="Preview" src="/designsystem?specimen"></iframe></div>
     </section>
   </div>
   <dialog class="export">
@@ -277,5 +279,3 @@ ${lines.join('\n')}
 /* TOKENS:END */`;
 }
 
-if (new URLSearchParams(window.location.search).has('specimen')) renderSpecimen();
-else renderEditor();

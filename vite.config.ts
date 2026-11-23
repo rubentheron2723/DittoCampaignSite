@@ -1,9 +1,9 @@
 import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
 
-const pages = ['index', 'product', 'pricing', 'about', 'faq', 'contact', 'sign-in', 'reset-password', 'register', 'privacy', 'terms', 'type'];
-/** Ready-made pages served as they are from public/ (not built): /mcp is a coworker's MCP marketing page and /story their product vision story, both for review. */
-const staticPages = ['mcp', 'story'];
+const pages = ['index', 'product', 'pricing', 'about', 'faq', 'contact', 'sign-in', 'reset-password', 'register', 'privacy', 'terms', 'designsystem'];
+/** Ready-made pages served as they are from public/ (not built): /story is a coworker's product vision story, for review. */
+const staticPages = ['story'];
 
 /** Dev-only: serve /product as /product.html so links match the Vercel cleanUrls deploy. */
 function cleanUrls(): Plugin {
@@ -13,6 +13,11 @@ function cleanUrls(): Plugin {
       server.middlewares.use((req, _res, next) => {
         const url = (req.url || '').split('?')[0];
         const name = url.replace(/^\//, '').replace(/\/$/, '');
+        // /type moved into the design system (vercel.json redirects it the same way).
+        if (name === 'type') {
+          _res.writeHead(302, { Location: '/designsystem#typography' });
+          return void _res.end();
+        }
         if (name && (pages.includes(name) || staticPages.includes(name))) req.url = `/${name}.html`;
         next();
       });
