@@ -110,7 +110,7 @@ export const trust = {
   ],
 };
 
-export type ProductFeature = { id: string; title: string; body: string; supportNote?: string; chips: string[] };
+export type ProductFeature = { id: string; title: string; body: string; chips: string[] };
 export type ProductAct = {
   id: string;
   label: string;
@@ -138,7 +138,6 @@ export const features = {
         "id": "search",
         "title": "Scout: agentic AI search across your database",
         "body": "Describe who you need, or paste the job spec. Scout reads your whole database and finds people by what they have done, not only the words on their CV. A sales brief also finds business development and partnerships people.",
-        "supportNote": "Prefer Boolean? Keyword and Boolean search are still there.",
         "chips": [
           "Agentic AI",
           "Boolean ready",
@@ -159,7 +158,6 @@ export const features = {
         "id": "distribution",
         "title": "One place for all your advertising",
         "body": "Post a job once and Ditto sends it to free and premium job boards, aggregators, social platforms and your own website. Every application comes back into one pipeline.",
-        "supportNote": "Premium boards use your own board account.",
         "chips": [
           "Multi-channel",
           "Single inbox",
@@ -170,7 +168,6 @@ export const features = {
         "id": "matching-prompt",
         "title": "Matching you can see and change",
         "body": "For every job, Ditto writes out how it will score applicants, based on your spec. Applicants are scored and ranked as they apply. Change the criteria whenever the role changes.",
-        "supportNote": "Candidates never see your criteria.",
         "chips": [
           "Prompt scoring",
           "Editable logic",
@@ -231,7 +228,6 @@ export const features = {
         "id": "calendar-email",
         "title": "Email and calendar built in",
         "body": "Connect Google Workspace or Microsoft 365. Emails and meetings sync into Ditto and attach to the right records.",
-        "supportNote": "You choose which emails are shared with the team and which stay private.",
         "chips": [
           "Google Workspace",
           "Microsoft 365",

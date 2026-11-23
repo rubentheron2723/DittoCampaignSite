@@ -299,21 +299,39 @@
 .feats__act { width: 100%; }
 .feats__act[hidden] { display: none; }
 /* Home's Practical AI cards (home.css .aicard): white, a soft deep shadow, the 84px blue number above a 24px bold title
-   and 20px copy; the second card in Ditto's blue gradient. Three to a row. */
+   and 20px copy; every second card in Ditto's blue gradient, so the grid alternates. Three to a row. */
 .fcards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; perspective: 1400px; }
 /* (The perspective is for their flight in: product.ts flyIn.) */
 .fcard {
+  --sheen: rgba(0, 176, 255, 0.3);
   position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-height: clamp(240px, 22.64vw, 326px);
   padding: clamp(24px, 2.778vw, 40px); border-radius: 24px; background: #fff; box-shadow: 0 8px 100px rgba(0, 0, 0, 0.18);
+  transition: transform 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out);
 }
-.fcard:nth-child(2) { background: linear-gradient(246.83deg, #1a7cf5 0%, #0b98fb 12%, #03a9fe 24%, #0b98fb 38%, #1583f6 58%, #1b74f4 80%, #1e6ef3 100%); color: #fff; }
+.fcard:nth-child(even) {
+  --sheen: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(246.83deg, #1a7cf5 0%, #0b98fb 12%, #03a9fe 24%, #0b98fb 38%, #1583f6 58%, #1b74f4 80%, #1e6ef3 100%); color: #fff;
+}
 .fcard__index { font-size: clamp(56px, 5.833vw, 84px); line-height: 1.048; letter-spacing: -0.04em; font-weight: 700; color: #00b0ff; }
-.fcard:nth-child(2) .fcard__index { color: #fff; }
+.fcard:nth-child(even) .fcard__index { color: #fff; }
+/* Hover (with a mouse): the card lifts a little, its shadow deepens, and a band of light sweeps across it once from the
+   bottom left corner to the top right (a soft blue sheen on the white cards, a white one on the blue). The band is a
+   45deg stripe in a gradient three times the card's size, slid from its top right third to its bottom left third. */
+.fcard::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: linear-gradient(45deg, transparent 44%, var(--sheen) 50%, transparent 56%) 100% 0 / 300% 300% no-repeat;
+}
+@media (hover: hover) and (pointer: fine) {
+  .fcard:hover { transform: translateY(-6px); box-shadow: 0 20px 100px rgba(0, 0, 0, 0.24); }
+  .fcard:hover::after { animation: fcard-shimmer 1.1s cubic-bezier(0.4, 0, 0.2, 1) both; }
+}
+@keyframes fcard-shimmer {
+  0% { opacity: 1; background-position: 100% 0; }
+  100% { opacity: 1; background-position: 0 100%; }
+}
 .fcard__text { display: grid; gap: 16px; }
 .fcard h3 { margin: 0; font-size: clamp(20px, 1.667vw, 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 700; text-wrap: balance; }
 .fcard p { margin: 0; font-size: clamp(16px, 1.25vw, 18px); line-height: 1.25; letter-spacing: -0.04em; }
-.fcard .fcard__note { font-size: 14px; line-height: 18px; color: #1e6ef3; }
-.fcard:nth-child(2) .fcard__note { color: rgba(255, 255, 255, 0.85); }
 
 @media (max-width: 1100px) {
   .fcards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
