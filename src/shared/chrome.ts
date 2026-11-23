@@ -1,5 +1,5 @@
 import { finalCta, footer, nav, signInUrl, type PageId } from '../content/shared';
-import { modeToggleHtml } from './colour-mode';
+import { menuModeHtml, navModeHtml } from './colour-mode';
 import { esc, markSvg } from './mark';
 import { navLogoSvg } from './nav-logo';
 import { artSvg, FOOTER_LOGOMARK, FOOTER_WORDMARK } from './footer-art';
@@ -31,6 +31,7 @@ export function renderChrome(page: PageId) {
       <div class="nav__actions">
         <a class="nav__signin" href="${signInUrl}">Sign in</a>
         <a class="nav__cta" href="/contact" data-magnetic>Book a demo</a>
+        ${navModeHtml()}
         <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu">
           <span></span><span></span>
         </button>
@@ -46,15 +47,18 @@ export function renderChrome(page: PageId) {
         ${nav.map((n) => `<a href="${n.href}" aria-label="${esc(n.label)}" ${n.id === page ? 'aria-current="page"' : ''}>${menuText(n.label)}</a>`).join('')}
       </nav>
       <div class="menu__foot">
-        <a class="menu__btn" href="/contact">Book a demo</a>
-        <a class="menu__btn menu__btn--clear" href="${signInUrl}">Sign in</a>
+        <div class="menu__btns">
+          <a class="menu__btn" href="/contact">Book a demo</a>
+          <a class="menu__btn menu__btn--clear" href="${signInUrl}">Sign in</a>
+        </div>
+        ${menuModeHtml()}
       </div>
     </div>
 `;
 }
 
 /** Closing band + footer, appended to the end of a page's main content. */
-export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: string; button?: string; id?: string; modes?: boolean } = {}) {
+export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: string; button?: string; id?: string; } = {}) {
   const c = { ...finalCta, ...opts };
   return `
   <section class="cta" id="${opts.id ?? 'cta'}" data-theme="light">
@@ -69,7 +73,7 @@ export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: 
       <a class="btn btn--glass" href="/contact" data-magnetic><span>${esc(c.button)}</span></a>
     </div>
   </section>
-  ${footerHtml(opts.modes ?? true)}`;
+  ${footerHtml()}`;
 }
 
 /** A menu link's label as letters in a mask: they rise into it as the menu opens (boot.ts) and wave on hover. */
@@ -89,8 +93,7 @@ function waveText(label: string) {
 }
 
 /** Blue footer from the Figma design. The canvas runs the Moving blobs effect over the artwork (see footer-blobs.ts). */
-/** The footer, with the Light / Dark switch (every page has a dark mode). */
-export function footerHtml(modes = true) {
+export function footerHtml() {
   const columns = footer.columns
     .map(
       (col) => `<div class="footer__col">
@@ -105,7 +108,6 @@ export function footerHtml(modes = true) {
       <div class="footer__menu">
         <a class="footer__logomark" href="/" aria-label="Ditto home">${artSvg(FOOTER_LOGOMARK, '')}</a>
         ${columns}
-        ${modes ? modeToggleHtml() : ''}
       </div>
       ${artSvg(FOOTER_WORDMARK, 'footer__wordmark')}
     </footer>`;
