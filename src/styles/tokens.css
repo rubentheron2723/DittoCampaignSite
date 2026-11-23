@@ -48,6 +48,12 @@
   --color-cloud: #edf8ff;
   --color-cloud-shadow: #1e6ef3;
   --color-hero-fade: #ffffff;
+
+  /* The entry cover (landing intro, page transition) and its logomark */
+  --color-cover: #ffffff;
+  --color-mark-from: #00b0ff;
+  --color-mark-to: #1e6ef3;
+  --color-mark-half: #171717;
 }
 
 [data-mode='dark'] {
@@ -83,4 +89,10 @@
   --color-cloud: #bf4542;
   --color-cloud-shadow: #1e6ef3;
   --color-hero-fade: #171717;
+
+  /* Figma 2446:2600 / 2446:2815: the cover is #171717, the mark Ditto Blue into navy with a white half. */
+  --color-cover: #171717;
+  --color-mark-from: #1e6ef3;
+  --color-mark-to: #0e0153;
+  --color-mark-half: #ffffff;
 }

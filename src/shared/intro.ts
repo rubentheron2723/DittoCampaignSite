@@ -1,5 +1,6 @@
 import { gsap, q, qa } from '../animations/gsap';
 import { markCoverGone } from './cover';
+import { currentMode } from './colour-mode';
 
 /**
  * The site's entry animation, played on every page load (including each move between pages), from the Figma frames "landing anim" (2364:820, desktop)
@@ -285,10 +286,26 @@ void main() {
   gl_Position = vec4(aPos.x / uSize.x * 2.0 - 1.0, 1.0 - aPos.y / uSize.y * 2.0, 0.0, 1.0);
 }`;
 
+/** The dark mode gradient map for the cloud sprites (a GLSL chunk with uMap: on in dark mode). */
+export const GLSL_MAP = `
+// Dark mode (Figma 2446:2600 and 2446:2815): each cloud through Figma's Gradient map, brightness onto navy #0E0153 →
+// coral #F5655F, offset 23.3%, six repeats, mirrored, mixed in sRGB. The texture is premultiplied.
+uniform float uMap;
+vec4 gradientMap(vec4 c) {
+  if (uMap < 0.5 || c.a <= 0.0) return c;
+  vec3 rgb = clamp(c.rgb / c.a, 0.0, 1.0);
+  // Figma reads its input as linear and encodes it to sRGB before taking the luma, which lifts the clouds' greys.
+  rgb = mix(rgb * 12.92, 1.055 * pow(rgb, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, rgb));
+  float luma = dot(rgb, vec3(0.2126, 0.7152, 0.0722));
+  float t = 1.0 - abs(fract((luma - 0.233) * 6.0 * 0.5) - 0.5) * 2.0;
+  vec3 m = mix(vec3(0.0549, 0.0039, 0.3255), vec3(0.9608, 0.3961, 0.3725), t);
+  return vec4(m * c.a, c.a);
+}`;
+
 export const SPRITE_FRAG = `#version 300 es
 precision highp float;
-in vec2 vUv; uniform sampler2D uTex; out vec4 o;
-void main() { o = texture(uTex, vUv); }`;
+in vec2 vUv; uniform sampler2D uTex; out vec4 o;${GLSL_MAP}
+void main() { o = gradientMap(texture(uTex, vUv)); }`;
 
 export const FULL_VERT = `#version 300 es
 in vec2 aPos;
@@ -455,7 +472,7 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement): Render
   gl.bindVertexArray(null);
 
   const U = (p: WebGLProgram, n: string) => gl.getUniformLocation(p, n);
-  const su = { size: U(sprite, 'uSize'), tex: U(sprite, 'uTex') };
+  const su = { size: U(sprite, 'uSize'), tex: U(sprite, 'uTex'), map: U(sprite, 'uMap') };
   const lu = {
     tex: U(lensProg, 'uTex'),
     screen: U(lensProg, 'uScreen'),
@@ -529,6 +546,7 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement): Render
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.useProgram(sprite);
     gl.uniform2f(su.size, cw * s, ch * s);
+    gl.uniform1f(su.map, currentMode() === 'dark' ? 1 : 0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, cloudTex);
     gl.uniform1i(su.tex, 0);
@@ -766,10 +784,10 @@ export function hideIntro() {
 export const INTRO_MARK = `<svg class="intro__mark" viewBox="0 0 165.603 193" width="165.603" height="193" aria-hidden="true" focusable="false">
   <defs>
     <linearGradient id="intro-mark-grad" x1="24.3835" y1="193" x2="105.273" y2="-18.8614" gradientUnits="userSpaceOnUse">
-      <stop offset="0.65263" stop-color="#00B0FF"/>
-      <stop offset="0.986642" stop-color="#1E6EF3"/>
+      <stop offset="0.65263" style="stop-color: var(--color-mark-from, #00B0FF)"/>
+      <stop offset="0.986642" style="stop-color: var(--color-mark-to, #1E6EF3)"/>
     </linearGradient>
   </defs>
   <path fill="url(#intro-mark-grad)" fill-rule="evenodd" clip-rule="evenodd" d="M109.004 0H54.795L6.697 114.461C2.435 121.767 0 130.899 0 140.032C0 169.256 24.353 193 53.577 193C63.286 193 81.026 193 81.026 193C65.109 183.811 53.601 159.546 53.601 140.032C53.601 130.899 56.036 121.767 60.298 114.461L109.004 0Z"/>
-  <path fill="#171717" fill-rule="evenodd" clip-rule="evenodd" d="M110.808 193H54.795L104.719 76.104C107.764 68.798 109.59 61.492 109.59 52.969C109.59 33.986 97.754 9.353 82.723 0C82.723 0 102.392 0 112.634 0C141.858 0 165.603 23.745 165.603 52.969C165.603 61.492 163.776 68.798 160.732 76.104L110.808 193Z"/>
+  <path style="fill: var(--color-mark-half, #171717)" fill-rule="evenodd" clip-rule="evenodd" d="M110.808 193H54.795L104.719 76.104C107.764 68.798 109.59 61.492 109.59 52.969C109.59 33.986 97.754 9.353 82.723 0C82.723 0 102.392 0 112.634 0C141.858 0 165.603 23.745 165.603 52.969C165.603 61.492 163.776 68.798 160.732 76.104L110.808 193Z"/>
 </svg>`;

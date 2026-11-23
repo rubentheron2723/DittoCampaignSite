@@ -1,8 +1,9 @@
 import { gsap, q } from '../animations/gsap';
 import type { PageId } from '../content/shared';
 import { markCoverGone } from './cover';
+import { currentMode } from './colour-mode';
 import {
-  compile, EASE_PART, FLIP_Y, FULL_VERT, kernel, LENS_FRAG, loadClouds, quad, R210, R_22, TURN,
+  compile, EASE_PART, FLIP_Y, FULL_VERT, GLSL_MAP, kernel, LENS_FRAG, loadClouds, quad, R210, R_22, TURN,
   type Cloud,
 } from './intro';
 
@@ -73,10 +74,10 @@ void main() {
 }`;
 const SPRITE_FRAG = `#version 300 es
 precision highp float;
-in vec2 vUv; in vec2 vLocal; uniform sampler2D uTex; out vec4 o;
+in vec2 vUv; in vec2 vLocal; uniform sampler2D uTex; out vec4 o;${GLSL_MAP}
 void main() {
   vec2 e = smoothstep(0.0, ${FEATHER}, vLocal) * smoothstep(0.0, ${FEATHER}, 1.0 - vLocal);
-  o = texture(uTex, vUv) * e.x * e.y;
+  o = gradientMap(texture(uTex, vUv)) * e.x * e.y;
 }`;
 const LOCAL = [[0, 0], [1, 0], [1, 1], [0, 1]];
 
@@ -176,7 +177,7 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement, turn: n
   gl.bindVertexArray(null);
 
   const U = (p: WebGLProgram, n: string) => gl.getUniformLocation(p, n);
-  const su = { size: U(sprite, 'uSize'), tex: U(sprite, 'uTex') };
+  const su = { size: U(sprite, 'uSize'), tex: U(sprite, 'uTex'), map: U(sprite, 'uMap') };
   const lu = {
     tex: U(lensProg, 'uTex'), screen: U(lensProg, 'uScreen'), dpr: U(lensProg, 'uDpr'), frame: U(lensProg, 'uFrame'),
     amount: U(lensProg, 'uAmount'), chroma: U(lensProg, 'uChroma'), taps: U(lensProg, 'uTaps'),
@@ -235,6 +236,7 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement, turn: n
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.useProgram(sprite);
     gl.uniform2f(su.size, f.frameW, f.frameH);
+    gl.uniform1f(su.map, currentMode() === 'dark' ? 1 : 0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, cloudTex);
     gl.uniform1i(su.tex, 0);
