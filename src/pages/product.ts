@@ -289,7 +289,6 @@ function featuresSection() {
                     <div class="fcard__text">
                       <h3>${esc(ft.title)}</h3>
                       <p>${esc(ft.body)}</p>
-                      ${ft.supportNote ? `<p class="fcard__note">${esc(ft.supportNote)}</p>` : ''}
                     </div>
                   </li>`,
                 )
