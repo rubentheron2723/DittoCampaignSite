@@ -56,6 +56,13 @@
 .think--gl.day .think__lens { z-index: 2; }
 .think--gl.day .day__screen { position: absolute; left: 50%; top: 50%; z-index: 0; visibility: hidden; transform-origin: 50% 50%; will-change: transform, opacity; }
 .think--gl.day .app { will-change: transform; }
+/* The stage clips (the lens and zoom need it), so the chat's wide soft shadow was cut off in a straight line at its
+   foot, against the features below. A short fade into the page's #FDFDFD over the stage's last 96px lets the shadow
+   die away first, and the two sections run together. Over the screens, never in the way of a click. */
+.day .think__stage::after {
+  content: ''; position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; height: 96px; pointer-events: none;
+  background: linear-gradient(180deg, rgba(253, 253, 253, 0) 0%, #fdfdfd 100%);
+}
 /* Engage's chat fills the stage (it isn't scaled to fit); without the lens it isn't shown. */
 .think--gl.day .day__screen--chat { width: 100%; height: 100%; }
 .day:not(.think--gl) .day__screen--chat { display: none; }
@@ -164,7 +171,8 @@
 }
 
 /* ---------- Trust (moved from the home page) ---------- */
-.trust { position: relative; margin-top: -1px; background: transparent; color: var(--ink); padding: clamp(96px, 12vw, 180px) 0 0; overflow: clip; }
+/* Room under the ticker so it doesn't sit on the join with the closing CTA. */
+.trust { position: relative; margin-top: -1px; background: transparent; color: var(--ink); padding: clamp(96px, 12vw, 180px) 0 clamp(96px, 10vw, 160px); overflow: clip; }
 .trust__inner, .trust .ticker { position: relative; }
 .trust__inner { padding: 0 var(--gutter); max-width: 1240px; margin: 0 auto; }
 .trust__title { font-size: var(--t-h1-size); line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); font-weight: var(--t-h1-wt); max-width: 14ch; }
@@ -272,6 +280,13 @@
 /* Solid over the first stretch: the blobs draw a faint edge along the canvas's own top, which showed as a line. */
 .pfield__fade { position: absolute; z-index: 0; top: 0; left: 0; right: 0; height: 280px; pointer-events: none; background: linear-gradient(180deg, #fdfdfd 0%, #fdfdfd 35%, rgba(253, 253, 253, 0) 100%); }
 .pfield > section { position: relative; z-index: 1; }
+/* And at its foot the blobs fade into the closing CTA's white, so the sky rises out of plain white (its haze starts at
+   #FEFEFE) instead of meeting the blobs at a hard line. Over the blob layer, under the content. It reaches 4px into the
+   CTA's top (under it), so a sub-pixel gap between the two while scrolling shows white rather than the page's black. */
+.pfield::after {
+  content: ''; position: absolute; z-index: 0; left: 0; right: 0; bottom: -4px; height: 324px; pointer-events: none;
+  background: linear-gradient(180deg, rgba(254, 254, 254, 0) 0%, #fefefe 70%, #fefefe 100%);
+}
 @media (max-width: 900px) {
   .pfield__fx { -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%); mask-image: linear-gradient(180deg, #000 70%, transparent 100%); }
 }

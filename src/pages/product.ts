@@ -627,6 +627,8 @@ function laterScene(screen: HTMLElement, request: string, result: (r: LaterResul
     tl.progress(0, true);
     settle();
     tl.invalidate().time(t, true);
+    // (Restored with events suppressed: bring any text that follows the timeline back in step.)
+    tl.eventCallback('onUpdate')?.();
   });
 
   return sceneControls(tl, scroller, () => reach(offer));
@@ -642,6 +644,11 @@ function engageScene(screen: HTMLElement): StageScene {
     const stream = { n: 0 };
     const streamAt = at + 0.6;
     const streamTime = e.draft.body.length / 110;
+    // The text follows the stream on every render of the timeline, not only while the stream plays: a jump to a stop
+    // (arriving back from below, Product's toggle) or a re-layout skips the stream's own updates, and left the card
+    // empty.
+    const showDraft = () => void (draftText.textContent = e.draft.body.slice(0, Math.round(stream.n)));
+    tl.eventCallback('onUpdate', showDraft);
     follow(lead, at);
     follow(draft, at + 0.3);
     tl.fromTo(lead, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, at)
@@ -653,7 +660,7 @@ function engageScene(screen: HTMLElement): StageScene {
           n: e.draft.body.length,
           duration: streamTime,
           ease: 'none',
-          onUpdate: () => void (draftText.textContent = e.draft.body.slice(0, Math.round(stream.n))),
+          onUpdate: showDraft,
         },
         streamAt,
       );
@@ -724,6 +731,9 @@ function sourceScene(screen: HTMLElement): StageScene {
   // 1. Typing, into the box (in focus).
   const typeAt = 0.5;
   const typeTime = request.length / TYPE_RATE;
+  // As Engage's draft: the typed request follows the timeline on every render, jumps included.
+  const showTyped = () => void (text.textContent = request.slice(0, Math.round(typing.n)));
+  tl.eventCallback('onUpdate', showTyped);
   tl.to(box, { borderColor: 'rgba(81, 142, 243, 1)', duration: 0.4, ease: 'power1.out' }, 0)
     .to(q('.app__prompt', box), { autoAlpha: 0, duration: 0.15 }, typeAt - 0.1)
     .fromTo(q('.app__caret', box), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, typeAt - 0.1)
@@ -734,7 +744,7 @@ function sourceScene(screen: HTMLElement): StageScene {
         n: request.length,
         duration: typeTime,
         ease: 'none',
-        onUpdate: () => void (text.textContent = request.slice(0, Math.round(typing.n))),
+        onUpdate: showTyped,
       },
       typeAt,
     );
@@ -791,6 +801,7 @@ function sourceScene(screen: HTMLElement): StageScene {
     tl.progress(0, true).invalidate();
     fitChat(stage, convo);
     tl.time(t, true);
+    tl.eventCallback('onUpdate')?.();
   });
 
   return sceneControls(tl, scroller);

@@ -303,7 +303,10 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
   margin-top: -1px;
   position: relative; display: flex; align-items: center; justify-content: center;
   min-height: 100vh; min-height: 100lvh; padding: clamp(120px, 12vw, 180px) 0;
-  background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); color: var(--white); overflow: clip;
+  /* Its first few pixels in the haze's colour: where the band's top edge falls on a fraction of a pixel, the layers over
+     it only partly cover that row, and the blue under them showed through as a thin line along the join. */
+  background: linear-gradient(180deg, var(--cta-edge, #fefefe) 0, var(--cta-edge, #fefefe) 4px, #1e6ef3 4px, #00b0ff 100%);
+  color: var(--white); overflow: clip;
 }
 /* The band's top few pixels in its haze's own colour, over the sky: on phones a sub-pixel offset between the section
    and the pinned one above left the sky's blue showing as a thin line along the join. */
@@ -312,6 +315,7 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
   background: #fefefe;
 }
 .cta--from-dark::before { background: var(--cta-from); }
+.cta--from-dark { --cta-edge: var(--cta-from); }
 .cta__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; }
 .cta--sky .cta__sky { opacity: 1; }
 /* Figma 2378:1159: white haze at the top (from the section above) and the footer's #00B0FF at the bottom, so the
