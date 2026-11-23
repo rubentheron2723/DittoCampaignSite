@@ -33,6 +33,8 @@
   --color-selected-border: #1e6ef3;
   --color-focus-ring: rgba(30, 110, 243, 0.2);
   --color-glow: rgba(0, 0, 0, 0.1);
+  /* Single-colour icons (as masks or currentColor SVGs) */
+  --color-icon: #171717;
 
   /* Nav: light over the blue hero, Ink over light sections. */
   --color-nav-text: #fefefe;
@@ -76,6 +78,7 @@
   --color-selected-border: #1e6ef3;
   --color-focus-ring: rgba(30, 110, 243, 0.2);
   --color-glow: rgba(255, 255, 255, 0.1);
+  --color-icon: #ffffff;
 
   /* Dark sections keep the nav light throughout. */
   --color-nav-text: #fefefe;
