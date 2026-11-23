@@ -1,5 +1,5 @@
 /**
- * Type system roles and the /type editor's preview overrides.
+ * Type system roles and the type editor's preview overrides (/designsystem?type-editor).
  *
  * The real values live in src/styles/type.css. The editor stores your
  * unsaved tweaks in this browser's localStorage and applyTypeOverrides()
@@ -68,8 +68,8 @@ export function applyTypeOverrides(doc: Document, vars: Record<string, string>, 
 }
 
 /**
- * On the live site: apply this browser's saved preview from the /type editor (only in this browser). There's no
- * on-page badge; reset or keep editing at /type.
+ * On the live site: apply this browser's saved preview from the type editor (only in this browser). There's no
+ * on-page badge; reset or keep editing at /designsystem?type-editor.
  */
 export function initTypePreview() {
   const vars = loadTypeOverrides();

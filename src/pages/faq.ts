@@ -5,6 +5,7 @@ import { faqCategories } from '../content/faq';
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
+import { icon } from '../shared/icons';
 import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { splitReveal, stickyPin } from '../shared/motion';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
@@ -37,9 +38,9 @@ function waveQuestion(text: string) {
 /** The section's Moving blobs: the hero's, with Figma's higher threshold (27.5) for this frame. */
 const TOPIC_BLOBS: BlobParams = { ...HERO_BUBBLES, threshold: 27.5 };
 
-const SEARCH = `<svg class="fsearch__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
-const CROSS = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
-const CHEV = `<svg class="fqa__chev" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const SEARCH = icon('search', { className: 'fsearch__icon', size: 20 });
+const CROSS = icon('close', { size: 16 });
+const CHEV = icon('chevron-down', { className: 'fqa__chev', size: 24 });
 
 function render() {
   const main = document.getElementById('main')!;

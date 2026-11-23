@@ -6,6 +6,7 @@ import { dayInTheLife, features, productHero, trust } from '../content/product';
 import { boot } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
+import { icon } from '../shared/icons';
 import { initThinkZoom, type StageScene } from '../animations/think-zoom';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from '../animations/gsap';
@@ -38,13 +39,13 @@ function hero() {
 }
 
 /** A 16px icon from Figma's app mockup. */
-const icon = (name: string, cls = '') => `<img class="app__icon${cls ? ` ${cls}` : ''}" src="/product/app/${name}.svg" alt="" width="16" height="16" />`;
+const appIcon = (name: string, cls = '') => `<img class="app__icon${cls ? ` ${cls}` : ''}" src="/product/app/${name}.svg" alt="" width="16" height="16" />`;
 
 /** Two overlapping sheets: copy. */
-const COPY = `<svg class="app__copy-icon" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 3.5v-.5a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+const COPY = icon('copy', { className: 'app__copy-icon', size: 12 });
 /** A done step's tick. The circle sits a hair inside its box and the SVG may draw past it, so neither its smoothed edge
  *  nor the pop-in overshoot (back.out) is ever clipped. */
-const TICK = `<svg class="app__tick" viewBox="0 0 16 16" width="14" height="14" overflow="visible" aria-hidden="true"><circle cx="8" cy="8" r="7.75" fill="#1e6ef3"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const TICK = icon('tick', { className: 'app__tick', size: 14 });
 
 /**
  * Source's conversation (played by sourceScene): the request as a bubble, Ditto's steps as it works,
@@ -94,7 +95,7 @@ function draftCard(past = false) {
     <p class="app__draft-head"><span>To <b>${esc(d.to)}</b></span></p>
     <p class="app__draft-body"><span class="app__draft-ghost">${esc(d.body)}</span><span class="app__draft-text">${past ? esc(d.body) : ''}</span></p>
     <div class="app__draft-foot">
-      <span class="app__slot">${icon('scheduled')}${esc(d.slot)}</span>
+      <span class="app__slot">${appIcon('scheduled')}${esc(d.slot)}</span>
       <b class="app__copy-btn"><span class="app__copy-label">${COPY}${esc(d.copy)}</span><span class="app__copied-label">${TICK}${esc(d.copied)}</span></b>
     </div>
   </div>`;
@@ -119,7 +120,7 @@ function laterChat(stage: string, past: string, request: string, reply: string) 
       </div></div>
       <div class="app__ask">
         <div class="app__box app__box--compact">
-          <span class="app__line">${icon('new')}<span class="app__field app__field--line"><span class="app__prompt">${esc(a.prompt)}</span><span class="app__typed"><span class="app__text"></span><i class="app__caret"></i></span></span>${icon('mic')}</span>
+          <span class="app__line">${appIcon('new')}<span class="app__field app__field--line"><span class="app__prompt">${esc(a.prompt)}</span><span class="app__typed"><span class="app__text"></span><i class="app__caret"></i></span></span>${appIcon('mic')}</span>
           <p class="app__under"><b>${esc(a.model)}</b><em>${esc(a.size)}</em></p>
         </div>
       </div>
@@ -191,14 +192,14 @@ function sourceChat() {
         <div class="app__box">
           <p class="app__field"><span class="app__prompt">${esc(a.prompt)}</span><span class="app__typed"><span class="app__text"></span><i class="app__caret"></i></span></p>
           <div class="app__controls">
-            <span class="app__modes">${icon('new')}${a.modes.map((m, i) => `<b class="app__chip${i === 0 ? ' is-on' : ''}">${esc(m)}</b>`).join('')}</span>
-            <span class="app__model"><b>${esc(a.model)}</b><em>${esc(a.size)}</em>${icon('mic')}${icon('send', 'app__send')}</span>
+            <span class="app__modes">${appIcon('new')}${a.modes.map((m, i) => `<b class="app__chip${i === 0 ? ' is-on' : ''}">${esc(m)}</b>`).join('')}</span>
+            <span class="app__model"><b>${esc(a.model)}</b><em>${esc(a.size)}</em>${appIcon('mic')}${appIcon('send', 'app__send')}</span>
           </div>
-          <span class="app__line">${icon('new')}<span>${esc(a.prompt)}</span>${icon('mic')}</span>
+          <span class="app__line">${appIcon('new')}<span>${esc(a.prompt)}</span>${appIcon('mic')}</span>
           <p class="app__under"><b>${esc(a.model)}</b><em>${esc(a.size)}</em></p>
         </div>
         <div class="app__actions">
-          ${a.actions.map((t, i) => `<span class="app__btn">${icon(['write', 'learn', 'code', 'career'][i])}${esc(t)}</span>`).join('')}
+          ${a.actions.map((t, i) => `<span class="app__btn">${appIcon(['write', 'learn', 'code', 'career'][i])}${esc(t)}</span>`).join('')}
         </div>
       </div>
       ${thread()}
