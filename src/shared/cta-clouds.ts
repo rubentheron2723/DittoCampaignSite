@@ -400,7 +400,11 @@ export function initCtaClouds(reduce: boolean) {
  * `readyClass` once the first frame is drawn (and loses it if WebGL is lost),
  * so its CSS can keep a fallback until then.
  */
-export type Clouds = { setPart: (amount: number) => void };
+export type Clouds = {
+  setPart: (amount: number) => void;
+  /** Recolours the sky (light and dark mode share the clouds' shape) and, with bubbles, switches their settings. */
+  setLook: (params: CloudParams, bubbles?: BlobParams) => void;
+};
 export type SkyOptions = {
   /** Run the Moving blobs effect over the sky ("bubbles"); intensity < 1 makes them subtler than Figma. */
   bubbles?: { params: BlobParams; intensity: number };
@@ -607,6 +611,16 @@ export function initClouds(
       if (amount === part) return;
       part = amount;
       // The draw loop picks this up while animating; draw now when it isn't running.
+      if (!raf) render(performance.now());
+    },
+    setLook(next, bubbleParams) {
+      gl.useProgram(program);
+      gl.uniform3fv(loc('uCloudColor'), next.cloudColor);
+      gl.uniform3fv(loc('uCloudShadowColor'), next.cloudShadowColor);
+      gl.uniform3fv(loc('uSky0'), next.sky[0].color);
+      gl.uniform3fv(loc('uSky1'), next.sky[1].color);
+      gl.uniform2f(loc('uSkyP'), next.sky[0].at, next.sky[1].at);
+      if (bubbleParams) bubbles?.setParams(bubbleParams);
       if (!raf) render(performance.now());
     },
   };

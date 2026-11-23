@@ -158,6 +158,9 @@ window.addEventListener('pageshow', (e) => {
 });
 
 /* ---------- CTA join ---------- */
+/** Re-blends the CTA into the section above it, after that section's colour changes (light and dark mode). */
+export const refreshCtaJoin = () => blendCtaIntoPrevious();
+
 /**
  * Removes the edge between the closing CTA and the section above it.
  * - Light sections: the section's own background now ends in the CTA's top
@@ -169,6 +172,11 @@ function blendCtaIntoPrevious() {
   const cta = q('.cta');
   const prev = cta?.previousElementSibling as HTMLElement | null;
   if (!cta || !prev) return;
+  // Measured afresh (a page switching between light and dark mode calls this again): undo the last blend first.
+  prev.style.backgroundImage = '';
+  cta.classList.remove('cta--from-dark');
+  cta.style.removeProperty('--cta-from');
+  cta.dataset.theme = 'light';
   const style = getComputedStyle(prev);
   // The last colour of a background gradient is the colour at the bottom edge.
   const colours = style.backgroundImage.match(/rgba?\([^)]*\)/g);

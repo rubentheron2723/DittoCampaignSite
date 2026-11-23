@@ -24,9 +24,9 @@ export function initBlobBackdrop(
   overlay = false,
 ) {
   const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, premultipliedAlpha: true });
-  if (!gl) return;
+  if (!gl) return null;
   const pass = createBlobsPass(gl, params, intensity);
-  if (!pass) return;
+  if (!pass) return null;
 
   // The input: one pixel of the section's colour, or the given image, stretched.
   const input = gl.createTexture()!;
@@ -38,6 +38,10 @@ export function initBlobBackdrop(
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
   }
   else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([...colour, 255]));
+  const fill = (rgb: [number, number, number]) => {
+    gl.bindTexture(gl.TEXTURE_2D, input);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([...rgb, 255]));
+  };
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -99,4 +103,13 @@ export function initBlobBackdrop(
     // The canvas itself, not its section: on phones a section's canvas often covers only its start (not pinned), and
     // drew on, unseen, the whole way down a long section.
   }).observe(canvas);
+
+  return {
+    /** Switches the effect's settings and the section's colour under it (light and dark mode), redrawn at once. */
+    set(next: BlobParams, rgb: [number, number, number]) {
+      pass.setParams(next);
+      fill(rgb);
+      if (!lost) frame(performance.now());
+    },
+  };
 }

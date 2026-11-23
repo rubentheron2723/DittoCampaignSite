@@ -2,13 +2,14 @@ import '../styles/base.css';
 import '../styles/faq.css';
 
 import { faqCategories } from '../content/faq';
-import { boot } from '../shared/boot';
+import { boot, refreshCtaJoin } from '../shared/boot';
 import { ctaAndFooter } from '../shared/chrome';
 import { esc } from '../shared/mark';
 import { icon } from '../shared/icons';
 import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { splitReveal, stickyPin } from '../shared/motion';
-import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
+import { HERO_BUBBLES, HERO_BUBBLES_DARK, initClouds, SKY_HERO, SKY_HERO_DARK } from '../shared/cta-clouds';
+import { applySavedMode, currentMode, initModeToggle, onModeChange } from '../shared/colour-mode';
 import { initBlobBackdrop } from '../shared/blob-backdrop';
 import type { BlobParams } from '../shared/footer-blobs';
 
@@ -37,6 +38,11 @@ function waveQuestion(text: string) {
 
 /** The section's Moving blobs: the hero's, with Figma's higher threshold (27.5) for this frame. */
 const TOPIC_BLOBS: BlobParams = { ...HERO_BUBBLES, threshold: 27.5 };
+/** Dark mode (Figma 2441:90): the blobs inverted along their edges, faint light rings on #171717. */
+const TOPIC_BLOBS_DARK: BlobParams = { ...TOPIC_BLOBS, mode: 'Invert' };
+
+// FAQ has a dark mode: the reader's choice goes on the page before it renders, so it never flashes the other one.
+applySavedMode();
 
 const SEARCH = icon('search', { className: 'fsearch__icon', size: 20 });
 const CROSS = icon('close', { size: 16 });
@@ -114,7 +120,7 @@ function render() {
     </div>
   </section>
 
-  ${ctaAndFooter()}`;
+  ${ctaAndFooter({ modes: true })}`;
 }
 
 /**
@@ -332,15 +338,26 @@ function initTopics(animate: boolean, goTo: (topic: HTMLElement, smooth: boolean
 
 /** The topics backdrop: #FDFDFD, rippled by the Moving blobs. */
 const PAPER: [number, number, number] = [253, 253, 253];
+/** The topics backdrop in dark mode: #171717. */
+const INK: [number, number, number] = [23, 23, 23];
 
 boot({
   page: 'faq',
   render,
   init: ({ reduce, revealed, smoother }) => {
-    initClouds(q('.fhero')!, q<HTMLCanvasElement>('.fhero__sky')!, 'fhero--sky', reduce, SKY_HERO, {
-      bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
+    const dark = currentMode() === 'dark';
+    const sky = initClouds(q('.fhero')!, q<HTMLCanvasElement>('.fhero__sky')!, 'fhero--sky', reduce, dark ? SKY_HERO_DARK : SKY_HERO, {
+      bubbles: { params: dark ? HERO_BUBBLES_DARK : HERO_BUBBLES, intensity: 0.6 },
     });
-    initBlobBackdrop(q('.ftopics')!, q<HTMLCanvasElement>('.ftopics__fx')!, 'ftopics--fx', TOPIC_BLOBS, PAPER, reduce, 0.6, 30);
+    const blobs = initBlobBackdrop(q('.ftopics')!, q<HTMLCanvasElement>('.ftopics__fx')!, 'ftopics--fx', dark ? TOPIC_BLOBS_DARK : TOPIC_BLOBS, dark ? INK : PAPER, reduce, 0.6, 30);
+    // The footer's Light / Dark switch: the sky, the blobs and the CTA's join follow the CSS.
+    initModeToggle();
+    onModeChange((mode) => {
+      const isDark = mode === 'dark';
+      sky?.setLook(isDark ? SKY_HERO_DARK : SKY_HERO, isDark ? HERO_BUBBLES_DARK : HERO_BUBBLES);
+      blobs?.set(isDark ? TOPIC_BLOBS_DARK : TOPIC_BLOBS, isDark ? INK : PAPER);
+      refreshCtaJoin();
+    });
     // The blobs' canvas is one screen tall (the whole list would be ~10,000px of shader every frame), carried down
     // the section so it always fills the view: at the section's top as it enters, at its foot as it leaves.
     const fx = q<HTMLElement>('.ftopics__fx')!;

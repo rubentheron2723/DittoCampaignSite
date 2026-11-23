@@ -620,7 +620,8 @@ export function initFooterBlobs(reduce: boolean) {
  * displacement, dispersion and rim shading to make the bubbles subtler than
  * in Figma. Returns null if the context can't render the float field target.
  */
-export function createBlobsPass(gl: WebGL2RenderingContext, params: BlobParams, intensity = 1) {
+export function createBlobsPass(gl: WebGL2RenderingContext, initial: BlobParams, intensity = 1) {
+  let params = initial;
   if (!(gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float'))) return null;
   let fieldProgram: WebGLProgram;
   let compositeProgram: WebGLProgram;
@@ -631,7 +632,7 @@ export function createBlobsPass(gl: WebGL2RenderingContext, params: BlobParams, 
     console.warn('Bubbles disabled:', err);
     return null;
   }
-  const u = deriveUniforms(params);
+  let u = deriveUniforms(params);
   const vao = gl.createVertexArray();
   const fieldTex = gl.createTexture()!;
   const fieldFbo = gl.createFramebuffer()!;
@@ -659,6 +660,11 @@ export function createBlobsPass(gl: WebGL2RenderingContext, params: BlobParams, 
   };
 
   return {
+    /** New settings (light and dark mode differ), from the next frame on. */
+    setParams(next: BlobParams) {
+      params = next;
+      u = deriveUniforms(next);
+    },
     resize(w: number, h: number) {
       width = w;
       height = h;

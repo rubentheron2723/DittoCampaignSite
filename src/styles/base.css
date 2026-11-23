@@ -229,6 +229,9 @@ svg { display: block; }
 .nav--solid::before { opacity: 1; }
 .nav--on-light::before { background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 45%), rgba(23, 23, 23, 0.1); }
 .nav--on-light { color: var(--brand-ink); }
+/* Dark mode: every section is dark, so the nav stays light (and its glass clear) all the way down. */
+[data-mode='dark'] .nav--on-light { color: var(--color-nav-text-on-section); }
+[data-mode='dark'] .nav--on-light::before { background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 45%), rgba(255, 255, 255, 0.1); }
 .nav__brand, .nav__links, .nav__actions { position: relative; z-index: 1; display: flex; align-items: center; }
 /* Logo: 93.2 x 24 with an 8px hit area around it, one colour (shared/nav-logo.ts). */
 .nav__brand { padding: 8px; }
@@ -317,7 +320,9 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
 }
 .cta--from-dark::before { background: var(--cta-from); }
 .cta--from-dark { --cta-edge: var(--cta-from); }
-.cta__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; }
+/* Its top 3px are clipped: at a fractional edge the canvas's first row showed through above the shade as a hairline
+   (grey on a dark section above). The CTA's own 4px edge colour fills them. */
+.cta__sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease-out); pointer-events: none; clip-path: inset(3px 0 0 0); }
 .cta--sky .cta__sky { opacity: 1; }
 /* Figma 2378:1159: white haze at the top (from the section above) and the footer's #00B0FF at the bottom, so the
    band runs straight into the footer with no edge. */
@@ -373,6 +378,17 @@ body.menu-open .nav__cta { opacity: 0; pointer-events: none; }
 .footer__col:nth-child(6) { grid-column: 4; grid-row: 1; }
 .footer__title { margin: 0; color: rgba(254, 254, 254, 0.5); }
 .footer__col a { color: #fefefe; }
+/* Light / Dark switch (pages with a dark mode, shared/colour-mode.ts): a glass pill with the chosen side filled white. */
+.mode-toggle { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.14); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2); }
+.mode-toggle__btn {
+  min-height: 36px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: #fefefe; cursor: pointer;
+  font: inherit; font-size: 16px; line-height: 20px; letter-spacing: -0.02em; transition: background-color 0.25s var(--ease-out), color 0.25s var(--ease-out);
+}
+.mode-toggle__btn:hover { background: rgba(255, 255, 255, 0.12); }
+.mode-toggle__btn.is-on { background: #fefefe; color: #171717; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+.mode-toggle__btn:focus { outline: none; }
+.mode-toggle__btn:focus-visible { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6); }
+@media (pointer: coarse) { .mode-toggle__btn { min-height: 44px; } }
 /* Hover wave: each character lifts and settles in turn. */
 .wave { display: inline-flex; }
 .wave span { display: inline-block; white-space: pre; }

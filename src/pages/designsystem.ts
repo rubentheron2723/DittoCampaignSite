@@ -173,7 +173,7 @@ function modesSection() {
       </div>
     </div>`;
   const preview = (mode: 'light' | 'dark') => `
-    <figure class="ds-mode" data-theme="${mode}">
+    <figure class="ds-mode" data-mode="${mode}">
       <div class="ds-mode__hero" data-hero="${mode}">
         <canvas class="ds-mode__sky"></canvas>
         <span class="ds-mode__glow"></span>
@@ -207,7 +207,7 @@ function modesSection() {
   return section(
     'modes',
     'Light and dark',
-    'Semantic colour tokens with a light and a dark value, from <code>src/styles/tokens.css</code>. Light is the site today; dark is from the Figma frames. Put <code>data-theme="dark"</code> on a section (or the page) to switch it. Click a value to copy it.',
+    'Semantic colour tokens with a light and a dark value, from <code>src/styles/tokens.css</code>. Light is the site today; dark is from the Figma frames. Put <code>data-mode="dark"</code> on the page (<code>&lt;html&gt;</code>) or a section to switch it; the FAQ page has a Light / Dark switch in its footer. Click a value to copy it.',
     `<div class="ds-modes__preview">${preview('light')}${preview('dark')}</div>` + groups + shaders,
   );
 }
@@ -515,7 +515,7 @@ const allTokens = () => ({
 function modeValues() {
   const read = (mode: string) => {
     const el = Object.assign(document.createElement('div'), { hidden: true });
-    el.dataset.theme = mode;
+    el.dataset.mode = mode;
     document.body.appendChild(el);
     const cs = getComputedStyle(el);
     const out = colourModes.flatMap((g) => g.tokens.map((t) => ({ ...t, group: g.title, value: cs.getPropertyValue(t.token).trim() })));
@@ -545,11 +545,11 @@ ${lines.join('\n\n')}
 ${type.join('\n')}
 }
 
-/* Colour modes: light by default, dark inside [data-theme="dark"]. */
-:root, [data-theme='light'] {
+/* Colour modes: light by default, dark inside [data-mode="dark"]. */
+:root, [data-mode='light'] {
 ${modeValues().map((t) => `  ${t.token}: ${t.light};`).join('\n')}
 }
-[data-theme='dark'] {
+[data-mode='dark'] {
 ${modeValues().map((t) => `  ${t.token}: ${t.dark};`).join('\n')}
 }`;
 }
@@ -581,7 +581,7 @@ ${colours.map((g) => `### ${g.title}\n${g.note ? `${g.note}\n\n` : ''}${table(g.
 ${skyRamp.map((t) => `\`${t.value}\` at ${t.name}`).join(' → ')}
 
 ## Colour modes (light and dark)
-Light is the site today; dark mode uses the same tokens with these values (switch with data-theme="dark"). In dark mode every section sits on #171717 with white text, and the nav stays light throughout.
+Light is the site today; dark mode uses the same tokens with these values (switch with data-mode="dark" on <html>). In dark mode every section sits on #171717 with white text, and the nav stays light throughout.
 
 | Name | Token | Light | Dark | Use |
 |---|---|---|---|---|
@@ -687,7 +687,7 @@ function renderSystem() {
   /* Light and dark values, read from tokens.css through a probe in each mode. */
   const modeProbe = (mode: string) => {
     const el = document.createElement('div');
-    el.dataset.theme = mode;
+    el.dataset.mode = mode;
     el.hidden = true;
     document.body.appendChild(el);
     return getComputedStyle(el);
