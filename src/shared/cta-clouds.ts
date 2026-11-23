@@ -113,6 +113,21 @@ export const SKY_HERO: CloudParams = {
 };
 
 /** The hero's Moving blobs ("bubbles"): the footer's settings with a much lower threshold, so fewer rims. */
+/**
+ * The hero sky in dark mode (Figma 2441:192): the same clouds and transform as SKY_HERO, recoloured. The sky runs from
+ * Ditto Blue down to the dark Secondary (#0E0153) and the clouds turn coral, shadowed in Ditto Blue. Over it, in CSS:
+ * a navy-to-blue radial glow (soft light, 40%) and the fade to #171717 at the foot (where light fades to white).
+ */
+export const SKY_HERO_DARK: CloudParams = {
+  ...SKY_HERO,
+  cloudColor: [0.749, 0.2706, 0.2588],
+  cloudShadowColor: [0.1176, 0.4314, 0.9529],
+  sky: [
+    { at: 0, color: [0.1176, 0.4314, 0.9529] },
+    { at: 1, color: [0.0535, 0.0054, 0.326] },
+  ],
+};
+
 export const HERO_BUBBLES: BlobParams = {
   mode: 'Displacement',
   region: 'Edges Only',
@@ -125,6 +140,9 @@ export const HERO_BUBBLES: BlobParams = {
   chromaticAberration: 59.1,
   speed: 61.7,
 };
+
+/** The hero's blobs in dark mode (Figma 2441:192): inverted along their edges, so they show as faint light rings. */
+export const HERO_BUBBLES_DARK: BlobParams = { ...HERO_BUBBLES, mode: 'Invert', strength: -4 };
 
 /** CSS-style cubic-bezier easing with endpoints (0,0) and (1,1). */
 function cubicBezier(x1: number, y1: number, x2: number, y2: number) {

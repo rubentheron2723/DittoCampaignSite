@@ -105,6 +105,66 @@ html:has(.ds-body) { background: #fdfdfd; }
 .ds-ramp__stop span { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .ds-ramp__stop em { font-style: normal; opacity: 0.75; }
 
+/* Light and dark: token table */
+.ds-modes { display: grid; border-top: 1px solid rgba(15, 20, 29, 0.08); }
+.ds-modes__head, .ds-modes__row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(15, 20, 29, 0.08); }
+.ds-modes__head { padding: 8px 0; font-size: 13px; font-weight: 500; color: rgba(23, 23, 23, 0.5); }
+.ds-modes__name { display: grid; gap: 4px; justify-items: start; font-size: 13px; line-height: 1.45; color: rgba(23, 23, 23, 0.6); }
+.ds-modes__name b { font-size: 15px; font-weight: 600; color: #171717; }
+.ds-modes__value {
+  display: flex; align-items: center; gap: 10px; min-width: 0; padding: 6px; border: 0; border-radius: 14px; background: transparent; font: inherit; text-align: left; cursor: pointer;
+  transition: background 0.25s var(--ease-out);
+}
+.ds-modes__value:hover { background: rgba(30, 110, 243, 0.06); }
+.ds-modes__value:focus-visible { outline: 2px solid #1e6ef3; outline-offset: 2px; }
+.ds-modes__value i {
+  flex: none; width: 44px; height: 44px; border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(15, 20, 29, 0.1);
+  background-image: repeating-conic-gradient(#f1f3f6 0 25%, #fff 0 50%); background-size: 12px 12px;
+}
+.ds-modes__value[data-mode='dark'] i.is-shadow { background: #171717; }
+.ds-modes__value i.is-shadow { background: #fdfdfd; }
+.ds-modes__value .ds-code { font-size: 11px; line-height: 15px; }
+
+/* Light and dark: live previews (all colour from the --color-* tokens of each figure's data-theme) */
+.ds-modes__preview { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 8px; }
+.ds-mode { margin: 0; display: grid; gap: 10px; }
+.ds-mode figcaption { font-size: 14px; font-weight: 500; color: rgba(23, 23, 23, 0.6); }
+.ds-mode__hero, .ds-mode__section { position: relative; overflow: hidden; isolation: isolate; }
+.ds-mode__hero { aspect-ratio: 1440 / 1024; border-radius: 24px 24px 0 0; background: var(--color-sky); color: var(--color-text-on-hero); }
+.ds-mode__sky, .ds-mode__blobs { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; }
+.ds-mode__glow { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+[data-theme='dark'] .ds-mode__glow { mix-blend-mode: soft-light; opacity: 0.4; background: radial-gradient(130% 90% at 50% -24%, #0e0153 0%, #1e6ef3 50%, #171717 100%); }
+.ds-mode__fade { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(0deg, var(--color-hero-fade) 0%, transparent 34.289%); }
+.ds-mode__nav, .ds-mode__bar { display: flex; align-items: center; gap: 12px; padding: 14px 18px; font-size: 12px; line-height: 16px; }
+.ds-mode__nav { color: var(--color-nav-text); }
+.ds-mode__nav > span:first-of-type { margin-left: auto; }
+.ds-mode__logo { width: 56px; height: auto; flex: none; }
+.ds-mode__cta {
+  padding: 5px 12px; border-radius: 999px; color: #171717; font-size: 12px; box-shadow: 0 8px 100px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(-76deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%), linear-gradient(-75deg, rgba(255, 255, 255, 0.6) 0.28%, rgba(255, 255, 255, 0) 100%);
+}
+.ds-mode__copy { display: grid; justify-items: center; gap: 8px; padding: 22% 20px 0; text-align: center; }
+.ds-mode__title { font-size: clamp(22px, 2.4vw, 32px); line-height: 1.05; letter-spacing: -0.04em; font-weight: 700; }
+.ds-mode__sub { font-size: 14px; font-weight: 500; letter-spacing: -0.02em; }
+.ds-mode__field {
+  display: inline-flex; align-items: center; gap: 8px; width: min(100%, 240px); margin-top: 8px; padding: 10px 14px; border-radius: 999px;
+  background: var(--color-field); box-shadow: var(--color-field-shadow); color: var(--color-field-text); font-size: 13px;
+}
+.ds-mode__section { min-height: 280px; border-radius: 0 0 24px 24px; background: var(--color-bg); color: var(--color-text); }
+.ds-mode__bar { color: var(--color-nav-text-on-section); opacity: 0.85; }
+.ds-mode__body { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 16px; align-items: center; padding: 8px 18px 22px; }
+.ds-mode__tabs { display: grid; gap: 8px; }
+.ds-mode__tab { padding: 8px 12px; border-radius: 999px; border: 1px solid transparent; font-size: 12px; line-height: 16px; }
+.ds-mode__tab.is-on { background: var(--color-surface); border-color: var(--color-selected-border); box-shadow: 0 8px 20px var(--color-glow); }
+.ds-mode__tab.is-hover { background: var(--color-surface-hover); }
+.ds-mode__tab.is-focus { box-shadow: 0 0 0 4px var(--color-focus-ring); }
+.ds-mode__text { display: grid; gap: 8px; }
+.ds-mode__h { font-size: 20px; line-height: 1.05; letter-spacing: -0.04em; font-weight: 700; }
+.ds-mode__q { font-size: 14px; line-height: 1.2; letter-spacing: -0.03em; font-weight: 700; }
+.ds-mode__a { font-size: 11px; line-height: 1.45; color: var(--color-text-muted); }
+.ds-table--modes .ds-table__row { grid-template-columns: 170px 170px minmax(0, 1fr) minmax(0, 1fr); }
+.ds-table__row--head b { font-size: 13px; font-weight: 500; color: rgba(23, 23, 23, 0.5); }
+
 /* Gradients */
 .ds-gradient__fill { display: block; height: 140px; border-radius: 16px; box-shadow: inset 0 0 0 1px rgba(15, 20, 29, 0.06); }
 .ds-gradient:nth-child(4) .ds-gradient__fill { background-color: #1e6ef3 !important; }
@@ -204,7 +264,14 @@ html:has(.ds-body) { background: #fdfdfd; }
   .ds-section { padding-top: 64px; scroll-margin-top: 56px; }
   .ds-hero { scroll-margin-top: 72px; }
   .ds-type { grid-template-columns: 1fr; gap: 12px; }
-  .ds-table__row { grid-template-columns: 1fr; gap: 6px; }
+  .ds-table__row, .ds-table--modes .ds-table__row { grid-template-columns: 1fr; gap: 6px; }
+  .ds-table__row--head { display: none !important; }
+  .ds-modes__preview { grid-template-columns: 1fr; }
+  .ds-modes__head { display: none; }
+  .ds-modes__row { grid-template-columns: 1fr 1fr; }
+  .ds-modes__name { grid-column: 1 / -1; }
+  .ds-modes__value { flex-wrap: wrap; }
+  .ds-modes__value::before { content: attr(data-mode); flex-basis: 100%; font-size: 12px; font-weight: 500; text-transform: capitalize; color: rgba(23, 23, 23, 0.5); }
   .ds-ramp { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .ds-grid--swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ds-grid--icons { grid-template-columns: repeat(2, minmax(0, 1fr)); }

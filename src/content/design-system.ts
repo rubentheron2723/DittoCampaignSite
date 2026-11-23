@@ -196,3 +196,79 @@ export const typeFacts = {
   fluid: 'Each style has a phone size (375 wide) and a desktop size (1440 wide) and scales smoothly in between',
   case: 'Sentence case everywhere. No all-caps labels, kickers or microcopy, and no wide letter spacing',
 };
+
+/**
+ * Colour modes: the semantic tokens in src/styles/tokens.css. Only names and uses live here; the page reads each
+ * value for light and dark from the CSS itself, so it always shows what tokens.css says.
+ */
+export type ModeGroup = { title: string; note?: string; tokens: { token: string; name: string; uses: string }[] };
+
+export const colourModes: ModeGroup[] = [
+  {
+    title: 'Palette',
+    note: 'The Figma palettes. Dark mode moves Primary to Ditto Blue, makes Secondary a deep navy and adds a coral contrast accent.',
+    tokens: [
+      { token: '--color-primary', name: 'Primary', uses: 'Light: Sky Blue. Dark: Ditto Blue.' },
+      { token: '--color-secondary', name: 'Secondary', uses: 'Light: Ditto Blue. Dark: navy, the bottom of the dark sky.' },
+      { token: '--color-accent', name: 'Accent, contrast', uses: 'Dark mode only: the coral in the dark clouds and highlights' },
+      { token: '--color-neutral-dark', name: 'Neutral dark', uses: 'Ink text on light; the dark mode page' },
+      { token: '--color-neutral-light', name: 'Neutral light', uses: 'White surfaces on light; text on dark' },
+      { token: '--color-gradient', name: 'Gradient, radial', uses: 'The radial glow at the top of heroes' },
+    ],
+  },
+  {
+    title: 'Surfaces and text',
+    tokens: [
+      { token: '--color-bg', name: 'Background', uses: 'Section background' },
+      { token: '--color-bg-join', name: 'Background join', uses: 'Where sections fade into each other and the CTA' },
+      { token: '--color-text', name: 'Text', uses: 'Headings and body' },
+      { token: '--color-text-muted', name: 'Text, muted', uses: 'Secondary text and answers' },
+      { token: '--color-text-on-hero', name: 'Text on hero', uses: 'Type over the sky (both modes)' },
+      { token: '--color-surface', name: 'Surface', uses: 'Cards, tabs, chips' },
+      { token: '--color-surface-hover', name: 'Surface, hover', uses: 'Hovered tabs and chips' },
+      { token: '--color-line', name: 'Line', uses: 'Dividers and outlines' },
+      { token: '--color-selected-border', name: 'Selected border', uses: 'The active tab or option (1px)' },
+      { token: '--color-focus-ring', name: 'Focus ring', uses: 'Keyboard focus (7px ring)' },
+      { token: '--color-glow', name: 'Glow', uses: 'Shadow under selected items: dark in light mode, a white glow in dark' },
+    ],
+  },
+  {
+    title: 'Nav',
+    note: 'In light mode the nav turns Ink over light sections. In dark mode every section is dark, so the links stay light all the way down.',
+    tokens: [
+      { token: '--color-nav-text', name: 'Nav text', uses: 'Links and logo over the hero' },
+      { token: '--color-nav-text-on-section', name: 'Nav text over sections', uses: 'Links and logo once past the hero' },
+    ],
+  },
+  {
+    title: 'Fields and glass',
+    tokens: [
+      { token: '--color-field', name: 'Field', uses: 'Search and input pills: white glass on light, dark glass on dark' },
+      { token: '--color-field-text', name: 'Field text', uses: 'Placeholder text in fields' },
+      { token: '--color-field-shadow', name: 'Field shadow', uses: 'The float under fields: dark on light, a white glow on dark' },
+    ],
+  },
+  {
+    title: 'Hero sky',
+    tokens: [
+      { token: '--color-sky', name: 'Sky', uses: 'The cloud shader’s sky gradient, top to bottom' },
+      { token: '--color-cloud', name: 'Cloud', uses: 'Cloud colour: near-white on light, coral on dark' },
+      { token: '--color-cloud-shadow', name: 'Cloud shadow', uses: 'Cloud shading (Ditto Blue in both)' },
+      { token: '--color-hero-fade', name: 'Hero fade', uses: 'What the hero fades into at its foot' },
+    ],
+  },
+];
+
+/** How the shaders change between modes (the settings live in shared/cta-clouds.ts and shared/footer-blobs.ts). */
+export const shaderModes = [
+  { shader: 'Clouds (hero)', setting: 'Sky', light: '#1e6ef3 → #00b0ff', dark: '#1e6ef3 → #0e0153' },
+  { shader: 'Clouds (hero)', setting: 'Cloud colour', light: '#edf8ff', dark: '#bf4542 (coral)' },
+  { shader: 'Clouds (hero)', setting: 'Shadow colour', light: '#1e6ef3', dark: '#1e6ef3' },
+  { shader: 'Clouds (hero)', setting: 'Shape', light: 'Coverage 22, warp 100 at scale 8, stretch 100, detail 51, variation 70, brightness 19', dark: 'The same' },
+  { shader: 'Clouds (hero)', setting: 'Over the sky', light: 'Fade to white at the foot (bottom 34%)', dark: 'Navy-to-blue radial glow (soft light, 40%), then a fade to #171717 at the foot' },
+  { shader: 'Moving blobs (hero)', setting: 'Mode', light: 'Displacement, edges only', dark: 'Invert, edges only' },
+  { shader: 'Moving blobs (hero)', setting: 'Strength / threshold', light: '11 / 4.5', dark: '−4 / 4.5' },
+  { shader: 'Moving blobs (sections)', setting: 'Mode', light: 'Displacement, edges only', dark: 'Invert, edges only (light rings on #171717)' },
+  { shader: 'Moving blobs (sections)', setting: 'Strength / threshold', light: '11 / 27.5', dark: '11 / 27.5' },
+  { shader: 'Moving blobs (both)', setting: 'Scale, dispersion, shadow, speed', light: '300, 59.1, 9, 61.7', dark: 'The same' },
+];

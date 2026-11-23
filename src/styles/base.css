@@ -1,4 +1,5 @@
 @import './type.css';
+@import './tokens.css';
 
 :root {
   --ink: #0f141d;
