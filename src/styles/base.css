@@ -143,6 +143,25 @@ svg { display: block; }
 .mark-fly { position: fixed; left: 0; top: 0; z-index: 61; pointer-events: none; visibility: hidden; transform-origin: 0 0; will-change: transform; }
 .mark-fly svg { display: block; }
 
+/* "Keep scrolling." (Figma 2438:243, shared/scroll-cue.ts): 16/20 DM Sans at opsz 14, ink at 60%, -0.04em, with a
+   16px chevron under it, centred near the foot of the screen while a section holds the page. Lower than Figma's 108px
+   (at 1024 tall) so it clears the Home AI cards, whose row reaches about 15% from the bottom. It fades in and out, and
+   the chevron dips gently so the eye catches it. Under the nav, over the page, never in the way of a click. */
+.scroll-cue {
+  position: fixed; left: 50%; bottom: clamp(20px, 5vh, 52px); z-index: 55; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center;
+  transform: translate(-50%, 8px); opacity: 0; transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
+}
+.scroll-cue.is-on { opacity: 1; transform: translate(-50%, 0); }
+.scroll-cue__text {
+  font-size: 16px; line-height: 20px; letter-spacing: -0.04em; font-weight: 400; font-variation-settings: 'opsz' 14;
+  color: rgba(23, 23, 23, 0.6); white-space: nowrap;
+}
+.scroll-cue__chev { display: block; width: 16px; height: 16px; animation: scroll-cue-dip 1.8s ease-in-out infinite; }
+@keyframes scroll-cue-dip { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+/* Phones: closer to the foot (clear of the home indicator), so it sits under the panels' copy rather than on it. */
+@media (max-width: 900px) { .scroll-cue { bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); } }
+
 /* Glass pill button (Figma's white-to-clear glass): ink text, 16/20 (36 tall) or 20/24 (68 tall). */
 .gbtn {
   display: inline-flex; align-items: center; justify-content: center; align-self: center; height: 36px; padding: 0 20px; border-radius: 999px;

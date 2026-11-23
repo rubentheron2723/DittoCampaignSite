@@ -12,6 +12,7 @@ import { initTypePreview } from './type-overrides';
 import { initNavFooterMark } from './nav-footer-mark';
 import { flagPageTransition, playPageTransition, takePageTransition } from './page-transition';
 import { hidePage, liftCover, markCoverGone } from './cover';
+import { initScrollCue } from './scroll-cue';
 
 export type BootContext = {
   reduce: boolean;
@@ -115,6 +116,8 @@ export async function boot({ page, render, init }: Options) {
   initCtaClouds(reduce);
   initFooterBlobs(reduce);
   initFooterWave();
+  // "Keep scrolling." while a section holds the page (only where those sections exist, i.e. with motion on).
+  if (!reduce) initScrollCue();
   // Nav theming last: its triggers depend on pinned sections' final positions.
   initNavTheme(!reduce);
   ScrollTrigger.refresh();
