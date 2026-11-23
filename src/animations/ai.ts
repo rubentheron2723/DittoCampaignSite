@@ -1,6 +1,7 @@
 import { gsap, q, SplitText } from './gsap';
 import { createPaperCards, type CardPose } from '../shared/paper-cards';
 import { ai } from '../content/home';
+import { loadCanvasFont } from '../shared/canvas-font';
 
 /**
  * "Practical AI that recruiters can trust", on the home page after Source / Engage / Place.
@@ -35,8 +36,11 @@ export const ACCENT_STOPS: [number, string][] = [
 ];
 
 /** Draws one card face (2D canvas → WebGL texture), set as in the Figma section (node 2364:692). */
-function drawFace(index: number, title: string, copy: string) {
-  const c = document.createElement('canvas');
+/**
+ * Draws a card face. `c` is reused when redrawing (once the canvas font has loaded); `family` is that font, DM Sans at
+ * the site's optical size, so the faces carry the same type as the HTML cards (.aicard in home.css).
+ */
+function drawFace(index: number, title: string, copy: string, family = "'DM Sans', sans-serif", c = document.createElement('canvas')) {
   c.width = FACE_W;
   c.height = FACE_H;
   const ctx = c.getContext('2d')!;
@@ -60,7 +64,6 @@ function drawFace(index: number, title: string, copy: string) {
   ctx.fill();
 
   const ink = accent ? '#ffffff' : '#171717';
-  const family = "'DM Sans', sans-serif";
   const pad = 40 * K;
   const spacing = (em: number, size: number) => {
     if ('letterSpacing' in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${em * size}px`;
@@ -243,6 +246,13 @@ export function initAI(animate: boolean) {
     return () => {};
   }
   if (import.meta.env.DEV) (window as unknown as { __aiCards: typeof cards }).__aiCards = cards; // for checking frames in dev
+  // Drawn first in the page's DM Sans so the cards are never blank; redrawn in DM Sans at the site's optical size (16)
+  // once it has loaded, so the faces match the design system's type instead of the variable font's display cut.
+  loadCanvasFont().then((family) => {
+    if (!family.startsWith("'DM Sans Canvas'")) return;
+    ai.cards.forEach((c, i) => drawFace(i, c.title, c.copy, family, faces[i]));
+    cards.refreshFaces();
+  });
 
   // Pose values are functions, re-read on refresh, so the cards always fit under the copy.
   const KEYS = ['x', 'y', 'z', 'rx', 'ry', 'rz', 'bend', 'curl', 'shadow'] as const;
