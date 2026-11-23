@@ -1,0 +1,141 @@
+/*
+ * Dark mode for every page (html[data-mode='dark'], shared/colour-mode.ts), drawn from the colour tokens in
+ * tokens.css. Light keeps the pages' own rules: these only add the dark values, page by page.
+ *
+ * The look follows the Figma dark frames (FAQ hero 2441:192, content 2441:90, CTA and footer 2441:2262): heroes
+ * under the dark sky with a navy-to-blue glow and a fade to #171717; content on #171717 in white, secondary text at
+ * 60%; glass turns from white-to-clear into a faint white-to-clear on dark; solid cards #2E2E2E (--color-card). The
+ * shaders switch by themselves (cta-clouds.ts, blob-backdrop.ts, footer-blobs.ts), and so do the canvas-drawn cards
+ * (ai.ts, pricing-cards.ts) and the lens stage's type (think-zoom.ts). FAQ's own rules are in faq.css.
+ */
+
+/* ---------- Shared ---------- */
+[data-mode='dark'] #smooth-content { background: var(--color-bg); }
+[data-mode='dark'] [data-theme='light'] { color: var(--color-text); }
+[data-mode='dark'] .scroll-cue__text, [data-mode='dark'] .scroll-cue__chev { color: var(--color-text-muted); }
+/* The nav's "Book a demo" once past the hero: the clear glass with white type (the white-to-clear glass read as a grey
+   slab on dark, as it did in the menu). Over the hero it keeps Figma's white glass. */
+[data-mode='dark'] .nav--on-light .nav__cta { background: rgba(255, 255, 255, 0.1); color: var(--color-text); box-shadow: 0 8px 20px var(--color-glow); }
+
+/* Heroes: the dark sky under the shader, the navy-to-blue glow (soft light, 40%) and the fade to #171717. */
+[data-mode='dark'] :is(.hero, .phero, .ahero, .chero) { background: var(--color-sky); }
+[data-mode='dark'] :is(.hero__glow, .phero__glow, .ahero__glow, .chero__glow) {
+  background: radial-gradient(134.57% 124.02% at 50% -24.02%, #0e0153 0%, #100f67 6.25%, #121c7b 12.5%, #1638a3 25%, #1a53cb 37.5%, #1e6ef3 50%, #1c58bc 62.5%, #1b4385 75%, #192d4e 87.5%, #182233 93.75%, #171717 100%);
+}
+[data-mode='dark'] :is(.phero__haze, .ahero__haze, .chero__haze) { background: linear-gradient(0deg, var(--color-hero-fade) 0%, rgba(23, 23, 23, 0) 34.289%); }
+[data-mode='dark'] .hero__haze { background: linear-gradient(-4.81deg, var(--color-hero-fade) 5.2916%, rgba(23, 23, 23, 0) 36.114%); }
+[data-mode='dark'] .hero::after {
+  background: linear-gradient(180deg, rgba(23, 23, 23, 0) 0%, rgba(23, 23, 23, 0.04) 15%, rgba(23, 23, 23, 0.13) 30%, rgba(23, 23, 23, 0.28) 45%,
+    rgba(23, 23, 23, 0.48) 60%, rgba(23, 23, 23, 0.7) 75%, rgba(23, 23, 23, 0.9) 90%, var(--color-bg) 100%);
+}
+
+/* Glass on dark sections: white-to-clear turns into a faint white-to-clear, its type white. */
+[data-mode='dark'] [data-theme='light'] :is(.gbtn, .glass, .gseg, .lcard, .app__btn, .app__copy-btn, .sfield__show, .sform__ghost) {
+  background: linear-gradient(-80deg, rgba(255, 255, 255, 0.1) 56.239%, rgba(255, 255, 255, 0.02) 100%);
+  box-shadow: 0 8px 40px var(--color-glow); color: var(--color-text);
+}
+[data-mode='dark'] .gbtn--clear { color: var(--color-text); }
+/* The clear glass button in a hero (Home's "View pricing"): white type on the dark sky. */
+[data-mode='dark'] .btn--glass.btn--hero { color: var(--color-text-on-hero); }
+/* The sliding "on" pill inside a glass row. */
+[data-mode='dark'] :is(.gseg__pill, .day__pill, .feats__pill) { background: rgba(255, 255, 255, 0.14); box-shadow: 0 8px 20px var(--color-glow); }
+[data-mode='dark'] :is(.day__tabs, .feats__tabs) { background: linear-gradient(-73deg, rgba(255, 255, 255, 0.08) 56.239%, rgba(255, 255, 255, 0.02) 100%); box-shadow: 0 1px 50px var(--color-glow); }
+[data-mode='dark'] :is(.day__tab, .feats__tab, .gseg button) { color: var(--color-text); }
+
+/* ---------- Home ---------- */
+[data-mode='dark'] .system { background: var(--color-bg); color: var(--color-text); }
+[data-mode='dark'] .flow { background: var(--color-bg); }
+[data-mode='dark'] .flow__bg { background: radial-gradient(167.67% 42.19% at 43.23% 50%, #1e6ef3 0%, rgba(30, 110, 243, 0) 100%), var(--color-bg); }
+[data-mode='dark'] .flow__mq-tilt { color: var(--color-text); }
+[data-mode='dark'] .flow--stacked .fpanel { background: radial-gradient(503% 42.19% at 50% 50%, #1e6ef3 0%, rgba(30, 110, 243, 0) 100%), var(--color-bg); }
+@media (max-width: 900px) {
+  [data-mode='dark'] .flow__bg { background: radial-gradient(167.67% 50% at 43.23% 50%, #1e6ef3 0%, rgba(30, 110, 243, 0.85) 55%, rgba(30, 110, 243, 0) 100%), var(--color-bg); }
+}
+[data-mode='dark'] .ai { background: var(--color-bg); color: var(--color-text); }
+[data-mode='dark'] .aicard:not(:nth-child(2)) { background: var(--color-card); color: var(--color-text); }
+
+/* ---------- Lens stages (Product's day, About's statements) ---------- */
+[data-mode='dark'] .think { background: var(--color-bg); color: var(--color-text); }
+[data-mode='dark'] .think__body { color: var(--color-text-muted); }
+[data-mode='dark'] .day .think__stage::after { background: linear-gradient(180deg, rgba(23, 23, 23, 0) 0%, var(--color-bg) 100%); }
+
+/* ---------- Product ---------- */
+/* The assistant mock: its type white, the quieter parts at 40 to 60%, its cards and composer dark glass. */
+[data-mode='dark'] .app { color: var(--color-text); }
+[data-mode='dark'] :is(.app__prompt, .app__draft-ghost, .app__line, .app__field--line, .app__under) { color: rgba(255, 255, 255, 0.4); }
+[data-mode='dark'] :is(.app__under em, .app__step-done, .app__match, .app__model em, .app__facts span) { color: rgba(255, 255, 255, 0.5); }
+[data-mode='dark'] :is(.app__who span, .app__draft-head, .app__slot) { color: var(--color-text-muted); }
+[data-mode='dark'] :is(.app__field--line .app__typed, .app__draft-head b) { color: var(--color-text); }
+[data-mode='dark'] .app__box { background: linear-gradient(-89deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 101.71%); box-shadow: 0 8px 100px var(--color-glow); }
+[data-mode='dark'] :is(.app__person, .app__draft, .app__placed) {
+  background: linear-gradient(-81deg, rgba(255, 255, 255, 0.1) 56%, rgba(255, 255, 255, 0.04) 100%); border-color: rgba(255, 255, 255, 0.12); box-shadow: 0 8px 40px var(--color-glow);
+}
+[data-mode='dark'] .app__draft-body { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.1); }
+[data-mode='dark'] :is(.app__draft-foot, .app .app__facts) { border-color: rgba(255, 255, 255, 0.1); }
+[data-mode='dark'] .app__step-live { background: linear-gradient(90deg, #fff 0%, #fff 35%, #8fb6f7 50%, #fff 65%, #fff 100%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; }
+[data-mode='dark'] .trust { color: var(--color-text); }
+[data-mode='dark'] .trust__body { color: var(--color-text-muted); }
+[data-mode='dark'] .ticker { border-color: var(--color-line); }
+[data-mode='dark'] .ticker__row span { color: var(--color-text); }
+[data-mode='dark'] .pfield { background: var(--color-bg); }
+[data-mode='dark'] .pfield__fade { background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg) 35%, rgba(23, 23, 23, 0) 100%); }
+[data-mode='dark'] .pfield::after { background: linear-gradient(180deg, rgba(23, 23, 23, 0) 0%, var(--color-bg-join) 70%, var(--color-bg-join) 100%); }
+[data-mode='dark'] .feats { color: var(--color-text); }
+[data-mode='dark'] .feats__lead { color: rgba(255, 255, 255, 0.7); }
+[data-mode='dark'] .fcard:not(:nth-child(even)) { background: var(--color-card); color: var(--color-text); --sheen: rgba(255, 255, 255, 0.18); }
+
+/* ---------- Pricing ---------- */
+[data-mode='dark'] :is(.ptitle, .psub) { color: var(--color-text); }
+[data-mode='dark'] .phero::after { background: linear-gradient(180deg, rgba(23, 23, 23, 0) 0%, rgba(23, 23, 23, 0.5) 50%, var(--color-bg) 100%); }
+[data-mode='dark'] :is(.calc, .pnext, .pstep__body p) { color: var(--color-text); }
+[data-mode='dark'] .lcard b { color: var(--color-text); }
+[data-mode='dark'] :is(.lcard span, .quote__tier em, .slider__tick b, .quote__enterprise) { color: var(--color-text-muted); }
+[data-mode='dark'] .slider__track { background: rgba(255, 255, 255, 0.12); }
+[data-mode='dark'] .slider__tick { background: rgba(255, 255, 255, 0.25); }
+[data-mode='dark'] .promise:not(.promise--minimums):not(.promise--suite) .promise__face { background: var(--color-card); color: var(--color-text); }
+
+/* ---------- About ---------- */
+[data-mode='dark'] .rebuild { background: var(--color-bg-join); color: var(--color-text); }
+[data-mode='dark'] .rrow__bar { background: rgba(255, 255, 255, 0.1); }
+[data-mode='dark'] .rrow__bar i { background: var(--color-text); }
+[data-mode='dark'] .rrow__body { color: var(--color-text-muted); }
+[data-mode='dark'] .team { background: var(--color-bg); color: var(--color-text); }
+[data-mode='dark'] .team__title { color: var(--color-text); }
+[data-mode='dark'] .team__p { color: var(--color-text-muted); }
+/* The team logo's and ribbon's Ink half (#171717 in the SVG) turns white. */
+[data-mode='dark'] :is(.tflow, .tlogo) [fill='#171717'] { fill: var(--color-text); }
+
+/* ---------- Contact ---------- */
+[data-mode='dark'] .cform { background: var(--color-bg); color: var(--color-text); }
+[data-mode='dark'] :is(.field__label, .select__chev) { color: var(--color-text); }
+[data-mode='dark'] :is(.pill, .form__message) {
+  background: linear-gradient(-86.6deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 101.64%), var(--color-bg);
+  box-shadow: inset var(--ring, 0 0 0 0 transparent), 0 8px 100px var(--color-glow); color: var(--color-text);
+}
+[data-mode='dark'] :is(.pill::placeholder, .phone__input::placeholder, .form__message::placeholder, .select__value.is-placeholder) { color: rgba(255, 255, 255, 0.4); }
+[data-mode='dark'] .form__success-copy { color: var(--color-text-muted); }
+[data-mode='dark'] .select__list { background: linear-gradient(-89.64deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 101.71%), var(--color-card); box-shadow: 0 8px 100px rgba(0, 0, 0, 0.4); }
+[data-mode='dark'] .select__option { color: var(--color-text); }
+[data-mode='dark'] .select__option:hover { background: var(--color-surface-hover); }
+[data-mode='dark'] .select__option.is-selected { background: var(--color-surface); box-shadow: inset 0 0 0 1px var(--color-selected-border), 0 8px 20px var(--color-glow); }
+[data-mode='dark'] .select--chip .select__button { background: linear-gradient(-82.44deg, rgba(255, 255, 255, 0.1) 0.279%, rgba(255, 255, 255, 0.02) 100%), var(--color-bg); box-shadow: 0 8px 50px var(--color-glow); color: var(--color-text); }
+/* Next steps: #171717 running into the dark footer's Ditto Blue (contact.ts draws the same under the blobs). */
+[data-mode='dark'] .cnext { background: linear-gradient(180deg, var(--color-bg) 64.111%, #1e6ef3 85.156%); color: var(--color-text); }
+
+/* ---------- Sign in ---------- */
+[data-mode='dark'] .signin { background: var(--color-sky); }
+[data-mode='dark'] .signin__fade { background: linear-gradient(90deg, rgba(23, 23, 23, 0) 18.715%, var(--color-bg-join) 54.444%); }
+@media (max-width: 900px) {
+  [data-mode='dark'] .signin__fade { background: linear-gradient(180deg, rgba(23, 23, 23, 0) 26%, var(--color-bg-join) 46%); }
+}
+[data-mode='dark'] :is(.sform, .sform__title, .sform__sub, .sfield__input, .sform__forgot, .sform__link, .sfield__label) { color: var(--color-text); }
+[data-mode='dark'] .sfield__input::placeholder { color: rgba(255, 255, 255, 0.4); }
+[data-mode='dark'] .sform__alt { color: var(--color-text-muted); }
+[data-mode='dark'] .sfield__box { background: linear-gradient(-87.3deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 101.64%); box-shadow: 0 8px 100px var(--color-glow); }
+[data-mode='dark'] .scheck__box { background: linear-gradient(-89.6deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 101.64%); box-shadow: 0 4px 25px var(--color-glow); }
+[data-mode='dark'] :is(.sfield__show, .sform__ghost) { background: linear-gradient(-81deg, rgba(255, 255, 255, 0.1) 0.28%, rgba(255, 255, 255, 0.02) 100%); color: var(--color-text); }
+
+/* ---------- Privacy and Terms ---------- */
+[data-mode='dark'] :is(.ltab__num, .lclause__body > ol > li::before, .lclause__body li ol > li::before) { color: rgba(255, 255, 255, 0.4); }
+[data-mode='dark'] :is(.lclause__title, .lclause__body strong) { color: var(--color-text); }
+[data-mode='dark'] .lclause__body { color: rgba(255, 255, 255, 0.72); }

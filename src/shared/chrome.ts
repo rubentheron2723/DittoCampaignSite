@@ -69,7 +69,7 @@ export function ctaAndFooter(opts: { lineOne?: string; lineTwo?: string; copy?: 
       <a class="btn btn--glass" href="/contact" data-magnetic><span>${esc(c.button)}</span></a>
     </div>
   </section>
-  ${footerHtml(opts.modes)}`;
+  ${footerHtml(opts.modes ?? true)}`;
 }
 
 /** A menu link's label as letters in a mask: they rise into it as the menu opens (boot.ts) and wave on hover. */
@@ -89,8 +89,8 @@ function waveText(label: string) {
 }
 
 /** Blue footer from the Figma design. The canvas runs the Moving blobs effect over the artwork (see footer-blobs.ts). */
-/** `modes`: the page has a dark mode, so the footer carries the Light / Dark switch. */
-export function footerHtml(modes = false) {
+/** The footer, with the Light / Dark switch (every page has a dark mode). */
+export function footerHtml(modes = true) {
   const columns = footer.columns
     .map(
       (col) => `<div class="footer__col">

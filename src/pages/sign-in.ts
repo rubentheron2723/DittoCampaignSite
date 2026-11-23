@@ -364,7 +364,7 @@ boot({
     const syncCssFade = () => {
       if (!narrow.matches) return void (cssFade.style.background = '');
       const { from, to } = stackedFade();
-      cssFade.style.background = `linear-gradient(180deg, rgba(254, 254, 254, 0) ${(from * 100).toFixed(2)}%, #fefefe ${(to * 100).toFixed(2)}%)`;
+      cssFade.style.background = `linear-gradient(180deg, transparent ${(from * 100).toFixed(2)}%, var(--color-bg-join) ${(to * 100).toFixed(2)}%)`;
     };
     syncCssFade();
     new ResizeObserver(syncCssFade).observe(q('.signin')!);

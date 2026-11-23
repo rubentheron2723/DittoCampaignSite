@@ -235,6 +235,8 @@ uniform float uPart;
 // A white fade drawn into the sky, so the bubbles pass distorts it too: x = start, y = end (0-1 along the axis),
 // z = axis (0 = left to right, 1 = top to bottom), w = on.
 uniform vec4 uFade;
+// What the fade runs into: the page's white (#FEFEFE), or #171717 in dark mode.
+uniform vec3 uFadeTo;
 uniform vec3 uFlat;
 
 in vec2 vUv;
@@ -382,7 +384,7 @@ void main() {
   blend *= smoothstep(front, front + 0.25, diag);
   vec3 col = mix(sky, cloud, blend);
   float along = uFade.z < 0.5 ? p.x : p.y;
-  col = mix(col, vec3(254.0 / 255.0), uFade.w * clamp((along - uFade.x) / max(uFade.y - uFade.x, 0.0001), 0.0, 1.0));
+  col = mix(col, uFadeTo, uFade.w * clamp((along - uFade.x) / max(uFade.y - uFade.x, 0.0001), 0.0, 1.0));
   outColor = vec4(col, 1.0);
 }`;
 
@@ -407,10 +409,8 @@ export function initCtaClouds(reduce: boolean) {
   const section = document.querySelector<HTMLElement>('.cta');
   const canvas = section?.querySelector<HTMLCanvasElement>('.cta__sky');
   // Drifts while on screen; still with reduced motion.
-  if (!section || !canvas) return;
-  // Light or dark (pages with a dark mode switch it from the footer, shared/colour-mode.ts).
-  const clouds = initClouds(section, canvas, 'cta--sky', reduce, currentMode() === 'dark' ? SKY_CTA_DARK : SKY_CTA);
-  onModeChange((mode) => clouds?.setLook(mode === 'dark' ? SKY_CTA_DARK : SKY_CTA));
+  // (Dark mode switches it to SKY_CTA_DARK: see darkSky.)
+  if (section && canvas) initClouds(section, canvas, 'cta--sky', reduce, SKY_CTA);
 }
 
 /**
@@ -441,6 +441,21 @@ export type SkyOptions = {
 };
 const running = new WeakMap<HTMLCanvasElement, Clouds>();
 
+/**
+ * A sky's dark mode version: the Figma dark frames' own settings where there are some (the heroes, the closing CTA),
+ * otherwise the same clouds recoloured as the dark hero's (Ditto Blue into navy, coral clouds).
+ */
+export function darkSky(p: CloudParams): CloudParams {
+  if (p === SKY_HERO) return SKY_HERO_DARK;
+  if (p === SKY_CTA) return SKY_CTA_DARK;
+  return { ...p, cloudColor: SKY_HERO_DARK.cloudColor, cloudShadowColor: SKY_HERO_DARK.cloudShadowColor, sky: SKY_HERO_DARK.sky };
+}
+
+/** Blobs in dark mode: inverted along their edges (faint light rings); the heroes' own settings for HERO_BUBBLES. */
+export function darkBlobs(p: BlobParams): BlobParams {
+  return p === HERO_BUBBLES ? HERO_BUBBLES_DARK : { ...p, mode: 'Invert' };
+}
+
 export function initClouds(
   host: HTMLElement,
   canvas: HTMLCanvasElement,
@@ -451,6 +466,13 @@ export function initClouds(
 ): Clouds | null {
   const existing = running.get(canvas);
   if (existing) return existing; // already running (matchMedia can re-run section setup)
+  // Light or dark mode (shared/colour-mode.ts): the sky starts in the page's mode and follows the switch.
+  const lightLook = params;
+  const lightBubbles = opts.bubbles?.params;
+  if (currentMode() === 'dark') {
+    params = darkSky(params);
+    if (opts.bubbles) opts = { ...opts, bubbles: { ...opts.bubbles, params: darkBlobs(opts.bubbles.params) } };
+  }
   const section = host;
   const gl = canvas.getContext('webgl2', { alpha: false, antialias: false });
   if (!gl) return null;
@@ -502,6 +524,9 @@ export function initClouds(
   let part = 0;
   const dimsLoc = loc('uDims');
   const fadeLoc = loc('uFade');
+  const fadeToLoc = loc('uFadeTo');
+  const setFadeTo = (dark: boolean) => (dark ? gl.uniform3f(fadeToLoc, 23 / 255, 23 / 255, 23 / 255) : gl.uniform3f(fadeToLoc, 254 / 255, 254 / 255, 254 / 255));
+  setFadeTo(currentMode() === 'dark');
   const baseEvolution = -5 + (p.evolution / 100) * 10;
 
   // With bubbles, the sky renders into a texture that the blobs pass then distorts onto the screen.
@@ -643,5 +668,11 @@ export function initClouds(
     },
   };
   running.set(canvas, clouds);
+  onModeChange((mode) => {
+    gl.useProgram(program);
+    setFadeTo(mode === 'dark');
+    if (mode === 'dark') clouds.setLook(darkSky(lightLook), lightBubbles && darkBlobs(lightBubbles));
+    else clouds.setLook(lightLook, lightBubbles);
+  });
   return clouds;
 }

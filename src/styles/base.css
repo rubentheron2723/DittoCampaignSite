@@ -1,5 +1,6 @@
 @import './type.css';
 @import './tokens.css';
+@import './dark.css';
 
 :root {
   --ink: #0f141d;
@@ -126,17 +127,17 @@ svg { display: block; }
 .curtain__mark .mark__l, .curtain__mark .mark__r { transform-box: fill-box; transform-origin: center; }
 
 /* Entry animation (every page): clouds part over the mark, then a white sweep clears it (see intro.ts). */
-.intro { position: fixed; inset: 0; z-index: 101; background: #fff; pointer-events: none; overflow: hidden; }
+.intro { position: fixed; inset: 0; z-index: 101; background: var(--color-cover); pointer-events: none; overflow: hidden; }
 .intro__stage { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform: scale(var(--intro-scale, 1)); }
 .intro__mark { position: absolute; left: -82.8015px; top: -96.5px; width: 165.603px; height: 193px; display: block; visibility: hidden; }
 .intro__white {
   position: absolute; left: var(--intro-white-x, 26.2px); top: var(--intro-white-y, 96.5px);
   width: var(--intro-white-size, 613px); height: var(--intro-white-size, 613px);
-  border-radius: 50%; background: #fff; filter: blur(44.25px); visibility: hidden;
+  border-radius: 50%; background: var(--color-cover); filter: blur(44.25px); visibility: hidden;
 }
 .intro__clouds { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* Moving between pages (page-transition.ts): a blurred white veil under the clouds instead of the mark and disc. */
-.intro__veil { position: absolute; display: none; border-radius: 50%; background: #fff; will-change: transform; }
+.intro__veil { position: absolute; display: none; border-radius: 50%; background: var(--color-cover); will-change: transform; }
 .intro--page .intro__veil { display: block; }
 .intro--page .intro__stage { display: none; }
 
@@ -162,7 +163,7 @@ svg { display: block; }
   font-size: 16px; line-height: 20px; letter-spacing: -0.04em; font-weight: 400; font-variation-settings: 'opsz' 14;
   color: rgba(23, 23, 23, 0.6); white-space: nowrap;
 }
-.scroll-cue__chev { display: block; width: 16px; height: 16px; }
+.scroll-cue__chev { display: block; width: 16px; height: 16px; color: rgba(23, 23, 23, 0.6); }
 /* Phones: closer to the foot (clear of the home indicator), so it sits under the panels' copy rather than on it. */
 @media (max-width: 900px) { .scroll-cue { bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); } }
 

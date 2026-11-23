@@ -1,4 +1,5 @@
 import { gsap, q, qa } from './gsap';
+import { onModeChange } from '../shared/colour-mode';
 import { createPaperCards, type CardPose } from '../shared/paper-cards';
 import { ACCENT_STOPS } from './ai';
 import { guarantees } from '../content/pricing';
@@ -33,7 +34,10 @@ const REST: Record<string, { x: number; fromRight: boolean; y: number; tilt: num
 /** DM Sans: ascender 0.992em, descender 0.31em. Baseline offset of a line box of height `lh` for a `size` font. */
 const baseline = (size: number, lh: number) => (lh - size * 1.302) / 2 + size * 0.992;
 
-function drawFace(id: string, title: string, copy: string) {
+/** A colour token's current value (light or dark mode). */
+const token = (name: string, fallback: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+
+function drawFace(id: string, title: string, copy: string, reuse?: HTMLCanvasElement) {
   // Laid out in Figma pixels on a canvas scaled K×, so the fonts are set at their real sizes: DM Sans picks its
   // optical size from the font size, and at 3× it would switch to the tighter display cut.
   const pad = 20;
@@ -60,7 +64,7 @@ function drawFace(id: string, title: string, copy: string) {
   const W = CARD_W;
   const H = pad + 28 + 20 + lines.length * 24 + pad;
 
-  const c = document.createElement('canvas');
+  const c = reuse ?? document.createElement('canvas');
   c.width = W * K;
   c.height = H * K;
   const ctx = c.getContext('2d')!;
@@ -78,11 +82,12 @@ function drawFace(id: string, title: string, copy: string) {
     ACCENT_STOPS.forEach(([at, colour]) => g.addColorStop(at, colour));
     ctx.fillStyle = g;
   } else {
-    ctx.fillStyle = '#ffffff';
+    // The card and its type from the colour tokens (white and Ink; in dark mode #2E2E2E and white).
+    ctx.fillStyle = token('--color-card', '#ffffff');
   }
   ctx.fill();
 
-  ctx.fillStyle = accent ? '#ffffff' : '#171717';
+  ctx.fillStyle = accent ? '#ffffff' : token('--color-text', '#171717');
   ctx.textBaseline = 'alphabetic';
   ctx.font = `700 24px ${family}`;
   spacing(ctx, 24);
@@ -107,6 +112,11 @@ export async function initPricingCards(animate: boolean) {
   // World units follow the canvas, which runs past the section's foot (see .pnext__canvas).
   const unit = (px: number) => (2 * px) / Math.max(1, canvas.clientHeight);
   let cards: ReturnType<typeof createPaperCards> = null;
+  // Light or dark mode: the faces drawn again in the new card colours.
+  onModeChange(() => {
+    guarantees.forEach((g, i) => drawFace(g.id, g.title, g.copy, faces[i]));
+    cards?.refreshFaces();
+  });
 
   const mm = gsap.matchMedia();
   mm.add('(min-width: 1360px)', () => {

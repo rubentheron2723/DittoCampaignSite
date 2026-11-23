@@ -26,6 +26,8 @@
   --color-text-muted: rgba(23, 23, 23, 0.6);
   --color-text-on-hero: #fefefe;
   --color-surface: #ffffff;
+  /* Solid cards (feature, AI and pricing cards): white, or #2E2E2E (10% white on #171717) in dark mode. */
+  --color-card: #ffffff;
   --color-surface-hover: #ebf0f6;
   --color-line: rgba(15, 20, 29, 0.12);
   --color-selected-border: #1e6ef3;
@@ -46,6 +48,12 @@
   --color-cloud: #edf8ff;
   --color-cloud-shadow: #1e6ef3;
   --color-hero-fade: #ffffff;
+
+  /* The entry cover (landing intro, page transition) and its logomark */
+  --color-cover: #ffffff;
+  --color-mark-from: #00b0ff;
+  --color-mark-to: #1e6ef3;
+  --color-mark-half: #171717;
 }
 
 [data-mode='dark'] {
@@ -62,6 +70,7 @@
   --color-text-muted: rgba(255, 255, 255, 0.6);
   --color-text-on-hero: #fefefe;
   --color-surface: rgba(255, 255, 255, 0.1);
+  --color-card: #2e2e2e;
   --color-surface-hover: rgba(179, 179, 179, 0.1);
   --color-line: rgba(255, 255, 255, 0.14);
   --color-selected-border: #1e6ef3;
@@ -80,4 +89,10 @@
   --color-cloud: #bf4542;
   --color-cloud-shadow: #1e6ef3;
   --color-hero-fade: #171717;
+
+  /* Figma 2446:2600 / 2446:2815: the cover is #171717, the mark Ditto Blue into navy with a white half. */
+  --color-cover: #171717;
+  --color-mark-from: #1e6ef3;
+  --color-mark-to: #0e0153;
+  --color-mark-half: #ffffff;
 }

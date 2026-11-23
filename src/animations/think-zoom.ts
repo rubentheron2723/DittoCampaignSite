@@ -1,4 +1,5 @@
 import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from './gsap';
+import { onModeChange } from '../shared/colour-mode';
 import { bezier, capKernel, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
 import { createTeamScene, type TeamScene } from './team-logo';
 import { sdfField } from './sdf';
@@ -1061,6 +1062,11 @@ export function initThinkZoom(
       },
     });
     ScrollTrigger.refresh();
+    // Light or dark mode: the statements are drawn from their CSS colours, so draw them again in the new ones.
+    onModeChange(() => {
+      layout();
+      draw();
+    });
   });
   return !!scene;
 }
