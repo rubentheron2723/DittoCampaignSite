@@ -18,7 +18,7 @@ html:has(.ds-body) { background: #fdfdfd; }
 .ds-nav__title { margin-top: 10px !important; font-size: 13px; line-height: 18px; color: rgba(23, 23, 23, 0.6); }
 .ds-nav__groups { display: grid; gap: 22px; margin-top: 32px; }
 .ds-nav__group { display: grid; gap: 2px; }
-.ds-nav__label { margin-bottom: 6px !important; font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(23, 23, 23, 0.4); }
+.ds-nav__label { margin-bottom: 6px !important; font-size: 12px; line-height: 16px; font-weight: 500; color: rgba(23, 23, 23, 0.45); }
 .ds-nav__link {
   display: block; padding: 7px 12px; margin: 0 -12px; border-radius: 999px; font-size: 14px; line-height: 18px; color: rgba(23, 23, 23, 0.72);
   text-decoration: none; transition: background 0.25s var(--ease-out), color 0.25s var(--ease-out);
@@ -34,7 +34,7 @@ html:has(.ds-body) { background: #fdfdfd; }
   position: relative; overflow: hidden; padding: 72px clamp(24px, 4vw, 56px) 56px; border-radius: 36px; color: #fff; scroll-margin-top: 32px;
   background: radial-gradient(134.57% 124.02% at 50% -24.02%, #1e6ef3 0%, #108ff9 25%, #01b0ff 50%, #11b5ff 53.125%, #21baff 56.25%, #41c4ff 62.5%, #60ceff 68.75%, #80d8ff 75%, #c0ebff 87.5%, #fff 100%);
 }
-.ds-hero__eyebrow { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.85; }
+.ds-hero__eyebrow { font-size: 14px; line-height: 18px; font-weight: 500; opacity: 0.9; }
 .ds-hero__title { margin-top: 14px !important; font-size: clamp(44px, 6vw, 84px); line-height: 1; letter-spacing: -0.04em; font-weight: 700; }
 .ds-hero__lead { margin-top: 18px !important; max-width: 46ch; font-size: 18px; line-height: 1.5; color: rgba(255, 255, 255, 0.92); }
 .ds-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
@@ -122,7 +122,6 @@ html:has(.ds-body) { background: #fdfdfd; }
 /* The big styles take the full row (label above), at true size; a word wider than the column scrolls rather than breaks. */
 .ds-type[data-role='hero'], .ds-type[data-role='display'], .ds-type[data-role='h1'], .ds-type[data-role='number'] { grid-template-columns: 1fr; gap: 16px; }
 .ds-type[data-role='hero'] .ds-type__sample, .ds-type[data-role='display'] .ds-type__sample { overflow-x: auto; scrollbar-width: none; }
-.ds-type__sample.is-upper { text-transform: uppercase; }
 
 /* Spacing */
 .ds-space__now { padding: 0 4px; font-size: 13px; font-weight: 500; color: #1e6ef3; }

@@ -158,6 +158,7 @@ function typeSection() {
       <li><b>Optical size</b>${typeFacts.opsz}</li>
       <li><b>Weights</b>${typeFacts.weights}</li>
       <li><b>Fluid sizes</b>${typeFacts.fluid}</li>
+      <li><b>Case</b>${typeFacts.case}</li>
     </ul>`;
   const rows = TYPE_ROLES.map(
     (r) => `
@@ -168,7 +169,7 @@ function typeSection() {
         <span class="ds-type__uses">${esc(r.uses)}</span>
         <code class="ds-code ds-code--token">--t-${r.key}-size</code>
       </div>
-      <p class="ds-type__sample${r.key === 'eyebrow' ? ' is-upper' : ''}" style="font-size: var(--t-${r.key}-size); line-height: var(--t-${r.key}-lh); letter-spacing: var(--t-${r.key}-ls); font-weight: var(--t-${r.key}-wt);">${esc(r.sample)}</p>
+      <p class="ds-type__sample" style="font-size: var(--t-${r.key}-size); line-height: var(--t-${r.key}-lh); letter-spacing: var(--t-${r.key}-ls); font-weight: var(--t-${r.key}-wt);">${esc(r.sample)}</p>
     </article>`,
   ).join('');
   return section(
@@ -462,6 +463,7 @@ Use these exact values so designs match the live site (${origin}).
 ## Principles
 - Light, airy pages on #fdfdfd with a blue sky (Ditto Blue #1e6ef3 to Sky Blue #00b0ff to white) at the top and the closing CTA.
 - Text is Ink (#171717), never pure black. Secondary text is Ink at 60%.
+- No all-caps text anywhere: labels, kickers, buttons and microcopy are sentence case, with no wide letter spacing.
 - Pills are the default shape. Glass (white 60% to clear, backdrop blur, a wide soft shadow) for floating controls.
 - Shadows are wide and soft (50–100px blur, low opacity). Blue buttons cast a blue glow.
 - Motion: calm and confident. Headlines rise word by word out of a line mask (1.05s, expo.out); copy fades up 36px.
@@ -476,7 +478,7 @@ ${skyRamp.map((t) => `\`${t.value}\` at ${t.name}`).join(' → ')}
 ${table(gradients)}
 
 ## Typography
-${typeFacts.family}. ${typeFacts.opsz}. Weights: ${typeFacts.weights}. ${typeFacts.fluid}.
+${typeFacts.family}. ${typeFacts.opsz}. Weights: ${typeFacts.weights}. ${typeFacts.fluid}. ${typeFacts.case}.
 
 | Style | Phone px | Desktop px | Weight | Line height | Letter spacing | Use |
 |---|---|---|---|---|---|---|

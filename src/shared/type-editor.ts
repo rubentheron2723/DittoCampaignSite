@@ -45,7 +45,7 @@ export function renderSpecimen() {
           <span class="specimen__size" data-role="${r.key}"></span>
           <span>${esc(r.uses)}</span>
         </div>
-        <p class="specimen__sample${r.key === 'eyebrow' ? ' specimen__sample--upper' : ''}${r.key === 'number' ? ' specimen__sample--num' : ''}" style="${roleStyle(r.key)}">${esc(r.sample)}</p>
+        <p class="specimen__sample${r.key === 'number' ? ' specimen__sample--num' : ''}" style="${roleStyle(r.key)}">${esc(r.sample)}</p>
       </section>`,
     ).join('')}
   </main>`;

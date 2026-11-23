@@ -194,4 +194,5 @@ export const typeFacts = {
   opsz: 'Optical size fixed at 16 everywhere (font-optical-sizing: none), as in Figma',
   weights: '400 regular, 500 medium, 600 semibold, 700 bold',
   fluid: 'Each style has a phone size (375 wide) and a desktop size (1440 wide) and scales smoothly in between',
+  case: 'Sentence case everywhere. No all-caps labels, kickers or microcopy, and no wide letter spacing',
 };
