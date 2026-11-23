@@ -9,7 +9,7 @@
 .ldoc .ltabs { position: relative; max-height: calc(100vh - var(--nav-h) - var(--top) - 24px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; gap: 2px; padding: 4px; margin: -4px; }
 .ldoc .ltabs::-webkit-scrollbar { display: none; }
 .ltab { gap: 12px; padding: clamp(7px, 1vh, 12px) 20px; font-size: clamp(15px, calc(15px + 2 * (100vw - 375px) / 1065), 17px); line-height: 1.2; }
-.ltab__num { flex: none; min-width: 1.5em; font-variant-numeric: tabular-nums; color: #6b7280; }
+.ltab__num { flex: none; min-width: 1.5em; font-variant-numeric: tabular-nums; color: rgba(23, 23, 23, 0.4); }
 .ltab.is-on .ltab__num { color: #1e6ef3; }
 
 /* A clause: its 32/36 title, then its numbered items (1.1, 1.2 ...; nested ones (a), (b) ...) at 17/24. */
@@ -17,7 +17,7 @@
 .lclause { gap: 20px; }
 .lclause__title { margin: 0; font-size: clamp(24px, calc(24px + 8 * (100vw - 375px) / 1065), 32px); line-height: 1.125; letter-spacing: -0.04em; font-weight: 700; color: #171717; text-wrap: balance; }
 .lclause__num { color: #1e6ef3; }
-.lclause__body { font-size: 17px; line-height: 1.5; letter-spacing: -0.01em; color: #3d4757; }
+.lclause__body { font-size: clamp(16px, calc(16px + 1 * (100vw - 375px) / 1065), 17px); line-height: 1.45; letter-spacing: -0.02em; color: rgba(23, 23, 23, 0.72); }
 .lclause__body strong { font-weight: 600; color: #171717; }
 .lclause__body a { color: #1e6ef3; text-decoration: underline; }
 .lclause__body p { margin: 0 0 12px; }
@@ -25,10 +25,10 @@
 .lclause__body { counter-reset: item; }
 .lclause__body > ol > li { counter-increment: item; position: relative; padding-left: 3.2em; }
 /* The clause's number comes from each item's data-num (set in legal-page.ts), so items read 9.1, 9.2 ... */
-.lclause__body > ol > li::before { content: attr(data-num) '.' counter(item); position: absolute; left: 0; top: 0; font-variant-numeric: tabular-nums; color: #6b7280; }
+.lclause__body > ol > li::before { content: attr(data-num) '.' counter(item); position: absolute; left: 0; top: 0; font-variant-numeric: tabular-nums; color: rgba(23, 23, 23, 0.4); }
 .lclause__body li ol { counter-reset: sub; margin-top: 10px; gap: 8px; }
 .lclause__body li ol > li { counter-increment: sub; position: relative; padding-left: 2.2em; }
-.lclause__body li ol > li::before { content: '(' counter(sub, lower-alpha) ')'; position: absolute; left: 0; top: 0; color: #6b7280; }
+.lclause__body li ol > li::before { content: '(' counter(sub, lower-alpha) ')'; position: absolute; left: 0; top: 0; color: rgba(23, 23, 23, 0.4); }
 /* An item that only holds a nested list (the list of a "such as:" item) takes no number: it reads as that item's. */
 .lclause__body > ol > li.is-group { counter-increment: none; }
 .lclause__body > ol > li.is-group::before { content: none; }

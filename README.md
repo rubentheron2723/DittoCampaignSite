@@ -19,19 +19,6 @@ npm run preview    # serve the build
 Deploys as a static site. `vercel.json` turns on clean URLs so `/product`
 serves `product.html`; the Vite config does the same in dev and preview.
 
-## Contact form
-
-The Book a demo form posts to `/api/contact`, a Vercel function (`api/contact.ts`) that
-checks the request again and emails it through [Resend](https://resend.com), with
-Reply-To set to the person who asked. Set these in Vercel (Project → Settings →
-Environment Variables), or in `.env.local` for `npm run dev`:
-
-| Variable | |
-| --- | --- |
-| `RESEND_API_KEY` | Required. Without it the form shows its error and the email fallback. |
-| `CONTACT_TO` | Where requests go, comma-separated. Default `hello@ditto.work`. |
-| `CONTACT_FROM` | Sender on a domain verified in Resend. Default `Ditto website <website@ditto.work>`. |
-
 ## Pages
 
 | Page | Concept |
@@ -41,7 +28,7 @@ Environment Variables), or in `.env.local` for `npm run dev`:
 | `/pricing` | A draggable recruiter-count slider (GSAP Draggable) drives the quote card: tier, per-licence rate, monthly or annual total and savings all roll to their new values. ZAR/USD and billing toggles slide with animated pills. The five-step timeline draws itself as it enters. |
 | `/about` | Hero routes drawn tangled, then morphed (MorphSVG) into clean straight lines: committee-built → first principles. A pinned Builders stage crossfades four panels with a segmented progress bar. Principles reveal along a line that fills with scroll. The team mark's two halves lock together as the section arrives. |
 | `/faq` | Live search and topic filtering reflow the whole list with Flip. Accordion panels animate height with GSAP. The topic rail tracks the category under the viewport centre and supports deep links like `/faq#integrations`. |
-| `/contact` | Validated form with focus lines and shake-on-error. Sends to `api/contact.ts` (see Contact form below), then the mark locks together; if sending fails it says so and offers the email address. |
+| `/contact` | Validated form with focus lines, shake-on-error, and a simulated send that ends with the mark locking together. Nothing is submitted; the production form's backend is out of scope for the prototype. |
 
 Every page shares the fixed nav (theme flips over `data-theme="light"`
 sections), a full-screen mobile menu, magnetic buttons, page transitions

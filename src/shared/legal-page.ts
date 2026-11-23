@@ -148,7 +148,6 @@ function initClauses(animate: boolean, goTo: (clause: HTMLElement, smooth: boole
 
 export function legalPage(page: PageId, doc: LegalDoc) {
   boot({
-    hashScroll: false,
     page,
     render: () => render(doc),
     init: ({ reduce, revealed, smoother }) => {

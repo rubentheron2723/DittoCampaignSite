@@ -57,8 +57,9 @@ export function initHero() {
 
   const tl = gsap.timeline({ paused: true, defaults: { ease: 'expo.out' } });
   tl.from(split.words, { yPercent: 110, autoAlpha: 0, duration: 1.1, stagger: 0.07 }, 0.05)
-    .from('.hero__sub', { y: 30, autoAlpha: 0, duration: 1 }, 0.45)
-    .from('.hero__actions > *', { y: 24, autoAlpha: 0, duration: 0.9, stagger: 0.08 }, 0.6);
+    .from('.hero__subhead', { y: 30, autoAlpha: 0, duration: 1 }, 0.45)
+    .from('.hero__support', { y: 24, autoAlpha: 0, duration: 1 }, 0.55)
+    .from('.hero__actions .btn', { y: 24, autoAlpha: 0, duration: 0.9, stagger: 0.08 }, 0.7);
 
   // Scroll: the copy sinks and fades as the next section arrives; the sky eases back a touch.
   gsap.to('.hero__inner', {

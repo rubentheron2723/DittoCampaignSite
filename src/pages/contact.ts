@@ -1,11 +1,11 @@
 import '../styles/base.css';
 import '../styles/contact.css';
 
-import { dialCodes, errors, fields, hero, interests, jobsLine, next, roles, sendError, submitLabel, success, teamSizes } from '../content/contact';
+import { dialCodes, errors, fields, hero, interests, next, roles, success, teamSizes } from '../content/contact';
 import { boot } from '../shared/boot';
 import { footerHtml } from '../shared/chrome';
 import { esc, markSvg } from '../shared/mark';
-import { gsap, q, qa, ScrollSmoother, ScrollTrigger } from '../animations/gsap';
+import { gsap, q, qa, ScrollTrigger } from '../animations/gsap';
 import { fadeUp, splitReveal } from '../shared/motion';
 import { HERO_BUBBLES, initClouds, SKY_HERO } from '../shared/cta-clouds';
 import { initBlobBackdrop } from '../shared/blob-backdrop';
@@ -13,15 +13,14 @@ import { FOOTER_BLOBS } from '../shared/footer-blobs';
 import { initSelects, selectHtml } from '../shared/select';
 
 /*
- * Contact (Figma 2396:121 hero, 2390:340 form with the 2396:478 dropdown; brief v2.2 3.9 and 4.3 point 11): the hero,
- * then the form on the left with "What happens next?" beside it, both in view together on desktop.
+ * Contact (Figma 2396:121 hero, 2390:340 form with the 2396:478 dropdown, 2396:191 "What happens next?").
  */
 
 type FieldName = keyof typeof fields;
 
 /** A labelled field around `control`; the label's id is `<name>-label`. */
-const field = (name: FieldName, control: string, extra = '') => `<div class="field${extra}${fields[name].optional ? ' field--optional' : ''}" data-field="${name}">
-    <label class="field__label" id="${name}-label" for="${name}-input">${esc(fields[name].label)}${fields[name].optional ? ' <span class="field__opt">(optional)</span>' : ''}</label>
+const field = (name: FieldName, control: string, extra = '') => `<div class="field${extra}" data-field="${name}">
+    <label class="field__label" id="${name}-label" for="${name}-input">${esc(fields[name].label)}</label>
     ${control}
     <p class="field__error" id="${name}-error"></p>
   </div>`;
@@ -47,7 +46,7 @@ const phone = () =>
         dialCodes.map((d) => ({ value: d.code, label: `${d.code}  ${d.country}`, short: d.code })),
         { labelledBy: 'phone-label', initial: '+27', variant: 'chip' },
       )}
-      <input class="phone__input" id="phone-input" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="${esc(fields.phone.placeholder ?? "")}" />
+      <input class="phone__input" id="phone-input" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="${esc(fields.phone.placeholder)}" />
     </div>`,
   );
 
@@ -70,51 +69,49 @@ function render() {
   </section>
 
   <section class="cform" id="contact-form" data-theme="light">
-    <canvas class="cform__fx" aria-hidden="true"></canvas>
-    <div class="cform__grid">
-      <div class="cform__main">
-        <form class="form" id="form" novalidate>
-          <div class="form__fields">
-            ${text('name', 'text', 'autocomplete="name"')}
-            ${text('email', 'email', 'autocomplete="email"')}
-            ${text('business', 'text', 'autocomplete="organization"')}
-            ${text('website', 'text', 'autocomplete="url" inputmode="url"')}
-            ${phone()}
-            ${choice('role', roles)}
-            ${choice('teamSize', teamSizes)}
-            ${choice('interest', interests)}
-            ${field(
-              'message',
-              `<textarea class="field__input form__message" id="message-input" name="message" rows="4" placeholder="${esc(fields.message.placeholder ?? '')}"></textarea>`,
-              ' field--full',
-            )}
-          </div>
-          <div class="form__trap" aria-hidden="true"><label for="company_fax-input">Leave this empty</label><input id="company_fax-input" name="company_fax" type="text" tabindex="-1" autocomplete="off" /></div>
-          <button type="submit" class="bp bp--lg form__submit"><span class="form__submit-label">${esc(submitLabel)}</span><span class="form__submit-sending" aria-hidden="true">Sending…</span></button>
-          <p class="form__send-error" id="form-send-error" role="alert"></p>
-          <div class="form__success" id="form-success" aria-live="polite">
-            <div class="form__success-mark">${markSvg('mark--on-light')}</div>
-            <h2 class="form__success-title" tabindex="-1">${esc(success.title)}</h2>
-            <p class="form__success-copy">${esc(success.copy)}</p>
-          </div>
-        </form>
-        <p class="cform__jobs">${esc(jobsLine.lead)} <a href="${jobsLine.href}">${esc(jobsLine.label)}</a></p>
+    <form class="form" id="form" novalidate>
+      <div class="form__fields">
+        ${text('name', 'text', 'autocomplete="name"')}
+        ${text('email', 'email', 'autocomplete="email"')}
+        ${text('business', 'text', 'autocomplete="organization"')}
+        ${text('website', 'text', 'autocomplete="url" inputmode="url"')}
+        ${phone()}
+        ${choice('role', roles)}
+        ${choice('teamSize', teamSizes)}
+        ${choice('interest', interests)}
+        ${field(
+          'message',
+          `<textarea class="field__input form__message" id="message-input" name="message" rows="6" placeholder="${esc(fields.message.placeholder)}"></textarea>`,
+          ' field--full',
+        )}
       </div>
+      <button type="submit" class="form__submit"><span class="form__submit-label">Send request</span><span class="form__submit-sending" aria-hidden="true">Sending…</span></button>
+      <div class="form__success" id="form-success" aria-live="polite">
+        <div class="form__success-mark">${markSvg('mark--on-light')}</div>
+        <h2 class="form__success-title" tabindex="-1">${esc(success.title)}</h2>
+        <p class="form__success-copy">${esc(success.copy)}</p>
+      </div>
+    </form>
+  </section>
 
-      <aside class="cnext" aria-labelledby="next-title">
-        <h2 class="cnext__title" id="next-title">${esc(next.title)}</h2>
-        <ol class="cnext__steps">
-          ${next.steps
-            .map(
-              (s, i) => `<li class="cnext__step">
-                <span class="cnext__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
-                <div class="cnext__desc"><h3>${esc(s.title)}</h3><p>${esc(s.copy)}</p></div>
-              </li>`,
-            )
-            .join('')}
-        </ol>
-        <p class="cnext__mail">${esc(next.direct.label)} <a href="mailto:${next.direct.email}">${esc(next.direct.email)}</a></p>
-      </aside>
+  <section class="cnext" data-theme="light">
+    <canvas class="cnext__fx" aria-hidden="true"></canvas>
+    <div class="cnext__top">
+      <h2 class="cnext__title">${esc(next.title)}</h2>
+      <ol class="cnext__steps">
+        ${next.steps
+          .map(
+            (s, i) => `<li class="cnext__step">
+              <span class="cnext__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+              <div class="cnext__desc"><h3>${esc(s.title)}</h3><p>${esc(s.copy)}</p></div>
+            </li>`,
+          )
+          .join('')}
+      </ol>
+    </div>
+    <div class="cnext__mail">
+      <p>${esc(next.direct.label)}</p>
+      <a href="mailto:${next.direct.email}">${esc(next.direct.email)}</a>
     </div>
   </section>
 
@@ -126,14 +123,12 @@ const validators: Record<string, (v: string) => boolean> = {
   name: (v) => v.trim().length > 1,
   email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
   business: (v) => v.trim().length > 1,
-  // Optional: empty is fine; anything typed must look like a website.
-  website: (v) => !v.trim() || /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)?$/i.test(v.trim()),
+  website: (v) => /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)?$/i.test(v.trim()),
   phone: (v) => /^[\d\s()-]{5,}$/.test(v.trim()) && v.replace(/\D/g, '').length >= 6,
   role: (v) => !!v,
   teamSize: (v) => !!v,
   interest: (v) => !!v,
-  // Optional.
-  message: () => true,
+  message: (v) => v.trim().length > 0,
 };
 
 function initForm(animate: boolean) {
@@ -166,7 +161,7 @@ function initForm(animate: boolean) {
   const validate = (f: HTMLElement) => {
     const name = f.dataset.field!;
     const ok = validators[name](inputOf(f).value);
-    setError(f, ok ? '' : (errors as Record<string, string>)[name] ?? '');
+    setError(f, ok ? '' : errors[name as keyof typeof errors]);
     return ok;
   };
 
@@ -185,49 +180,6 @@ function initForm(animate: boolean) {
     }
   });
 
-  const sendErr = q<HTMLElement>('#form-send-error', form)!;
-
-  /** Posts every named field to /api/contact (api/contact.ts); rejects unless the server says it was sent. */
-  const send = async () => {
-    const body = Object.fromEntries([...new FormData(form)].map(([k, v]) => [k, String(v)]));
-    const res = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const out = (await res.json().catch(() => null)) as { ok?: boolean } | null;
-    if (!res.ok || !out?.ok) throw new Error(`contact: ${res.status}`);
-  };
-
-  /**
-   * The confirmation is centred in the form, which on a phone is far above the button just tapped (about 500px), so
-   * it could land under the header or off screen. Bring it to the middle of the screen when it isn't already in view.
-   */
-  const bringThanksIntoView = () => {
-    const top = q('.form__success-mark', form)!.getBoundingClientRect().top;
-    const bottom = q('.form__success-copy', form)!.getBoundingClientRect().bottom;
-    const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
-    if (top >= navH + 16 && bottom <= window.innerHeight - 16) return;
-    const by = (top + bottom) / 2 - window.innerHeight / 2;
-    const smoother = ScrollSmoother.get();
-    if (smoother) smoother.scrollTo(smoother.scrollTop() + by, animate);
-    else window.scrollTo({ top: window.scrollY + by, behavior: animate ? 'smooth' : 'auto' });
-  };
-
-  const showSent = () => {
-    form.classList.remove('is-sending');
-    form.classList.add('is-sent');
-    const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
-    tl.to('.form__fields, .form__submit, .form__send-error', { autoAlpha: 0, y: -20, duration: animate ? 0.5 : 0 })
-      .set('.form__success', { display: 'grid' })
-      .add(bringThanksIntoView)
-      .fromTo('.form__success-mark .mark__l', { x: -80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 })
-      .fromTo('.form__success-mark .mark__r', { x: 80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 }, '<')
-      .from('.form__success-title, .form__success-copy', { y: 24, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, '-=0.5')
-      // The button that had focus is gone: focus (and a screen reader) moves to the confirmation.
-      .add(() => q<HTMLElement>('.form__success-title')?.focus({ preventScroll: true }));
-  };
-
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     tried = true;
@@ -240,32 +192,34 @@ function initForm(animate: boolean) {
     }
     form.classList.add('is-sending');
     submit.disabled = true;
-    sendErr.textContent = '';
-    send()
-      .then(showSent)
-      .catch(() => {
-        form.classList.remove('is-sending');
-        submit.disabled = false;
-        sendErr.innerHTML = `${esc(sendError.lead)} <a href="mailto:${sendError.email}">${esc(sendError.email)}</a>.`;
-        if (animate) gsap.fromTo(sendErr, { y: -6, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.4 });
-      });
+    // Simulated send (no backend in the prototype).
+    gsap.delayedCall(animate ? 1.1 : 0, () => {
+      form.classList.add('is-sent');
+      const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+      tl.to('.form__fields, .form__submit', { autoAlpha: 0, y: -20, duration: animate ? 0.5 : 0 })
+        .set('.form__success', { display: 'grid' })
+        .fromTo('.form__success-mark .mark__l', { x: -80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 })
+        .fromTo('.form__success-mark .mark__r', { x: 80, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.9 }, '<')
+        .from('.form__success-title, .form__success-copy', { y: 24, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, '-=0.5')
+        // The button that had focus is gone: focus (and a screen reader) moves to the confirmation.
+        .add(() => q<HTMLElement>('.form__success-title')?.focus({ preventScroll: true }));
+    });
   });
 }
 
 /**
- * The form section's backdrop: #FDFDFD, fading into the footer's blue (#00B0FF) over its last FADE px, below the
- * content (contact.css keeps that much padding), drawn into a strip the blobs then distort.
+ * The "What happens next?" backdrop: the section's white, fading to #00b0ff from 64.1% to 85.2% of its height
+ * (Figma's cloudsBG gradient), drawn into a strip the blobs then distort.
  */
-const FADE = 180;
-function fadeToFooter(section: HTMLElement) {
+function nextGradient() {
   const c = document.createElement('canvas');
   c.width = 1;
   c.height = 512;
   const ctx = c.getContext('2d')!;
   const g = ctx.createLinearGradient(0, 0, 0, c.height);
-  const at = Math.max(0.5, 1 - FADE / Math.max(1, section.offsetHeight));
   g.addColorStop(0, '#fdfdfd');
-  g.addColorStop(at, '#fdfdfd');
+  g.addColorStop(0.64111, '#fdfdfd');
+  g.addColorStop(0.85156, '#00b0ff');
   g.addColorStop(1, '#00b0ff');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 1, c.height);
@@ -280,7 +234,7 @@ boot({
     initClouds(q('.chero')!, q<HTMLCanvasElement>('.chero__sky')!, 'chero--sky', reduce, SKY_HERO, {
       bubbles: { params: HERO_BUBBLES, intensity: 0.6 },
     });
-    initBlobBackdrop(q('.cform')!, q<HTMLCanvasElement>('.cform__fx')!, 'cform--fx', FOOTER_BLOBS, fadeToFooter(q('.cform')!), reduce, 0.5, 30);
+    initBlobBackdrop(q('.cnext')!, q<HTMLCanvasElement>('.cnext__fx')!, 'cnext--fx', FOOTER_BLOBS, nextGradient(), reduce, 0.55);
     initForm(!reduce);
     if (reduce) return;
 
@@ -299,7 +253,18 @@ boot({
     fadeUp('.field', '.form', { y: 24, stagger: 0.05, start: 'top 80%' });
     fadeUp('.form__submit', '.form__submit', { y: 20, start: 'top 95%' });
 
-    fadeUp('.cnext > *', '.cnext', { y: 24, stagger: 0.08, start: 'top 85%' });
+    splitReveal('.cnext__title', { by: 'words', start: 'top 80%' });
+    qa<HTMLElement>('.cnext__step').forEach((step) =>
+      gsap.from(step.children, {
+        y: 30,
+        autoAlpha: 0,
+        duration: 1,
+        ease: 'expo.out',
+        stagger: 0.08,
+        scrollTrigger: { trigger: step, start: 'top 85%', toggleActions: 'play none none reverse' },
+      }),
+    );
+    fadeUp('.cnext__mail > *', '.cnext__mail', { y: 30, stagger: 0.1, start: 'top 90%' });
     ScrollTrigger.refresh();
   },
 });
