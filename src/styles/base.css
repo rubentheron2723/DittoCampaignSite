@@ -145,20 +145,23 @@ svg { display: block; }
 
 /* "Keep scrolling." (Figma 2438:243, shared/scroll-cue.ts): 16/20 DM Sans at opsz 14, ink at 60%, -0.04em, with a
    16px chevron under it, centred near the foot of the screen while a section holds the page. Lower than Figma's 108px
-   (at 1024 tall) so it clears the Home AI cards, whose row reaches about 15% from the bottom. It fades in and out, and
-   the chevron dips gently so the eye catches it. Under the nav, over the page, never in the way of a click. */
+   (at 1024 tall) so it clears the Home AI cards, whose row reaches about 15% from the bottom. It only comes up once the
+   reader has been still for a few seconds (scroll-cue.ts), fades in, then breathes: a slow, soft pulse in opacity, a
+   nudge rather than an alarm. Under the nav, over the page, never in the way of a click. */
 .scroll-cue {
   position: fixed; left: 50%; bottom: clamp(20px, 5vh, 52px); z-index: 55; pointer-events: none;
   display: flex; flex-direction: column; align-items: center;
   transform: translate(-50%, 8px); opacity: 0; transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
 }
-.scroll-cue.is-on { opacity: 1; transform: translate(-50%, 0); }
+.scroll-cue.is-on { opacity: 1; transform: translate(-50%, 0); transition-duration: 0.8s; }
+.scroll-cue__inner { display: flex; flex-direction: column; align-items: center; }
+.scroll-cue.is-on .scroll-cue__inner { animation: scroll-cue-pulse 2.6s ease-in-out 0.8s infinite; }
+@keyframes scroll-cue-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 .scroll-cue__text {
   font-size: 16px; line-height: 20px; letter-spacing: -0.04em; font-weight: 400; font-variation-settings: 'opsz' 14;
   color: rgba(23, 23, 23, 0.6); white-space: nowrap;
 }
-.scroll-cue__chev { display: block; width: 16px; height: 16px; animation: scroll-cue-dip 1.8s ease-in-out infinite; }
-@keyframes scroll-cue-dip { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+.scroll-cue__chev { display: block; width: 16px; height: 16px; }
 /* Phones: closer to the foot (clear of the home indicator), so it sits under the panels' copy rather than on it. */
 @media (max-width: 900px) { .scroll-cue { bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); } }
 
