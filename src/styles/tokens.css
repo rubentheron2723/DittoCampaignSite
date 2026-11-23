@@ -43,6 +43,7 @@
   /* Fields and glass */
   --color-field: linear-gradient(-80deg, rgba(255, 255, 255, 0.6) 56.239%, rgba(255, 255, 255, 0) 100%);
   --color-field-text: rgba(23, 23, 23, 0.6);
+  --color-placeholder: rgba(23, 23, 23, 0.4);
   --color-field-shadow: 0 8px 100px rgba(0, 0, 0, 0.25);
 
   /* Hero sky and the fade at its foot */
@@ -86,6 +87,7 @@
 
   --color-field: linear-gradient(-88deg, rgba(23, 23, 23, 0.6) 0%, rgba(23, 23, 23, 0) 101.71%);
   --color-field-text: rgba(255, 255, 255, 0.7);
+  --color-placeholder: rgba(255, 255, 255, 0.4);
   --color-field-shadow: 0 8px 100px rgba(255, 255, 255, 0.1);
 
   --color-sky: linear-gradient(180deg, #1e6ef3 0%, #0e0153 100%);

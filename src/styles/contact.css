@@ -47,7 +47,7 @@
   transition: box-shadow 0.25s var(--ease-out);
 }
 input.pill, .phone__input, .form__message { outline: none; -webkit-appearance: none; appearance: none; }
-.pill::placeholder, .phone__input::placeholder, .form__message::placeholder, .select__value.is-placeholder { color: rgba(23, 23, 23, 0.4); }
+.pill::placeholder, .phone__input::placeholder, .form__message::placeholder, .select__value.is-placeholder { color: var(--color-placeholder); opacity: 1; }
 /* In use: the dropdown's chosen-option outline, 1px #1E6EF3. */
 .pill:focus, .pill:focus-within, .select.is-open > .pill { --ring: 0 0 0 1px #1e6ef3; }
 .field.is-invalid .pill, .field.is-invalid .form__message { --ring: 0 0 0 1px #d4572a; }

@@ -41,7 +41,7 @@ body[data-page='signin'] .nav { display: none; }
 }
 .sfield__box:focus-within { border-color: #1e6ef3; }
 .sfield__input { flex: 1; min-width: 0; height: 66px; padding: 0; border: 0; background: none; color: #171717; font-family: inherit; outline: none; }
-.sfield__input::placeholder { color: rgba(23, 23, 23, 0.4); opacity: 1; }
+.sfield__input::placeholder { color: var(--color-placeholder); opacity: 1; }
 .sfield__show {
   flex: none; height: 36px; padding: 0 20px; border-radius: 999px; font-size: 16px; line-height: 20px; letter-spacing: -0.04em; color: #171717;
   background: linear-gradient(-81deg, rgba(255, 255, 255, 0.6) 0.28%, rgba(255, 255, 255, 0) 100%); box-shadow: 0 8px 50px rgba(0, 0, 0, 0.2);
