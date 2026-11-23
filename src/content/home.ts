@@ -7,7 +7,6 @@ export const hero = {
   sub: 'The ATS and CRM recruitment teams use to find candidates, manage clients and make placements. With AI built in, and now inside Claude, ChatGPT and Copilot.',
   primary: 'Book a demo',
   secondary: 'View pricing',
-  proof: 'Trusted by thousands of recruiters since 2016. Millions of job applications every month.',
 };
 
 export const system = {

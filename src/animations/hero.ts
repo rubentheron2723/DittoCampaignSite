@@ -59,8 +59,7 @@ export function initHero() {
   tl.from('.hero__pill', { y: 16, autoAlpha: 0, duration: 0.9 }, 0)
     .from(split.words, { yPercent: 110, autoAlpha: 0, duration: 1.1, stagger: 0.07 }, 0.05)
     .from('.hero__sub', { y: 30, autoAlpha: 0, duration: 1 }, 0.45)
-    .from('.hero__actions > *', { y: 24, autoAlpha: 0, duration: 0.9, stagger: 0.08 }, 0.6)
-    .from('.hero__proof', { y: 16, autoAlpha: 0, duration: 0.9 }, 0.75);
+    .from('.hero__actions > *', { y: 24, autoAlpha: 0, duration: 0.9, stagger: 0.08 }, 0.6);
 
   // Scroll: the copy sinks and fades as the next section arrives; the sky eases back a touch.
   gsap.to('.hero__inner', {

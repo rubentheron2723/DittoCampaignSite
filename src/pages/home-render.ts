@@ -10,8 +10,8 @@ import { SCREENS } from '../shared/screens';
  * abstract Ditto screen, the AI assistant, the AI built into Ditto, proof, and the closing CTA. Nothing pins.
  */
 
-/** The hero (Figma node 2354:85): the sky, the announcement pill, the headline, one line under it, two buttons and the
- *  proof line, all aligned to the left edge of the text. */
+/** The hero (Figma node 2354:85): the sky, the announcement pill, the headline, one line under it, two buttons, all
+ *  aligned to the left edge of the text. */
 function heroSection() {
   return `
   <section class="hero" id="top" data-theme="dark">
@@ -31,7 +31,6 @@ function heroSection() {
         <a class="bp bp--on-blue bp--lg" href="/contact" data-magnetic>${esc(hero.primary)}</a>
         <a class="gbtn gbtn--lg hero__secondary" href="/pricing" data-magnetic>${esc(hero.secondary)}</a>
       </div>
-      <p class="hero__proof">${esc(hero.proof)}</p>
     </div>
   </section>`;
 }
