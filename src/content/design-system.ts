@@ -52,8 +52,7 @@ export const colours: ColourGroup[] = [
       { token: '--paper', name: 'Paper', value: '#e7eff4', css: '--paper', uses: 'Text on dark, cool fills' },
       { token: '--paper-2', name: 'Paper 2', value: '#ebf0f6', css: '--paper-2', uses: 'Light button hover' },
       { token: '--black', name: 'Black', value: '#000000', css: '--black', uses: 'Page base, dark sections' },
-      { token: '--navy', name: 'Navy', value: '#063149', css: '--navy', uses: 'Dark section tint, solid button hover' },
-      { token: '--navy-2', name: 'Navy 2', value: '#073d5a', css: '--navy-2', uses: 'Dark gradient end' },
+      { token: '--navy', name: 'Navy', value: '#0e0153', css: '--navy', uses: 'Dark mode Secondary: the bottom of the dark sky and the dark radial' },
     ],
   },
   {
@@ -125,9 +124,15 @@ export const gradients: Token[] = [
   {
     token: '--grad-dark',
     name: 'Dark',
-    value: 'linear-gradient(135deg, #000000 0%, #052a40 55%, #073d5a 100%)',
+    value: 'radial-gradient(134.57% 124.02% at 50% -24.02%, #0e0153 0%, #1e6ef3 100%)',
     css: '--dark-grad',
-    uses: 'Dark page heroes',
+    uses: 'Dark mode radial (Figma dark palette): navy at the top opening into Ditto Blue',
+  },
+  {
+    token: '--grad-sky-dark',
+    name: 'Dark sky',
+    value: 'linear-gradient(180deg, #1e6ef3 0%, #0e0153 100%)',
+    uses: 'The dark hero’s sky (the cloud shader’s sky in dark mode), fading to #171717 at its foot',
   },
 ];
 

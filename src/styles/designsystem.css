@@ -229,7 +229,7 @@ html:has(.ds-body) { background: #fdfdfd; }
 .ds-mark__stage img { display: block; max-width: 70%; max-height: 64px; }
 .ds-mark__stage--light { background: #fdfdfd; box-shadow: inset 0 0 0 1px rgba(15, 20, 29, 0.06); }
 .ds-mark__stage--blue { background: linear-gradient(180deg, #1e6ef3 0%, #00b0ff 100%); }
-.ds-mark__stage--dark { background: linear-gradient(135deg, #000000 0%, #052a40 55%, #073d5a 100%); }
+.ds-mark__stage--dark { background: var(--dark-grad); }
 
 /* Export */
 .ds-export { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
