@@ -209,15 +209,19 @@ function initNavTheme(animate: boolean) {
 
   // Out of the way while reading: the nav slides up as you scroll down and comes back as soon as you scroll up.
   // Always shown near the top of the page and while the menu is open. A few pixels of slack stop it flickering.
+  // Phones and tablets keep it: their nav is just the logo, "Book a demo" and the menu button, and folding it (the
+  // frosted glass first) left those floating over the text. There it stays, on its glass, once the page has scrolled.
   const SHOW_ABOVE = 120;
   const SLACK = 6;
+  const phone = window.matchMedia('(max-width: 900px)');
+  phone.addEventListener('change', () => phone.matches && nav.classList.remove('nav--away'));
   let lastY = 0;
   ScrollTrigger.create({
     start: 0,
     end: 'max',
     onUpdate: (self) => {
       const y = self.scroll();
-      if (y < SHOW_ABOVE || document.body.classList.contains('menu-open')) nav.classList.remove('nav--away');
+      if (phone.matches || y < SHOW_ABOVE || document.body.classList.contains('menu-open')) nav.classList.remove('nav--away');
       else if (y - lastY > SLACK) nav.classList.add('nav--away');
       else if (lastY - y > SLACK) nav.classList.remove('nav--away');
       else return; // within the slack: keep the reference point until the move is clear
