@@ -59,7 +59,7 @@ function render() {
         <div class="gseg" id="billing" role="radiogroup" aria-label="Billing cycle">
           <span class="gseg__pill" aria-hidden="true"></span>
           <button type="button" role="radio" aria-checked="true" tabindex="0" data-value="monthly">Monthly</button>
-          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="annual">Annual <em>Save 15%</em></button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-value="annual">Annual, <em>save 15%</em></button>
         </div>
         <div class="gseg" id="currency" role="radiogroup" aria-label="Currency">
           <span class="gseg__pill" aria-hidden="true"></span>
@@ -91,10 +91,10 @@ function render() {
         </div>
 
         <div class="quote" id="quote">
-          <p class="quote__tier"><span id="q-tier">Starter</span> <em id="q-range">1 – 9 users</em></p>
-          <div class="quote__rate"><strong id="q-rate">R949</strong><span>${esc(calculator.perLicense)}</span></div>
+          <p class="quote__tier"><span id="q-tier">${esc(tiers[0].label)}</span> <em id="q-range">${esc(tiers[0].rangeLabel)}</em></p>
+          <div class="quote__rate"><strong id="q-rate">R949</strong><span id="q-per">${esc(`${calculator.perLicense}, ${calculator.tax.ZAR}`)}</span></div>
           <div class="quote__totals">
-            <div class="quote__total"><strong id="q-total">R6,643</strong><span id="q-period">Monthly total</span></div>
+            <div class="quote__total"><strong id="q-total">R6,643</strong><span id="q-period">${esc(`${calculator.monthlyTotal}, ${calculator.tax.ZAR}`)}</span></div>
             <div class="quote__total"><strong id="q-users">7</strong><span>Recruiters</span></div>
           </div>
           <p class="quote__enterprise" id="q-enterprise">${esc(calculator.enterprise)}</p>
@@ -140,7 +140,7 @@ function initCalculator(animate: boolean) {
   const quote = q('#quote')!;
   const cards = qa<HTMLButtonElement>('.lcard');
   const el = {
-    tier: q('#q-tier')!, range: q('#q-range')!, rate: q('#q-rate')!, period: q('#q-period')!,
+    tier: q('#q-tier')!, range: q('#q-range')!, rate: q('#q-rate')!, period: q('#q-period')!, per: q('#q-per')!,
     total: q('#q-total')!, users: q('#q-users')!,
   };
 
@@ -164,7 +164,9 @@ function initCalculator(animate: boolean) {
     el.users.textContent = String(users);
     el.tier.textContent = tier.label;
     el.range.textContent = tier.rangeLabel;
-    el.period.textContent = period === 'annual' ? 'Annual total' : 'Monthly total';
+    const tax = calculator.tax[currency];
+    el.period.textContent = `${period === 'annual' ? calculator.annualTotal : calculator.monthlyTotal}, ${tax}`;
+    el.per.textContent = `${calculator.perLicense}, ${tax}`;
     quote.classList.toggle('quote--enterprise', !tier.rates);
     cards.forEach((c) => c.classList.toggle('is-active', c.dataset.label === tier.label));
 
