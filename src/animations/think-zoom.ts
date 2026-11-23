@@ -680,16 +680,11 @@ export function initThinkZoom(
    * fast scrolling settles between moves rather than running them back to back.
    */
   const HOLD = 0.35;
-  /**
-   * A gesture that starts while the stage holds the scroll and goes this far lets go of the section in its direction
-   * (wheel/trackpad px): a quick way past for anyone not reading it. Not on touch: a phone swipe is long anyway, and
-   * fast swipes skipped the whole section; there every swipe is one step.
-   * The gesture that brought the page here never counts, so a fast scroll in can't skip the section by accident.
+  /*
+   * There is deliberately no way to scroll past the section in one go: a long or fast gesture (a trackpad flick, a
+   * spun wheel) is still one step, so nobody skips it by accident. Home and End leave it, and Product's toggle jumps
+   * between its stops. (A long-gesture escape hatch used to let go of the section mid-statement.)
    */
-  const ESCAPE_WHEEL = 1100;
-  /** The current gesture's travel, and the gesture that was under way as the stage took hold. */
-  let travel = 0;
-  let arrivedOn = -1;
 
   // While the stage holds the scroll the nav stays folded to its mark (see .nav--hold in base.css), and opens fully
   // while the pointer is up in its strip.
@@ -803,7 +798,6 @@ export function initThinkZoom(
     captured = true;
     acc = 0;
     pending = 0;
-    arrivedOn = gesture;
     // The gesture that scrolled the page here (and its inertia) has done its job.
     used = gesture;
     // Stop at the section's top, a pixel inside so the pin counts as active (the stage is pinned there, so the page
@@ -988,7 +982,6 @@ export function initThinkZoom(
       if (now - lastAt > QUIET || (lastAbs < peak * 0.5 && d > lastAbs * 1.6 + 4)) {
         gesture++;
         acc = 0;
-        travel = 0;
         peak = 0;
       }
       peak = Math.max(peak, d);
@@ -996,11 +989,6 @@ export function initThinkZoom(
       lastAt = now;
       if (!captured) return;
       e.preventDefault();
-      travel += e.deltaY;
-      if (gesture !== arrivedOn && Math.abs(travel) > ESCAPE_WHEEL) {
-        pending = 0;
-        return release(travel > 0 ? 1 : -1);
-      }
       if (gesture === used) return;
       acc += e.deltaY;
       if (Math.abs(acc) > THRESHOLD) {
