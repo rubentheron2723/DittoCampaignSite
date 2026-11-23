@@ -1,4 +1,5 @@
 import { gsap, q, SplitText } from './gsap';
+import { enter } from '../shared/motion';
 import { createPaperCards, type CardPose } from '../shared/paper-cards';
 import { ai } from '../content/home';
 import { loadCanvasFont } from '../shared/canvas-font';
@@ -224,13 +225,13 @@ export function initAI(animate: boolean) {
       duration: 1,
       ease: 'expo.out',
       stagger: 0.05,
-      scrollTrigger: { trigger: section, start: 'top 70%', toggleActions: 'play none none reverse' },
+      scrollTrigger: enter(section, 'top 70%'),
     });
     gsap.from('.ai__desc', {
       y: 24,
       autoAlpha: 0,
       stagger: 0.1,
-      scrollTrigger: { trigger: section, start: 'top 65%', toggleActions: 'play none none reverse' },
+      scrollTrigger: enter(section, 'top 65%'),
     });
   }
 

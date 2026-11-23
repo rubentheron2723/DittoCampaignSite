@@ -1,5 +1,6 @@
 import { gsap, q, qa, ScrollTrigger } from './gsap';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
+import { enter } from '../shared/motion';
 
 gsap.registerPlugin(DrawSVGPlugin);
 
@@ -79,10 +80,11 @@ export function initFlow(animate: boolean) {
     const copy = qa('.fpanel__copy > *', panel);
     // The first panel arrives by scrolling down; the others slide in from the right, starting as the panel's left edge
     // passes 55% across the screen (45% of the way through its slide).
+    // (The first like any entrance, reset out of sight on phones: see enter. The others go back as they slide away.)
     const arrive = i === 0
-      ? { trigger: section, start: 'top 55%' }
-      : { start: () => scrollAt(slideIn[i].from + 0.45) };
-    const tl = gsap.timeline({ scrollTrigger: { ...arrive, toggleActions: 'play none none reverse' } });
+      ? enter(section, 'top 55%')
+      : { start: () => scrollAt(slideIn[i].from + 0.45), toggleActions: 'play none none reverse' };
+    const tl = gsap.timeline({ scrollTrigger: arrive });
     tl.from(pieces, { y: 24, autoAlpha: 0, duration: 0.7, stagger: { amount: 0.6 }, ease: 'power3.out' })
       .fromTo(lines, { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.9, stagger: 0.12, ease: 'power1.inOut' }, 0.5);
     if (i > 0) tl.from(copy, { y: 40, autoAlpha: 0, duration: 0.8, stagger: 0.08, ease: 'expo.out' }, 0);

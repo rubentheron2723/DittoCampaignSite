@@ -1,11 +1,26 @@
 import { gsap, ScrollTrigger, SplitText } from '../animations/gsap';
 
-/** ScrollTrigger config for a one-shot entrance that reverses when scrolled back above. */
-export const enter = (trigger: Element | string, start = 'top 78%') => ({
-  trigger,
-  start,
-  toggleActions: 'play none none reverse',
-});
+/**
+ * ScrollTrigger config for an entrance that plays as its element scrolls up to `start`, and runs again on a later visit.
+ *
+ * Desktop: scrolled back above `start`, it reverses. On touch screens it waits instead until the element is below the
+ * screen, then resets out of sight. `start` sits well up the screen, so reversing there hid text still in view: on a
+ * phone, the slightest scroll back up (which also brings Safari's toolbar back) took a heading out and the next
+ * scroll down brought it in again, as if every section played twice.
+ */
+export const enter = (trigger: Element | string, start = 'top 78%'): ScrollTrigger.Vars =>
+  ScrollTrigger.isTouch === 1
+    ? { trigger, start, toggleActions: 'play none none none', onEnter: resetBelowScreen }
+    : { trigger, start, toggleActions: 'play none none reverse' };
+
+/** The entrances already watched for leaving below the screen. */
+const watched = new WeakSet<ScrollTrigger>();
+/** An entrance (touch) resets, out of sight, once its element has gone below the screen, so it can play again. */
+function resetBelowScreen(self: ScrollTrigger) {
+  if (watched.has(self)) return;
+  watched.add(self);
+  ScrollTrigger.create({ trigger: self.trigger, start: 'top bottom', onLeaveBack: () => self.animation?.pause(0) });
+}
 
 /** Masked line/word reveal for a heading. Returns the SplitText so callers can reuse pieces. */
 export function splitReveal(
