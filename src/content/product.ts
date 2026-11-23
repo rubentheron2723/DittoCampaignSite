@@ -5,7 +5,8 @@
 /** The hero (Figma 2398:532). */
 export const productHero = {
   title: ['Recruitment software', 'for teams that scale.'],
-  lead: 'One ATS and CRM for sourcing, engagement and placements. Use it in the browser, or from Claude, ChatGPT and Microsoft Copilot.',
+  /** The brief's sub, one sentence per line. */
+  lead: ['One ATS and CRM for sourcing, engagement and placements.', 'Use it in the browser, or from Claude, ChatGPT and Microsoft Copilot.'],
   support: 'Built for agencies and in-house hiring teams that need speed, visibility and control.',
   cta: 'Day in the life',
 };

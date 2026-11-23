@@ -28,7 +28,7 @@ function hero() {
       <div class="phero__text">
         <h1 class="phero__title">${h.title.map((l) => `<span class="phero__line">${esc(l)}</span>`).join(' ')}</h1>
         <div class="phero__copy">
-          <p class="phero__lead">${esc(h.lead)}</p>
+          <p class="phero__lead">${h.lead.map((l) => `<span class="phero__sentence">${esc(l)}</span>`).join(' ')}</p>
           <p class="phero__support">${esc(h.support)}</p>
         </div>
       </div>
