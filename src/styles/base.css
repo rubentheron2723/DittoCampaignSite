@@ -11,8 +11,7 @@
   --blue: #00b0ff;
   --blue-2: #18b5ff;
   --blue-deep: #0f8ecf;
-  --navy: #063149;
-  --navy-2: #073d5a;
+  --navy: #0e0153;
   --black: #000000;
   --line-dark: rgba(255, 255, 255, 0.14);
   --line-light: rgba(15, 20, 29, 0.12);
@@ -20,7 +19,8 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --nav-h: 72px;
   --gutter: clamp(20px, 5vw, 72px);
-  --dark-grad: linear-gradient(135deg, #000000 0%, #052a40 55%, #073d5a 100%);
+  /* The dark mode radial (Figma dark palette 2441:416): navy at the top, opening into Ditto Blue. */
+  --dark-grad: radial-gradient(134.57% 124.02% at 50% -24.02%, #0e0153 0%, #1e6ef3 100%);
 }
 
 * { box-sizing: border-box; }
