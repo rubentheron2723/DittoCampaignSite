@@ -5,7 +5,7 @@ export const terms: LegalDoc = {
   "titleOne": "Terms of",
   "titleTwo": "service.",
   "lead": "The fine print, made simple.",
-  "updated": "15 March 2026",
+  "updated": "22 November 2026",
   "sections": [
     {
       "num": "1",
@@ -94,86 +94,91 @@ export const terms: LegalDoc = {
     },
     {
       "num": "18",
+      "title": "AI Assistant Connections",
+      "html": "<ol><li>Ditto may make available an optional connection that allows Users to access and act on the Platform through a third-party AI assistant, such as Claude, ChatGPT or Microsoft Copilot (an <strong>AI Assistant Connection</strong>). AI assistants are Third-Party Services.</li><li>Each User connects with their own AI assistant account and authorises the connection with their own Ditto login. The connection acts with that User’s permissions, and anything done through it is treated as done by that User under these Terms, including the clauses on Account Responsibilities and Acceptable Use.</li><li>When a User makes a request through an AI Assistant Connection, the Customer Data needed to respond to that request is transmitted to the AI assistant provider. The Customer is responsible for ensuring that this transfer is lawful and consistent with its own obligations, including under POPIA, and for reviewing the provider’s terms, privacy settings and data-use settings that apply to its Users’ accounts.</li><li>Ditto does not control AI assistant providers and is not responsible for their availability, security, outputs or handling of data. The clause on AI Systems and Automated Processing applies to outputs and actions produced through an AI Assistant Connection, and the Customer remains responsible for reviewing them before relying on them.</li><li>Changes made through an AI Assistant Connection are recorded in the Platform under the User’s name. The connection does not send emails or calendar invitations on behalf of Users.</li><li>The AI assistant provider’s own terms, plan limits and charges apply to each User’s use of their AI assistant. Ditto may change, limit or withdraw AI Assistant Connections, or support for a particular AI assistant, at any time.</li></ol>"
+    },
+    {
+      "num": "19",
       "title": "Candidate Data Misuse",
       "html": "<ol><li>Candidate Data may be accessed and used only for legitimate Recruitment Activity and only to the extent permitted by applicable law and these Terms.</li><li>The Customer may not use Candidate Data for purposes unrelated to real recruitment or talent acquisition activity.</li><li>Prohibited uses include, without limitation:<ol><li>direct marketing unrelated to recruitment;</li><li>promotional campaigns unrelated to jobs or hiring;</li><li>building external mailing lists;</li><li>resale or brokering of candidate information;</li><li>profiling for unrelated commercial purposes;</li><li>unsolicited bulk communications that are not tied to a genuine recruitment context; and</li><li>any activity that would reasonably be regarded as exploitative, deceptive, intrusive, or outside the expectations communicated to Candidates.</li></ol></li><li>The Customer must ensure that Candidate Data is handled in a manner consistent with the context in which it was collected and with any privacy notices presented to the relevant Candidates.</li><li>Misuse of Candidate Data is regarded as a serious breach of these Terms and may result in immediate suspension or termination of the relevant account, without prejudice to Ditto’s rights to seek damages, indemnity, injunctive relief, or report unlawful conduct to regulators or authorities where appropriate.</li></ol>"
     },
     {
-      "num": "19",
+      "num": "20",
       "title": "Acceptable Use",
       "html": "<ol><li>The Customer may use the Services only for lawful business purposes and in a manner consistent with these Terms, applicable law, and any usage rules or policies issued by Ditto.</li><li>The Customer must not, and must not permit any User or third party to, use the Services to:<ol><li>operate scams, fraudulent schemes, or deceptive hiring activity;</li><li>post false, misleading, unlawful, or non-existent job opportunities;</li><li>solicit payments from candidates for job access or applications where unlawful or misleading;</li><li>upload, import, or process data that the Customer has no lawful right to use;</li><li>scrape, harvest, mine, or systematically extract data from the Platform;</li><li>probe, scan, test, or exploit vulnerabilities in the Platform;</li><li>reverse engineer, decompile, disassemble, copy, mirror, or attempt to derive source code from the Platform except where expressly permitted by law;</li><li>interfere with the operation, performance, integrity, or availability of the Services; or</li><li>use the Platform in a way that infringes intellectual property rights, privacy rights, or other legal rights of any person.</li></ol></li><li>The Customer is responsible for ensuring that all content, jobs, messages, and data submitted through the Platform are lawful, accurate, and used in good faith.</li></ol>"
     },
     {
-      "num": "20",
+      "num": "21",
       "title": "Anti-Scraping and Database Protection",
       "html": "<ol><li>The Platform, including its structure, candidate records, job data, workflows, and compiled datasets, reflects substantial commercial investment, proprietary system design, and protected business value.</li><li>The Customer may not use any automated, semi-automated, or manual high-volume method to extract, replicate, harvest, copy, reconstitute, or appropriate material portions of the Platform, its data structures, or its candidate information beyond the legitimate functionality expressly provided by Ditto.</li><li>Prohibited conduct includes:<ol><li>scraping candidate data in bulk;</li><li>using bots or scripts to extract records at scale;</li><li>building shadow databases derived from Platform content beyond permitted exports;</li><li>copying platform structure or data organisation to create a competing service; and</li><li>attempting to bypass API restrictions, export controls, or access controls.</li></ol></li><li>Nothing in this clause prevents the Customer from using ordinary platform functionality or legitimately exporting its own Customer Data where such export is permitted by Ditto.</li><li>However, the Customer may not use the Platform as a source for unauthorised database extraction or competitive cloning.</li><li>Ditto reserves the right to monitor for abuse, rate-limit suspicious activity, block IP addresses, disable accounts, and take legal action where it reasonably believes scraping, harvesting, or database misuse has occurred.</li></ol>"
     },
     {
-      "num": "21",
+      "num": "22",
       "title": "Recruitment Scam Enforcement",
       "html": "<ol><li>Ditto takes the integrity of recruitment activity conducted through the Platform seriously.</li><li>Because the Platform may be used to communicate with Candidates and manage job opportunities, Ditto reserves the right to investigate suspected misuse, scams, deception, impersonation, or other abusive activity.</li><li>Where Ditto reasonably suspects that an account, job listing, message, integration, or recruitment workflow is being used in a fraudulent, unlawful, misleading, exploitative, or high-risk manner, Ditto may take any action it reasonably considers necessary to protect Candidates, the Platform, other Customers, or Ditto’s reputation.</li><li>Such action may include:<ol><li>reviewing job listings or account activity;</li><li>requesting supporting information or verification;</li><li>temporarily restricting posting or messaging functions;</li><li>removing suspicious jobs or content;</li><li>suspending Users or entire accounts;</li><li>blocking candidate communications;</li><li>terminating accounts associated with confirmed fraud or serious misconduct; and</li><li>reporting suspected criminal or unlawful conduct to regulators, law enforcement, or affected parties where appropriate.</li></ol></li><li>Ditto is not obliged to provide advance notice before acting where speed is reasonably necessary to prevent harm, fraud, reputational damage, or further abuse.</li></ol>"
     },
     {
-      "num": "22",
+      "num": "23",
       "title": "Customer Indemnity",
       "html": "<ol><li>The Customer indemnifies, defends, and holds harmless Ditto, its Affiliates, officers, directors, employees, contractors, and representatives from and against any and all claims, demands, actions, proceedings, losses, damages, liabilities, penalties, fines, costs, and expenses, including reasonable legal fees, arising out of or in connection with:<ol><li>job advertisements or recruitment content posted by or on behalf of the Customer;</li><li>the Customer’s use or misuse of Candidate Data;</li><li>any database, CV bank, or imported data source provided by the Customer;</li><li>unlawful recruitment practices, discrimination, or unfair hiring conduct carried out by the Customer;</li><li>the Customer’s breach of privacy, data protection, employment, consumer, or advertising laws;</li><li>the Customer’s breach of these Terms; or</li><li>any dispute between the Customer and a Candidate, client, applicant, employee, or third party arising from the Customer’s use of the Services.</li></ol></li><li>This indemnity applies whether the claim is brought by a regulator, candidate, applicant, client, employee, competitor, or any other third party.</li><li>This indemnity survives termination of these Terms.</li></ol>"
     },
     {
-      "num": "23",
+      "num": "24",
       "title": "Disclaimers",
       "html": "<ol><li>The Services are provided as recruitment software tools and related technology services only.</li><li>Ditto does not warrant or guarantee that use of the Platform will result in successful hiring outcomes, increased placements, improved recruiter productivity, candidate suitability, candidate responsiveness, business growth, regulatory compliance, or commercial profitability.</li><li>Without limiting the generality of the above, Ditto does not guarantee:<ol><li>the quality, truthfulness, or suitability of candidates;</li><li>the number of applicants a job posting will receive;</li><li>the success of any placement or hiring process;</li><li>uninterrupted or error-free service at all times;</li><li>that the Platform will meet every Customer requirement or internal workflow preference; or</li><li>that AI outputs, search results, parsing results, or matching suggestions will be correct or complete.</li></ol></li><li>The Customer acknowledges that recruitment outcomes depend on multiple external factors beyond Ditto’s control, including market conditions, employer attractiveness, job quality, compensation, timing, candidate availability, recruiter conduct, and compliance with applicable laws.</li><li>Except as expressly stated in these Terms, the Services are provided on an “as is” and “as available” basis.</li></ol>"
     },
     {
-      "num": "24",
+      "num": "25",
       "title": "Limitation of Liability",
       "html": "<ol><li>To the maximum extent permitted by law, Ditto and its Affiliates, officers, employees, contractors, suppliers, and licensors shall not be liable to the Customer for any indirect, incidental, special, punitive, exemplary, or consequential loss or damage arising out of or in connection with these Terms or the Services.</li><li>Ditto shall not be liable for loss of profits, loss of revenue, loss of business opportunity, loss of placements or hiring opportunities, reputational damage, loss of goodwill, loss or corruption of data beyond Ditto’s express obligations, business interruption, procurement of substitute services, losses arising from third-party systems or integrations, or decisions made by the Customer based on data, AI outputs, or analytics generated through the Platform.</li><li>To the maximum extent permitted by law, Ditto’s total aggregate liability arising out of or in connection with the Services, whether in contract, delict, negligence, statute, or otherwise, shall not exceed the total Fees actually paid by the Customer to Ditto during the <strong>three months immediately preceding the event giving rise to the claim</strong>.</li><li>The exclusions and limitations in this clause apply even if a remedy fails of its essential purpose and even if Ditto was advised of the possibility of the relevant loss.</li></ol>"
     },
     {
-      "num": "25",
+      "num": "26",
       "title": "Suspension and Termination",
       "html": "<ol><li>Ditto may suspend or terminate the Customer’s access to the Services, in whole or in part, immediately or on notice, if Ditto reasonably believes that the Customer has breached these Terms, failed to pay Fees when due, is using the Services unlawfully or fraudulently, continued access poses risk, or suspension is necessary to investigate suspected abuse, fraud, or Security Incidents.</li><li>Suspension may apply to the full account, selected Users, particular features, integrations, data flows, or functionality.</li><li>Termination of the Services does not affect accrued rights or claims, any obligation to pay outstanding amounts, Ditto’s right to retain records where legally necessary, or clauses intended to survive termination.</li><li>The Customer may terminate the Services in accordance with the applicable notice and renewal terms, but termination by the Customer does not entitle the Customer to refunds except where expressly required by law or agreed by Ditto in writing.</li></ol>"
     },
     {
-      "num": "26",
+      "num": "27",
       "title": "Confidentiality",
       "html": "<ol><li>Each party may receive or obtain access to non-public, commercially sensitive, technical, financial, operational, legal, or business information relating to the other party in connection with the Services.</li><li>For purposes of these Terms, “confidential information” includes all information disclosed by one party to the other that is confidential by nature, designated as confidential, or reasonably ought to be understood to be confidential in the circumstances.</li><li>Each party agrees that it will use the other party’s confidential information only for purposes connected with these Terms and the Services, protect such information using reasonable safeguards, and not disclose such information to third parties except to persons who need to know and are bound by confidentiality obligations.</li><li>This clause does not apply to information that is or becomes public through no breach of these Terms, was lawfully known to the receiving party before disclosure, is lawfully obtained from a third party without breach of confidence, or is independently developed without use of the disclosing party’s confidential information.</li><li>A party may disclose confidential information where required by law, court order, regulator, or competent authority, provided that where legally permitted, it gives prior notice to the other party.</li><li>These confidentiality obligations survive termination of the Services.</li></ol>"
     },
     {
-      "num": "27",
+      "num": "28",
       "title": "Force Majeure",
       "html": "<ol><li>Ditto shall not be liable for any delay, failure, interruption, degradation, or inability to perform its obligations under these Terms to the extent caused by events, circumstances, or causes beyond its reasonable control.</li><li>Such events may include power failures, internet outages, cyber incidents, cloud hosting failures, labour disputes, war, civil unrest, natural disasters, pandemics, government actions, or failures of third-party suppliers beyond Ditto’s reasonable control.</li><li>Where reasonably possible, Ditto will take commercially reasonable steps to mitigate the impact of such events.</li><li>However, Ditto will not be in breach of these Terms merely because performance is delayed or impaired by a qualifying force majeure event.</li></ol>"
     },
     {
-      "num": "28",
+      "num": "29",
       "title": "Dispute Resolution",
       "html": "<ol><li>The parties agree to attempt in good faith to resolve any dispute, claim, or controversy arising out of or in connection with these Terms through direct negotiation before commencing formal proceedings.</li><li>A party raising a dispute should notify the other party in writing with reasonable detail of the issue, after which the parties shall seek to resolve the matter through commercially reasonable discussions.</li><li>If the dispute is not resolved through negotiation within a reasonable time, the dispute shall be finally resolved by <strong>confidential arbitration in Cape Town under the rules of the Arbitration Foundation of Southern Africa (“AFSA”)</strong> applicable at the time the arbitration is commenced.</li><li>The arbitration shall be conducted by a single arbitrator unless the rules or the complexity of the matter reasonably require otherwise.</li><li>The language of the arbitration shall be English.</li><li>Nothing in this clause prevents either party from seeking urgent interim, interlocutory, or injunctive relief from a court of competent jurisdiction where such relief is reasonably required to protect rights pending arbitration, including in relation to confidentiality, intellectual property, misuse of data, or unlawful access.</li></ol>"
     },
     {
-      "num": "29",
+      "num": "30",
       "title": "Changes to Terms",
       "html": "<ol><li>Ditto may amend, update, revise, or replace these Terms from time to time in order to reflect changes to the Services, legal requirements, pricing structures, business practices, risk controls, or operational needs.</li><li>Where a change is material, Ditto will take reasonable steps to notify Customers, which may include notification by email, notice within the Platform, publication on a Ditto website, invoice communication, or another commercially reasonable method.</li><li>Unless otherwise stated, updated Terms become effective on the date specified in the revised version.</li><li>If the Customer continues to access or use the Services after the effective date of the updated Terms, such continued use constitutes acceptance of the revised Terms.</li><li>If the Customer does not agree to an updated version of the Terms, the Customer must stop using the Services and terminate its subscription in accordance with the applicable contract provisions.</li></ol>"
     },
     {
-      "num": "30",
+      "num": "31",
       "title": "Policies",
       "html": "<ol><li>Certain additional policies, standards, notices, or guidelines may apply to specific parts of the Services and are incorporated into these Terms by reference where Ditto indicates that they form part of the contractual framework.</li><li>These may include the Privacy Policy, the Cookie Policy, advertising guidelines, candidate-facing notices, acceptable use rules, product-specific feature terms, and beta feature notices.</li><li>To the extent applicable, such policies form part of these Terms and are binding on the Customer.</li><li>Where there is a direct conflict between these Terms and a product-specific written agreement signed by Ditto, the signed written agreement will prevail to the extent of that conflict.</li></ol>"
     },
     {
-      "num": "31",
+      "num": "32",
       "title": "Marketing Rights",
       "html": "<ol><li>Unless the Customer requests otherwise in writing, Ditto may identify the Customer as a customer or user of the Services in Ditto’s sales materials, website, investor materials, customer lists, case studies, presentations, or similar marketing content.</li><li>This may include use of the Customer’s business name, trade name, and logo solely for the purpose of accurately identifying the Customer as a client of Ditto.</li><li>Ditto will not knowingly use the Customer’s name or logo in a misleading way or in a manner that falsely suggests endorsement beyond the fact of a customer relationship.</li><li>The Customer may opt out of this clause by making a written request to Ditto, after which Ditto will take reasonable steps to stop future use within a commercially reasonable period.</li></ol>"
     },
     {
-      "num": "32",
+      "num": "33",
       "title": "Beta Features",
       "html": "<ol><li>From time to time, Ditto may make available beta, preview, pilot, early-access, trial, or experimental features (<strong>“Beta Features”</strong>).</li><li>Beta Features may be incomplete, unstable, limited, subject to change, or withdrawn at any time.</li><li>Beta Features may not be supported to the same standard as generally available production features and may contain bugs, interruptions, design changes, or reduced documentation.</li><li>The Customer uses Beta Features at its own risk and acknowledges that such features are provided for testing, exploration, feedback, or limited release purposes.</li><li>Unless Ditto states otherwise in writing, Beta Features are provided without warranties of any kind and may be excluded from service commitments, support levels, or roadmap expectations.</li></ol>"
     },
     {
-      "num": "33",
+      "num": "34",
       "title": "Governing Law",
       "html": "<ol><li>These Terms, and any dispute or claim arising out of or in connection with them, shall be governed by and interpreted in accordance with the laws of the Republic of South Africa, without regard to conflict of law principles.</li><li>The choice of South African law applies regardless of the Customer’s location, place of incorporation, data storage location, or place of use of the Services, subject always to any mandatory laws that may apply and cannot lawfully be excluded.</li></ol>"
     },
     {
-      "num": "34",
+      "num": "35",
       "title": "Company Information",
       "html": "<ol><li>Ditto’s company details are as follows: <strong>Ditto Jobs (Pty) Ltd</strong><br>Registration Number: <strong>2015/372082/07</strong><br><br>149 Upper Canterbury Street<br>Gardens<br>Cape Town<br>8001<br>Republic of South Africa</li></ol>"
     }
