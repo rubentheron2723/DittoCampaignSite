@@ -6,7 +6,7 @@ import { hideCurtain } from './curtain';
 import { coverAndGo, hideIntro, playCloudIntro } from './intro';
 import { initFooterBlobs, type BlobParams } from './footer-blobs';
 import { initBlobBackdrop } from './blob-backdrop';
-import { applySavedMode, initModeToggle, onModeChange } from './colour-mode';
+import { applySavedMode, currentMode, initModeToggle, onModeChange } from './colour-mode';
 import { HERO_BUBBLES, initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
@@ -237,16 +237,18 @@ function initNavTheme(animate: boolean) {
   const lightSections = qa('[data-theme="light"]');
   // Declared before creating triggers: one can fire onToggle immediately (e.g. reloading mid-page).
   let triggers: ScrollTrigger[] = [];
-  triggers = lightSections.map((s) =>
-    ScrollTrigger.create({
-      trigger: s,
-      start: 'top 40px',
-      end: 'bottom 40px',
-      onToggle: () => nav.classList.toggle('nav--on-light', triggers.some((t) => t.isActive)),
-    }),
-  );
+  let fades: ScrollTrigger[] = [];
+  // Dark mode: the hero's foot fades into the page's #171717, so once the nav is over that fade it takes the section
+  // look (clear glass) rather than the hero's white "Book a demo", which otherwise sat over the dark fade until the next
+  // section arrived. Light mode keeps the hero look there.
+  const sync = () =>
+    nav.classList.toggle('nav--on-light', triggers.some((t) => t.isActive) || (currentMode() === 'dark' && fades.some((t) => t.isActive)));
+  triggers = lightSections.map((s) => ScrollTrigger.create({ trigger: s, start: 'top 40px', end: 'bottom 40px', onToggle: sync }));
+  const hero = q('main > [data-theme="dark"]:first-child');
+  if (hero) fades = [ScrollTrigger.create({ trigger: hero, start: () => `bottom-=${hero.offsetHeight * 0.2} 40px`, end: 'bottom 40px', invalidateOnRefresh: true, onToggle: sync })];
+  onModeChange(sync);
   // Initial state (before any scroll event).
-  nav.classList.toggle('nav--on-light', triggers.some((t) => t.isActive));
+  sync();
 
   // Get out of the way once the footer is (nearly) fully in view. If the footer is taller than the
   // space below the nav, hide it as soon as the footer reaches the nav instead.
