@@ -2,9 +2,9 @@
  * Light and dark mode. The mode is `data-mode` on <html> ("light" or "dark"), which switches the colour tokens in
  * styles/tokens.css.
  *
- * The site follows the reader's system setting (prefers-color-scheme), live, until they pick a mode with the switch:
- * that choice is remembered in this browser and wins from then on. Each page's <head> runs the same check inline
- * before first paint, so the boot cover is already the right colour.
+ * The site is light by default, whatever the reader's system setting. Dark mode is there for anyone who picks it with
+ * the switch: that choice is remembered in this browser. Each page's <head> runs the same check inline before first
+ * paint, so the boot cover is already the right colour.
  *
  * The switch is in the nav: a sun / moon button beside "Book a demo" on desktop, and a sun and moon pair at the foot
  * of the mobile menu.
@@ -16,7 +16,6 @@ export type Mode = 'light' | 'dark';
 
 const KEY = 'ditto:colour-mode';
 const listeners = new Set<(mode: Mode) => void>();
-const systemDark = () => window.matchMedia?.('(prefers-color-scheme: dark)');
 
 /** The mode the reader picked with the switch, if they have. */
 export function chosenMode(): Mode | null {
@@ -28,9 +27,9 @@ export function chosenMode(): Mode | null {
   }
 }
 
-/** The reader's choice, or else their system's setting. */
+/** The reader's choice, or else light. */
 export function savedMode(): Mode {
-  return chosenMode() ?? (systemDark()?.matches ? 'dark' : 'light');
+  return chosenMode() ?? 'light';
 }
 
 export function currentMode(): Mode {
@@ -44,15 +43,9 @@ function apply(mode: Mode) {
   listeners.forEach((fn) => fn(mode));
 }
 
-/**
- * Puts the reader's mode on the page. Call before the page renders, so it never flashes the other one. Until they
- * choose, a change to the system setting (the OS switching to dark at sunset, say) is followed as it happens.
- */
+/** Puts the reader's mode on the page. Call before the page renders, so it never flashes the other one. */
 export function applySavedMode() {
   document.documentElement.dataset.mode = savedMode();
-  systemDark()?.addEventListener('change', (e) => {
-    if (!chosenMode()) apply(e.matches ? 'dark' : 'light');
-  });
 }
 
 /** Called with the new mode whenever it changes (the shaders and the CTA's join follow it). */
