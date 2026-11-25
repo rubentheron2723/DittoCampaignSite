@@ -56,6 +56,13 @@ body.menu-open { overflow: hidden; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 input, select, textarea { font: inherit; color: inherit; }
+/* Autofill: browsers paint a filled-in field pale yellow (or blue) and force dark text. Hold off that paint
+   indefinitely so the field keeps its own glass look, and keep the text in the page's colour. */
+:is(input, textarea, select):is(:-webkit-autofill, :autofill) {
+  -webkit-text-fill-color: var(--color-text);
+  caret-color: var(--color-text);
+  transition: background-color 0s 600000s, color 0s 600000s, box-shadow 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+}
 h1, h2, h3, p, ul, ol { margin: 0; }
 /* No orphans: headings break into lines of even length, and running copy never leaves one word alone on its last line. */
 h1, h2, h3, h4 { text-wrap: balance; }
