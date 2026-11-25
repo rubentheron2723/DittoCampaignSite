@@ -27,9 +27,10 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 html { -webkit-text-size-adjust: 100%; }
-/* No rubber-band past either end of the page (where it showed the black base), and the footer's blue behind it
-   wherever a browser still bounces. */
-html, body { overscroll-behavior-y: none; }
+/* No rubber-band past either end of the page under the desktop smooth scroll (where it showed the black base), and
+   the footer's blue behind it wherever a browser still bounces. Phones scroll natively (no .smooth) and keep the
+   browser's own overscroll: blocking it there also blocked pull-to-refresh. */
+html.smooth, html.smooth body { overscroll-behavior-y: none; }
 html { background-color: #1e6ef3; }
 /* Under the sections, a light base rather than the black body: where a pinned section and the next sit a sub-pixel
    apart on phones, the hairline between them showed black. */
