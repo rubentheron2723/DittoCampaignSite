@@ -31,24 +31,8 @@ function cleanUrls(): Plugin {
   };
 }
 
-/**
- * Each page's script holds the page's first paint until it has run (blocking="render", Chrome and Edge): between pages,
- * the browser keeps the last frame of the page left (its clouds mid-sweep) on screen until then, and the new page's
- * first frame already shows the clouds carrying on (page-transition.ts), so there is no flash of white in between.
- */
-function renderBlockingEntry(): Plugin {
-  return {
-    name: 'render-blocking-entry',
-    apply: 'build',
-    transformIndexHtml: {
-      order: 'post',
-      handler: (html) => html.replace(/<script type="module" crossorigin src=/g, '<script type="module" crossorigin blocking="render" src='),
-    },
-  };
-}
-
 export default defineConfig({
-  plugins: [cleanUrls(), renderBlockingEntry()],
+  plugins: [cleanUrls()],
   server: { port: 5173, host: true },
   build: {
     target: 'es2022',
