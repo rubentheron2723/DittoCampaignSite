@@ -102,6 +102,7 @@ export function takePageTransition() {
 }
 
 type Renderer = { draw: (p: number) => void; resize: () => void; dispose: () => void };
+type GlRenderer = Renderer & { setImage: (img: HTMLImageElement) => void };
 
 /** Cover-fits the Figma frame to the screen, and where the Clouds frame lands. */
 function fit(W: number, H: number) {
@@ -128,7 +129,8 @@ function layerQuads(p: number, s: number, turn: number, pivotX: number, pivotY: 
   });
 }
 
-function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement, turn: number): Renderer | null {
+/** Context and shaders straight away (compiling them is the slow part); the clouds go in with setImage once loaded. */
+function webglRenderer(canvas: HTMLCanvasElement, turn: number): GlRenderer | null {
   const gl = canvas.getContext('webgl2', { premultipliedAlpha: true, alpha: true, antialias: false });
   if (!gl) return null;
   let sprite: WebGLProgram, lensProg: WebGLProgram;
@@ -140,14 +142,18 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement, turn: n
   }
 
   const cloudTex = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, cloudTex);
-  gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-  gl.generateMipmap(gl.TEXTURE_2D);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  let hasImage = false;
+  const setImage = (img: HTMLImageElement) => {
+    gl.bindTexture(gl.TEXTURE_2D, cloudTex);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    hasImage = true;
+  };
 
   const fboTex = gl.createTexture();
   const fbo = gl.createFramebuffer();
@@ -214,6 +220,7 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement, turn: n
   };
 
   const draw = (p: number) => {
+    if (!hasImage) return;
     const f = fit(W, H);
     // The screen's centre, in the Clouds frame's px.
     const quads = layerQuads(p, f.s, turn, W / 2 - f.frameX, H / 2 - f.frameY);
@@ -274,7 +281,7 @@ function webglRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement, turn: n
   };
 
   resize();
-  return { draw, resize, dispose };
+  return { draw, resize, dispose, setImage };
 }
 
 /** No WebGL2: the same clouds on a 2D canvas, without the lens. */
@@ -349,10 +356,14 @@ export function playPageTransition(page: PageId): Promise<void> {
 
   // The clouds are preloaded (see the pages' <head>) and usually cached; if they're slow, the veil goes without them
   // rather than holding the page back.
-  return loadClouds(600).then(
+  // The WebGL context and its shaders while the clouds load, rather than after, so the two overlap.
+  const gl = webglRenderer(canvas, turn);
+  return loadClouds(600, false).then(
     (img) =>
       new Promise<void>((resolve) => {
-        const renderer = img ? (webglRenderer(canvas, img, turn) ?? canvasRenderer(canvas, img, turn)) : null;
+        if (img) gl?.setImage(img);
+        else gl?.dispose();
+        const renderer = img ? (gl ?? canvasRenderer(canvas, img, turn)) : null;
         if (!renderer) canvas.style.display = 'none';
         const clock = { p: 0 };
         const draw = () => renderer?.draw(clock.p);

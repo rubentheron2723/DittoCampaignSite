@@ -80,14 +80,16 @@ export function markBooted() {
 
 /**
  * Runs `run` once `ready` resolves: under the still cover if it gets there in time, otherwise once the cover is fully
- * gone (never while it is moving).
+ * gone (never while it is moving). `hold`: the transition waits for it (up to its limit); without, it only runs under
+ * the cover if it happens to be ready before the cover moves.
  */
-export function underCover(ready: Promise<unknown>, run: () => void) {
+export function underCover(ready: Promise<unknown>, run: () => void, hold = true) {
   if (gone || phase === 'moving') {
     Promise.all([ready, coverGone()]).then(run);
     return;
   }
-  prep.push(ready.then(() => (phase === 'still' && !gone ? run() : coverGone().then(run))));
+  const task = ready.then(() => (phase === 'still' && !gone ? run() : coverGone().then(run)));
+  if (hold) prep.push(task);
 }
 
 /** The transition, before it moves: waits for underCover tasks (at most `cap` ms), then nothing more joins them. */

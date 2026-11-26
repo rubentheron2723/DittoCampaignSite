@@ -1036,15 +1036,18 @@ export function initThinkZoom(
   });
 
   show(0, false);
-  // Set up while the page transition's cover is still opaque, or else once it is fully gone: drawing the statements
-  // (and then their fields), pinning and refreshing ScrollTrigger is real work (its first refresh stalled the GPU for a
-  // second), which mid-transition made the clouds jump and at their end froze them. The section is a long way down.
-  let font = family;
-  const ready = Promise.all([document.fonts.ready, loadCanvasFont()]).then(([, f]) => (font = f));
-  underCover(ready, () => {
-    family = font;
+  // Pinning and refreshing ScrollTrigger: under the page transition's cover while it is still opaque, or else once it
+  // is fully gone. Its first refresh after arriving is real work, which mid-transition made the clouds jump and at
+  // their end froze them. The section is a long way down.
+  // The statements (and then their fields) are drawn in the canvas font, which comes from Google Fonts on its own
+  // (~0.4 s): they wait for it separately, so the transition never waits for it.
+  let fontReady = false;
+  const restyle = () => {
+    if (!fontReady) return;
     layout();
     draw();
+  };
+  underCover(document.fonts.ready, () => {
     st = ScrollTrigger.create({
       trigger: section,
       start: 'top top',
@@ -1060,16 +1063,21 @@ export function initThinkZoom(
       onEnterBack: () => capture(steps),
       onRefresh: () => {
         if (scene && team) fitTeam(team);
-        layout();
-        draw();
+        restyle();
       },
     });
     ScrollTrigger.refresh();
     // Light or dark mode: the statements are drawn from their CSS colours, so draw them again in the new ones.
-    onModeChange(() => {
-      layout();
-      draw();
-    });
+    onModeChange(restyle);
   });
+  // Drawing them is work too: never while the cover moves.
+  underCover(
+    Promise.all([document.fonts.ready, loadCanvasFont()]).then(([, f]) => (family = f)),
+    () => {
+      fontReady = true;
+      restyle();
+    },
+    false,
+  );
   return !!scene;
 }
