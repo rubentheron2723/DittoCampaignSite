@@ -53,10 +53,9 @@ export async function boot({ page, render, init }: Options) {
   const cover = reduce ? Promise.resolve((hideCurtain(), hideIntro())) : moved ? playPageTransition(page) : playCloudIntro();
   // Failsafe: the cover must never stay up. If the animation stalls or throws (a blocked image, a lost WebGL context,
   // a browser shield), the page is shown anyway after a little longer than the animation would take.
-  // (The transition takes 0.8 s once it starts: after the page's heavy set-up under it (up to 1.2 s) and once frames
-  // are flowing again (up to 1.5 s more, while the GPU compiles the page's shaders); the landing intro about 4 s
-  // after waiting up to 4 s for its clouds.)
-  const limit = moved ? 4500 : 9000;
+  // (The transition takes 0.8 s once it starts, after up to 0.6 s for its clouds and 0.25 s of the page's set-up; the
+  // landing intro about 4 s after waiting up to 4 s for its clouds.)
+  const limit = moved ? 2500 : 9000;
   const revealed = Promise.race([
     cover.catch((err) => console.warn('Entry animation failed:', err)),
     new Promise<void>((r) => window.setTimeout(r, limit)),

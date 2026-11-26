@@ -3,7 +3,7 @@ import type { PageId } from '../content/shared';
 import { markCoverGone, settleUnderCover } from './cover';
 import { currentMode } from './colour-mode';
 import {
-  compile, EASE_PART, FLIP_Y, FULL_VERT, GLSL_MAP, kernel, LENS_FRAG, loadClouds, quad, R210, R_22, TURN,
+  bezier, compile, EASE_PART, FLIP_Y, FULL_VERT, GLSL_MAP, kernel, LENS_FRAG, loadClouds, quad, R210, R_22, TURN,
   type Cloud,
 } from './intro';
 
@@ -36,6 +36,11 @@ const SWEEP: Record<PageId, number> = {
 };
 
 const DURATION = 0.8;
+/**
+ * The clouds' ease. Figma's (EASE_PART) starts so slowly that for the first third of the move they barely shift, which
+ * read as more waiting; this one moves them from the first frame and keeps the same soft landing.
+ */
+const EASE_CLOUDS = bezier(0.2, 0.2, 0.15, 1);
 /** The veil holds still for a moment while the clouds get going (Figma: 0.27 s of 1.2). */
 const VEIL_HOLD = 0.05;
 
@@ -395,7 +400,7 @@ export function playPageTransition(page: PageId): Promise<void> {
               },
             })
             .to(canvas, { autoAlpha: 1, duration: 0.15, ease: 'power1.out' }, 0)
-            .to(clock, { p: 1, duration: DURATION, ease: EASE_PART, onUpdate: draw }, 0)
+            .to(clock, { p: 1, duration: DURATION, ease: EASE_CLOUDS, onUpdate: draw }, 0)
             .to(veil, {
               x: () => dir[0] * VEIL_TRAVEL * s,
               y: () => dir[1] * VEIL_TRAVEL * s,
@@ -409,20 +414,12 @@ export function playPageTransition(page: PageId): Promise<void> {
         // A fixed timer started the clouds' clock inside that stall, so the sweep ran half-unseen and then froze; two
         // quick frames in a row mean the GPU has caught up. Capped, so a slow machine still gets the sweep.
         // First, the page's own heavy set-up runs under the still cover (cover.ts underCover), so it doesn't land on
-        // the moving clouds.
-        settleUnderCover(1200).then(() => {
-          const t0 = performance.now();
-          let prev = 0;
-          let quick = 0;
-          const wait = (now: number) => {
-            quick = prev && now - prev < 50 ? quick + 1 : 0;
-            prev = now;
-            if (quick >= 2 || now - t0 > 1500) start();
-            else requestAnimationFrame(wait);
-          };
-          requestAnimationFrame(wait);
-          // rAF doesn't run in a background tab: start there without waiting for frames.
-          if (document.hidden) window.setTimeout(start, 150);
+        // the moving clouds, but only briefly: past that it waits for the cover to be gone instead. Then the next frame.
+        settleUnderCover(250).then(() => {
+          requestAnimationFrame(start);
+          // A frame can be late while a page has only just arrived (and never comes in a background tab): the clouds
+          // never wait more than a moment for one.
+          window.setTimeout(start, 100);
         });
       }),
   );
