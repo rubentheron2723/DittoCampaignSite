@@ -11,7 +11,7 @@ import { HERO_BUBBLES, initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
 import { initNavFooterMark } from './nav-footer-mark';
-import { flagPageTransition, playCoverIn, playPageTransition, takePageTransition } from './page-transition';
+import { flagPageTransition, playPageTransition, takePageTransition } from './page-transition';
 import { hidePage, liftCover, markBooted, markCoverGone } from './cover';
 import { initScrollCue } from './scroll-cue';
 
@@ -50,7 +50,15 @@ export async function boot({ page, render, init }: Options) {
   // transition instead.
   const moved = takePageTransition() || cameBackOrForward() || introSeen();
   if (!moved && !reduce) markIntroSeen();
-  const cover = reduce ? Promise.resolve((hideCurtain(), hideIntro())) : moved ? playPageTransition(page) : playCloudIntro();
+  // A page the browser prepared in the background (prerendered on hovering a link, see the pages' speculation rules) is
+  // set up as usual, but its cover only plays, and its failsafes only start, once it is actually shown.
+  const prerendering = (document as Document & { prerendering?: boolean }).prerendering;
+  const shown = prerendering
+    ? new Promise<void>((r) => document.addEventListener('prerenderingchange', () => r(), { once: true }))
+    : Promise.resolve();
+  const cover = shown.then(() =>
+    reduce ? (hideCurtain(), hideIntro()) : moved ? playPageTransition(page) : playCloudIntro(),
+  );
   // Failsafe: the cover must never stay up. If the animation stalls or throws (a blocked image, a lost WebGL context,
   // a browser shield), the page is shown anyway after a little longer than the animation would take.
   // (The transition takes 0.8 s once it starts, after up to 0.6 s for its clouds and 0.25 s of the page's set-up; the
@@ -58,9 +66,9 @@ export async function boot({ page, render, init }: Options) {
   const limit = moved ? 2500 : 9000;
   const revealed = Promise.race([
     cover.catch((err) => console.warn('Entry animation failed:', err)),
-    new Promise<void>((r) => window.setTimeout(r, limit)),
+    shown.then(() => new Promise<void>((r) => window.setTimeout(r, limit))),
   ]);
-  if (!reduce) liftCoverIfStuck(limit + 500);
+  if (!reduce) shown.then(() => liftCoverIfStuck(limit + 500));
   // The page's animated backgrounds start as the cover lifts, not underneath it (cover.ts).
   revealed.then(liftCover);
   // And fully gone once its animation is over. They mark it themselves; this is only the backstop, well past their end
@@ -310,11 +318,9 @@ function initLinks(ctx: BootContext) {
       return;
     }
     if (ctx.reduce) return; // plain navigation
-    e.preventDefault();
+    // The browser goes there itself: usually to a page it has already prepared on hover (speculation rules), which
+    // shows at once with its cover up and plays the sweep straight away.
     flagPageTransition();
-    // Clouds in over this page straight away; the next page opens once they cover it and carries the sweep on.
-    const href = url.pathname + url.hash;
-    playCoverIn(href).then(() => (window.location.href = href));
   });
 }
 

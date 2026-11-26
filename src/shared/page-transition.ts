@@ -87,7 +87,7 @@ void main() {
 }`;
 const LOCAL = [[0, 0], [1, 0], [1, 1], [0, 1]];
 
-/** Marks the next page load as a move within the site (see playCoverIn). */
+/** Marks the next page load as a move within the site (boot.ts, on following a link). */
 export function flagPageTransition() {
   try {
     sessionStorage.setItem(KEY, '1');
@@ -415,7 +415,7 @@ export function playPageTransition(page: PageId): Promise<void> {
         // quick frames in a row mean the GPU has caught up. Capped, so a slow machine still gets the sweep.
         // First, the page's own heavy set-up runs under the still cover (cover.ts underCover), so it doesn't land on
         // the moving clouds, but only briefly: past that it waits for the cover to be gone instead. Then the next frame.
-        settleUnderCover(250).then(() => {
+        settleUnderCover(150).then(() => {
           requestAnimationFrame(start);
           // A frame can be late while a page has only just arrived (and never comes in a background tab): the clouds
           // never wait more than a moment for one.
@@ -423,87 +423,4 @@ export function playPageTransition(page: PageId): Promise<void> {
         });
       }),
   );
-}
-
-/* ---------- Leaving a page: the clouds sweep in over it ---------- */
-
-/** The page a site path opens (for its sweep heading). */
-function pageFor(path: string): PageId | null {
-  const p = path.replace(/\.html$/, '').replace(/\/index$/, '/').replace(/\/$/, '') || '/';
-  const map: Record<string, PageId> = {
-    '/': 'home', '/product': 'product', '/pricing': 'pricing', '/about': 'about', '/faq': 'faq', '/contact': 'contact',
-    '/sign-in': 'signin', '/register': 'signin', '/reset-password': 'signin', '/privacy': 'privacy', '/terms': 'terms',
-  };
-  return map[p] ?? null;
-}
-
-/** How long the clouds take to cover the page being left. */
-const IN_DURATION = 0.45;
-/** Where the clouds come in from, along their paths: 60 % of the way back, so they're over the page from the first frame. */
-const IN_FROM = -0.6;
-
-/**
- * On a click to another page: the clouds and the veil sweep in over this page at once, from the side opposite the one
- * the next page's sweep leaves by, and the next page is opened once they cover it. That page then carries the same move
- * on (playPageTransition): the clouds come in along the very paths they leave by (their progress runs from IN_FROM up
- * to the 0 the next page starts from), so the two halves read as one sweep across, with the loading hidden in the middle.
- * Resolves once the page is covered (or straight away if there's nothing to play).
- */
-export function playCoverIn(href: string): Promise<void> {
-  const intro = q('#intro');
-  if (!intro) return Promise.resolve();
-  const path = new URL(href, window.location.href).pathname;
-  const heading = SWEEP[pageFor(path) ?? 'home'] ?? FIGMA_HEADING;
-  const turn = ((heading - FIGMA_HEADING) * Math.PI) / 180;
-  const dir = [Math.cos((heading * Math.PI) / 180), Math.sin((heading * Math.PI) / 180)];
-
-  const used = q<HTMLCanvasElement>('.intro__clouds', intro)!;
-  const canvas = used.cloneNode() as HTMLCanvasElement;
-  canvas.removeAttribute('style');
-  used.replaceWith(canvas);
-  const veil = q('.intro__veil', intro)!;
-  intro.classList.add('intro--page');
-  // This page shows through until the veil covers it.
-  intro.style.background = 'transparent';
-  intro.style.display = '';
-  gsap.set(intro, { autoAlpha: 1 });
-  let s = placeVeil(veil);
-  gsap.set(veil, { x: -dir[0] * VEIL_TRAVEL * s, y: -dir[1] * VEIL_TRAVEL * s });
-
-  const gl = webglRenderer(canvas, turn);
-  const clock = { p: IN_FROM };
-  let renderer: Renderer | null = null;
-  const draw = () => renderer?.draw(clock.p);
-
-  return new Promise<void>((resolve) => {
-    let done = false;
-    const finish = () => {
-      if (done) return;
-      done = true;
-      // Covered: the white holds behind the veil while the next page loads.
-      intro.style.background = '';
-      resolve();
-    };
-    // Frames can stop (a background tab): the next page opens anyway.
-    window.setTimeout(finish, IN_DURATION * 1000 + 200);
-    gsap
-      .timeline({ onComplete: finish })
-      .to(veil, { x: 0, y: 0, duration: IN_DURATION, ease: 'power2.out' }, 0)
-      .to(clock, { p: 0, duration: IN_DURATION, ease: 'power2.out', onUpdate: draw }, 0)
-      // The clouds go under the white as it closes, and come back as the next page opens.
-      .to(canvas, { autoAlpha: 0, duration: 0.15, ease: 'power1.in' }, IN_DURATION - 0.15);
-    // The clouds join in as soon as their image is ready (it is cached: this page has shown it).
-    loadClouds(200, false).then((img) => {
-      if (done || !img) return gl?.dispose();
-      if (gl) gl.setImage(img);
-      renderer = gl ?? canvasRenderer(canvas, img, turn);
-      const onResize = () => {
-        s = placeVeil(veil);
-        renderer?.resize();
-        draw();
-      };
-      window.addEventListener('resize', onResize);
-      draw();
-    });
-  });
 }
