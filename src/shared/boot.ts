@@ -54,7 +54,7 @@ export async function boot({ page, render, init }: Options) {
   // Failsafe: the cover must never stay up. If the animation stalls or throws (a blocked image, a lost WebGL context,
   // a browser shield), the page is shown anyway after a little longer than the animation would take.
   // (The transition takes 0.8 s once it starts: after the page's heavy set-up under it (up to 1.2 s) and once frames
-  // are flowing again (up to 1.5 s more, while the GPU compiles the page's shaders); the landing intro about 4.9 s
+  // are flowing again (up to 1.5 s more, while the GPU compiles the page's shaders); the landing intro about 4 s
   // after waiting up to 4 s for its clouds.)
   const limit = moved ? 4500 : 9000;
   const revealed = Promise.race([
@@ -65,7 +65,7 @@ export async function boot({ page, render, init }: Options) {
   // The page's animated backgrounds start as the cover lifts, not underneath it (cover.ts).
   revealed.then(liftCover);
   // And fully gone once its animation is over. They mark it themselves; this is only the backstop, well past their end
-  // (the transition's motion runs 0.8 s, the landing intro's fade 0.8 s after the reveal) so slow frames, which stretch
+  // (the transition's motion runs 0.8 s, the landing intro's fade 0.5 s after the reveal) so slow frames, which stretch
   // an animation, don't bring set-up work back into it.
   revealed.then(() => window.setTimeout(markCoverGone, 2500));
   // The intro's white cover is up (or, with reduced motion, the page itself): the body can take its own colour.
