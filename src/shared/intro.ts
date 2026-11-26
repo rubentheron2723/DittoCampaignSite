@@ -1,5 +1,5 @@
 import { gsap, q, qa } from '../animations/gsap';
-import { markCoverGone } from './cover';
+import { coverMoving, markCoverGone } from './cover';
 import { currentMode } from './colour-mode';
 
 /**
@@ -672,6 +672,7 @@ const FADE_IN = LEAD + T.partStart - 0.02;
  * page, so the hero entrance can start underneath it.
  */
 export function playCloudIntro(): Promise<void> {
+  coverMoving();
   const intro = q('#intro');
   const curtain = q('#curtain');
   if (curtain) curtain.style.display = 'none';

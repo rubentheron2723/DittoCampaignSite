@@ -3,7 +3,7 @@ import { onModeChange } from '../shared/colour-mode';
 import { bezier, capKernel, compile, FULL_VERT, kernel, LENS_FRAG } from '../shared/intro';
 import { createTeamScene, type TeamScene } from './team-logo';
 import { sdfField } from './sdf';
-import { coverGone } from '../shared/cover';
+import { underCover } from '../shared/cover';
 import { loadCanvasFont } from '../shared/canvas-font';
 
 /**
@@ -1036,10 +1036,13 @@ export function initThinkZoom(
   });
 
   show(0, false);
-  // Set up once the entry cover is fully gone: drawing the statements (and then their fields), pinning and refreshing
-  // ScrollTrigger is real work, which mid-transition made the clouds jump. The section is a long way down anyway.
-  Promise.all([document.fonts.ready, loadCanvasFont(), coverGone()]).then(([, f]) => {
-    family = f;
+  // Set up while the page transition's cover is still opaque, or else once it is fully gone: drawing the statements
+  // (and then their fields), pinning and refreshing ScrollTrigger is real work (its first refresh stalled the GPU for a
+  // second), which mid-transition made the clouds jump and at their end froze them. The section is a long way down.
+  let font = family;
+  const ready = Promise.all([document.fonts.ready, loadCanvasFont()]).then(([, f]) => (font = f));
+  underCover(ready, () => {
+    family = font;
     layout();
     draw();
     st = ScrollTrigger.create({
