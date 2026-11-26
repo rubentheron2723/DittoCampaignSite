@@ -62,3 +62,43 @@ export function markCoverGone() {
   goneWaiting.clear();
   list.forEach((fn) => fn());
 }
+
+/*
+ * Set-up that stalls the GPU the first time it runs (a ScrollTrigger refresh straight after arriving cost a full second
+ * on a Mac): done while the page transition's cover is still opaque, before its clouds move, where the stall only
+ * lengthens the wait on white. The transition waits for it (up to a limit) before it starts.
+ */
+let phase: 'still' | 'moving' = 'still';
+const prep: Promise<unknown>[] = [];
+let bootDone: () => void = () => {};
+const booted = new Promise<void>((r) => (bootDone = r));
+
+/** boot.ts: the page's own set-up has run, so every underCover task is registered. */
+export function markBooted() {
+  bootDone();
+}
+
+/**
+ * Runs `run` once `ready` resolves: under the still cover if it gets there in time, otherwise once the cover is fully
+ * gone (never while it is moving).
+ */
+export function underCover(ready: Promise<unknown>, run: () => void) {
+  if (gone || phase === 'moving') {
+    Promise.all([ready, coverGone()]).then(run);
+    return;
+  }
+  prep.push(ready.then(() => (phase === 'still' && !gone ? run() : coverGone().then(run))));
+}
+
+/** The transition, before it moves: waits for underCover tasks (at most `cap` ms), then nothing more joins them. */
+export function settleUnderCover(cap: number): Promise<void> {
+  const limit = new Promise<void>((r) => window.setTimeout(r, cap));
+  return Promise.race([booted.then(() => Promise.all(prep)), limit]).then(() => {
+    phase = 'moving';
+  });
+}
+
+/** The landing intro starts moving at once: nothing waits under it. */
+export function coverMoving() {
+  phase = 'moving';
+}

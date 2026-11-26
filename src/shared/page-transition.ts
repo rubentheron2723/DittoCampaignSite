@@ -1,6 +1,6 @@
 import { gsap, q } from '../animations/gsap';
 import type { PageId } from '../content/shared';
-import { markCoverGone } from './cover';
+import { markCoverGone, settleUnderCover } from './cover';
 import { currentMode } from './colour-mode';
 import {
   compile, EASE_PART, FLIP_Y, FULL_VERT, GLSL_MAP, kernel, LENS_FRAG, loadClouds, quad, R210, R_22, TURN,
@@ -392,8 +392,26 @@ export function playPageTransition(page: PageId): Promise<void> {
             }, VEIL_HOLD)
             .add(resolve, VEIL_HOLD + 0.2);
         };
-        requestAnimationFrame(() => requestAnimationFrame(start));
-        window.setTimeout(start, 150); // rAF doesn't run in a background tab
+        // Start once frames are reaching the screen again. Arriving, the page sets up its own WebGL backgrounds under
+        // the cover, and the GPU compiles their shaders before it shows another frame (most of a second on a Mac).
+        // A fixed timer started the clouds' clock inside that stall, so the sweep ran half-unseen and then froze; two
+        // quick frames in a row mean the GPU has caught up. Capped, so a slow machine still gets the sweep.
+        // First, the page's own heavy set-up runs under the still cover (cover.ts underCover), so it doesn't land on
+        // the moving clouds.
+        settleUnderCover(1200).then(() => {
+          const t0 = performance.now();
+          let prev = 0;
+          let quick = 0;
+          const wait = (now: number) => {
+            quick = prev && now - prev < 50 ? quick + 1 : 0;
+            prev = now;
+            if (quick >= 2 || now - t0 > 1500) start();
+            else requestAnimationFrame(wait);
+          };
+          requestAnimationFrame(wait);
+          // rAF doesn't run in a background tab: start there without waiting for frames.
+          if (document.hidden) window.setTimeout(start, 150);
+        });
       }),
   );
 }
