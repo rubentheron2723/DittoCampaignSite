@@ -2,7 +2,7 @@
  * DM Sans, served from the site (public/fonts) rather than Google Fonts: no extra connections to two Google hosts
  * before the first paint on a first visit, and nothing to fetch again between pages. The files are Google Fonts' own
  * (v17), split into Latin and Latin Extended so a page only loads the Latin one. The pages preload the upright Latin
- * file in their <head>.
+ * file in their <head>. DM Sans is under the SIL Open Font License: public/fonts/OFL.txt.
  */
 @font-face {
   font-family: 'DM Sans';
