@@ -650,6 +650,12 @@ export function loadClouds(timeout: number, decode = true): Promise<HTMLImageEle
       resolve(null);
     };
     img.src = CLOUD_SRC;
+    // Already in the browser's memory (it usually is, between pages): ready at once, so the page transition can draw it
+    // before the page's first paint.
+    if (!decode && img.complete && img.naturalWidth) {
+      window.clearTimeout(timer);
+      resolve(img);
+    }
   });
 }
 

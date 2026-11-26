@@ -394,6 +394,10 @@ export function playPageTransition(page: PageId): Promise<void> {
         };
         window.addEventListener('resize', onResize);
         draw(); // compile and upload before anything moves
+        // Carrying on from the page that was left: its last frame showed the clouds right here, so they show at once.
+        // (The page's script holds its first paint until it has run, see vite.config.ts, and this runs within it when
+        // the clouds come from memory, so the first frame already has them: no white between the two pages.)
+        if (from > 0) gsap.set(canvas, { autoAlpha: 1 });
 
         let started = false;
         const start = () => {
@@ -428,7 +432,8 @@ export function playPageTransition(page: PageId): Promise<void> {
         // quick frames in a row mean the GPU has caught up. Capped, so a slow machine still gets the sweep.
         // First, the page's own heavy set-up runs under the still cover (cover.ts underCover), so it doesn't land on
         // the moving clouds, but only briefly: past that it waits for the cover to be gone instead. Then the next frame.
-        settleUnderCover(250).then(() => {
+        // Carrying on, the clouds are already on screen: keep the hold on them short.
+        settleUnderCover(from > 0 ? 100 : 250).then(() => {
           requestAnimationFrame(start);
           // A frame can be late while a page has only just arrived (and never comes in a background tab): the clouds
           // never wait more than a moment for one.
@@ -516,9 +521,9 @@ export function playCoverIn(href: string): Promise<void> {
       .timeline({ onComplete: finish })
       // Steady, so the next page's ease (which starts moving at once) carries it on without a jolt.
       .to(clock, { p: IN_TO, duration: IN_DURATION, ease: 'none', onUpdate: draw }, 0)
-      .to(veil, { x: 0, y: 0, duration: IN_DURATION - IN_VEIL_DELAY, ease: 'power1.inOut' }, IN_VEIL_DELAY)
-      // The clouds go under the white as it closes, and come back as the next page opens.
-      .to(canvas, { autoAlpha: 0, duration: 0.1, ease: 'power1.in' }, IN_DURATION - 0.1);
+      // The clouds stay on screen: the browser keeps this last frame up until the next page paints its first, which
+      // shows them in the same place (playPageTransition), so they carry straight on.
+      .to(veil, { x: 0, y: 0, duration: IN_DURATION - IN_VEIL_DELAY, ease: 'power1.inOut' }, IN_VEIL_DELAY);
     // The clouds join in as soon as their image is ready (it is cached: this page has shown it).
     loadClouds(200, false).then((img) => {
       if (done || !img) return gl?.dispose();
