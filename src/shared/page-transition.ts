@@ -64,6 +64,17 @@ const VEIL_TRAVEL = Math.hypot(2217, 1633);
 const VEIL_GROW = 1.14;
 
 const KEY = 'ditto:page-transition';
+/** How far along their paths the clouds got on the page that was left (playCoverIn), for this page to carry on from. */
+const FROM_KEY = 'ditto:sweep-from';
+function takeSweepFrom() {
+  try {
+    const from = Number(sessionStorage.getItem(FROM_KEY) || 0);
+    sessionStorage.removeItem(FROM_KEY);
+    return from > 0 && from < 1 ? from : 0;
+  } catch {
+    return 0;
+  }
+}
 
 /**
  * The layers are object-fit: cover crops of one 3:2 cut-out, and the tall crop cuts straight through its big cloud.
@@ -371,7 +382,9 @@ export function playPageTransition(page: PageId): Promise<void> {
         else gl?.dispose();
         const renderer = img ? (gl ?? canvasRenderer(canvas, img, turn)) : null;
         if (!renderer) canvas.style.display = 'none';
-        const clock = { p: 0 };
+        // Straight on from where the clouds got on the page that was left, or the whole move.
+        const from = takeSweepFrom();
+        const clock = { p: from };
         const draw = () => renderer?.draw(clock.p);
         let s = placeVeil(veil);
         const onResize = () => {
@@ -400,7 +413,7 @@ export function playPageTransition(page: PageId): Promise<void> {
               },
             })
             .to(canvas, { autoAlpha: 1, duration: 0.15, ease: 'power1.out' }, 0)
-            .to(clock, { p: 1, duration: DURATION, ease: EASE_CLOUDS, onUpdate: draw }, 0)
+            .to(clock, { p: 1, duration: DURATION * (1 - from * 0.5), ease: EASE_CLOUDS, onUpdate: draw }, 0)
             .to(veil, {
               x: () => dir[0] * VEIL_TRAVEL * s,
               y: () => dir[1] * VEIL_TRAVEL * s,
@@ -437,16 +450,24 @@ function pageFor(path: string): PageId | null {
   return map[p] ?? null;
 }
 
-/** How long the clouds take to cover the page being left. */
-const IN_DURATION = 0.45;
-/** Where the clouds come in from, along their paths: 60 % of the way back, so they're over the page from the first frame. */
-const IN_FROM = -0.6;
+/** How long until the page being left is covered and the next one opens. */
+const IN_DURATION = 0.35;
+/**
+ * How far along their paths the clouds get over the page being left: the move starts with them almost all off screen
+ * (only the far end of it crosses the screen), so they start it here and the next page carries it on from this point.
+ */
+const IN_TO = 0.4;
+/**
+ * The veil follows the clouds rather than racing them: it is far wider than the screen, so on the clouds' own ease it
+ * covered the page within 0.15 s, before they were in view, and the white wipe read as the next page arriving.
+ */
+const IN_VEIL_DELAY = 0.08;
 
 /**
- * On a click to another page: the clouds and the veil sweep in over this page at once, from the side opposite the one
- * the next page's sweep leaves by, and the next page is opened once they cover it. That page then carries the same move
- * on (playPageTransition): the clouds come in along the very paths they leave by (their progress runs from IN_FROM up
- * to the 0 the next page starts from), so the two halves read as one sweep across, with the loading hidden in the middle.
+ * On a click to another page: the clouds start the next page's sweep over this page at once, the veil closing in behind
+ * them from the other side, and the next page is opened once it covers this one. That page then carries the same move
+ * on from where the clouds got to (playPageTransition), so the two halves read as one sweep across, with the loading
+ * in the middle.
  * Resolves once the page is covered (or straight away if there's nothing to play).
  */
 export function playCoverIn(href: string): Promise<void> {
@@ -471,7 +492,7 @@ export function playCoverIn(href: string): Promise<void> {
   gsap.set(veil, { x: -dir[0] * VEIL_TRAVEL * s, y: -dir[1] * VEIL_TRAVEL * s });
 
   const gl = webglRenderer(canvas, turn);
-  const clock = { p: IN_FROM };
+  const clock = { p: 0 };
   let renderer: Renderer | null = null;
   const draw = () => renderer?.draw(clock.p);
 
@@ -480,18 +501,24 @@ export function playCoverIn(href: string): Promise<void> {
     const finish = () => {
       if (done) return;
       done = true;
-      // Covered: the white holds behind the veil while the next page loads.
+      // Covered: the white holds behind the veil while the next page loads, which carries the clouds on from here.
       intro.style.background = '';
+      try {
+        sessionStorage.setItem(FROM_KEY, String(clock.p));
+      } catch {
+        /* storage blocked: the next page plays the whole move */
+      }
       resolve();
     };
     // Frames can stop (a background tab): the next page opens anyway.
     window.setTimeout(finish, IN_DURATION * 1000 + 200);
     gsap
       .timeline({ onComplete: finish })
-      .to(veil, { x: 0, y: 0, duration: IN_DURATION, ease: 'power2.out' }, 0)
-      .to(clock, { p: 0, duration: IN_DURATION, ease: 'power2.out', onUpdate: draw }, 0)
+      // Steady, so the next page's ease (which starts moving at once) carries it on without a jolt.
+      .to(clock, { p: IN_TO, duration: IN_DURATION, ease: 'none', onUpdate: draw }, 0)
+      .to(veil, { x: 0, y: 0, duration: IN_DURATION - IN_VEIL_DELAY, ease: 'power1.inOut' }, IN_VEIL_DELAY)
       // The clouds go under the white as it closes, and come back as the next page opens.
-      .to(canvas, { autoAlpha: 0, duration: 0.15, ease: 'power1.in' }, IN_DURATION - 0.15);
+      .to(canvas, { autoAlpha: 0, duration: 0.1, ease: 'power1.in' }, IN_DURATION - 0.1);
     // The clouds join in as soon as their image is ready (it is cached: this page has shown it).
     loadClouds(200, false).then((img) => {
       if (done || !img) return gl?.dispose();
