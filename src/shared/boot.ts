@@ -3,7 +3,7 @@ import { initMagnetic, initTilt } from '../animations/magnetic';
 import type { PageId } from '../content/shared';
 import { renderChrome } from './chrome';
 import { hideCurtain } from './curtain';
-import { coverAndGo, hideIntro, playCloudIntro } from './intro';
+import { hideIntro, playCloudIntro } from './intro';
 import { initFooterBlobs, type BlobParams } from './footer-blobs';
 import { initBlobBackdrop } from './blob-backdrop';
 import { applySavedMode, currentMode, initModeToggle, onModeChange } from './colour-mode';
@@ -11,7 +11,7 @@ import { HERO_BUBBLES, initCtaClouds } from './cta-clouds';
 import { initFooterWave } from './wave';
 import { initTypePreview } from './type-overrides';
 import { initNavFooterMark } from './nav-footer-mark';
-import { flagPageTransition, playPageTransition, takePageTransition } from './page-transition';
+import { flagPageTransition, playCoverIn, playPageTransition, takePageTransition } from './page-transition';
 import { hidePage, liftCover, markBooted, markCoverGone } from './cover';
 import { initScrollCue } from './scroll-cue';
 
@@ -312,7 +312,9 @@ function initLinks(ctx: BootContext) {
     if (ctx.reduce) return; // plain navigation
     e.preventDefault();
     flagPageTransition();
-    coverAndGo(url.pathname + url.hash);
+    // Clouds in over this page straight away; the next page opens once they cover it and carries the sweep on.
+    const href = url.pathname + url.hash;
+    playCoverIn(href).then(() => (window.location.href = href));
   });
 }
 
