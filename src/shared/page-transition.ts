@@ -10,10 +10,11 @@ import {
 /**
  * Moving between pages (Figma "Transition anim", 2378:1385): the page arrives under a white veil, and a drift of
  * clouds sweeps across the screen, through the same lens as the landing intro, pulling the veil off with it.
- * One 1.2 s move, every value read from the Figma keyframes:
+ * One move, every value read from the Figma keyframes but sped up (Figma's 1.2 s felt slow between pages):
  *
- *   0 → 1.2 s      Four cloud cut-outs (each doubled, as in the file) sweep 1500–2200 px across the screen.
- *   0.27 → 1.2 s   The big blurred white veil follows them off the screen, uncovering the page.
+ *   0 → 0.8 s      Four cloud cut-outs (each doubled, as in the file) sweep 1500–2200 px across the screen.
+ *   0.05 → 0.8 s   The big blurred white veil follows them off the screen, uncovering the page. (Figma holds it
+ *                  still for the first 0.27 s; here it barely waits, so the page shows sooner.)
  *
  * Figma sweeps up and to the left. Each page has its own heading for the same move (SWEEP below), so going from page
  * to page feels like the sky moving on in a different direction each time. The landing intro (intro.ts) still plays
@@ -34,9 +35,9 @@ const SWEEP: Record<PageId, number> = {
   terms: FIGMA_HEADING + 90, // off towards the top right, steeper than About
 };
 
-const DURATION = 1.2;
-/** The veil holds still for the first 22.64% of the move while the clouds get going. */
-const VEIL_HOLD = 0.2717;
+const DURATION = 0.8;
+/** The veil holds still for a moment while the clouds get going (Figma: 0.27 s of 1.2). */
+const VEIL_HOLD = 0.05;
 
 /** The Figma frame (1440 × 1024) and its Clouds frame. */
 const FRAME: [number, number] = [1440, 1024];
