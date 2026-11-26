@@ -87,7 +87,7 @@ void main() {
 }`;
 const LOCAL = [[0, 0], [1, 0], [1, 1], [0, 1]];
 
-/** Marks the next page load as a move within the site (see playCoverIn). */
+/** Marks the next page load as a move within the site (boot.ts, on following a link). */
 export function flagPageTransition() {
   try {
     sessionStorage.setItem(KEY, '1');
@@ -423,90 +423,4 @@ export function playPageTransition(page: PageId): Promise<void> {
         });
       }),
   );
-}
-
-/* ---------- Leaving a page: the clouds sweep in over it ---------- */
-
-/** The page a site path opens (for its sweep heading). */
-function pageFor(path: string): PageId | null {
-  const p = path.replace(/\.html$/, '').replace(/\/index$/, '/').replace(/\/$/, '') || '/';
-  const map: Record<string, PageId> = {
-    '/': 'home', '/product': 'product', '/pricing': 'pricing', '/about': 'about', '/faq': 'faq', '/contact': 'contact',
-    '/sign-in': 'signin', '/register': 'signin', '/reset-password': 'signin', '/privacy': 'privacy', '/terms': 'terms',
-  };
-  return map[p] ?? null;
-}
-
-/** How long until the page being left is covered and the next one opens. */
-const IN_DURATION = 0.45;
-/**
- * The veil follows the clouds rather than racing them: it is far wider than the screen, so on the clouds' own ease it
- * covered the page within 0.15 s, before they were in view, and the white wipe read as the next page arriving.
- */
-const IN_VEIL_DELAY = 0.08;
-
-/**
- * On a click to another page: the clouds sweep across this page at once, the veil closing in behind them, and the next
- * page is opened once it covers this one. That page then plays its own sweep off (playPageTransition), in the same
- * direction, so the two read as one weather front passing over, with the loading under the white between them.
- * Resolves once the page is covered (or straight away if there's nothing to play).
- */
-export function playCoverIn(href: string): Promise<void> {
-  const intro = q('#intro');
-  if (!intro) return Promise.resolve();
-  const path = new URL(href, window.location.href).pathname;
-  const heading = SWEEP[pageFor(path) ?? 'home'] ?? FIGMA_HEADING;
-  const turn = ((heading - FIGMA_HEADING) * Math.PI) / 180;
-  const dir = [Math.cos((heading * Math.PI) / 180), Math.sin((heading * Math.PI) / 180)];
-
-  const used = q<HTMLCanvasElement>('.intro__clouds', intro)!;
-  const canvas = used.cloneNode() as HTMLCanvasElement;
-  canvas.removeAttribute('style');
-  used.replaceWith(canvas);
-  const veil = q('.intro__veil', intro)!;
-  intro.classList.add('intro--page');
-  // This page shows through until the veil covers it.
-  intro.style.background = 'transparent';
-  intro.style.display = '';
-  gsap.set(intro, { autoAlpha: 1 });
-  let s = placeVeil(veil);
-  gsap.set(veil, { x: -dir[0] * VEIL_TRAVEL * s, y: -dir[1] * VEIL_TRAVEL * s });
-
-  const gl = webglRenderer(canvas, turn);
-  const clock = { p: 0 };
-  let renderer: Renderer | null = null;
-  const draw = () => renderer?.draw(clock.p);
-
-  return new Promise<void>((resolve) => {
-    let done = false;
-    const finish = () => {
-      if (done) return;
-      done = true;
-      // Covered: plain white holds behind the veil while the next page loads, which then plays its own sweep off.
-      intro.style.background = '';
-
-      resolve();
-    };
-    // Frames can stop (a background tab): the next page opens anyway.
-    window.setTimeout(finish, IN_DURATION * 1000 + 200);
-    gsap
-      .timeline({ onComplete: finish })
-      // A whole pass of the clouds, across and off: the page changes under plain white, with nothing mid-move. (Handing
-      // the clouds on mid-move to the next page froze them while it loaded, then blinked them out and back.)
-      .to(clock, { p: 1, duration: IN_DURATION, ease: 'none', onUpdate: draw }, 0)
-      .to(veil, { x: 0, y: 0, duration: IN_DURATION - IN_VEIL_DELAY, ease: 'power1.inOut' }, IN_VEIL_DELAY);
-    // The clouds join in as soon as their image is ready (it is cached: this page has shown it).
-    loadClouds(200, false).then((img) => {
-      if (done || !img) return gl?.dispose();
-      if (gl) gl.setImage(img);
-      renderer = gl ?? canvasRenderer(canvas, img, turn);
-      const onResize = () => {
-        s = placeVeil(veil);
-        renderer?.resize();
-        draw();
-      };
-      window.addEventListener('resize', onResize);
-      draw();
-    });
-  });
 }

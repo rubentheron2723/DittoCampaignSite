@@ -15,6 +15,8 @@
     <!-- The entry animation and page transition both open on these clouds: fetch them before the scripts ask. -->
     <link rel="preload" href="/intro/clouds.webp" as="image" type="image/webp" fetchpriority="high" />
     <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Chrome and Edge load a page in the background when a link to it is hovered (or pressed), so it shows at once. -->
+    <script type="speculationrules">{"prerender":[{"where":{"and":[{"href_matches":"/*"},{"not":{"selector_matches":"[target=_blank], [download]"}}]},"eagerness":"moderate"}]}</script>
   </head>
   <body data-page="home">
     <div id="chrome"></div>
