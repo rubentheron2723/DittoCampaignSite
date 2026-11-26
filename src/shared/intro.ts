@@ -10,10 +10,12 @@ import { currentMode } from './colour-mode';
  *   0 → 2.72 s     The whole cloud layer goes through a lens: barrel distortion and chromatic
  *                  aberration build up while the clouds part, then settle back to nothing.
  *   0.83 → 2.25 s  The logomark scales down from 1.67× and fades in, centred.
- *   2.08 → 3.72 s  A big blurred white disc appears below right of the mark, then sweeps up
- *                  over it, leaving a plain white screen. The white then fades to the hero.
+ *   2.08 → 3.10 s  A big blurred white disc appears below right of the mark, then sweeps up
+ *                  over it, leaving a plain white screen. The white then fades to the hero (0.5 s).
  *
- * All the values below are read straight from the Figma keyframes. The lens is a WebGL2 port of
+ * All the values below are read straight from the Figma keyframes, except after the mark is in: Figma holds it for
+ * 0.35 s, sweeps for 1.11 s (to 3.72 s) and the white fades for 0.8 s, which felt long; here the mark holds 0.1 s and
+ * the sweep takes 0.75 s. The lens is a WebGL2 port of
  * Figma's "Lens distortion" effect (the same maths, see LENS_FRAG). Without WebGL2 the clouds are
  * drawn with a 2D canvas and no lens; if the image can't load, the mark and the white sweep still play.
  */
@@ -82,8 +84,9 @@ const T = {
   markFadeEnd: 2.2528, // 59.284 %
   whiteIn: 1.9909, // 52.393 %
   whiteInEnd: 2.079, // 54.711 %
-  sweepStart: 2.6074, // 68.615 %
-  sweepEnd: 3.7171, // 97.818 %
+  // Figma: 2.6074 → 3.7171 (68.615 % → 97.818 %). Sooner after the mark is in, and quicker.
+  sweepStart: 2.3528,
+  sweepEnd: 3.1028,
   lens: [0, 0.4348, 1.8866, 2.7226],
 };
 
@@ -749,7 +752,7 @@ export function playCloudIntro(): Promise<void> {
             .to(mark, { autoAlpha: 0, duration: (T.sweepEnd - T.sweepStart) * 0.5, ease: 'power1.in' }, at((T.sweepStart + T.sweepEnd) / 2))
             // Plain white now: fade it away to the hero.
             .add(resolve, at(T.sweepEnd))
-            .to(intro, { autoAlpha: 0, duration: 0.8, ease: 'power2.inOut' }, at(T.sweepEnd));
+            .to(intro, { autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, at(T.sweepEnd));
           if (import.meta.env.DEV) (window as unknown as { __intro: gsap.core.Timeline }).__intro = tl; // for checking frames in dev
         };
         requestAnimationFrame(() => requestAnimationFrame(start));
