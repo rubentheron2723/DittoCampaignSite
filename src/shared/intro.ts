@@ -1,4 +1,4 @@
-import { gsap, q, qa } from '../animations/gsap';
+import { gsap, q } from '../animations/gsap';
 import { coverMoving, markCoverGone } from './cover';
 import { currentMode } from './colour-mode';
 
@@ -759,27 +759,6 @@ export function playCloudIntro(): Promise<void> {
         window.setTimeout(start, 150); // rAF doesn't run in a background tab
       }),
   );
-}
-
-/**
- * Leaving for another page on the site: fades this page out to the intro's plain white, then navigates. The next
- * page's intro starts from that same white, so the move is seamless and the entry animation plays again.
- */
-export function coverAndGo(href: string) {
-  const intro = q('#intro');
-  if (!intro) {
-    window.location.href = href;
-    return;
-  }
-  // Only the white: the clouds, mark and sweep stay hidden. The next page opens with the page transition
-  // (page-transition.ts), which starts from this same white.
-  qa('.intro__clouds, .intro__mark, .intro__white', intro).forEach((el) => gsap.set(el, { autoAlpha: 0 }));
-  intro.classList.remove('intro--page');
-  intro.style.display = '';
-  // The next page is requested a moment into the fade rather than after it, so fetching it overlaps the fade instead of
-  // following it. This page stays on screen, fading, until the next one is ready to show (which starts white too).
-  gsap.fromTo(intro, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: 'power2.out' });
-  window.setTimeout(() => (window.location.href = href), 80);
 }
 
 export function hideIntro() {
