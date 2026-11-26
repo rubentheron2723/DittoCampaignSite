@@ -625,8 +625,11 @@ function canvasRenderer(canvas: HTMLCanvasElement, img: HTMLImageElement): Rende
 
 /* ---------- The intro ---------- */
 
-/** Loads the cloud cut-out, giving up after `timeout` ms. */
-export function loadClouds(timeout: number): Promise<HTMLImageElement | null> {
+/**
+ * Loads the cloud cut-out, giving up after `timeout` ms. `decode`: wait for it to be decoded too (the landing intro, so
+ * its first frames don't decode it); the page transition uploads it to WebGL at once, which decodes it anyway.
+ */
+export function loadClouds(timeout: number, decode = true): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
     const img = new Image();
     img.decoding = 'async';
@@ -635,6 +638,7 @@ export function loadClouds(timeout: number): Promise<HTMLImageElement | null> {
       window.clearTimeout(timer);
       // decode() can stall in a background tab; the image is usable once loaded anyway.
       const done = () => resolve(img);
+      if (!decode) return done();
       img.decode().then(done, done);
       window.setTimeout(done, 300);
     };
