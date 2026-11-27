@@ -53,6 +53,8 @@
 }
 [data-mode='dark'] .ai { background: var(--color-bg); color: var(--color-text); }
 [data-mode='dark'] .aicard:not(:nth-child(2)) { background: var(--color-card); color: var(--color-text); }
+[data-mode='dark'] .ai__list li:not(.ai__mcp) { background: var(--color-card); color: var(--color-text); box-shadow: none; }
+[data-mode='dark'] .ai__all-link { color: var(--color-text); }
 
 /* ---------- Lens stages (Product's day, About's statements) ---------- */
 [data-mode='dark'] .think { background: var(--color-bg); color: var(--color-text); }

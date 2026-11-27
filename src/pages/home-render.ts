@@ -130,6 +130,14 @@ function aiSection() {
           .join('')}
       </div>
     </div>
+    <div class="ai__all">
+      <h3 class="ai__all-title">${esc(ai.all.title)}</h3>
+      <ul class="ai__list">
+        ${ai.all.items.map((t) => `<li>${esc(t)}</li>`).join('')}
+        <li class="ai__mcp"><strong>${esc(ai.all.mcp.title)}</strong><span>${esc(ai.all.mcp.copy)}</span></li>
+      </ul>
+      <a class="gbtn gbtn--lg ai__all-link" href="/product#features" data-magnetic>${esc(ai.all.link)}</a>
+    </div>
   </section>`;
 }
 

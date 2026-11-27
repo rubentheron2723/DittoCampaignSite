@@ -137,7 +137,40 @@ export async function boot({ page, render, init }: Options) {
   onModeChange(() => blendCtaIntoPrevious());
   ScrollTrigger.refresh();
   markBooted();
+  goToHashUnderCover(ctx);
   return ctx;
+}
+
+/**
+ * Arriving on a link to a #section (Home's "See every feature" → /product#features): the browser scrolls there before
+ * the pinned sections add their scroll length, so it lands short. Go there again after every layout pass while the
+ * entry cover is up, and once more as it lifts.
+ */
+function goToHashUnderCover(ctx: BootContext) {
+  const hash = window.location.hash;
+  if (hash.length < 2) return;
+  let target: Element | null = null;
+  try { target = document.querySelector(hash); } catch { return; }
+  if (!target) return;
+  // Scrolling can itself set off a refresh: never from inside one.
+  let busy = false;
+  const go = () => {
+    if (busy) return;
+    busy = true;
+    try {
+      if (ctx.smoother) ctx.smoother.scrollTo(target, false, 'top 0px');
+      else window.scrollTo(0, target!.getBoundingClientRect().top + window.scrollY);
+    } finally {
+      busy = false;
+    }
+  };
+  const onRefresh = () => window.requestAnimationFrame(go);
+  go();
+  ScrollTrigger.addEventListener('refresh', onRefresh);
+  ctx.revealed.then(() => {
+    ScrollTrigger.removeEventListener('refresh', onRefresh);
+    go();
+  });
 }
 
 /** Hides the entry cover if it's still up a beat after the animation should have finished with it. */

@@ -202,6 +202,19 @@
 .aicard h3 { font-size: clamp(20px, 1.667vw, 24px); line-height: 1.167; letter-spacing: -0.04em; font-weight: 700; margin-top: 48px; }
 .aicard p { font-size: clamp(16px, 1.389vw, 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 400; margin-top: 20px; }
 
+/* The summary of every AI feature, under the cards, linking to the full list on the Product page. */
+.ai__all { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 0 var(--ai-pad) clamp(64px, 8vw, 120px); box-sizing: content-box; display: grid; gap: clamp(24px, 2.778vw, 40px); justify-items: start; }
+.ai__all-title { font-size: clamp(28px, 3.333vw, 48px); line-height: 1.083; letter-spacing: -0.04em; font-weight: 700; }
+.ai__list { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-wrap: wrap; gap: 12px; }
+.ai__list li { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 14px 22px; border-radius: 999px; background: #fff; box-shadow: 0 4px 40px rgba(0, 0, 0, 0.08); font-size: clamp(16px, 1.389vw, 20px); line-height: 1.2; letter-spacing: -0.04em; font-weight: 500; }
+.ai__list li::before { content: ''; flex: none; width: 8px; height: 8px; border-radius: 50%; background: #00b0ff; }
+/* MCP gets its own full-width card in the accent gradient (as the middle AI card), with what it lets you do. */
+.ai__list .ai__mcp { flex-basis: 100%; display: grid; gap: 8px; padding: clamp(20px, 2.222vw, 32px); border-radius: 24px; color: #fff; background: linear-gradient(246.83deg, #1a7cf5 0%, #0b98fb 12%, #03a9fe 24%, #0b98fb 38%, #1583f6 58%, #1b74f4 80%, #1e6ef3 100%); }
+.ai__list .ai__mcp::before { display: none; }
+.ai__mcp strong { font-size: clamp(20px, 1.667vw, 24px); font-weight: 700; }
+.ai__mcp span { font-weight: 400; max-width: 46em; }
+.ai__all-link { align-self: start; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .hero { padding-top: calc(var(--nav-h) + 32px); }
