@@ -82,6 +82,24 @@ export const ai = {
       copy: 'Ditto shows how it will score applicants against each job. Change the criteria whenever the role changes. Candidates never see them.',
     },
   ],
+  /** The summary under the cards; the full list is on the Product page's Source / Engage / Place features. */
+  all: {
+    title: 'Everything Ditto’s AI does',
+    items: [
+      'Job ad writing',
+      'Candidate summaries',
+      'Candidate scoring',
+      'CV parsing',
+      'Enrich candidates with meeting notes',
+      'Scout agentic search',
+      'Smart rewriting',
+    ],
+    mcp: {
+      title: 'MCP',
+      copy: 'Control everything in Ditto from Claude, ChatGPT or Copilot, to read and write. Generate custom reports, see how your team is performing, bulk-schedule activities and more.',
+    },
+    link: 'See every feature',
+  },
 };
 
 export const cta = {
